@@ -8,8 +8,6 @@
 error_reporting(E_ALL);
 set_time_limit(180);
 
-$cache_dir = 'cache/';
-
 $img_data = '';
 
 function download_file($path,$fname){
@@ -44,7 +42,7 @@ function download_file($path,$fname){
 }
 
 function create_image($path){
-	global $img_data, $cache_dir;
+	global $img_data;
 	$path = str_replace(' ','%20',$path);
 	$fname = tempnam('/dev/shm','imo_');
 	$curl_result = download_file($path,$fname);
@@ -448,21 +446,6 @@ if(!empty($_GET['url'])){
 		$s = 0;
 	}
 	
-	//Special rules
-	if(substr($_GET['url'],0,1) == '/'){
-		header ('X-Notice: Malformed start of URL, autofix');
-		//trigger_error('URL failed, autofix. URL: '.$_GET['url'],E_USER_NOTICE);
-		if(substr($_GET['url'],0,2) == '/.'){
-			$_GET['url'] = substr($_GET['url'],2);
-		}else{
-			$_GET['url'] = substr($_GET['url'],1);
-		}
-	}elseif(substr($_GET['url'],0,25) == 'www.mallublog.vt.vc/goto/'){
-		header ('X-Notice: Known redirect host, autofix');
-		//trigger_error('URL redirects, autofix. URL: '.$_GET['url'],E_USER_NOTICE);
-		$_GET['url'] = substr($_GET['url'],25);
-	}
-	
 	//SSL code
 	if(substr($_GET['url'],0,4) == 'ssl:'){
 		$ssl = true;
@@ -496,41 +479,6 @@ if(!empty($_GET['url'])){
 		$parts['path'] = (check_utf8($parts['path']) === false) ? utf8_encode($parts['path']) : $parts['path'];
 		$_GET['url'] .= $parts['path'];
 		$_GET['url'] .= isset($parts['query']) ? '?'.$parts['query'] : '';
-	}
-
-	//Parental control
-	require_once("regdomain/gDNS.php");
-	$dns = new gDNS(false);
-	
-	function checkFamilyAddr($domain){
-		global $dns;
-		$dns->Query(idn_to_ascii($domain), "A", false, "IN", "127.0.0.1");
-		if(count($dns->t_log) > 1){
-			return "R";
-		}else{
-			return "N";
-		}
-	}
-
-	//Access rules
-	/*if(count($_GET) < 2){
-		header ('HTTP/1.1 301 Moved Permanently');
-		header ('X-Redirect-Reason: Only URL is given, parsing not necessary');
-		header ('Location: '.$_GET['url']);
-		die;
-	}*/
-	if(checkFamilyAddr($parts['host']) == 'R'){
-		if(isset($_GET['fnr'])){
-			header("HTTP/1.0 404 Not Found");
-			$img_data['mime'] = 'text/plain';
-			echo 'Error 404: Server could parse the ?url= that you were looking for, because the hostname '.$parts['host'].' is unresolvable (DNS) or blocked by policy';
-		}else{
-			header ('HTTP/1.1 301 Moved Permanently');
-			$img_data['mime'] = 'text/plain';
-			header ('X-Redirect-Reason: Hostname not in DNS or blocked by policy');
-			header ('Location: '.$_GET['url']);
-		}
-		die;
 	}
 	
 	$image = create_image($_GET['url']);
