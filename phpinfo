@@ -1,0 +1,74 @@
+Additional .ini files parsed:	/etc/php.d/apc.ini,
+CPU Count:	4
+Dispatcher:	+fpm-fcgi
+IPv6 Support:	enabled
+OS version:	Linux 3.8.13 x86_64
+
+PHP API:	20100412
+PHP Extension:	20100525
+PHP Extension Build:	API20100525,NTS
+PHP Version:	5.4.20
+
+Registered PHP Streams:	https, ftps, compress.zlib, compress.bzip2, php, file, glob, data, http, ftp
+Registered Stream Filters:	zlib.*, bzip2.*, convert.iconv.*, string.rot13, string.toupper, string.tolower, string.strip_tags, convert.*, consumed, dechunk, mcrypt.*, mdecrypt.*
+Registered Stream Socket Transports:	tcp, udp, unix, udg, ssl, sslv3, sslv2, tls
+
+Server API:	FPM/FastCGI
+System:	Linux 3.8.13 x86_64
+Thread Safety:	disabled
+Virtual Directory Support:	disabled
+
+Zend Extension:	220100525
+Zend Extension Build:	API220100525,NTS
+Zend Memory Manager:	enabled
+Zend Multibyte Support:	provided by mbstring
+Zend Signal Handling:	disabled
+
+Extensions:
+
+Core(5.4.20)
+Reflection($Id: c4a7c554f00da47fe9cff384d18c532a1a959dff $)
+SPL(0.2)
+SimpleXML(0.1)
+apc(3.1.15-dev)
+bcmath
+bz2
+calendar
+cgi-fcgi
+ctype
+curl
+date(5.4.20)
+ereg
+exif(1.4 $Id$)
+filter(0.11.0)
+ftp
+gd
+gettext
+gmp
+hash(1.0)
+iconv
+idn
+igbinary(1.1.2-dev)
+imagick(3.1.2)
+intl(1.1.0)
+json(1.2.1)
+libxml
+mbstring
+mcrypt
+mhash
+newrelic(4.0.5.18)
+openssl
+pcre
+posix
+recode
+session
+shmop
+sockets
+standard(5.4.20)
+sysvmsg
+sysvsem
+sysvshm
+tokenizer(0.1)
+wddx
+xml
+zlib(2.0)
