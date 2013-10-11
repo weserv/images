@@ -193,14 +193,14 @@ function resize_image($image,$max_height,$max_width,$transformation,$alignment,$
 }
 
 function set_dimension($imageWidth,$imageHeight,$maxWidth,$maxHeight,$transformation,$alignment){
-	if($transformation == 'fit'){
+	if($transformation == 'fit' || $transformation == 'fitup'){
 		$maxWidth = ($maxWidth > 0) ? $maxWidth : $maxHeight*100;
 		$maxHeight = ($maxHeight > 0) ? $maxHeight : $maxWidth*100;
 		
 		$wRatio = $imageWidth / $maxWidth;
 		$hRatio = $imageHeight / $maxHeight;
 		$maxRatio = max($wRatio, $hRatio);
-		if($maxRatio > 1) {
+		if($maxRatio > 1 || $transformation == 'fitup') {
 			$new['width'] = $imageWidth / $maxRatio;
 			$new['height'] = $imageHeight / $maxRatio;
 		}else{
@@ -428,7 +428,7 @@ function custom_base64($input){
 if(!empty($_GET['url'])){
 	$h = (empty($_GET['h']) OR !ctype_digit($_GET['h'])) ? '0' : $_GET['h'];
 	$w = (empty($_GET['w']) OR !ctype_digit($_GET['w'])) ? '0' : $_GET['w'];
-	$t = (empty($_GET['t']) OR !in_array($_GET['t'],array('fit','square','absolute'))) ? 'fit' : $_GET['t'];
+	$t = (empty($_GET['t']) OR !in_array($_GET['t'],array('fit','fitup','square','absolute'))) ? 'fit' : $_GET['t'];
 	$a = (empty($_GET['a']) OR !in_array($_GET['a'],array('t','b','r','l'))) ? 'c' : $_GET['a'];
 	$q = (empty($_GET['q']) OR !ctype_digit($_GET['q']) OR $_GET['q'] > 95 OR $_GET['q'] < 0) ? '85' : $_GET['q'];
 	$c = (isset($_GET['circle'])) ? '_circle' : '';
