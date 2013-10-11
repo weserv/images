@@ -563,7 +563,7 @@ if(!empty($_GET['url'])){
 			- <b>&amp;q= </b>any value between 0 and 95  <span class="optional">(optional)</span><br /><small class="nl">This parameter is only effective for JPEG-images.	If you don't specify a quality it defaults to 85.</small></p>
 			<hr />
 			<p><strong>Choose transformation:</strong><br />
-			- <b>&amp;t= </b>fit <small>(default)</small> <b>or</b> square <b>or</b> absolute <span class="optional">(optional)</span><br />
+			- <b>&amp;t= </b>fit <small>(default)</small> <b>or</b> fitup <b>or</b> square <b>or</b> absolute <span class="optional">(optional)</span><br />
 			<small class="nl">Examples:</small></p>
 			<div class="example">
 				<img src="//images.weserv.nl/?url=www.google.nl/logos/logo.gif&amp;h=45" alt="" />
@@ -581,6 +581,7 @@ if(!empty($_GET['url'])){
 				<img src="//images.weserv.nl/?url=www.google.nl/logos/logo.gif&amp;h=45&amp;w=45&amp;t=absolute" alt="" />
 				<small>h=45 w=45<br />t=absolute</small>
 			</div>
+			<p><small class="nl">t=fitup is the same as t=fit, but allows overscaling of the original image.</small></p>
 			<hr />
 			<p><strong>Choose image alignment:</strong><br />
 			- <b>&amp;a= </b>t <small>(top)</small> <b>or</b> b <small>(bottom)</small> <b>or</b> l <small>(left)</small> <b>or</b> r <small>(right)</small> <span class="optional">(optional)</span><br /><small class="nl">Only works when t=square, and the image needs to be cropped in height (t or b) or width (l or r). For more information, please see the suggestion on our UserVoice forum: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/2570350-aligning">#2570350 - Aligning</a></small></p>
