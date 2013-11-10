@@ -572,7 +572,7 @@ if(!empty($_GET['url'])){
 			- <b>&amp;q= </b>any value between 0 and 95  <span class="optional">(optional)</span><br /><small class="nl">This parameter is only effective for JPEG-images.	If you don't specify a quality it defaults to 85.</small></p>
 			<hr />
 			<p><strong>Choose transformation:</strong><br />
-			- <b>&amp;t= </b>fit <small>(default)</small> <b>or</b> fitup <b>or</b> square <b>or</b> absolute <span class="optional">(optional)</span><br />
+			- <b>&amp;t= </b>fit <small>(default)</small> <b>or</b> fitup <b>or</b> square <b>or</b> squaredown <b>or</b> absolute <span class="optional">(optional)</span><br />
 			<small class="nl">Examples:</small></p>
 			<div class="example">
 				<img src="//images.weserv.nl/?url=www.google.nl/logos/logo.gif&amp;h=45" alt="" />
@@ -590,7 +590,7 @@ if(!empty($_GET['url'])){
 				<img src="//images.weserv.nl/?url=www.google.nl/logos/logo.gif&amp;h=45&amp;w=45&amp;t=absolute" alt="" />
 				<small>h=45 w=45<br />t=absolute</small>
 			</div>
-			<p><small class="nl">t=fitup is the same as t=fit, but allows overscaling of the original image.</small></p>
+			<p><small class="nl">t=fitup is the same as t=fit, but allows overscaling of the original image.<br />t=squaredown is the same as t=square, but won't upscale the original image.</small></p>
 			<hr />
 			<p><strong>Choose image alignment:</strong><br />
 			- <b>&amp;a= </b>t <small>(top)</small> <b>or</b> b <small>(bottom)</small> <b>or</b> l <small>(left)</small> <b>or</b> r <small>(right)</small> <span class="optional">(optional)</span><br /><small class="nl">Only works when t=square, and the image needs to be cropped in height (t or b) or width (l or r). For more information, please see the suggestion on our UserVoice forum: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/2570350-aligning">#2570350 - Aligning</a></small></p>
@@ -598,11 +598,14 @@ if(!empty($_GET['url'])){
 			<p><strong>Trim borders from image:</strong><br />
 			- <b>&amp;trim= </b>sensitivity between 0 and 255 <span class="optional">(optional)</span><br /><small class="nl">You also can specify just <b>&amp;trim</b>, which defaults to a sensitivity of 10.<br />More info: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/3083264-able-to-remove-black-white-whitespace">#3083264 - Able to remoce black/white whitespace</a></small></p>
 			<hr />
-			<p><strong>Circle crop image:</strong> <b class="new">New!</b><br />
+			<p><strong>Circle crop image:</strong><br />
 			- <b>&amp;circle </b> <span class="optional">(optional)</span><br /><small class="nl">Crops the image to a circle.<br />More info: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/3910149-add-circle-effect-to-photos">#3910149 - Add circle effect to photos</a></small></p>
 			<hr />
-			<p><strong>Interlacing and progressive rendering:</strong> <b class="new">New!</b><br />
+			<p><strong>Interlacing and progressive rendering:</strong><br />
 			- <b>&amp;il </b> <span class="optional">(optional)</span><br /><small class="nl">Adds interlacing to GIF and PNG. JPEG's become progressive.<br />More info: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/3998911-add-parameter-to-use-progressive-jpegs">#3998911 - Add parameter to use progressive JPEGs</a></small></p>
+			<hr />
+			<p><strong>Return the image as base64-encoded string:</strong> <b class="new">New!</b><br />
+			- <b>&amp;encoding=</b>base64 <span class="optional">(optional)</span><br /><small class="nl">Encodes the image to be used directly in the src= of the &lt;img&gt;-tag.<br />More info: <a href="//http://imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/4522336-return-image-base64-encoded">#4522336 - Return image base64 encoded</a></small></p>
 			<hr />
 			<a class="uptime" href="http://status.weserv.nl/249404">Uptime &amp; Response Time</a>
 		</div>
