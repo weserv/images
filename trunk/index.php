@@ -213,7 +213,7 @@ function set_dimension($imageWidth,$imageHeight,$maxWidth,$maxHeight,$transforma
 		
 		$new['org_x'] = 0;
 		$new['org_y'] = 0;	
-	}elseif($transformation == 'square'){
+	}elseif($transformation == 'square' || $transformation == 'squaredown'){
 		$new['width'] = ($maxWidth > 0) ? $maxWidth : $imageWidth;
 		$new['height'] = ($maxHeight > 0) ? $maxHeight : $imageHeight;
 		
@@ -222,6 +222,12 @@ function set_dimension($imageWidth,$imageHeight,$maxWidth,$maxHeight,$transforma
 		
 		$ratioComputed		= $imageWidth / $imageHeight;
 		$cropRatioComputed	= $new['width'] / $new['height'];
+		
+		if($transformation == 'squaredown' && $imageWidth <= $new['width'] && $imageHeight <= $new['height']){
+			$new['width'] = $imageWidth;
+			$new['height'] = $imageHeight;
+			$ratioComputed = $cropRatioComputed;
+		}
 		
 		if ($ratioComputed < $cropRatioComputed){
 			$new['org_width'] = $imageWidth;
@@ -428,7 +434,7 @@ function custom_base64($input){
 if(!empty($_GET['url'])){
 	$h = (empty($_GET['h']) OR !ctype_digit($_GET['h'])) ? '0' : $_GET['h'];
 	$w = (empty($_GET['w']) OR !ctype_digit($_GET['w'])) ? '0' : $_GET['w'];
-	$t = (empty($_GET['t']) OR !in_array($_GET['t'],array('fit','fitup','square','absolute'))) ? 'fit' : $_GET['t'];
+	$t = (empty($_GET['t']) OR !in_array($_GET['t'],array('fit','fitup','square','squaredown','absolute'))) ? 'fit' : $_GET['t'];
 	$a = (empty($_GET['a']) OR !in_array($_GET['a'],array('t','b','r','l'))) ? 'c' : $_GET['a'];
 	$q = (empty($_GET['q']) OR !ctype_digit($_GET['q']) OR $_GET['q'] > 95 OR $_GET['q'] < 0) ? '85' : $_GET['q'];
 	$c = (isset($_GET['circle'])) ? '_circle' : '';
