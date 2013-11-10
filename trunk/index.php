@@ -217,17 +217,20 @@ function set_dimension($imageWidth,$imageHeight,$maxWidth,$maxHeight,$transforma
 		$new['width'] = ($maxWidth > 0) ? $maxWidth : $imageWidth;
 		$new['height'] = ($maxHeight > 0) ? $maxHeight : $imageHeight;
 		
+		if($transformation == 'squaredown'){
+			if($imageWidth <= $new['width']){
+				$new['width'] = $imageWidth;
+			}
+			if($imageHeight <= $new['height']){
+				$new['height'] = $imageHeight;
+			}
+		}
+		
 		$wRatio = $imageWidth / $maxWidth;
 		$hRatio = $imageHeight / $maxHeight;
 		
 		$ratioComputed		= $imageWidth / $imageHeight;
 		$cropRatioComputed	= $new['width'] / $new['height'];
-		
-		if($transformation == 'squaredown' && $imageWidth <= $new['width'] && $imageHeight <= $new['height']){
-			$new['width'] = $imageWidth;
-			$new['height'] = $imageHeight;
-			$ratioComputed = $cropRatioComputed;
-		}
 		
 		if ($ratioComputed < $cropRatioComputed){
 			$new['org_width'] = $imageWidth;
