@@ -528,7 +528,7 @@ if(!empty($_GET['url'])){
 		
 	$output_formats = array('png' => 'image/png','jpg' => 'image/jpeg','gif' => 'image/gif');
 	if(isset($_GET['output']) && isset($output_formats[$_GET['output']])){
-		$image['mime'] = $output_formats[$_GET['output']];
+		$img_data['mime'] = $output_formats[$_GET['output']];
 	}
 	
 	header('Expires: '.gmdate("D, d M Y H:i:s", (time()+2678400)).' GMT'); //31 days
