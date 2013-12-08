@@ -525,6 +525,11 @@ if(!empty($_GET['url'])){
 	if($h > 0 || $w > 0 || $s > 0 || $c == '_circle' || $il == '_il'){
 		$image = resize_image($image,$h,$w,$t,$a,$s,$c,$il);
 	}
+		
+	$output_formats = array('png' => 'image/png','jpg' => 'image/jpeg','gif' => 'image/gif');
+	if(isset($_GET['output']) && isset($output_formats[$_GET['output']])){
+		$image['mime'] = $output_formats[$_GET['output']];
+	}
 	
 	header('Expires: '.gmdate("D, d M Y H:i:s", (time()+2678400)).' GMT'); //31 days
 	header('Cache-Control: max-age=2678400'); //31 days
@@ -606,6 +611,9 @@ if(!empty($_GET['url'])){
 			<hr />
 			<p><strong>Return the image as base64-encoded string:</strong> <b class="new">New!</b><br />
 			- <b>&amp;encoding=</b>base64 <span class="optional">(optional)</span><br /><small class="nl">Encodes the image to be used directly in the src= of the &lt;img&gt;-tag.<br />More info: <a href="//http://imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/4522336-return-image-base64-encoded">#4522336 - Return image base64 encoded</a></small></p>
+			<hr />
+			<p><strong>Choose the output format:</strong> <b class="new">New!</b><br />
+			- <b>&amp;output=</b>png <b>or</b> jpg <b>or</b> gif <span class="optional">(optional)</span><br /><br /><small class="nl">Choose how the proxy outputs the thumbnail, if none is given, it will honor the origin image format.<br />More info: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/5097964-format-conversion">#5097964 - Format conversion</a></small></p>
 			<hr />
 			<a class="uptime" href="http://status.weserv.nl/249404">Uptime &amp; Response Time</a>
 		</div>
