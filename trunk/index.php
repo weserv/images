@@ -610,10 +610,10 @@ if(!empty($_GET['url'])){
 			- <b>&amp;il </b> <span class="optional">(optional)</span><br /><small class="nl">Adds interlacing to GIF and PNG. JPEG's become progressive.<br />More info: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/3998911-add-parameter-to-use-progressive-jpegs">#3998911 - Add parameter to use progressive JPEGs</a></small></p>
 			<hr />
 			<p><strong>Return the image as base64-encoded string:</strong> <b class="new">New!</b><br />
-			- <b>&amp;encoding=</b>base64 <span class="optional">(optional)</span><br /><small class="nl">Encodes the image to be used directly in the src= of the &lt;img&gt;-tag.<br />More info: <a href="//http://imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/4522336-return-image-base64-encoded">#4522336 - Return image base64 encoded</a></small></p>
+			- <b>&amp;encoding= </b>base64 <span class="optional">(optional)</span><br /><small class="nl">Encodes the image to be used directly in the src= of the &lt;img&gt;-tag.<br />More info: <a href="//http://imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/4522336-return-image-base64-encoded">#4522336 - Return image base64 encoded</a></small></p>
 			<hr />
 			<p><strong>Choose the output format:</strong> <b class="new">New!</b><br />
-			- <b>&amp;output=</b>png <b>or</b> jpg <b>or</b> gif <span class="optional">(optional)</span><br /><br /><small class="nl">Choose how the proxy outputs the thumbnail, if none is given, it will honor the origin image format.<br />More info: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/5097964-format-conversion">#5097964 - Format conversion</a></small></p>
+			- <b>&amp;output= </b>png <b>or</b> jpg <b>or</b> gif <span class="optional">(optional)</span><br /><br /><small class="nl">Choose how the proxy outputs the thumbnail, if none is given, it will honor the origin image format. More info: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/5097964-format-conversion">#5097964 - Format conversion</a></small></p>
 			<hr />
 			<a class="uptime" href="http://status.weserv.nl/249404">Uptime &amp; Response Time</a>
 		</div>
