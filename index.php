@@ -19,7 +19,7 @@ function download_file($path,$fname){
 		CURLOPT_FAILONERROR => true, // HTTP code > 400 will throw curl error
 		CURLOPT_TIMEOUT => 10,
 		CURLOPT_CONNECTTIMEOUT => 5,
-		CURLOPT_USERAGENT => 'Mozilla/5.0 (compatible; ImageFetcher/4.0; +http://images.weserv.nl/)',
+		CURLOPT_USERAGENT => 'Mozilla/5.0 (compatible; ImageFetcher/5.6; +http://images.weserv.nl/)',
 	);
 	
 	$ch = curl_init();
@@ -42,7 +42,7 @@ function download_file($path,$fname){
 }
 
 function create_image($path){
-	global $img_data;
+	global $img_data,$parts;
 	$path = str_replace(' ','%20',$path);
 	$fname = tempnam('/dev/shm','imo_');
 	$curl_result = download_file($path,$fname);
@@ -54,6 +54,7 @@ function create_image($path){
 		echo '<small><br /><br />Also, if possible, please replace any occurences of of + in the ?url= with %2B (see <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/2586863-bug">+ bug</a>)</small>';
 		die;
 	}
+	$add_msg = '';
 	try{
 		$img_data = @getimagesize($fname);
 		
@@ -93,6 +94,10 @@ function create_image($path){
 			$img_data['mime'] = 'image/jpeg';
 			$gd_stream = imagecreatefrompng($fname);
 		}else{
+			if(isset($_GET['deb'])){
+				$add_msg .= 'Retrieved content ('.filesize($fname).' bytes): <pre>'.htmlentities(file_get_contents($fname)).'</pre><br />'.PHP_EOL;
+			}
+			if(strpos(file_get_contents($fname),'_Incapsula_Resource') !== false){ $add_msg .= 'Warning: '.$parts['host'].' is hosted by a CDN (Incapsula) that is returning CAPTCHAs instead of images.<br />'.PHP_EOL; }
 			unlink($fname);
 			throw new Exception('This is no JPG/GIF/PNG/BMP-file!');
 		}
@@ -107,7 +112,7 @@ function create_image($path){
 	}catch(Exception $e){
 		header("HTTP/1.0 404 Not Found");
 		$img_data['mime'] = 'text/plain';
-		echo 'Error 404: Server could parse the ?url= that you were looking for, because it isn\'t a valid (supported) image, error: '.$e->getMessage();
+		echo $add_msg.'Error 404: Server could parse the ?url= that you were looking for, because it isn\'t a valid (supported) image, error: '.$e->getMessage();
 		if(isset($_GET['detail'])){ echo '<small><br /><br />Debug: <br />Path: '.$path.'<br />Fname: '.$fname.'</small>'; }
 		echo '<small><br /><br />Also, if possible, please replace any occurences of of + in the ?url= with %2B (see <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/2586863-bug">+ bug</a>)</small>';
 		if($e->getMessage() != 'This is no JPG/GIF/PNG/BMP-file!'){
@@ -472,11 +477,10 @@ if(!empty($_GET['url'])){
 	
 	if(isset($_GET['encoding']) && $_GET['encoding'] == 'base64'){
 		ob_start('custom_base64');
-		$_GET['fnr'] = true;
 	}
 	
 	if(!isset($parts['scheme'])){
-		header("HTTP/1.0 404 Not Found");
+		header('HTTP/1.0 404 Not Found');
 		$img_data['mime'] = 'text/plain';
 		echo 'Error 404: Server could parse the ?url= that you were looking for, because it isn\'t a valid url.';
 		trigger_error('URL failed, unable to parse. URL: '.$_GET['url'],E_USER_WARNING);
@@ -525,7 +529,7 @@ if(!empty($_GET['url'])){
 	if($h > 0 || $w > 0 || $s > 0 || $c == '_circle' || $il == '_il'){
 		$image = resize_image($image,$h,$w,$t,$a,$s,$c,$il);
 	}
-		
+	
 	$output_formats = array('png' => 'image/png','jpg' => 'image/jpeg','gif' => 'image/gif');
 	if(isset($_GET['output']) && isset($output_formats[$_GET['output']])){
 		$img_data['mime'] = $output_formats[$_GET['output']];
@@ -564,7 +568,7 @@ if(!empty($_GET['url'])){
 		<div id="c">Serving tenthousands of images, every minute</div><div id="s">RBX, FR</div><br style="clear:both" />
 		<div id="content">
 			<h1>Images.<b>weserv</b>.nl is an image <b>cache</b> &amp; <b>resize</b> proxy</h1>
-			<p>Our servers resize your image, cache it worldwide, and display it.<br />- We don't support animated images (yet).<br />- We do support GIF, JPEG, PNG, BMP and even transparent images!<br />- Full IPv6 support, <a href="http://ipv6-test.com/validate.php?url=images.weserv.nl" rel="nofollow">serving dual stack</a>, and supporting <a href="//images.weserv.nl/?url=ipv6.google.com/logos/logo.gif">IPv6-only origin hosts</a>.<br />- SSL support, you can use <a href="https://images.weserv.nl/"><b>https</b>://images.weserv.nl/</a>.<br /><small class="sslnote">This can be very useful for embedding HTTP images on HTTPS websites. Avoid mixed content warnings by using <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/4277688-bug-redirecting-the-browser-on-facebook-fbcdn-lin"><b>&amp;fnr</b></a>. HTTPS origin hosts can be used by <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/2693328-add-support-to-fetch-images-over-https">prefixing the hostname with ssl:</a></small></p>
+			<p>Our servers resize your image, cache it worldwide, and display it.<br />- We don't support animated images (yet).<br />- We do support GIF, JPEG, PNG, BMP and even transparent images!<br />- Full IPv6 support, <a href="http://ipv6-test.com/validate.php?url=images.weserv.nl" rel="nofollow">serving dual stack</a>, and supporting <a href="//images.weserv.nl/?url=ipv6.google.com/logos/logo.gif">IPv6-only origin hosts</a>.<br />- SSL support, you can use <a href="https://images.weserv.nl/"><b>https</b>://images.weserv.nl/</a>.<br /><small class="sslnote">This can be very useful for embedding HTTP images on HTTPS websites. HTTPS origin hosts can be used by <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/2693328-add-support-to-fetch-images-over-https">prefixing the hostname with ssl:</a></small></p>
 			<p>We're part of the <a href="https://www.cloudflare.com/">CloudFlare</a> community. Images are being cached and delivered straight from <a href="https://www.cloudflare.com/network-map">23 global datacenters</a>. This ensures the fastest load times and best performance.</p>
 			<hr />
 			<p><strong>Requesting an image:</strong><br />
@@ -610,7 +614,7 @@ if(!empty($_GET['url'])){
 			- <b>&amp;il </b> <span class="optional">(optional)</span><br /><small class="nl">Adds interlacing to GIF and PNG. JPEG's become progressive.<br />More info: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/3998911-add-parameter-to-use-progressive-jpegs">#3998911 - Add parameter to use progressive JPEGs</a></small></p>
 			<hr />
 			<p><strong>Return the image as base64-encoded string:</strong> <b class="new">New!</b><br />
-			- <b>&amp;encoding= </b>base64 <span class="optional">(optional)</span><br /><small class="nl">Encodes the image to be used directly in the src= of the &lt;img&gt;-tag.<br />More info: <a href="//http://imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/4522336-return-image-base64-encoded">#4522336 - Return image base64 encoded</a></small></p>
+			- <b>&amp;encoding= </b>base64 <span class="optional">(optional)</span><br /><small class="nl">Encodes the image to be used directly in the src= of the &lt;img&gt;-tag.<br />More info: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/4522336-return-image-base64-encoded">#4522336 - Return image base64 encoded</a></small></p>
 			<hr />
 			<p><strong>Choose the output format:</strong> <b class="new">New!</b><br />
 			- <b>&amp;output= </b>png <b>or</b> jpg <b>or</b> gif <span class="optional">(optional)</span><br /><br /><small class="nl">Choose how the proxy outputs the thumbnail, if none is given, it will honor the origin image format. More info: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/5097964-format-conversion">#5097964 - Format conversion</a></small></p>
