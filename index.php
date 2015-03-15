@@ -3,10 +3,11 @@
 /**
  * @author Andries Louw Wolthuizen
  * @site images.weserv.nl
- * @copyright 2013
+ * @copyright 2015
  **/
 error_reporting(E_ALL);
 set_time_limit(180);
+ini_set('display_errors',0);
 
 $img_data = '';
 
@@ -65,23 +66,20 @@ function create_image($path){
 			}
 			switch($img_data[2]){
 				case IMAGETYPE_JPEG:
-					$img_data['ext'] = 'jpg';
 					$img_data['exif'] = @exif_read_data($fname);
 					$gd_stream = imagecreatefromjpeg($fname);
 				break;
 				
 				case IMAGETYPE_GIF:
-					$img_data['ext'] = 'gif';
 					$gd_stream = imagecreatefromgif($fname);
 				break;
 				
 				case IMAGETYPE_PNG:
-					$img_data['ext'] = 'png';
 					$gd_stream = imagecreatefrompng($fname);
 				break;
 			}
-		}elseif(isset($img_data[2]) && $img_data[2] == IMAGETYPE_BMP){
-			$im = new Imagick($fname);
+		}else{
+			$im = new Imagick($fname.'[0]');
 			$im->setImageFormat('png');
 			$im->stripImage();
 			$tmpimagick = tempnam('/dev/shm','imb_');
@@ -90,33 +88,33 @@ function create_image($path){
 			$im->destroy();
 			rename($tmpimagick,$fname);
 			$img_data = @getimagesize($fname);
-			$img_data['ext'] = 'jpg';
-			$img_data['mime'] = 'image/jpeg';
+			$img_data['mime'] = 'image/png';
 			$gd_stream = imagecreatefrompng($fname);
-		}else{
-			if(isset($_GET['deb'])){
-				$add_msg .= 'Retrieved content ('.filesize($fname).' bytes): <pre>'.htmlentities(file_get_contents($fname)).'</pre><br />'.PHP_EOL;
-			}
-			if(strpos(file_get_contents($fname),'_Incapsula_Resource') !== false){ $add_msg .= 'Warning: '.$parts['host'].' is hosted by a CDN (Incapsula) that is returning CAPTCHAs instead of images.<br />'.PHP_EOL; }
-			unlink($fname);
-			throw new Exception('This is no JPG/GIF/PNG/BMP-file!');
 		}
 		
 		if($gd_stream === false){
 			unlink($fname);
-			throw new Exception('Image format not valid.');
+			throw new Exception('This is no valid image format!');
 		}
 		
 		unlink($fname);
 		return $gd_stream;
 	}catch(Exception $e){
+		@unlink($fname);
+		$error_msg = $e->getMessage();
+		if(strpos($error_msg,'no decode delegate for this image format') !== false){
+			$error_msg = 'This is no valid image format!';
+		}elseif(strpos($error_msg,'unable to open image') !== false){
+			$error_msg = 'Unable to open this file!';
+		}
+		
 		header("HTTP/1.0 404 Not Found");
 		$img_data['mime'] = 'text/plain';
-		echo $add_msg.'Error 404: Server could parse the ?url= that you were looking for, because it isn\'t a valid (supported) image, error: '.$e->getMessage();
+		echo $add_msg.'Error 404: Server could parse the ?url= that you were looking for, because it isn\'t a valid (supported) image, error: '.$error_msg;
 		if(isset($_GET['detail'])){ echo '<small><br /><br />Debug: <br />Path: '.$path.'<br />Fname: '.$fname.'</small>'; }
 		echo '<small><br /><br />Also, if possible, please replace any occurences of of + in the ?url= with %2B (see <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/2586863-bug">+ bug</a>)</small>';
-		if($e->getMessage() != 'This is no JPG/GIF/PNG/BMP-file!'){
-			trigger_error('URL failed. Message: '.$e->getMessage().' URL: '.$path,E_USER_WARNING);
+		if($error_msg != 'This is no valid image format!' && $error_msg != 'Unable to open this file!'){
+			trigger_error('URL failed. Message: '.$error_msg.' URL: '.$path,E_USER_WARNING);
 		}
 		die;
 	}
@@ -199,6 +197,11 @@ function resize_image($image,$max_height,$max_width,$transformation,$alignment,$
 
 function set_dimension($imageWidth,$imageHeight,$maxWidth,$maxHeight,$transformation,$alignment){
 	if($transformation == 'fit' || $transformation == 'fitup'){
+		if($maxWidth < 1 && $maxHeight < 1){
+			$maxWidth = $imageWidth;
+			$maxHeight = $imageHeight;
+		}
+		
 		$maxWidth = ($maxWidth > 0) ? $maxWidth : $maxHeight*100;
 		$maxHeight = ($maxHeight > 0) ? $maxHeight : $maxWidth*100;
 		
@@ -397,7 +400,6 @@ function imageCircleEffect($cur_width,$cur_height,$img,$hex=null){
     imagefill($img, $cur_width - 1, $cur_height - 1, $dstTransparent);
 	
 	imagedestroy($mask);
-	$img_data['ext'] = 'png';
 	$img_data['mime'] = 'image/png';
 	return $img;
 }
@@ -493,7 +495,7 @@ if(!empty($_GET['url'])){
 		$_GET['url'] .= $parts['path'];
 		$_GET['url'] .= isset($parts['query']) ? '?'.$parts['query'] : '';
 	}
-	
+
 	$image = create_image($_GET['url']);
 	
 	//Change orientation on EXIF-data
@@ -569,7 +571,7 @@ if(!empty($_GET['url'])){
 		<div id="content">
 			<h1>Images.<b>weserv</b>.nl is an image <b>cache</b> &amp; <b>resize</b> proxy</h1>
 			<p>Our servers resize your image, cache it worldwide, and display it.<br />- We don't support animated images (yet).<br />- We do support GIF, JPEG, PNG, BMP and even transparent images!<br />- Full IPv6 support, <a href="http://ipv6-test.com/validate.php?url=images.weserv.nl" rel="nofollow">serving dual stack</a>, and supporting <a href="//images.weserv.nl/?url=ipv6.google.com/logos/logo.gif">IPv6-only origin hosts</a>.<br />- SSL support, you can use <a href="https://images.weserv.nl/"><b>https</b>://images.weserv.nl/</a>.<br /><small class="sslnote">This can be very useful for embedding HTTP images on HTTPS websites. HTTPS origin hosts can be used by <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/2693328-add-support-to-fetch-images-over-https">prefixing the hostname with ssl:</a></small></p>
-			<p>We're part of the <a href="https://www.cloudflare.com/">CloudFlare</a> community. Images are being cached and delivered straight from <a href="https://www.cloudflare.com/network-map">23 global datacenters</a>. This ensures the fastest load times and best performance.</p>
+			<p>We're part of the <a href="https://www.cloudflare.com/">CloudFlare</a> community. Images are being cached and delivered straight from <a href="https://www.cloudflare.com/network-map">30 global datacenters</a>. This ensures the fastest load times and best performance.</p>
 			<hr />
 			<p><strong>Requesting an image:</strong><br />
 			- <b>?url= </b>(URL encoded) link to your image, without http://<br />
