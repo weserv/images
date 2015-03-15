@@ -79,6 +79,10 @@ function create_image($path){
 				break;
 			}
 		}else{
+			if(isset($_GET['detail'])){
+				$add_msg .= 'Retrieved content ('.filesize($fname).' bytes): <pre>'.htmlentities(file_get_contents($fname)).'</pre><br />'.PHP_EOL;
+			}
+			if(strpos(file_get_contents($fname),'_Incapsula_Resource') !== false){ $add_msg .= 'Warning: '.$parts['host'].' is hosted by a CDN (Incapsula) that is returning CAPTCHAs instead of images.<br />'.PHP_EOL; }
 			$im = new Imagick($fname.'[0]');
 			$im->setImageFormat('png');
 			$im->stripImage();
@@ -441,6 +445,39 @@ function custom_base64($input){
 	}
 }
 
+function rateLimit(){
+	$mc = new Memcached('mc');
+	if (!count($mc->getServerList())){
+	    $mc->setOptions(array(Memcached::OPT_BINARY_PROTOCOL => true, Memcached::OPT_COMPRESSION => false));
+		$mc->addServer('/var/run/memcached/memcached.sock', 0);
+	}
+
+	$curcount = $mc->increment('c_'.$_SERVER['REMOTE_ADDR'], 1, 1, 180);
+	
+	// check whether IP is over limit
+    if($curcount > 700){
+    	// check whether IP is blocked
+    	if($curcount < 750){
+    		$mc->increment('c_'.$_SERVER['REMOTE_ADDR'], 750, 1, 180);
+    		$bkey = 'bhi_'.date("Hi",time()+3600);
+			$bval = $_SERVER['REMOTE_ADDR'].',';
+			if($mc->touch($bkey, 4000) === false){
+				$mc->set($bkey, $bval, 4000);
+			}else{
+				$mc->append($bkey, $bval);
+			}
+	    	
+	    	require_once("cloudflare/clientApi.php");
+			$cf = new cloudflare_api();
+	    	$cf->ban($_SERVER['REMOTE_ADDR']);
+	    	
+	    	trigger_error('Blocked '.$_SERVER['REMOTE_ADDR'].' for 1 hour',E_USER_WARNING);
+    	}
+    	return true;
+    }
+    return false;
+}
+
 if(!empty($_GET['url'])){
 	$h = (empty($_GET['h']) OR !ctype_digit($_GET['h'])) ? '0' : $_GET['h'];
 	$w = (empty($_GET['w']) OR !ctype_digit($_GET['w'])) ? '0' : $_GET['w'];
@@ -460,6 +497,23 @@ if(!empty($_GET['url'])){
 		}
 	}else{
 		$s = 0;
+	}
+	
+	//Special rules
+	if(substr($_GET['url'],0,1) == '/'){
+		header('X-Notice: Malformed start of URL, autofix');
+		//trigger_error('URL failed, autofix. URL: '.$_GET['url'],E_USER_NOTICE);
+		if(substr($_GET['url'],0,2) == '/.'){
+			$_GET['url'] = substr($_GET['url'],2);
+		}elseif(substr($_GET['url'],0,2) == '//'){
+			$_GET['url'] = substr($_GET['url'],2);
+		}else{
+			$_GET['url'] = substr($_GET['url'],1);
+		}
+	}elseif(substr($_GET['url'],0,25) == 'www.mallublog.vt.vc/goto/'){
+		header('X-Notice: Known redirect host, autofix');
+		//trigger_error('URL redirects, autofix. URL: '.$_GET['url'],E_USER_NOTICE);
+		$_GET['url'] = substr($_GET['url'],25);
 	}
 	
 	//SSL code
@@ -496,6 +550,36 @@ if(!empty($_GET['url'])){
 		$_GET['url'] .= isset($parts['query']) ? '?'.$parts['query'] : '';
 	}
 
+	//Parental control
+	require_once("regdomain/gDNS.php");
+	$dns = new gDNS(false);
+	
+	function checkFamilyAddr($domain){
+		global $dns;
+		$dns->Query(idn_to_ascii($domain), "A", false, "IN", "127.0.0.1");
+		if(count($dns->t_log) > 1){
+			return "R";
+		}else{
+			return "N";
+		}
+	}
+
+	if(checkFamilyAddr($parts['host']) == 'R'){
+		header('HTTP/1.1 410 Gone');
+		header('X-Robots-Tag: none');
+		header('X-Gone-Reason: Hostname not in DNS or blocked by policy');
+		$img_data['mime'] = 'text/plain';
+		echo 'Error 410: Server could parse the ?url= that you were looking for, because the hostname '.$parts['host'].' is unresolvable (DNS) or blocked by policy';
+		die;
+	}elseif(rateLimit()){
+		header('HTTP/1.1 429 Too Many Requests');
+		header('Cache-Control: max-age=0');
+		header('Retry-After: 3600');
+		$img_data['mime'] = 'text/plain';
+		echo 'Error 429: Too many requests, rate limit exceeded, please wait one hour';
+		die;
+	}
+	
 	$image = create_image($_GET['url']);
 	
 	//Change orientation on EXIF-data
