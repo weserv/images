@@ -3,7 +3,7 @@
 /**
  * @author Andries Louw Wolthuizen
  * @site images.weserv.nl
- * @copyright 2015
+ * @copyright 2016
  **/
 error_reporting(E_ALL);
 set_time_limit(180);
@@ -642,11 +642,10 @@ if(!empty($_GET['url'])){
 			body { background:#ededed url('//images.weserv.nl/bg.png') top repeat-x; font-family:sans-serif; }
 			h1 { font-size:14px; } h2{ font-size:12px; } b { color:#a72376; } small.sslnote { position:relative; left:7px; }
 			p, hr { font-size:12px; margin-top:15px; } small.nl, .example small { display:block; margin-top:5px; }
-			hr { clear:both; color:#e0dfdf; background-color:#e0dfdf; height:1px; border:none; }
+			hr { clear:both; color:#e0dfdf; background-color:#e0dfdf; height:1px; border:none; } .optional { color:#aaa; }
 			#c, #s { font-size:13px; color:#ccc; margin:9px 6px; float:left; } #s { float:right; }
 			.new { display:block; position:relative; float:right; } a { color:#a72376; text-decoration:none; } a:hover { text-decoration:underline; }
 			#content { margin:50px auto; width:450px; padding:20px; border:1px solid #e0dfdf; background-color:#fff; color:#292929; }
-			a.uptime { display:block; width:100%; margin:10px 0 -10px 0; text-align:center; font-size:10px; } .optional { color:#aaa; }
 			.example { float:left; width:112px; margin:10px 0; font-size:12px; text-align:center; } #mb{ margin:14px 0; }
 		</style>
 	</head>
@@ -655,7 +654,7 @@ if(!empty($_GET['url'])){
 		<div id="content">
 			<h1>Images.<b>weserv</b>.nl is an image <b>cache</b> &amp; <b>resize</b> proxy</h1>
 			<p>Our servers resize your image, cache it worldwide, and display it.<br />- We don't support animated images (yet).<br />- We do support GIF, JPEG, PNG, BMP, XBM, WebP and other filetypes!<br />- We also support transparent images.<br />- Full IPv6 support, <a href="http://ipv6-test.com/validate.php?url=images.weserv.nl" rel="nofollow">serving dual stack</a>, and supporting <a href="//images.weserv.nl/?url=ipv6.google.com/logos/logo.gif">IPv6-only origin hosts</a>.<br />- SSL support, you can use <a href="https://images.weserv.nl/"><b>https</b>://images.weserv.nl/</a>.<br /><small class="sslnote">This can be very useful for embedding HTTP images on HTTPS websites. HTTPS origin hosts can be used by <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/2693328-add-support-to-fetch-images-over-https">prefixing the hostname with ssl:</a></small></p>
-			<p>We're part of the <a href="https://www.cloudflare.com/">CloudFlare</a> community. Images are being cached and delivered straight from <a href="https://www.cloudflare.com/network-map">31 global datacenters</a>. This ensures the fastest load times and best performance.</p>
+			<p>We're part of the <a href="https://www.cloudflare.com/">CloudFlare</a> community. Images are being cached and delivered straight from <a href="https://www.cloudflare.com/network-map">70+ global datacenters</a>. This ensures the fastest load times and best performance.</p>
 			<hr />
 			<p><strong>Requesting an image:</strong><br />
 			- <b>?url= </b>(URL encoded) link to your image, without http://<br />
@@ -704,8 +703,6 @@ if(!empty($_GET['url'])){
 			<hr />
 			<p><strong>Choose the output format:</strong> <b class="new">New!</b><br />
 			- <b>&amp;output= </b>png <b>or</b> jpg <b>or</b> gif <span class="optional">(optional)</span><br /><br /><small class="nl">Choose how the proxy outputs the thumbnail, if none is given, it will honor the origin image format. More info: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/5097964-format-conversion">#5097964 - Format conversion</a></small></p>
-			<hr />
-			<a class="uptime" href="http://status.weserv.nl/249404">Uptime &amp; Response Time</a>
 		</div>
 		<!-- UserVoice JavaScript -->
 		<script type="text/javascript">
