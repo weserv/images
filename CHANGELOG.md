@@ -10,4 +10,4 @@ All notable changes to this project will be documented in this file.
 - Used the [Guzzle](https://github.com/guzzle/guzzle) library for sending HTTP requests
 - [New features](https://images.weserv.nl/#quick-reference)
 
-[2.0.0]: https://github.com/andrieslouw/imagesweserv/releases/tag/0.1.0
+[2.0.0]: https://github.com/andrieslouw/imagesweserv/releases/tag/2.0.0
