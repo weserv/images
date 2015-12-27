@@ -1,0 +1,42 @@
+{
+	"name": "andrieslouw/imagesweserv",
+	"type": "project",
+	"version": "2.0.0",
+	"license": "BSD-3-Clause",
+	"description": "An image cache & resize proxy",
+    "keywords": [
+        "image",
+        "processing",
+        "manipulation",
+        "caching",
+        "editing",
+        "proxy"
+    ],
+	"homepage": "https://github.com/andrieslouw/imagesweserv",
+	"require": {
+        "php": ">=5.5.9",
+        "ext-imagick": "*",
+        "ext-fileinfo": "*",
+        "ext-exif": "*",
+        "ext-intl": "*",
+        "ext-mbstring": "*",
+		"intervention/image": "^2.3",
+		"league/uri": "^4.0",
+		"guzzlehttp/guzzle": "^6.1"
+	},
+    "autoload": {
+        "psr-4": {
+            "AndriesLouw\\imagesweserv\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Andries Louw Wolthuizen",
+            "email": "info@andrieslouw.nl"
+        },
+        {
+            "name": "Kleis Auke Wolthuizen",
+            "email": "info@kleisauke.nl"
+        }
+    ]
+}

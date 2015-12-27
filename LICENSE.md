@@ -1,4 +1,4 @@
-<h3>License</h3>
+### License
 _I like to keep things simple, so all files are provided under the New BSD License, unless stated otherwise._
 
 Copyright © 2015, Andries Louw Wolthuizen. All rights reserved.
