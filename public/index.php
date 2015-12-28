@@ -10,6 +10,8 @@ error_reporting(E_ALL);
 set_time_limit(180);
 ini_set('display_errors', 0);
 
+// realpath(__DIR__)
+
 require '../vendor/autoload.php';
 
 use League\Uri\Schemes\Http as HttpUri;
@@ -37,7 +39,7 @@ if (!empty($_GET['url'])) {
             $_GET['url'] = substr($_GET['url'], 4);
             $uri = HttpUri::createFromString('https://' . $_GET['url']);
         } else {
-            if (!substr($_GET['url'], 0, 5) == 'http:' && !substr($_GET['url'], 0, 6) == 'https:') {
+            if (substr($_GET['url'], 0, 5) != 'http:' && substr($_GET['url'], 0, 6) != 'https:') {
                 $uri = HttpUri::createFromString('http://' . $_GET['url']);
             } else {
                 throw new RuntimeException('Invalid URL');
@@ -51,13 +53,15 @@ if (!empty($_GET['url'])) {
         die;
     }
 
+    $tmpFileName = tempnam('/dev/shm', 'imo_');
+
     // Create an image manager instance with favored driver (gd by default)
     $imageManager = new Intervention\Image\ImageManager([
         'driver' => 'imagick',
     ]);
 
     // Create an PHP HTTP client
-    $client = new AndriesLouw\imagesweserv\Client(tempnam('/dev/shm', 'imo_'), [
+    $client = new AndriesLouw\imagesweserv\Client($tmpFileName, [
         // User agent for this client
         'user_agent' => 'Mozilla/5.0 (compatible; ImageFetcher/6.0; +http://images.weserv.nl/)',
         // Float describing the number of seconds to wait while trying to connect to a server. Use 0 to wait indefinitely.
@@ -198,6 +202,7 @@ if (!empty($_GET['url'])) {
         echo $image;
     }
 
+    unlink($tmpFileName);
 } else {
     /*isset($_SERVER["HTTPS"]) ? 'https://' : 'http://';*/
     $protocol = '//';

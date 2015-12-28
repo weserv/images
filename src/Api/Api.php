@@ -131,8 +131,6 @@ class Api implements ApiInterface
             throw $e;
         }
 
-        unlink($tmpFileName);
-
         foreach ($this->manipulators as $manipulator) {
             $manipulator->setParams($params);
 

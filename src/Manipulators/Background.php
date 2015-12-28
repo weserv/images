@@ -11,12 +11,16 @@ use Intervention\Image\Image;
 class Background extends BaseManipulator
 {
     /**
-     * Perform blur image manipulation.
+     * Perform background image manipulation.
      * @param  Image $image The source image.
      * @return Image The manipulated image.
      */
     public function run(Image $image)
     {
+        if (is_null($this->bg)) {
+            return $image;
+        }
+
         $color = (new Color($this->bg))->formatted();
 
         if ($color) {
