@@ -49,6 +49,7 @@ class Client
     private function initClient()
     {
         $this->client = new \GuzzleHttp\Client([
+            //'debug' => $this->handle,
             'connect_timeout' => $this->options['connect_timeout'],
             'decode_content' => true,
             'verify' => false,
@@ -68,7 +69,9 @@ class Client
             'expect' => false, # Send an empty Expect header (avoids 100 responses)
             'http_errors' => true,
             'curl' => [
-                CURLOPT_FILE => $this->handle
+                CURLOPT_FILE => $this->handle,
+                //CURLOPT_SSL_VERIFYPEER => false,
+                //CURLOPT_SSL_VERIFYHOST => false
             ],
             'on_headers' => function (ResponseInterface $response) {
                 if (!empty($this->options['allowed_mime_types']) && !array_key_exists($response->getHeaderLine('Content-Type'),
@@ -121,38 +124,27 @@ class Client
     }
 
     /**
-     * @throws \Exception if URL cannot be parsed
+     * @param string $url
+     * @throws RequestException for errors that occur during a transfer or during the on_headers event
+     * @internal param \GuzzleHttp\Client
+     *
      * @return string File name
      */
     public function get($url)
     {
-        return $this->request('GET', $url);
-    }
-
-    /**
-     * @param string $method
-     * @param string $url
-     * @param array $options
-     * @throws RequestException for errors that occur during a transfer or during the on_headers event
-     * @internal param \GuzzleHttp\Client $
-     *
-     * @return string File name
-     */
-    private function request($method, $url, array $options = [])
-    {
-        $requestOptions = array_merge($options, [
+        $requestOptions = [
             'timeout' => $this->options['timeout'],
             'headers' => [
                 'Accept-Encoding' => 'gzip',
                 'User-Agent' => $this->options['user_agent'],
             ]
-        ]);
+        ];
 
         try {
             /**
              * @var ResponseInterface $response
              */
-            $this->client->request($method, $url, $requestOptions);
+            $this->client->get($url, $requestOptions);
         } catch (RequestException $e) {
             @fclose($this->handle);
             @unlink($this->fileName);

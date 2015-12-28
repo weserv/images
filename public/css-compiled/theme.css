@@ -560,7 +560,8 @@ code {
   color: #5e5e5e;
   background: #fefaed;
   border: 1px solid #fbf0cb;
-  padding: 0px 2px; }
+  padding: 0px 2px;
+  vertical-align: middle; }
 
 code + .copy-to-clipboard {
   border: 1px solid #fbf0cb;

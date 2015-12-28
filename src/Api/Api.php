@@ -126,6 +126,7 @@ class Api implements ApiInterface
         try {
             $image = $this->imageManager->make($tmpFileName);
         } catch (NotReadableException $e) {
+            //echo file_get_contents($tmpFileName);
             @unlink($tmpFileName);
             trigger_error($e->getMessage() . ' URL: ' . $url, E_USER_WARNING);
             throw $e;

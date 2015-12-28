@@ -10,8 +10,6 @@ error_reporting(E_ALL);
 set_time_limit(180);
 ini_set('display_errors', 0);
 
-// realpath(__DIR__)
-
 require '../vendor/autoload.php';
 
 use League\Uri\Schemes\Http as HttpUri;
@@ -215,7 +213,6 @@ if (!empty($_GET['url'])) {
     $description = 'Image cache &amp; resize proxy';
     $title = 'Images.weserv.nl - ' . $description;
     $name = 'Images.<b>weserv</b>.nl';
-    $pingdomURL = 'http://status.weserv.nl/249404';
 
     $count = '450.000.000 images, 16 TB of traffic - each month';
     $location = 'RBX, FR';
@@ -256,15 +253,12 @@ if (!empty($_GET['url'])) {
     <script src="js/imagesweserv.js" type="text/javascript"></script>
 </head>
 <body class="searchbox-hidden" data-spy="scroll" data-target=".scrollspy">
-    <!-- <a class="github" href="$githubURL" rel="nofollow">
-        <img class="lazy" src="images/forkme.png" alt="Fork me on GitHub" width="149" height="149">
-    </a> -->
     <nav id="sidebar">
         <div id="header-wrapper">
             <div id="header">
                 <a id="logo" href="$fullURL/">
                     <div id="weserv-logo">$name</div>
-                    <a class="uptime" href="$pingdomURL">Uptime &amp; Response Time</a>
+                    <span>$description</span>
                 </a>
                 <div class="searchbox">
                     <label for="search-by"><i class="fa fa-search"></i></label>
@@ -1260,12 +1254,6 @@ if (!empty($_GET['url'])) {
                     <a href="$fullURL/?url=$sampleImage&amp;w=500&amp;sharp=15"><img class="lazy" src="$fullURL/?url=$sampleImage&amp;w=500&amp;sharp=15"/></a>
                     <h4 id="trim-trim">Trim <code>trim</code></h4>
                     <p>Trim away image space. Use values between <code>0</code> and <code>100</code> to define a percentaged tolerance level to trim away similar color values. You also can specify just &trim, which defaults to a percentaged tolerance level of 10.</p>
-                    <!-- <button type="button" class="button-secondary" id="show-hide-trim" data-toggle="collapse" data-target="#trim-original-collapsible"><i class="fa fa-arrow-down"></i> Show original</button>
-                    <div id="trim-original-collapsible" class="collapse" data-caller="#show-hide-trim">
-                        <h5 id="trim-original">Original:</h5>
-                        <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleTransparentImageName&amp;w=500&amp;bg=black"&gt;</code></pre>
-                        <a href="$fullURL/?url=$sampleTransparentImage&amp;w=500&amp;bg=black"><img class="lazy" src="$fullURL/?url=$sampleTransparentImage&amp;w=500&amp;bg=black"/></a>
-                    </div> -->
                     <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleTransparentImageName&amp;w=500&amp;bg=black&amp;trim=10"&gt;</code></pre>
                     <a href="$fullURL/?url=$sampleTransparentImage&amp;w=500&amp;bg=black&amp;trim=10"><img class="lazy" src="$fullURL/?url=$sampleTransparentImage&amp;w=500&amp;bg=black&amp;trim=10"/></a>
                 </section>
