@@ -200,6 +200,7 @@ if (!empty($_GET['url'])) {
         echo $image;
     }
 
+    $image->destroy();
     unlink($tmpFileName);
 } else {
     /*isset($_SERVER["HTTPS"]) ? 'https://' : 'http://';*/
