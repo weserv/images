@@ -126,7 +126,6 @@ class Client
     /**
      * @param string $url
      * @throws RequestException for errors that occur during a transfer or during the on_headers event
-     * @internal param \GuzzleHttp\Client
      *
      * @return string File name
      */

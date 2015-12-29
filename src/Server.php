@@ -5,6 +5,7 @@ namespace AndriesLouw\imagesweserv;
 use AndriesLouw\imagesweserv\Api\ApiInterface;
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use GuzzleHttp\Exception\RequestException;
+use ImagickException;
 use Intervention\Image\Exception\NotReadableException;
 
 class Server
@@ -97,40 +98,12 @@ class Server
      * @throws NotReadableException if the provided file can not be read
      * @throws ImageTooLargeException if the provided image is too large for processing.
      * @throws RequestException for errors that occur during a transfer or during the on_headers event
-     * @return \Intervention\Image\Image
+     * @throws ImagickException for errors that occur during image manipulation
+     * @return string Manipulated image binary data.
      */
     public function outputImage($url, array $params)
     {
         return $this->api->run($url, $this->getAllParams($params));
-    }
-
-    /**
-     * Get the current mime type after encoding
-     * we cannot use directly $image->mime() because
-     * that is the initial mime type of the image (so before any encoding)
-     * See: https://github.com/Intervention/image/issues/471
-     *
-     * @param  string $mimeType the mime which the user wants to format to
-     * @param  string $mimeTypeImage the initial mime type before encoding
-     * @return string
-     */
-    public function getCurrentMimeType($mimeType, $mimeTypeImage)
-    {
-        $allowed = [
-            'gif' => 'image/gif',
-            'jpg' => 'image/jpeg',
-            'png' => 'image/png',
-        ];
-
-        if (array_key_exists($mimeType, $allowed)) {
-            return $allowed[$mimeType];
-        }
-
-        if ($format = array_search($mimeTypeImage, $allowed, true)) {
-            return $allowed[$format];
-        }
-
-        return 'image/jpeg';
     }
 
     /**
@@ -151,5 +124,37 @@ class Server
         }
 
         return array_merge($all, $params);
+    }
+
+    /**
+     * Get the current mime type after encoding
+     * we cannot use directly $image->mime() because
+     * that is the initial mime type of the image (so before any encoding)
+     * See: https://github.com/Intervention/image/issues/471
+     *
+     * @param  string $mimeType the mime which the user wants to format to
+     * @param  string $mimeTypeImage the initial mime type before encoding
+     * @param  array $allowed allowed extensions
+     * @return string
+     */
+    public function getCurrentMimeType($mimeType, $mimeTypeImage, $allowed = null)
+    {
+        if (is_null($allowed)) {
+            $allowed = [
+                'gif' => 'image/gif',
+                'jpg' => 'image/jpeg',
+                'png' => 'image/png',
+            ];
+        }
+
+        if (array_key_exists($mimeType, $allowed)) {
+            return $allowed[$mimeType];
+        }
+
+        if ($format = array_search($mimeTypeImage, $allowed, true)) {
+            return $allowed[$format];
+        }
+
+        return 'image/jpeg';
     }
 }

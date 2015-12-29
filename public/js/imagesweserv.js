@@ -222,7 +222,6 @@ $(function() {
     $('a[rel="lightbox"]').featherlight({
         root: 'section#body'
     });
-    $('.lazy').lazy();
 });
 
 jQuery.extend({

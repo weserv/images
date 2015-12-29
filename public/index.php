@@ -51,7 +51,18 @@ if (!empty($_GET['url'])) {
         die;
     }
 
+    $allowed = [
+        'gif' => 'image/gif',
+        'jpg' => 'image/jpeg',
+        'png' => 'image/png',
+    ];
+
+    $extension = array_key_exists($uri->path->getExtension(), $allowed) ? $uri->path->getExtension() : 'jpg';
+
     $tmpFileName = tempnam('/dev/shm', 'imo_');
+    /*$newFileName = substr($tmpFileName, 0, -3) . $extension;
+    rename($tmpFileName, $newFileName);
+    $tmpFileName = $newFileName;*/
 
     // Create an image manager instance with favored driver (gd by default)
     $imageManager = new Intervention\Image\ImageManager([
@@ -129,7 +140,7 @@ if (!empty($_GET['url'])) {
         /**
          * Get the image
          *
-         * @var \Intervention\Image\Image $image
+         * @var string Manipulated image binary data.
          */
         $image = $server->outputImage($uri->__toString(), $_GET);
     } catch (Intervention\Image\Exception\NotReadableException $e) { // This error should not happen, it only happens if file_get_contents on the temp file failed.
@@ -139,6 +150,12 @@ if (!empty($_GET['url'])) {
         echo 'Error 500: ' . $e->getMessage();
         die;
     } catch (\Intervention\Image\Exception\RuntimeException $e) {
+        // We are not doing trigger_error here because that is already handled in Api.php
+        header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error');
+        header('Content-type: text/plain');
+        echo 'Error 500: ' . $e->getMessage();
+        die;
+    } catch (\ImagickException $e) {
         // We are not doing trigger_error here because that is already handled in Api.php
         header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error');
         header('Content-type: text/plain');
@@ -187,8 +204,8 @@ if (!empty($_GET['url'])) {
         //$base64 = $image->encode('data-url');
         // Comment or delete below if temp file mime type is fixed
         $userMimeType = array_key_exists('output', $_GET) ? $_GET['output'] : null;
-        $base64 = sprintf('data:%s;base64,%s', $server->getCurrentMimeType($userMimeType, $image->mime()),
-            base64_encode($image->getEncoded()));
+        $base64 = sprintf('data:%s;base64,%s', $server->getCurrentMimeType($userMimeType, $extension, $allowed),
+            base64_encode($image));
 
         header('Content-type: text/plain');
         header('Content-Length: ' . strlen($base64));
@@ -196,12 +213,12 @@ if (!empty($_GET['url'])) {
         echo $base64;
     } else {
         $userMimeType = array_key_exists('output', $_GET) ? $_GET['output'] : null;
-        header('Content-type: ' . $server->getCurrentMimeType($userMimeType, $image->mime()));
+        header('Content-type: ' . $server->getCurrentMimeType($userMimeType, $extension, $allowed));
         echo $image;
     }
 
-    $image->destroy();
     unlink($tmpFileName);
+    exit;
 } else {
     /*isset($_SERVER["HTTPS"]) ? 'https://' : 'http://';*/
     $protocol = '//';
@@ -218,13 +235,13 @@ if (!empty($_GET['url'])) {
     $count = '450.000.000 images, 16 TB of traffic - each month';
     $location = 'RBX, FR';
 
-    $sampleImage = "ssl:upload.wikimedia.org/wikipedia/commons/e/e8/Lichtenstein.jpg";
-    $sampleImageName = "Lichtenstein.jpg";
+    $sampleImage = $fullURL . '/?url=ssl:upload.wikimedia.org/wikipedia/commons/e/e8/Lichtenstein.jpg';
+    $sampleImageName = $fullURL . '/?url=&#133;Lichtenstein.jpg';
 
-    $sampleTransparentImage = "ssl:upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png";
-    $sampleTransparentImageName = "transparency_demonstration.png";
+    $sampleTransparentImage = $fullURL . '/?url=ssl:upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png';
+    $sampleTransparentImageName = $fullURL . '/?url=&#133;transparency_demonstration.png';
 
-    $apiVersion = "v2";
+    $apiVersion = 'v2';
 
     $html = <<<HTML
 <!DOCTYPE html>
@@ -245,7 +262,6 @@ if (!empty($_GET['url'])) {
     <script src="js/html5shiv-printshiv.min.js" type="text/javascript"></script>
     <![endif]-->
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js" type="text/javascript"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.lazy/0.6.4/jquery.lazy.min.js" type="text/javascript"></script>
     <script src="js/modernizr.custom.71422.js" type="text/javascript"></script>
     <script src="js/featherlight.min.js" type="text/javascript"></script>
     <script src="js/clipboard.min.js" type="text/javascript"></script>
@@ -567,7 +583,7 @@ if (!empty($_GET['url'])) {
                     <h3>Relative dimensions</h3>
                     <p>Relative dimensions allow you to specify a width or height value as a percentage of the main image. This is helpful for features like borders.</p>
                     <p>To use a relative dimension, simply provide a percentage as a number (between <code>0</code> and <code>100</code>), followed by a <code>w</code> (width) or <code>h</code> (height). For example, <code>5w</code> represents 5% of the width of the main image.</p>
-                     <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleImageName&amp;w=300&amp;border=2w,5000,overlay"&gt;</code></pre>
+                     <pre><code class="language-html">&lt;img src="$sampleImageName&amp;w=300&amp;border=2w,5000,overlay"&gt;</code></pre>
                 </section>
                 <section id="colors" class="goto">
                     <h3>Colors</h3>
@@ -1162,38 +1178,38 @@ if (!empty($_GET['url'])) {
                     <h3>Orientation</h3>
                     <h4 id="orientation-or">Orientation <code>or</code></h4>
                     <p>Rotates the image. Accepts <code>auto</code>, <code>0</code>, <code>90</code>, <code>180</code> or <code>270</code>. Default is <code>auto</code>. The <code>auto</code> option uses Exif data to automatically orient images correctly.</p>
-                    <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleImageName&amp;h=500&amp;or=90"&gt;</code></pre>
-                    <a href="$fullURL/?url=$sampleImage&h=500&or=90"><img class="lazy" src="$fullURL/?url=$sampleImage&h=500&or=90"/></a>
+                    <pre><code class="language-html">&lt;img src="$sampleImageName&amp;h=500&amp;or=90"&gt;</code></pre>
+                    <a href="$sampleImage&h=500&or=90"><img src="$sampleImage&h=500&or=90"/></a>
                 </section>
                 <section id="crop" class="goto">
                     <h3>Crop</h3>
                     <h4 id="fit-fitcrop">Fit <code>t=crop</code></h4>
                     <p>Resizes the image to fill the width and height boundaries and crops any excess image data. The resulting image will match the width and height constraints without distorting the image.</p>
-                    <pre><code class="language-html">&lt;img src=$fullURL/?url=&#133;$sampleImageName&amp;w=300&amp;h=300&amp;t=crop"&gt;</code></pre>
-                    <a href="$fullURL/?url=$sampleImage&amp;w=300&amp;h=300&amp;t=crop"><img class="lazy" src="$fullURL/?url=$sampleImage&amp;w=300&amp;h=300&amp;t=crop"/></a>
+                    <pre><code class="language-html">&lt;img src=$sampleImageName&amp;w=300&amp;h=300&amp;t=crop"&gt;</code></pre>
+                    <a href="$sampleImage&amp;w=300&amp;h=300&amp;t=crop"><img src="$sampleImage&amp;w=300&amp;h=300&amp;t=crop"/></a>
                     <h5 id="crop-position">Crop Position <code>a=center</code></h5>
                     <p>You can also set where the image is cropped by adding a crop position. Only works when <code>t=crop</code>. Accepts <code>top-left</code>, <code>top</code>, <code>top-right</code>, <code>left</code>, <code>center</code>, <code>right</code>, <code>bottom-left</code>, <code>bottom</code> or <code>bottom-right</code>. Default is <code>center</code>.</p>
-                    <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleImageName&amp;w=300&amp;h=300&amp;t=crop&amp;a=top-left"&gt;</code></pre>
-                    <a href="$fullURL/?url=$sampleImage&amp;w=300&amp;h=300&amp;t=crop&amp;a=top-left"><img class="lazy" src="$fullURL/?url=$sampleImage&amp;w=300&amp;h=300&amp;t=crop&amp;a=top-left"/></a>
+                    <pre><code class="language-html">&lt;img src="$sampleImageName&amp;w=300&amp;h=300&amp;t=crop&amp;a=top-left"&gt;</code></pre>
+                    <a href="$sampleImage&amp;w=300&amp;h=300&amp;t=crop&amp;a=top-left"><img src="$sampleImage&amp;w=300&amp;h=300&amp;t=crop&amp;a=top-left"/></a>
                     <h5 id="crop-focal-point">Crop Focal Point</h5>
                     <p>In addition to the crop position, you can be more specific about the exact crop position using a focal point. Only works when <code>t=crop</code>. This is defined using two offset percentages: <code>crop-x%-y%</code>.</p>
-                    <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleImageName&amp;w=300&amp;h=300&amp;t=crop&amp;a=crop-25-45"&gt;</code></pre>
-                    <a href="$fullURL/?url=$sampleImage&amp;w=300&amp;h=300&amp;t=crop&amp;a=crop-25-45"><img class="lazy" src="$fullURL/?url=$sampleImage&amp;w=300&amp;h=300&amp;t=crop&amp;a=crop-25-45"/></a>
+                    <pre><code class="language-html">&lt;img src="$sampleImageName&amp;w=300&amp;h=300&amp;t=crop&amp;a=crop-25-45"&gt;</code></pre>
+                    <a href="$sampleImage&amp;w=300&amp;h=300&amp;t=crop&amp;a=crop-25-45"><img src="$sampleImage&amp;w=300&amp;h=300&amp;t=crop&amp;a=crop-25-45"/></a>
                     <h4 id="crop-crop">Crop <code>crop</code></h4>
                     <p>Crops the image to specific dimensions prior to any other resize operations. Required format: <code>width,height,x,y</code>.</p>
-                    <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleImageName&amp;crop=100,100,400,450"&gt;</code></pre>
-                    <a href="$fullURL/?url=$sampleImage&amp;crop=100,100,400,450"><img class="lazy" src="$fullURL/?url=$sampleImage&amp;crop=100,100,400,450"/></a>
+                    <pre><code class="language-html">&lt;img src="$sampleImageName&amp;crop=100,100,400,450"&gt;</code></pre>
+                    <a href="$sampleImage&amp;crop=100,100,400,450"><img src="$sampleImage&amp;crop=100,100,400,450"/></a>
                 </section>
                 <section id="size" class="goto">
                     <h3>Size</h3>
                     <h4 id="width-w">Width <code>w</code></h4>
                     <p>Sets the width of the image, in pixels.</p>
-                    <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleImageName&amp;w=500"&gt;</code></pre>
-                    <a href="$fullURL/?url=$sampleImage&amp;w=500"><img class="lazy" src="$fullURL/?url=$sampleImage&amp;w=500" /></a>
+                    <pre><code class="language-html">&lt;img src="$sampleImageName&amp;w=500"&gt;</code></pre>
+                    <a href="$sampleImage&amp;w=500"><img src="$sampleImage&amp;w=500" /></a>
                     <h4 id="height-h">Height <code>h</code></h4>
                     <p>Sets the height of the image, in pixels.</p>
-                    <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleImageName&amp;h=333"&gt;</code></pre>
-                    <a href="$fullURL/?url=$sampleImage&amp;h=333"><img class="lazy" src="$fullURL/?url=$sampleImage&amp;h=333" /></a>
+                    <pre><code class="language-html">&lt;img src="$sampleImageName&amp;h=333"&gt;</code></pre>
+                    <a href="$sampleImage&amp;h=333"><img src="$sampleImage&amp;h=333" /></a>
                     <h4 id="fit-fit">Fit <code>t</code></h4>
                     <p>Sets how the image is fitted to its target dimensions.</p>
                     <h5 id="size-accepts">Accepts:</h5>
@@ -1204,8 +1220,8 @@ if (!empty($_GET['url'])) {
                         <li><code>stretch</code>: Stretches the image to fit the constraining dimensions exactly. The resulting image will fill the dimensions, and will not maintain the aspect ratio of the input image.</li>
                         <li><code>crop</code>: Resizes the image to fill the width and height boundaries and crops any excess image data. The resulting image will match the width and height constraints without distorting the image. See the <a href="#crop">crop</a> page for more information.</li>
                     </ul>
-                    <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleImageName&amp;w=400&amp;h=300&amp;t=crop"&gt;</code></pre>
-                    <a href="$fullURL/?url=$sampleImage&amp;w=400&amp;h=300&amp;t=crop"><img class="lazy" src="$fullURL/?url=$sampleImage&amp;w=400&amp;h=300&amp;t=crop" /></a>
+                    <pre><code class="language-html">&lt;img src="$sampleImageName&amp;w=400&amp;h=300&amp;t=crop"&gt;</code></pre>
+                    <a href="$sampleImage&amp;w=400&amp;h=300&amp;t=crop"><img src="$sampleImage&amp;w=400&amp;h=300&amp;t=crop" /></a>
                 </section>
                 <section id="shape" class="goto">
                     <h3>Shape</h3>
@@ -1225,67 +1241,67 @@ if (!empty($_GET['url'])) {
                         <li><code>star-5</code>: 5-point star</li>
                         <li><code>star</code> (same as <code>star-5</code>)</li>
                     </ul>
-                    <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleImageName&amp;w=250&amp;shape=star"&gt;</code></pre>
-                    <a href="$fullURL/?url=$sampleImage&amp;w=250&amp;shape=star"><img class="lazy" src="$fullURL/?url=$sampleImage&amp;w=250&amp;shape=star"/></a>
+                    <pre><code class="language-html">&lt;img src="$sampleImageName&amp;w=250&amp;shape=star"&gt;</code></pre>
+                    <a href="$sampleImage&amp;w=250&amp;shape=star"><img src="$sampleImage&amp;w=250&amp;shape=star"/></a>
                 </section>
                 <section id="pixel-density" class="goto">
                     <h3>Pixel Density</h3>
                     <h4 id="device-pixel-ratio-dpr">Device pixel ratio <code>dpr</code></h4>
                     <p>The device pixel ratio is used to easily convert between CSS pixels and device pixels. This makes it possible to display images at the correct pixel density on a variety of devices such as Apple devices with Retina Displays and Android devices. You must specify either a width, a height, or both for this parameter to work. The default is 1. The maximum value that can be set for dpr is 8.</p>
-                    <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleImageName&amp;w=250&amp;dpr=2"&gt;</code></pre>
-                    <a href="$fullURL/?url=$sampleImage&amp;w=250&amp;dpr=2"><img class="lazy" src="$fullURL/?url=$sampleImage&amp;w=250&amp;dpr=2"/></a>
+                    <pre><code class="language-html">&lt;img src="$sampleImageName&amp;w=250&amp;dpr=2"&gt;</code></pre>
+                    <a href="$sampleImage&amp;w=250&amp;dpr=2"><img src="$sampleImage&amp;w=250&amp;dpr=2"/></a>
                 </section>
                 <section id="adjustments" class="goto">
                     <h3>Adjustments</h3>
                     <h4 id="brightness-bri">Brightness <code>bri</code></h4>
                     <p>Adjusts the image brightness. Use values between <code>-100</code> and <code>+100</code>, where <code>0</code> represents no change.</p>
-                    <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleImageName&amp;w=500&amp;bri=-25"&gt;</code></pre>
-                    <a href="$fullURL/?url=$sampleImage&amp;w=500&amp;bri=-25"><img class="lazy" src="$fullURL/?url=$sampleImage&amp;w=500&amp;bri=-25"/></a>
+                    <pre><code class="language-html">&lt;img src="$sampleImageName&amp;w=500&amp;bri=-25"&gt;</code></pre>
+                    <a href="$sampleImage&amp;w=500&amp;bri=-25"><img src="$sampleImage&amp;w=500&amp;bri=-25"/></a>
                     <h4 id="contrast-con">Contrast <code>con</code></h4>
                     <p>Adjusts the image contrast. Use values between <code>-100</code> and <code>+100</code>, where <code>0</code> represents no change.</p>
-                    <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleImageName&amp;w=500&amp;con=25"&gt;</code></pre>
-                    <a href="$fullURL/?url=$sampleImage&amp;w=500&amp;con=25"><img class="lazy" src="$fullURL/?url=$sampleImage&amp;w=500&amp;con=25"/></a>
+                    <pre><code class="language-html">&lt;img src="$sampleImageName&amp;w=500&amp;con=25"&gt;</code></pre>
+                    <a href="$sampleImage&amp;w=500&amp;con=25"><img src="$sampleImage&amp;w=500&amp;con=25"/></a>
                     <h4 id="gamma-gam">Gamma <code>gam</code></h4>
                     <p>Adjusts the image gamma. Use values between <code>0.1</code> and <code>9.99</code>.</p>
-                    <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleImageName&amp;w=500&amp;gam=1.5"&gt;</code></pre>
-                    <a href="$fullURL/?url=$sampleImage&amp;w=500&amp;gam=1.5"><img class="lazy" src="$fullURL/?url=$sampleImage&amp;w=500&amp;gam=1.5"/></a>
+                    <pre><code class="language-html">&lt;img src="$sampleImageName&amp;w=500&amp;gam=1.5"&gt;</code></pre>
+                    <a href="$sampleImage&amp;w=500&amp;gam=1.5"><img src="$sampleImage&amp;w=500&amp;gam=1.5"/></a>
                     <h4 id="sharpen-sharp">Sharpen <code>sharp</code></h4>
                     <p>Sharpen the image. Use values between <code>0</code> and <code>100</code>.</p>
-                    <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleImageName&amp;w=500&amp;sharp=15"&gt;</code></pre>
-                    <a href="$fullURL/?url=$sampleImage&amp;w=500&amp;sharp=15"><img class="lazy" src="$fullURL/?url=$sampleImage&amp;w=500&amp;sharp=15"/></a>
+                    <pre><code class="language-html">&lt;img src="$sampleImageName&amp;w=500&amp;sharp=15"&gt;</code></pre>
+                    <a href="$sampleImage&amp;w=500&amp;sharp=15"><img src="$sampleImage&amp;w=500&amp;sharp=15"/></a>
                     <h4 id="trim-trim">Trim <code>trim</code></h4>
                     <p>Trim away image space. Use values between <code>0</code> and <code>100</code> to define a percentaged tolerance level to trim away similar color values. You also can specify just &trim, which defaults to a percentaged tolerance level of 10.</p>
-                    <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleTransparentImageName&amp;w=500&amp;bg=black&amp;trim=10"&gt;</code></pre>
-                    <a href="$fullURL/?url=$sampleTransparentImage&amp;w=500&amp;bg=black&amp;trim=10"><img class="lazy" src="$fullURL/?url=$sampleTransparentImage&amp;w=500&amp;bg=black&amp;trim=10"/></a>
+                    <pre><code class="language-html">&lt;img src="$sampleTransparentImageName&amp;w=500&amp;bg=black&amp;trim=10"&gt;</code></pre>
+                    <a href="$sampleTransparentImage&amp;w=500&amp;bg=black&amp;trim=10"><img src="$sampleTransparentImage&amp;w=500&amp;bg=black&amp;trim=10"/></a>
                 </section>
                 <section id="effects" class="goto">
                     <h3>Effects</h3>
                     <h4 id="blur-blur">Blur <code>blur</code></h4>
                     <p>Adds a blur effect to the image. Use values between <code>0</code> and <code>100</code>.</p>
-                    <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleImageName&amp;w=500&amp;blur=5"&gt;</code></pre>
-                    <a href="$fullURL/?url=$sampleImage&amp;w=500&amp;blur=5"><img class="lazy" src="$fullURL/?url=$sampleImage&amp;w=500&amp;blur=5"/></a>
+                    <pre><code class="language-html">&lt;img src="$sampleImageName&amp;w=500&amp;blur=5"&gt;</code></pre>
+                    <a href="$sampleImage&amp;w=500&amp;blur=5"><img src="$sampleImage&amp;w=500&amp;blur=5"/></a>
                     <h4 id="pixelate-pixel">Pixelate <code>pixel</code></h4>
                     <p>Applies a pixelation effect to the image. Use values between <code>0</code> and <code>1000</code>.</p>
-                    <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleImageName&amp;w=500&amp;pixel=5"&gt;</code></pre>
-                    <a href="$fullURL/?url=$sampleImage&amp;w=500&amp;pixel=5"><img class="lazy" src="$fullURL/?url=$sampleImage&amp;w=500&amp;pixel=5"/></a>
+                    <pre><code class="language-html">&lt;img src="$sampleImageName&amp;w=500&amp;pixel=5"&gt;</code></pre>
+                    <a href="$sampleImage&amp;w=500&amp;pixel=5"><img src="$sampleImage&amp;w=500&amp;pixel=5"/></a>
                     <h4 id="filter-filt">Filter <code>filt</code></h4>
                     <p>Applies a filter effect to the image. Accepts <code>greyscale</code> or <code>sepia</code>.</p>
-                    <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleImageName&amp;w=500&amp;filt=sepia"&gt;</code></pre>
-                    <a href="$fullURL/?url=$sampleImage&amp;w=500&amp;filt=sepia"><img class="lazy" src="$fullURL/?url=$sampleImage&amp;w=500&amp;filt=sepia"/></a>
+                    <pre><code class="language-html">&lt;img src="$sampleImageName&amp;w=500&amp;filt=sepia"&gt;</code></pre>
+                    <a href="$sampleImage&amp;w=500&amp;filt=sepia"><img src="$sampleImage&amp;w=500&amp;filt=sepia"/></a>
                 </section>
                 <section id="background" class="goto">
                     <h3>Background</h3>
                     <h4 id="background-bg">Background <code>bg</code></h4>
                     <p>Sets the background color of the image. See <a href="#colors">colors</a> for more information on the available color formats.</p>
-                    <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleTransparentImageName&amp;w=400&amp;bg=black"&gt;</code></pre>
-                    <a href="$fullURL/?url=$sampleTransparentImage&amp;w=400&amp;bg=black"><img class="lazy" src="$fullURL?url=$sampleTransparentImage&amp;w=400&amp;bg=black"/></a>
+                    <pre><code class="language-html">&lt;img src="$sampleTransparentImageName&amp;w=400&amp;bg=black"&gt;</code></pre>
+                    <a href="$sampleTransparentImage&amp;w=400&amp;bg=black"><img src="$sampleTransparentImage&amp;w=400&amp;bg=black"/></a>
                 </section>
                 <section id="border" class="goto">
                     <h3>Border</h3>
                     <h4 id="border-border">Border <code>border</code></h4>
                     <p>Add a border to the image. Required format: <code>width,color,method</code>.</p>
-                    <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleImageName&amp;w=500&amp;border=10,5000,overlay"&gt;</code></pre>
-                    <a href="$fullURL/?url=$sampleImage&amp;w=500&amp;border=10,5000,overlay"><img class="lazy" src="$fullURL/?url=$sampleImage&amp;w=500&amp;border=10,5000,overlay"/></a>
+                    <pre><code class="language-html">&lt;img src="$sampleImageName&amp;w=500&amp;border=10,5000,overlay"&gt;</code></pre>
+                    <a href="$sampleImage&amp;w=500&amp;border=10,5000,overlay"><img src="$sampleImage&amp;w=500&amp;border=10,5000,overlay"/></a>
                     <h5 id="width">Width</h5>
                     <p>Sets the border width in pixels, or using <a href="#relative-dimensions">relative dimensions</a>.</p>
                     <h5 id="color">Color</h5>
@@ -1297,27 +1313,27 @@ if (!empty($_GET['url'])) {
                         <li><code>shrink</code>: Shrink image within border (canvas does not change).</li>
                         <li><code>expand</code>: Expands canvas to accommodate border.</li>
                     </ul>
-                    <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleImageName&amp;w=500&amp;border=10,FFCC33,expand"&gt;</code></pre>
-                    <a href="$fullURL/?url=$sampleImage&amp;w=500&amp;border=10,FFCC33,expand"><img class="lazy" src="$fullURL/?url=$sampleImage&amp;w=500&amp;border=10,FFCC33,expand"/></a>
+                    <pre><code class="language-html">&lt;img src="$sampleImageName&amp;w=500&amp;border=10,FFCC33,expand"&gt;</code></pre>
+                    <a href="$sampleImage&amp;w=500&amp;border=10,FFCC33,expand"><img src="$sampleImage&amp;w=500&amp;border=10,FFCC33,expand"/></a>
                 </section>
                 <section id="encode" class="goto">
                     <h3>Encode</h3>
                     <h4 id="quality-q">Quality <code>q</code></h4>
                     <p>Defines the quality of the image. Use values between <code>0</code> and <code>100</code>. Defaults to <code>85</code>. Only relevant if the format is set to <code>jpg</code>.</p>
-                    <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleImageName&amp;w=500&amp;q=20"&gt;</code></pre>
-                    <a href="$fullURL/?url=$sampleImage&amp;w=500&amp;q=20"><img class="lazy" src="$fullURL/?url=$sampleImage&amp;w=500&amp;q=20"/></a>
+                    <pre><code class="language-html">&lt;img src="$sampleImageName&amp;w=500&amp;q=20"&gt;</code></pre>
+                    <a href="$sampleImage&amp;w=500&amp;q=20"><img src="$sampleImage&amp;w=500&amp;q=20"/></a>
                     <h4 id="output-output">Output <code>output</code></h4>
                     <p>Encodes the image to a specific format. Accepts <code>jpg</code>, <code>png</code> or <code>gif</code>. Defaults to <code>jpg</code>.</p>
-                    <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleImageName&amp;w=500&amp;output=gif"&gt;</code></pre>
-                    <a href="$fullURL/?url=$sampleImage&amp;w=500&amp;output=gif"><img class="lazy" src="$fullURL/?url=$sampleImage&amp;w=500&amp;output=gif"/></a>
+                    <pre><code class="language-html">&lt;img src="$sampleImageName&amp;w=500&amp;output=gif"&gt;</code></pre>
+                    <a href="$sampleImage&amp;w=500&amp;output=gif"><img src="$sampleImage&amp;w=500&amp;output=gif"/></a>
                     <h4 id="interlace-progressive-il">Interlace / progressive <code>il</code></h4>
                     <p>Adds interlacing to GIF and PNG. JPEG's become progressive.</p>
-                    <pre><code class="language-html">&lt;img src="$fullURL/?url=&#133;$sampleImageName&amp;w=500&amp;il"&gt;</code></pre>
-                    <a href="$fullURL/?url=$sampleImage&amp;w=500&amp;il"><img class="lazy" src="$fullURL/?url=$sampleImage&amp;w=500&amp;il"/></a>
+                    <pre><code class="language-html">&lt;img src="$sampleImageName&amp;w=500&amp;il"&gt;</code></pre>
+                    <a href="$sampleImage&amp;w=500&amp;il"><img src="$sampleImage&amp;w=500&amp;il"/></a>
                     <h4 id="base64-encoding">Base64 (data URL) <code>encoding=base64</code></h4>
                     <p>Encodes the image to be used directly in the src= of the <code>&lt;img&gt;</code>-tag.</p>
-                    <pre><code>$fullURL/?url=&#133;$sampleImageName&amp;crop=100,100,400,450&amp;encoding=base64</code></pre>
-                    <a href="$fullURL/?url=$sampleImage&amp;crop=100,100,400,450&amp;encoding=base64"><img src="data:image/jpeg;base64,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"/></a>
+                    <pre><code>$sampleImageName&amp;crop=100,100,400,450&amp;encoding=base64</code></pre>
+                    <a href="$sampleImage&amp;crop=100,100,400,450&amp;encoding=base64"><img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCABkAGQDASIAAhEBAxEB/8QAHAAAAQQDAQAAAAAAAAAAAAAABwAEBggCAwUB/8QANhAAAgEDAgQFAwMCBQUAAAAAAQIDAAQRBQYHEiExEyJBUWEUMnEII0JSoRUWM2JyFyWCkfD/xAAaAQABBQEAAAAAAAAAAAAAAAAFAAECAwQG/8QALhEAAQMDAgUDAQkAAAAAAAAAAAECAwQREiExBRMiQVEUIzMyFSQ0QlJhcaHh/9oADAMBAAIRAxEAPwC2gfAyBk+1LzAksoJPevEwvU9/evPubly2ayFpvjUAZHU+1bQhJAdOnxWEMb/yKj8U317Uo9NsmYyokjDEYY/c3sKZ8iRtyUZEVVshzN67rsNrWX1Ny7OzHCoB3P5oTazvrVJN72V1HO62MpRkT0APeo7res3255L+wuuaS58QzQpg9CO4xU34acOZNR0u0v8AXw8ax58OJTgup7c3tQS8tVJduiHQw0sNHHnPuQVrmSHdmsMY25XWYdsV4s8llta7SMMFupUB6eg7irIpoWiQscWFsGf7mKA5rObQ9Glg8GTT7Zox1C+GK0fZS/qKk4zGiWx8f0Vue6+l0C00q3z4k3702D1z6CpPoW+b3RLiy0i3f6nDHxcsepPpn4qa7n4XWNzcvqGjv9Pc8p5Yj1Qn0HxQa1XR9V27fyQ3sPJeSHCtjPL81glinp35LsEIZKasbZN/3LK6Rr2maxzJb3cbSxnDJnqDXQEZJORgCqv6Ze3u11+shuDNfzd1znlHvR52BuldX0yBL90ivWTm8MnqRRSkrEl0duBa7hj4OpuxIyrZ6dB7UqcNHzHOcUqIAq5z+ZQOvmPvW4fYOYggelNYhmR1PkwOuacxRAurNny+vvTISHAZUQtKMAdzQO4x6kmuP4ujXsjPZviSND2P9Qoj8UtfXQNuPIwBaX9tRnqfmhBw90SXXd0pLbuVtH87g9wP6W96HV0qufyG7qFeGU6Jed+yEu4PbRS5Zd0ahGwlcAojDrkdzRbdgi+QYAGB7V5FDHbwpDCPDjjXlAA7D3rVcByPDU5rbFCkLbIYqmpdUSZLsaEdmd+cBsd/mt0bsqjmJasPDAUe471vCMVXDeuOtPdSh1jZC5HQ1yN17asNetT48KG4Rf2pPVTXTjkVm8NSpYex61nH5H5ebNPikrcHiY98bs26Fadx6Pd7b1FzfRhph1QMMg/7vxXN25dX1lrMeuXd29vGhypB+8+wzR+4obeg1fbs1ytt4t5bpzxEevx+Kr1b2cl9eF9Yu2tooOmOXrn4WgM0C00llU62kqm1kK337/4WY21rtlrWjQahC5AcdQT1B9qVA7S99LoNoNP061zApLZY9ST60q3Nrm2BjuFOyWyKHcupyCe3fpT+1AaFGPr3rlBnDB16g96fX07W+kzzY6onMfmiSPREuBVbcCPGrdL3O4zozWyvaRjGSPMD7rU/4Obcj0bbUd0xZ5bkc+SOvKfShBY3d1ufecFlewLOJLgeZl5WCg9asxBCkFvHCg5UjUAAUOomc17pnBmvd6embA3uNtavIrOwluZCQEGPzUY2puMXmoPa3JCh/wDSJplxO1lYY2t1TmSMZbr3NCnbe6SdwJYzzhJn88Y9R8VoWRVfYEMbfRSyhiHOG/8AdcvdWprpmnFkI8VhhPj5p1oV+t9pcdyxAYDz/FCTi/uRo4p3WRgDlIh8DualNJg26EURVMNA3HLHqzyW1wZJFfEgL5/tRe0i+g1KyW5jwCRhlz2NUY2xvyfTd7iE4aCSTztnqatlsPVnDwqjD6eYZC/NQjc5i3UudH03J+DzKUPyD+KAfGDbyaLrz6kSwtLluZAqno3tR9YYORUX4paNDq+07gTRGRoB4igHrkU1bFzYV8oXcPqVp579lK2pq9ug5Y7KN1H8m7mlT03l7Axht7SFUQ46Q56/mlXPo9DtEfoWat1HiKXKk59BXJ4m3c1ls68eDPiFeVCort2ioXGR2GelQT9QUk6bTjjt5RG5mDffy5Aro6xVbAqocNTMznY3sQzgPbX19ut7q7UlLeMtlkwck4o8ancLaWUtw3ZFoW/px064t9Hvry5kEjSuEVg2ew6/3qd75nEWjFR/I4NNSt5dLc0cUflVK3wBze954qS3M8pEaKZH61WV9evJN+HWLd3EdvJlSPtAoy8Zb+SDb80cT/uXj8oAPYUH9Tsv8H0y3tuXMsqCWUfB7VCFuS2KWIjVyUuXsfcCXG0orm2ZnS7hyOnY4xQO426tyLc8spJBEcXX1PepxwC1BbrhsnOpR4WZVI7YHahTxXje+3DZ6cF6yvzEVF3S6zuxHG8lkBtoWmNNN9QxHiDzZqzHCLU55tGhSVzzwMOvxQIieFL+7VV8KOOTkQj0opcI7hxeiCOcSRNHnAonLE30yOItf1YlpbGX6iziuF6FkzjNbZVEltJGw5sqR1HeuXtdmOhwBR1AxXTglLAhxy1mat228lTks4rHuy1vbXcN5CZjGBIcKCB0/FKiHvXhveavuO6v4LuCKOQ5CsSSKVAfRy+DroeIRctuUmtgoWfKqsyD1/tQi/UjNHN9DatdLHhSxU560W7N16tjlFcXdmydH3VNBcag9xzRjACvijVZHJNFi05mikjhnR7tjncCLX6TYkC5DB2LBh61nxRmk5IYVLAAcxwcZqU6FY2+lWkWn2icsEKcqgelQvigea+AZvKI+iink6YUaQmfzJleALiXH9VqFhaMAQHzgdc0OOIIT/N16IHJaGNEAPYYHWi1ukLJuKwLeXrjoPWhTvKOKfd2rRghHz/qelKiTKYsd8Yff03wt/0zu5GVc87Yz6eWoPva3ih3/Zu7g/tsy83/AN8VPuAcZi4XTx8/iAO2CPXpUK3wkb79sA4DqIHyCP8Aa1V1LF5iiavuAxjhmxMZlDK8hbpRB4JxFdxSNz+URYAx2qE2cdwok8NudS3QN/Gp/wAGOWbcbD7XWPz/ADRupajaUyxO90tDtcf9hiy5B606mlEaZzzGufttAmmIhY59DTwqC2SuRQZirihY7RxqLyynnWPoaVZSSyByFAA/NKpXUVkNx5cdsn2rAlwQAcDGa9RgSqFutYHy82T3OPwKv2aQsO7bIwS3U98UOuI7zHU3fAHLH3xRDgXOMHtUJ3+I/wDEHL5JCYA96ol1bqO3cC255Cu49PHPytnOcUIN5zY3Vqiyx/tGc/b3/FF/euf8zWAKBQpwpx281CXdMJO5dVlLeIpmyFxSodKjTwaF1j1LGcBJI04UzqF8pZuTHeoHxDkEe/rPDL0gfPX4ap7wLiVeFzMTyHnahzxOyN9WzRyBmFuxII/5VXUOykExvuECgPMspSVlPN1Ge9EDgQc7kn8RDzeF5j70PEWN0JdvB5m+4USuA8LruCcu5kXwuhHrRqqX7vYzRImblLOaCijS43A5QM96dMylSV9K16aoOkw8vlBHXNYMzBR16D+9CkSzB11UzKIxyehNKsTIufMAT70qkI85QzqTSiYlWz1pUqn2EObQAFh/T2qB79djdtk9qVKqZ/pE0D292ZN4adgk5Cnr/wAqEO7WaDceozRsQz3DBvalSpcP/EL/AAaHfG0slwObn4SCRgOZ5G5jQz4nDk3lCy9D9K3X/wAWpUqjN8ikW/IQPSGOoQNHc9Vjby4GKJnAoFN1SxK7cnhdqVKjFV8Bni+txaPTjzaRDn+mvZIk78v8qVKhn5BzRgHqQKVKlTDn/9k="/></a>
                 </section>
             </div>
         </div>

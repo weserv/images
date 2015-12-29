@@ -31,7 +31,7 @@ class Trim extends BaseManipulator
      */
     public function getTrim()
     {
-        if ($this->trim === 'null') {
+        if ($this->trim === '') {
             return 10;
         }
 

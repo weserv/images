@@ -5,7 +5,7 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 use Intervention\Image\Image;
 
 /**
- * @property string $fm
+ * @property string $output
  * @property string $q
  */
 class Encode extends BaseManipulator
@@ -30,6 +30,7 @@ class Encode extends BaseManipulator
             $image->interlace();
         }
 
+        // Memory leak, see: https://github.com/Intervention/image/issues/426
         return $image->encode($format, $quality);
     }
 

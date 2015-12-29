@@ -19,8 +19,6 @@ abstract class BaseManipulator implements ManipulatorInterface
     public function setParams(array $params)
     {
         $this->params = $params;
-
-        return $this;
     }
 
     /**
@@ -31,7 +29,7 @@ abstract class BaseManipulator implements ManipulatorInterface
     public function __get($name)
     {
         if (array_key_exists($name, $this->params)) {
-            return ($this->params[$name] != null) ? $this->params[$name] : 'null';
+            return ($this->params[$name] != null) ? $this->params[$name]: '';
         }
     }
 

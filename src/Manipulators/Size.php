@@ -7,7 +7,8 @@ use Intervention\Image\Image;
 
 /**
  * @property string $dpr
- * @property string $fit
+ * @property string $t
+ * @property string $a
  * @property string $h
  * @property string $w
  */

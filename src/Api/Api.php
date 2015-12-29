@@ -6,6 +6,7 @@ use AndriesLouw\imagesweserv\Client;
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface;
 use GuzzleHttp\Exception\RequestException;
+use ImagickException;
 use Intervention\Image\Exception\InvalidArgumentException;
 use Intervention\Image\Exception\NotReadableException;
 use Intervention\Image\Exception\RuntimeException;
@@ -117,7 +118,8 @@ class Api implements ApiInterface
      * @throws NotReadableException if the provided file can not be read
      * @throws ImageTooLargeException if the provided image is too large for processing.
      * @throws RequestException for errors that occur during a transfer or during the on_headers event
-     * @return \Intervention\Image\Image
+     * @throws ImagickException for errors that occur during image manipulation
+     * @return string Manipulated image binary data.
      */
     public function run($url, array $params)
     {
@@ -144,9 +146,17 @@ class Api implements ApiInterface
                 trigger_error($e->getMessage() . ' URL: ' . $url . ' Params: ' . implode(', ', $params),
                     E_USER_WARNING);
                 throw $e;
+            } catch (ImagickException $e) {
+                trigger_error($e->getMessage() . ' URL: ' . $url . ' Params: ' . implode(', ', $params),
+                    E_USER_WARNING);
+                throw $e;
             }
+
+            //gc_collect_cycles();
         }
 
-        return $image;
+        $image->destroy();
+
+        return $image->getEncoded();
     }
 }
