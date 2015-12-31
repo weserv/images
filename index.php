@@ -491,7 +491,7 @@ function rateLimit(){
 }
 
 if(!empty($_GET['url'])){
-	//Translations from V2 API to V1 parameters
+	//Translations from V2 API to V1 parameters - in place till code refresh
 	if(isset($_GET['a'])){
 		if(strpos($_GET['a'],'top') !== false){ $_GET['a'] = 't'; }
 		if(strpos($_GET['a'],'bottom') !== false){ $_GET['a'] = 'b'; }
@@ -504,13 +504,6 @@ if(!empty($_GET['url'])){
 	//End of translations
 	
 //	//Translations from V1 API to V2 parameters
-//	if(isset($_GET['t'])){
-//		if($_GET['t'] == 'fit'){ $_GET['t'] = 'contain'; }
-//		if($_GET['t'] == 'fitup'){ $_GET['t'] = 'contain'; }
-//		if($_GET['t'] == 'square'){ $_GET['t'] = 'crop'; }
-//		if($_GET['t'] == 'squaredown'){ $_GET['t'] = 'crop'; }
-//		if($_GET['t'] == 'absolute'){ $_GET['t'] = 'stretch'; }
-//	}
 //	if(isset($_GET['a'])){
 //		if($_GET['a'] == 't'){ $_GET['a'] = 'top'; }
 //		if($_GET['a'] == 'b'){ $_GET['a'] = 'bottom'; }
