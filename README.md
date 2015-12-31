@@ -3,9 +3,9 @@
 [![Source Code](https://img.shields.io/badge/source-andrieslouw/imagesweserv-blue.svg?style=flat-square)](https://github.com/andrieslouw/imagesweserv)
 [![Software License](https://img.shields.io/badge/license-BSD3-brightgreen.svg?style=flat-square)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29)
 
-<img src="https://images.weserv.nl/?url=nl3.php.net/images/logos/php-med-trans.png&h=40" align="right" />
+<a href="https://github.com/php"><img src="https://images.weserv.nl/?url=nl3.php.net/images/logos/php-med-trans.png&h=40" align="right" /></a>
 <img src="https://images.weserv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Slash.svg/200px-Slash.svg.png&h=35" align="right" />
-<img src="https://images.weserv.nl/?url=nginx.org/nginx.gif&w=150&h=38&t=square" align="right" />
+<a href="https://github.com/nginx"><img src="https://images.weserv.nl/?url=nginx.org/nginx.gif&w=150&h=38&t=square" align="right" /></a>
 # Images.weserv.nl
 
 Source code of images.weserv.nl, to be used on your own server(s).
