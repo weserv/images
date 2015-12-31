@@ -1,7 +1,6 @@
 [![Author](https://img.shields.io/badge/author-andrieslouw-blue.svg?style=flat-square)](https://github.com/andrieslouw)
 [![Author](https://img.shields.io/badge/author-kleisauke-blue.svg?style=flat-square)](https://github.com/kleisauke)
 [![Source Code](https://img.shields.io/badge/source-andrieslouw/imagesweserv-blue.svg?style=flat-square)](https://github.com/andrieslouw/imagesweserv)
-[![Latest Version](https://img.shields.io/github/release/andrieslouw/imagesweserv.svg?style=flat-square)](https://github.com/andrieslouw/imagesweserv/releases)
 [![Software License](https://img.shields.io/badge/license-BSD3-brightgreen.svg?style=flat-square)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29)
 
 <img src="https://images.weserv.nl/?url=nl3.php.net/images/logos/php-med-trans.png&h=40" align="right" />
