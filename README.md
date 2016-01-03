@@ -30,3 +30,9 @@ Full documentation can be found at [images.weserv.nl](https://images.weserv.nl/)
 ## License
 
 The BSD 3-Clause License. Please see [LICENSE.md](https://github.com/andrieslouw/imagesweserv/blob/master/LICENSE.md) for more information.
+
+## Last but not least
+This is made in Sneek with love and passion
+
+[![Made in Sneek](http://kleisauke.nl/made-in-sneek-resized.png)](https://en.wikipedia.org/wiki/Sneek)
+
