@@ -35,4 +35,3 @@ The BSD 3-Clause License. Please see [LICENSE.md](https://github.com/andrieslouw
 This is made in Sneek with love and passion
 
 [![Made in Sneek](http://kleisauke.nl/made-in-sneek-resized.png)](https://en.wikipedia.org/wiki/Sneek)
-
