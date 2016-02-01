@@ -30,9 +30,20 @@ function download_file($path,$fname){
 	
 	if ($return === false){
 		$error = curl_error($ch);
+		$errno = curl_errno($ch);
 		curl_close($ch);
 		unlink($fname);
 		$error_code = substr($error,0,3);
+		
+		if($errno == 6){
+			header('HTTP/1.1 410 Gone');
+			header('X-Robots-Tag: none');
+			header('X-Gone-Reason: Hostname not in DNS or blocked by policy');
+			$img_data['mime'] = 'text/plain';
+			echo 'Error 410: Server could parse the ?url= that you were looking for, because the hostname of the origin is unresolvable (DNS) or blocked by policy.';
+			die;
+		}
+		
 		if(in_array($error_code,array('400','403','404','500','502'))){
 			trigger_error('cURL Request error: '.$error.' URL: '.$path,E_USER_WARNING);
 		}
@@ -587,28 +598,7 @@ if(!empty($_GET['url'])){
 		$_GET['url'] .= isset($parts['query']) ? '?'.$parts['query'] : '';
 	}
 
-	//Parental control
-	require_once("regdomain/gDNS.php");
-	$dns = new gDNS(false);
-	
-	function checkFamilyAddr($domain){
-		global $dns;
-		$dns->Query(idn_to_ascii($domain), "A", false, "IN", "127.0.0.1");
-		if(count($dns->t_log) > 1){
-			return "R";
-		}else{
-			return "N";
-		}
-	}
-
-	if(checkFamilyAddr($parts['host']) == 'R'){
-		header('HTTP/1.1 410 Gone');
-		header('X-Robots-Tag: none');
-		header('X-Gone-Reason: Hostname not in DNS or blocked by policy');
-		$img_data['mime'] = 'text/plain';
-		echo 'Error 410: Server could parse the ?url= that you were looking for, because the hostname '.$parts['host'].' is unresolvable (DNS) or blocked by policy';
-		die;
-	}elseif(rateLimit()){
+	if(rateLimit()){
 		header('HTTP/1.1 429 Too Many Requests');
 		header('Cache-Control: max-age=0');
 		header('Retry-After: 3600');
