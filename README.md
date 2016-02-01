@@ -19,9 +19,9 @@ Full documentation can be found at [images.weserv.nl](https://images.weserv.nl/)
 [UserVoice forum](https://imagesweserv.uservoice.com/).
 
 ## Credits
-
-- [Andries Louw Wolthuizen](https://github.com/andrieslouw)
-- [Kleis Auke Wolthuizen](https://github.com/kleisauke)
+[![Andries Louw Wolthuizen](https://avatars2.githubusercontent.com/u/11487455?v=3&s=120)](https://github.com/andrieslouw) | [![Kleis Auke Wolthuizen](https://avatars2.githubusercontent.com/u/12746591?v=3&s=120)](https://github.com/kleisauke)
+------------- | -------------
+[Andries Louw Wolthuizen](https://github.com/andrieslouw) | [Kleis Auke Wolthuizen](https://github.com/kleisauke)
 
 ## License
 
