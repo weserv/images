@@ -30,9 +30,19 @@ function download_file($path,$fname){
 	
 	if ($return === false){
 		$error = curl_error($ch);
+		$errno = curl_errno($ch);
 		curl_close($ch);
 		unlink($fname);
 		$error_code = substr($error,0,3);
+		
+		if($errno == 6){
+			header('HTTP/1.1 410 Gone');
+			header('X-Robots-Tag: none');
+			header('X-Gone-Reason: Hostname not in DNS or blocked by policy');
+			$img_data['mime'] = 'text/plain';
+			echo 'Error 410: Server could parse the ?url= that you were looking for, because the hostname of the origin is unresolvable (DNS) or blocked by policy.';
+			die;
+		}
 		if(in_array($error_code,array('400','403','404','500','502'))){
 			trigger_error('cURL Request error: '.$error.' URL: '.$path,E_USER_WARNING);
 		}
