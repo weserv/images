@@ -2,7 +2,6 @@
 
 [![Author](https://img.shields.io/badge/author-andrieslouw-blue.svg?style=flat-square)](https://github.com/andrieslouw)
 [![Source Code](https://img.shields.io/badge/source-andrieslouw/imagesweserv-blue.svg?style=flat-square)](https://github.com/andrieslouw/imagesweserv)
-[![Latest Version](https://img.shields.io/github/release/andrieslouw/imagesweserv.svg?style=flat-square)](https://github.com/andrieslouw/imagesweserv/releases)
 [![Software License](https://img.shields.io/badge/license-BSD3-brightgreen.svg?style=flat-square)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29)
 
 Source code of images.weserv.nl, to be used on your own server(s). Images.weserv.nl leverages powerful libraries like [Intervention Image](http://image.intervention.io/) (for image handling and manipulation), [Guzzle](https://github.com/guzzle/guzzle) (for sending HTTP requests) and [URI](https://github.com/thephpleague/uri) (to create and manage URIs).
