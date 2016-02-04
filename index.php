@@ -97,12 +97,14 @@ function create_image($path){
 			if(strpos(file_get_contents($fname),'_Incapsula_Resource') !== false){ $add_msg .= 'Warning: '.$parts['host'].' is hosted by a CDN (Incapsula) that is returning CAPTCHAs instead of images.<br />'.PHP_EOL; }
 			$ext = substr($path,-4,4);
 			try {
+				$im = new Imagick();
+				$im->setBackgroundColor(new ImagickPixel('transparent')); 
 				if($ext == '.ico'){
-					$im = new Imagick('ico:'.$fname.'[0]');
+					$im->readImage('ico:'.$fname.'[0]');
 				}elseif($ext == '.svg'){
-					$im = new Imagick('SVG:'.$fname.'[0]');
+					$im->readImage('SVG:'.$fname.'[0]');
 				}else{
-					$im = new Imagick($fname.'[0]');
+					$im->readImage($fname.'[0]');
 				}
 				$im->setImageFormat('png');
 				$im->stripImage();
