@@ -8,7 +8,11 @@
  **/
 error_reporting(E_ALL);
 set_time_limit(180);
-ini_set('display_errors',0);
+if(isset($_GET['detail'])){
+	ini_set('display_errors',1);
+}else{
+	ini_set('display_errors',0);
+}
 
 $img_data = '';
 
@@ -91,21 +95,35 @@ function create_image($path){
 			}
 		}else{
 			if(strpos(file_get_contents($fname),'_Incapsula_Resource') !== false){ $add_msg .= 'Warning: '.$parts['host'].' is hosted by a CDN (Incapsula) that is returning CAPTCHAs instead of images.<br />'.PHP_EOL; }
-			$im = (substr($path,-4,4) == '.ico') ? new Imagick('ico:'.$fname.'[0]') : new Imagick($fname.'[0]');
-			$im->setImageFormat('png');
-			$im->stripImage();
-			$tmpimagick = tempnam('/dev/shm','imb_');
-			$im->writeImage($tmpimagick);
-			$im->clear();
-			$im->destroy();
-			rename($tmpimagick,$fname);
-			$img_data = @getimagesize($fname);
-			$img_data['mime'] = 'image/png';
-			$gd_stream = imagecreatefrompng($fname);
+			$ext = substr($path,-4,4);
+			try {
+				if($ext == '.ico'){
+					$im = new Imagick('ico:'.$fname.'[0]');
+				}elseif($ext == '.svg'){
+					$im = new Imagick('SVG:'.$fname.'[0]');
+				}else{
+					$im = new Imagick($fname.'[0]');
+				}
+				$im->setImageFormat('png');
+				$im->stripImage();
+				$tmpimagick = tempnam('/dev/shm','imb_');
+				$im->writeImage($tmpimagick);
+				$im->clear();
+				$im->destroy();
+				rename($tmpimagick,$fname);
+				$img_data = @getimagesize($fname);
+				$img_data['mime'] = 'image/png';
+				$gd_stream = imagecreatefrompng($fname);
+			} catch (ImagickException $e) {
+				if(isset($_GET['detail'])){
+					$add_msg .= 'Imagick reported errors: '.print_r($e,true).PHP_EOL;
+				}
+			}
 		}
 		
-		if($gd_stream === false){
+		if(!isset($gd_stream) || $gd_stream === false){
 			unlink($fname);
+			$gd_steam = false;
 			throw new Exception('This is no valid image format!');
 		}
 		
