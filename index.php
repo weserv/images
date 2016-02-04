@@ -156,14 +156,17 @@ function show_image($image,$quality){
 	global $img_data;
 	switch($img_data['mime']){
 		case 'image/jpeg':
+			header('Content-Disposition: inline; filename=image.jpg');
 			return imagejpeg($image,NULL,$quality);
 		break;
 		
 		case 'image/gif':
+			header('Content-Disposition: inline; filename=image.gif');
 			return imagegif($image);
 		break;
 		
 		case 'image/png':
+			header('Content-Disposition: inline; filename=image.png');
 			imagesavealpha($image,true);
 			return imagepng($image);
 		break;
