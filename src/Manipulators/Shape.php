@@ -22,61 +22,84 @@ class Shape extends BaseManipulator
         if ($shape !== null) {
             $width = $image->getWidth();
             $height = $image->getHeight();
-
             $min = min($width, $height);
-            $outerRadius = $min / 2;
 
-            $mask = null;
+            if ($image->getDriver()->getDriverName() == 'Gd') {
+                if ($shape === 'circle' || $shape === 'ellipse') {
+                    // Mask is slow on GD driver so we are using a different approach
+                    $img = $image->getCore();
 
-            if ($shape === 'ellipse') {
-                $mask = $this->makeEllipseMaskImage($image, $width, $height);
-            }
-            if ($shape === 'triangle-180') {
-                // Triangle upside down
-                $mask = $this->makeShapeMaskImage($image, $width, $height, 3, $outerRadius, $outerRadius, pi());
-            }
-            if ($shape === 'triangle') {
-                // Triangle normal
-                $mask = $this->makeShapeMaskImage($image, $width, $height, 3, $outerRadius, $outerRadius, 0);
-            }
-            if ($shape === 'square') {
-                // Square tilted 45 degrees
-                $mask = $this->makeShapeMaskImage($image, $width, $height, 4, $outerRadius, $outerRadius, 0);
-            }
-            if ($shape === 'pentagon-180') {
-                // Pentagon tilted upside down
-                $mask = $this->makeShapeMaskImage($image, $width, $height, 5, $outerRadius, $outerRadius, pi());
-            }
-            if ($shape === 'pentagon') {
-                // Pentagon normal
-                $mask = $this->makeShapeMaskImage($image, $width, $height, 5, $outerRadius, $outerRadius, 0);
-            }
-            if ($shape === 'star-3') {
-                // 3 point star
-                $mask = $this->makeShapeMaskImage($image, $width, $height, 3, $outerRadius, $outerRadius * .191, 0);
-            }
-            if ($shape === 'star-4') {
-                // 4 point star
-                $mask = $this->makeShapeMaskImage($image, $width, $height, 4, $outerRadius, $outerRadius * .382, 0);
-            }
-            if ($shape === 'star' || $shape === 'star-5') {
-                // 5 point star
-                $mask = $this->makeShapeMaskImage($image, $width, $height, 5, $outerRadius, $outerRadius * .382, 0);
-            }
-            if ($shape === 'circle') {
-                $mask = $this->makeCircleMaskImage($image, $width, $height);
-            }
+                    // Create a black image with a transparent ellipse, and merge with destination
+                    $mask = imagecreatetruecolor($width, $height);
+                    $maskTransparent = imagecolorallocate($mask, 255, 0, 255);
+                    imagecolortransparent($mask, $maskTransparent);
+                    imagefilledellipse($mask, $width / 2, $height / 2, $width, $height, $maskTransparent);
+                    imagecopymerge($img, $mask, 0, 0, 0, 0, $width, $height, 100);
+                    // Fill each corners of destination image with transparency
+                    $dstTransparent = imagecolorallocatealpha($img, 255, 0, 255, 127);
+                    imagefill($img, 0, 0, $dstTransparent);
+                    imagefill($img, $width - 1, 0, $dstTransparent);
+                    imagefill($img, 0, $height - 1, $dstTransparent);
+                    imagefill($img, $width - 1, $height - 1, $dstTransparent);
+
+                    $image->setCore($img);
+                }
+                // TODO Support for ellipse, circle (circle now is ellipse), triangle, square, pentagon, stars for GD driver
+            } else {
+                $outerRadius = $min / 2;
+
+                $mask = null;
+
+                if ($shape === 'ellipse') {
+                    $mask = $this->makeEllipseMaskImage($image, $width, $height);
+                }
+                if ($shape === 'triangle-180') {
+                    // Triangle upside down
+                    $mask = $this->makeShapeMaskImage($image, $width, $height, 3, $outerRadius, $outerRadius, pi());
+                }
+                if ($shape === 'triangle') {
+                    // Triangle normal
+                    $mask = $this->makeShapeMaskImage($image, $width, $height, 3, $outerRadius, $outerRadius, 0);
+                }
+                if ($shape === 'square') {
+                    // Square tilted 45 degrees
+                    $mask = $this->makeShapeMaskImage($image, $width, $height, 4, $outerRadius, $outerRadius, 0);
+                }
+                if ($shape === 'pentagon-180') {
+                    // Pentagon tilted upside down
+                    $mask = $this->makeShapeMaskImage($image, $width, $height, 5, $outerRadius, $outerRadius, pi());
+                }
+                if ($shape === 'pentagon') {
+                    // Pentagon normal
+                    $mask = $this->makeShapeMaskImage($image, $width, $height, 5, $outerRadius, $outerRadius, 0);
+                }
+                if ($shape === 'star-3') {
+                    // 3 point star
+                    $mask = $this->makeShapeMaskImage($image, $width, $height, 3, $outerRadius, $outerRadius * .191, 0);
+                }
+                if ($shape === 'star-4') {
+                    // 4 point star
+                    $mask = $this->makeShapeMaskImage($image, $width, $height, 4, $outerRadius, $outerRadius * .382, 0);
+                }
+                if ($shape === 'star' || $shape === 'star-5') {
+                    // 5 point star
+                    $mask = $this->makeShapeMaskImage($image, $width, $height, 5, $outerRadius, $outerRadius * .382, 0);
+                }
+                if ($shape === 'circle') {
+                    $mask = $this->makeCircleMaskImage($image, $width, $height);
+                }
 
 
-            if ($mask !== null) {
-                $image = $image->mask($mask, false);
+                if ($mask !== null) {
+                    $image = $image->mask($mask, false);
 
-                if ($shape !== 'ellipse') {
-                    $min = min($width, $height);
-                    $image->crop($min, $min);
+                    if ($shape !== 'ellipse') {
+                        $min = min($width, $height);
+                        $image->crop($min, $min);
 
-                    // TODO Should we trim it?
-                    $image->trim();
+                        // TODO Should we trim it?
+                        $image->trim();
+                    }
                 }
             }
         }
@@ -194,4 +217,5 @@ class Shape extends BaseManipulator
 
         return $circle;
     }
+
 }

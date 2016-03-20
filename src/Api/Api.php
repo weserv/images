@@ -42,6 +42,7 @@ class Api implements ApiInterface
     /**
      * Create API instance.
      * @param ImageManager $imageManager Intervention image manager.
+     * @param Client $client The Guzzle client
      * @param array $manipulators Collection of manipulators.
      */
     public function __construct(ImageManager $imageManager, Client $client, array $manipulators)
@@ -116,15 +117,23 @@ class Api implements ApiInterface
      * Perform image manipulations.
      * @param  string $url Source URL
      * @param  array $params The manipulation params.
+     * @param  string $extension Extension of URL
      * @throws NotReadableException if the provided file can not be read
      * @throws ImageTooLargeException if the provided image is too large for processing.
      * @throws RequestException for errors that occur during a transfer or during the on_headers event
      * @throws ImagickException for errors that occur during image manipulation
      * @return string Manipulated image binary data.
      */
-    public function run($url, array $params)
+    public function run($url, $extension, array $params)
     {
-        $tmpFileName = $this->client->get($url);
+        //$tmpFileName = $this->client->get($url);
+
+        // Debugging
+        if (strpos($url, 'PNG_transparency_demonstration_1.png') !== false) {
+            $tmpFileName = __DIR__ . '/../../public/test-images/PNG_transparency_demonstration_1.png';
+        } else {
+            $tmpFileName = __DIR__ . '/../../public/test-images/lichtenstein.jpg';
+        }
 
         try {
             $image = $this->imageManager->make($tmpFileName);
@@ -177,10 +186,28 @@ class Api implements ApiInterface
                 }
             }
         } catch (NotReadableException $e) {
-            //echo file_get_contents($tmpFileName);
-            @unlink($tmpFileName);
-            trigger_error($e->getMessage() . ' URL: ' . $url, E_USER_WARNING);
-            throw $e;
+            if (strpos($e->getMessage(), 'Unable to read image type') !== false || strpos($e->getMessage(),
+                    'Unable to read image from file') !== false
+            ) {
+                try {
+                    $png = $this->convertToPng($extension, $tmpFileName);
+
+                    $image = $this->imageManager->make($png);
+                } catch (NotReadableException $e) {
+                    @unlink($tmpFileName);
+                    trigger_error($e->getMessage() . ' URL: ' . $url, E_USER_WARNING);
+                    throw $e;
+                } catch (ImagickException $e) {
+                    @unlink($tmpFileName);
+                    trigger_error($e->getMessage() . ' URL: ' . $url . ' Params: ' . implode(', ', $params),
+                        E_USER_WARNING);
+                    throw $e;
+                }
+            } else {
+                @unlink($tmpFileName);
+                trigger_error($e->getMessage() . ' URL: ' . $url, E_USER_WARNING);
+                throw $e;
+            }
         }
 
         foreach ($this->manipulators as $manipulator) {
@@ -200,12 +227,35 @@ class Api implements ApiInterface
                     E_USER_WARNING);
                 throw $e;
             }
-
-            //gc_collect_cycles();
         }
 
         $image->destroy();
 
         return $image->getEncoded();
+    }
+
+    /**
+     * Use Imagick and convert to PNG if GD
+     * cannot process the format.
+     * @param  string $extension Current unsupported extension
+     * @param  string $tmpFileName Temporary file which has the unsupported picture
+     * @throws ImagickException for errors that occur during image manipulation
+     * @return string Manipulated PNG image binary data.
+     */
+    public function convertToPng($extension, $tmpFileName)
+    {
+        if ($extension == 'ico') {
+            $imagick = new Imagick('ico:' . $tmpFileName . '[0]');
+        } else {
+            $imagick = new Imagick($tmpFileName . '[0]');
+        }
+
+        $imagick->setImageFormat('png');
+        $imagick->stripImage();
+
+        $pngString = $imagick->getImageBlob();
+        $imagick->clear();
+
+        return $pngString;
     }
 }

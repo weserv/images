@@ -1,0 +1,252 @@
+@charset UTF-8;
+
+body {
+background:#fff;
+color:#111;
+font-family:sans-serif;
+font-weight:300;
+line-height:1.6;
+margin:0;
+padding:0;
+}
+a {
+text-decoration:none;
+color:#a72376;
+}
+table {
+border-collapse:collapse;
+border-spacing:0;
+width:100%;
+border:1px solid #eaeaea;
+table-layout:auto;
+}
+th,td {padding:.425rem 0;}
+th {
+text-align:left;
+background:#f7f7f7;
+padding:.5rem;
+}
+h1,h2,h3 {
+text-rendering:optimizeLegibility;
+margin:.85rem 0 1.7rem;
+}
+h1 {font-size:2.15rem;}
+h2 {font-size:1.8rem;}
+h3 {font-size:1.4rem;}
+a:hover {color:#2d0820;}
+pre {
+position:relative;
+background:#f6f6f6;
+border:1px solid #ddd;
+border-radius:2px;
+line-height:1.15;
+margin:2rem 0;
+padding:.5rem .5rem .2rem .5rem;
+overflow-x:scroll;
+}
+b,strong,label,th {font-weight:600;}
+#sidebar { overflow-y: auto; }
+#weserv-logo {
+font-size:2em;
+}
+#header {
+background:#111;
+border-bottom:4px solid #a72376;
+color:#fff;
+text-align:center;
+padding:1rem;
+}
+#header a {display:inline-block;}
+#header strong {color:#a72376;}
+#sidebar {
+font-weight:300!important;
+background-color:#111;
+position:fixed;
+top:0;
+width:336px;
+bottom:0;
+left:0;
+font-size:15px;
+}
+#sidebar a {color:#ccc;}
+#sidebar ul {
+list-style:none;
+margin:0;
+padding:0;
+}
+#sidebar ul.topics {margin:0 1rem;}
+#sidebar ul.topics ul {
+display:none;
+padding-bottom:1rem;
+}
+#sidebar ul.topics > li > a {
+line-height:2rem;
+font-size:1.1rem;
+}
+#sidebar ul.topics > li.parent,#sidebar ul.topics > li.active {
+background:#251f29;
+margin-left:-1rem;
+margin-right:-1rem;
+padding-left:1rem;
+padding-right:1rem;
+}
+#sidebar ul li.active > a {
+background: #fff;
+color: #000 !important;
+margin-left:-1rem;
+margin-right:-1rem;
+padding-left:1rem;
+padding-right:1rem;
+}
+#sidebar ul li {padding:0;}
+#sidebar ul li a {
+display:block;
+padding:2px 0;
+}
+#sidebar ul li a span {
+text-overflow:ellipsis;
+overflow:hidden;
+white-space:nowrap;
+display:block;
+}
+#sidebar ul li > a {padding:4px 0;}
+#sidebar ul li li {
+padding-left:1rem;
+text-indent:.2rem;
+}
+section.goto {
+padding-top:10px;
+margin-top:-10px;
+}
+#body {
+position:relative;
+margin-left:336px;
+min-height:100%;
+}
+#body-inner {margin-bottom:5rem;}
+#footer {
+text-align:center;
+color:#b3b3b3;
+font-size:13px;
+}
+#footer a { color:#b3b3b3; }
+h1,h2,h3 {
+text-rendering:optimizeLegibility;
+font-weight:400;
+letter-spacing:-1px;
+}
+.abg {
+display:block;
+height:280px;
+}
+div.notices {
+position:relative;
+margin:2rem 0;
+}
+div.notices p {
+display:block;
+font-size:1rem;
+margin-top:0;
+margin-bottom:0;
+color:#111;
+padding:15px;
+}
+div.notices p:first-child:after {
+position:absolute;
+top:2px;
+color:#fff;
+left:1rem;
+}
+div.notices.info p {
+border-top:30px solid #F0B37E;
+background:#FFF2DB;
+}
+div.notices.info p:first-child:after {content:'Info';}
+div.notices.warning p {
+border-top:30px solid #F92F2F;
+background:#FAE2E2;
+}
+div.notices.note p {
+border-top:30px solid #6AB0DE;
+background:#E7F2FA;
+}
+div.notices.tip p {
+border-top:30px solid rgba(92,184,92,0.8);
+background:#E6F9E6;
+}
+code,kbd,pre,samp {
+font-family:Consolas, menlo, monospace;
+font-size:16px;
+}
+code {
+border-radius:2px;
+white-space:nowrap;
+background:#fefaed;
+border:1px solid #fbf0cb;
+vertical-align:middle;
+padding:0 2px;
+}
+pre code {
+color:#93236a;
+background:inherit;
+white-space:inherit;
+border:0;
+margin:0;
+padding:0;
+}
+td {
+border:1px solid #eaeaea;
+padding:.5rem;
+}
+.highlightable {padding:20px;}
+tr,td,th,#github-contrib i {vertical-align:middle;}
+.collapse.in,#sidebar h5.parent + ul.topics,#sidebar h5.active + ul.topics,#sidebar ul.topics.searched ul,#sidebar ul.topics li.parent ul,#sidebar ul.topics > li.active ul,.scroll-element.scroll-x.scroll-scrollx_visible,.scroll-element.scroll-y.scroll-scrolly_visible {display:block;}
+#sidebar a:hover,#sidebar ul.searched .search-match a {color:#e6e6e6;}
+#footer p {margin:0;}
+div.notices.warning p:first-child:after {content:'Warning';}
+div.notices.note p:first-child:after {content:'Note';}
+div.notices.tip p:first-child:after {content:'Tip';}
+a.trimedges img {border:1px dashed #2376a7;}
+a.trimedges:hover img {background-color:#2376a7 !important;}
+.dd-item .cen {text-align:center;}
+.new {
+display: inline-block;
+line-height: 1;
+vertical-align: middle;
+margin-left: .5rem;
+margin-right: .14285714em;
+background-color: #a72376;
+border: 0 solid #a72376;
+padding: .5833em .833em;
+color: #fff;
+text-transform: none;
+font-weight: 600;
+font-size: .85714286rem;
+border-radius: .28571429rem;
+}
+h3 > .new {
+margin-top: -.29165em;
+}
+h1 > .new {
+margin-top: -.39165em;
+}
+@media only all and (max-width: 59.938em) {
+#sidebar {width: 230px;}
+#weserv-logo {font-size:1.6em;}
+#body {margin-left:230px;} 
+}
+
+@media only all and (max-width: 47.938em) {
+#sidebar {
+position:relative;
+clear:both;
+height:auto;
+width:100%;
+}
+#body {
+margin-left: 0;
+width: 100%;
+}
+#sidebar .scrollbar-inner { display:none; }
+
+}  

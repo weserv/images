@@ -95,15 +95,16 @@ class Server
      * Generate and output image.
      * @param  string $url Image URL
      * @param  array $params Image manipulation params.
+     * @param  string $extension Extension of URL
      * @throws NotReadableException if the provided file can not be read
      * @throws ImageTooLargeException if the provided image is too large for processing.
      * @throws RequestException for errors that occur during a transfer or during the on_headers event
      * @throws ImagickException for errors that occur during image manipulation
      * @return string Manipulated image binary data.
      */
-    public function outputImage($url, array $params)
+    public function outputImage($url, $extension, array $params)
     {
-        return $this->api->run($url, $this->getAllParams($params));
+        return $this->api->run($url, $extension, $this->getAllParams($params));
     }
 
     /**

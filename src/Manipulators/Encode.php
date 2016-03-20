@@ -20,7 +20,7 @@ class Encode extends BaseManipulator
         $format = $this->getFormat($image);
         $quality = $this->getQuality();
 
-        if ($format === 'jpg') {
+        if ($format === 'jpg' || $format === 'gif') {
             $image = $image->getDriver()
                 ->newImage($image->width(), $image->height(), '#fff')
                 ->insert($image, 'top-left', 0, 0);
