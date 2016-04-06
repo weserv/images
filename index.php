@@ -197,7 +197,7 @@ function resize_image($image,$max_height,$max_width,$transformation,$alignment,$
 		
 		// This is transparency-preserving magic!
 		$image_resized = imagecreatetruecolor($new['width'],$new['height']);
-		if(($img_data[2] == IMAGETYPE_GIF) || ($img_data[2] == IMAGETYPE_PNG)){
+		if(($img_data[2] == IMAGETYPE_GIF)){
 			$tidx = imagecolortransparent($image);
 			$palletsize = imagecolorstotal($image);
 			if($tidx >= 0 && $tidx < $palletsize){
@@ -205,12 +205,12 @@ function resize_image($image,$max_height,$max_width,$transformation,$alignment,$
 				$tidx  = imagecolorallocate($image_resized, $trnprt_color['red'], $trnprt_color['green'], $trnprt_color['blue']);
 				imagefill($image_resized, 0, 0, $tidx);
 				imagecolortransparent($image_resized, $tidx);
-			}elseif($img_data[2] == IMAGETYPE_PNG){
-				imagealphablending($image_resized, false);
-				$color = imagecolorallocatealpha($image_resized, 0, 0, 0, 127);
-				imagefill($image_resized, 0, 0, $color);
-				imagesavealpha($image_resized, true);
 			}
+		}elseif($img_data[2] == IMAGETYPE_PNG){
+			imagealphablending($image_resized, false);
+			imagesavealpha($image_resized, true);
+			$color = imagecolorallocatealpha($image_resized, 0, 0, 0, 127);
+			imagefill($image_resized, 0, 0, $color);
 		}
 		
 		imagecopyresampled($image_resized, $image, 0, 0, $new['org_x'], $new['org_y'], $new['width'], $new['height'],$new['org_width'], $new['org_height']);
