@@ -47,6 +47,7 @@ function download_file($path,$fname){
 			echo 'Error 410: Server could parse the ?url= that you were looking for, because the hostname of the origin is unresolvable (DNS) or blocked by policy.';
 			die;
 		}
+		
 		if(in_array($error_code,array('400','403','404','500','502'))){
 			trigger_error('cURL Request error: '.$error.' URL: '.$path,E_USER_WARNING);
 		}
@@ -598,11 +599,17 @@ if(!empty($_GET['url'])){
 	header('Expires: '.gmdate("D, d M Y H:i:s", (time()+2678400)).' GMT'); //31 days
 	header('Cache-Control: max-age=2678400'); //31 days
 	if(isset($_GET['encoding']) && $_GET['encoding'] == 'base64'){
-		header('Content-type: text/plain');
+		header('Content-Type: text/plain');
+		ob_start('custom_base64');
 	}else{
-		header('Content-type: '.$img_data['mime']);
+		header('Content-Type: '.$img_data['mime']);
+		ob_start();
 	}
 	show_image($image,$q);
+	if(!isset($_GET['encoding']) || $_GET['encoding'] != 'base64'){
+		header('Content-Length: '.ob_get_length());
+	}
+	ob_end_flush();
 	exit;
 }else{
 ?>
