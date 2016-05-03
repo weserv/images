@@ -868,7 +868,7 @@ if(!empty($_GET['url'])){
                 <section id="encoding" class="goto">
                 	<h1>Encoding</h1>
                     <h3 id="quality-q">Quality <code>&amp;q=</code></h3>
-                    <p>Defines the quality of the image. Use values between <code>0</code> and <code>100</code>. Defaults to <code>85</code>. Only relevant if the format is set to <code>jpg</code>.</p>
+                    <p>Defines the quality of the image. Use values between <code>0</code> and <code>95</code>. Defaults to <code>85</code>. Only relevant if the format is set to <code>jpg</code>.</p>
                     <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;q=20"&gt;</code></pre>
                     <a href="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;q=20"><img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;q=20"/></a>
                     <h3 id="output-output">Output <code>&amp;output=</code></h3>
