@@ -505,7 +505,7 @@ if(!empty($_GET['url'])){
 	$w = (empty($_GET['w']) OR !ctype_digit($_GET['w'])) ? '0' : $_GET['w'];
 	$t = (empty($_GET['t']) OR !in_array($_GET['t'],array('fit','fitup','square','squaredown','absolute'))) ? 'fit' : $_GET['t'];
 	$a = (empty($_GET['a']) OR !in_array($_GET['a'],array('t','b','r','l'))) ? 'c' : $_GET['a'];
-	$q = (empty($_GET['q']) OR !ctype_digit($_GET['q']) OR $_GET['q'] > 95 OR $_GET['q'] < 0) ? '85' : $_GET['q'];
+	$q = (empty($_GET['q']) OR !ctype_digit($_GET['q']) OR $_GET['q'] > 100 OR $_GET['q'] < 0) ? '85' : $_GET['q'];
 	$c = (isset($_GET['circle'])) ? '_circle' : '';
 	$il = (isset($_GET['il'])) ? '_il' : '';
 	
