@@ -303,9 +303,9 @@ function set_dimension($imageWidth,$imageHeight,$maxWidth,$maxHeight,$transforma
 			$new['org_width'] = $imageHeight*$cropRatioComputed;
 			$new['org_height'] = $imageHeight;
 			
-			if($alignment == 'r'){
+			if($alignment == 'l'){
 				$new['org_x'] = 0;
-			}elseif($alignment == 'l'){
+			}elseif($alignment == 'r'){
 				$new['org_x'] = ($imageWidth - $new['org_width']);
 			}else{
 				$new['org_x'] = ($imageWidth - $new['org_width']) / 2;
