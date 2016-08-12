@@ -622,7 +622,7 @@ if(!empty($_GET['url'])){
     <link rel="icon" type="image/x-icon" href="favicon.ico"/>
     <link href="//static.weserv.nl/images.css" type="text/css" rel="stylesheet"/>
     <!--[if lte IE 9]><script src="//static.weserv.nl/html5shiv-printshiv.min.js" type="text/javascript"></script><![endif]-->
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js" type="text/javascript"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js" type="text/javascript" integrity="sha384-8gBf6Y4YYq7Jx97PIqmTwLPin4hxIzQw5aDmUg/DDhul9fFpbbLcLh3nTIIDJKhx" crossorigin="anonymous"></script>
     <script src="//static.weserv.nl/bootstrap.min.js" type="text/javascript"></script>
 </head>
 <body data-spy="scroll" data-target=".scrollspy">
