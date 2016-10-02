@@ -57,36 +57,36 @@ class Color
         do {
             if ($hex = $this->getHexFromColorName($value)) {
                 $rgba = $this->parseHex($hex);
-                $alpha = 1;
+                $alpha = 255;
                 break;
             }
 
             if (preg_match(self::SHORT_RGB, $value)) {
                 $rgba = $this->parseHex($value . $value);
-                $alpha = 1;
+                $alpha = 255;
                 break;
             }
 
             if (preg_match(self::SHORT_ARGB, $value)) {
                 $rgba = $this->parseHex(substr($value, 1) . substr($value, 1));
-                $alpha = substr($value, 0, 1) / 10;
+                $alpha = (substr($value, 0, 1) / 10) * 255;
                 break;
             }
 
             if (preg_match(self::LONG_RGB, $value)) {
                 $rgba = $this->parseHex($value);
-                $alpha = 1;
+                $alpha = 255;
                 break;
             }
 
             if (preg_match(self::LONG_ARGB, $value)) {
                 $rgba = $this->parseHex(substr($value, 2));
-                $alpha = substr($value, 0, 2) / 100;
+                $alpha = (substr($value, 0, 2) / 100) * 255;
                 break;
             }
 
             $rgba = [255, 255, 255];
-            $alpha = 0;
+            $alpha = 255;
         } while (false);
 
         $this->red = $rgba[0];
@@ -111,7 +111,12 @@ class Color
      */
     public function formatted()
     {
-        return 'rgba(' . $this->red . ', ' . $this->green . ', ' . $this->blue . ', ' . $this->alpha . ')';
+        return [
+            $this->red,
+            $this->green,
+            $this->blue,
+            $this->alpha
+        ];
     }
 
     /**

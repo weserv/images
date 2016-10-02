@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.1] - 2016-10-02
+
+- Dropped [Intervention Image](http://image.intervention.io/) in favor of [php-vips](https://github.com/jcupitt/php-vips) because resizing an image with [libvips](https://github.com/jcupitt/libvips) is typically 4x-5x faster than using the quickest ImageMagick.
+- Updated dependencies.
+
 ## [2.0.0] - 2015-12-27
 
 - Add CHANGELOG.md based on [’Keep a CHANGELOG’](https://github.com/olivierlacan/keep-a-changelog)
@@ -11,3 +16,4 @@ All notable changes to this project will be documented in this file.
 - [New features](https://images.weserv.nl/#quick-reference)
 
 [2.0.0]: https://github.com/andrieslouw/imagesweserv/releases/tag/2.0.0
+[2.0.1]: https://github.com/andrieslouw/imagesweserv/releases/tag/2.0.1

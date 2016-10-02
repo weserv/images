@@ -2,7 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
-use Intervention\Image\Image;
+use Jcupitt\Vips\Image;
 
 interface ManipulatorInterface
 {

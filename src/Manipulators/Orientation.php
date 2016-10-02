@@ -2,7 +2,8 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
-use Intervention\Image\Image;
+use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
+use Jcupitt\Vips\Image;
 
 /**
  * @property string $or
@@ -16,13 +17,30 @@ class Orientation extends BaseManipulator
      */
     public function run(Image $image)
     {
+        // Resolve orientation
         $orientation = $this->getOrientation();
 
-        if ($orientation === 'auto') {
-            return $image->orientate();
+        // Calculate angle of rotation
+        list($rotation, $flip, $flop) = Utils::calculateRotationAndFlip($orientation, $image);
+
+        if ($rotation != Utils::VIPS_ANGLE_D0) {
+            $image = $image->rot($rotation);
+            Utils::removeExifOrientation($image);
         }
 
-        return $image->rotate($orientation);
+        // Flip (mirror about Y axis)
+        if ($flip) {
+            $image = $image->flipver();
+            Utils::removeExifOrientation($image);
+        }
+
+        // Flop (mirror about X axis)
+        if ($flop) {
+            $image = $image->fliphor();
+            Utils::removeExifOrientation($image);
+        }
+
+        return $image;
     }
 
     /**
@@ -31,10 +49,10 @@ class Orientation extends BaseManipulator
      */
     public function getOrientation()
     {
-        if (in_array($this->or, ['auto', '0', '90', '180', '270'], true)) {
-            return $this->or;
+        if (in_array($this->or, ['90', '180', '270'], true)) {
+            return (int)$this->or;
         }
 
-        return 'auto';
+        return -1;
     }
 }

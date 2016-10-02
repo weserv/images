@@ -3,7 +3,8 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Color;
-use Intervention\Image\Image;
+use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
+use Jcupitt\Vips\Image;
 
 /**
  * @property string $bg
@@ -17,16 +18,28 @@ class Background extends BaseManipulator
      */
     public function run(Image $image)
     {
-        if (is_null($this->bg)) {
+        if ($this->bg == null) {
             return $image;
         }
 
-        $color = (new Color($this->bg))->formatted();
+        $backgroundColor = (new Color($this->bg))->formatted();
 
-        if ($color) {
-            $new = $image->getDriver()->newImage($image->width(), $image->height(), $color);
-            $new->mime = $image->mime;
-            $image = $new->insert($image, 'top-left', 0, 0);
+        if ($backgroundColor && Utils::hasAlpha($image)) {
+            $interpretation = $image->interpretation;
+            // Scale up 8-bit values to match 16-bit input image
+            $multiplier = Utils::is16Bit($interpretation) ? 256 : 1;
+
+            // Background colour
+            $background = [
+                $backgroundColor[0] * $multiplier,
+                $backgroundColor[1] * $multiplier,
+                $backgroundColor[2] * $multiplier
+            ];
+
+            $image = $image->flatten([
+                "background" => $background,
+                "max_alpha" => Utils::maximumImageAlpha($interpretation)
+            ]);
         }
 
         return $image;

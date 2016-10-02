@@ -2,7 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
-use Intervention\Image\Image;
+use Jcupitt\Vips\Image;
 
 /**
  * @property string $filt
@@ -17,11 +17,11 @@ class Filter extends BaseManipulator
     public function run(Image $image)
     {
         if ($this->filt === 'greyscale') {
-            return $this->runGreyscaleFilter($image);
+            $image = $this->runGreyscaleFilter($image);
         }
 
         if ($this->filt === 'sepia') {
-            return $this->runSepiaFilter($image);
+            $image = $this->runSepiaFilter($image);
         }
 
         return $image;
@@ -34,7 +34,7 @@ class Filter extends BaseManipulator
      */
     public function runGreyscaleFilter(Image $image)
     {
-        return $image->greyscale();
+        return $image->colourspace("b-w");
     }
 
     /**
@@ -44,13 +44,15 @@ class Filter extends BaseManipulator
      */
     public function runSepiaFilter(Image $image)
     {
-        $image->greyscale();
-        $image->brightness(-10);
-        $image->contrast(10);
-        $image->colorize(38, 27, 12);
-        $image->brightness(-10);
-        $image->contrast(10);
+        // TODO Make the sepia filter working
+        /*$sepia = vips_image_new_matrixv([
+            3, 3,
+            0.3588, 0.7044, 0.1368,
+            0.2990, 0.5870, 0.1140,
+            0.2392, 0.4696, 0.0912
+        ]);
 
+       return $image->recomb($sepia);*/
         return $image;
     }
 }

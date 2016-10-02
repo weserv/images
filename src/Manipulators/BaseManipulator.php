@@ -2,7 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
-use Intervention\Image\Image;
+use Jcupitt\Vips\Image;
 
 abstract class BaseManipulator implements ManipulatorInterface
 {
@@ -29,7 +29,7 @@ abstract class BaseManipulator implements ManipulatorInterface
     public function __get($name)
     {
         if (array_key_exists($name, $this->params)) {
-            return ($this->params[$name] != null) ? $this->params[$name]: '';
+            return ($this->params[$name] != null) ? $this->params[$name] : '';
         }
     }
 

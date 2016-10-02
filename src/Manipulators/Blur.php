@@ -2,7 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
-use Intervention\Image\Image;
+use Jcupitt\Vips\Image;
 
 /**
  * @property string $blur
@@ -19,7 +19,7 @@ class Blur extends BaseManipulator
         $blur = $this->getBlur();
 
         if ($blur !== null) {
-            $image->blur($blur);
+            $image = $image->gaussblur($blur);
         }
 
         return $image;
@@ -31,14 +31,14 @@ class Blur extends BaseManipulator
      */
     public function getBlur()
     {
-        if (!is_numeric($this->blur)) {
+        if (!preg_match('/^[0-9]\.*[0-9]*$/', $this->blur)) {
             return;
         }
 
-        if ($this->blur < 0 or $this->blur > 100) {
+        if ($this->blur < 0.0 || $this->blur > 100.0) {
             return;
         }
 
-        return (int)$this->blur;
+        return (double)$this->blur;
     }
 }

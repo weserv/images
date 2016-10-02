@@ -2,7 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
-use Intervention\Image\Image;
+use Jcupitt\Vips\Image;
 
 /**
  * @property string $bri
@@ -19,7 +19,15 @@ class Brightness extends BaseManipulator
         $brightness = $this->getBrightness();
 
         if ($brightness !== null) {
-            $image->brightness($brightness);
+            // TODO Make the brightness manipulator working
+            // Move the image to another colour space. sRGB image -> LCh (lightness, chroma, hue)
+            /*$lch = $image->sRGB2XYZ()->XYZ2Lab()->Lab2LCh();
+
+            // Edit the lightness
+            $lightness = $lch->lin([$brightness, 1, 1], [0, 0, 0]);
+
+            // And move it back to sRGB
+            $image = $lightness->LCh2Lab()->Lab2XYZ()->XYZ2sRGB();*/
         }
 
         return $image;

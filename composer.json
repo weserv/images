@@ -1,7 +1,7 @@
 {
 	"name": "andrieslouw/imagesweserv",
 	"type": "project",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"license": "BSD-3-Clause",
 	"description": "An image cache & resize proxy",
     "keywords": [
@@ -14,15 +14,14 @@
     ],
 	"homepage": "https://github.com/andrieslouw/imagesweserv",
 	"require": {
-        "php": ">=5.5.9",
-        "ext-imagick": "*",
+        "php": ">=7.0.0",
+        "jcupitt/vips": "@dev",
         "ext-fileinfo": "*",
         "ext-exif": "*",
         "ext-intl": "*",
         "ext-mbstring": "*",
-		"intervention/image": "^2.3",
-		"league/uri": "^4.0",
-		"guzzlehttp/guzzle": "^6.1"
+		"league/uri": "^4.2",
+		"guzzlehttp/guzzle": "^6.2"
 	},
     "autoload": {
         "psr-4": {

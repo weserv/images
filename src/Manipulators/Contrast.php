@@ -2,7 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
-use Intervention\Image\Image;
+use Jcupitt\Vips\Image;
 
 /**
  * @property string $con
@@ -19,7 +19,8 @@ class Contrast extends BaseManipulator
         $contrast = $this->getContrast();
 
         if ($contrast !== null) {
-            $image->contrast($contrast);
+            // TODO Make the contrast manipulator working
+            //$image->contrast($contrast);
         }
 
         return $image;
@@ -35,7 +36,7 @@ class Contrast extends BaseManipulator
             return;
         }
 
-        if ($this->con < -100 or $this->con > 100) {
+        if ($this->con < -100 || $this->con > 100) {
             return;
         }
 

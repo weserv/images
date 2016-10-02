@@ -2,7 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
-use Intervention\Image\Image;
+use Jcupitt\Vips\Image;
 
 /**
  * @property string $gam
@@ -19,7 +19,7 @@ class Gamma extends BaseManipulator
         $gamma = $this->getGamma();
 
         if ($gamma) {
-            $image->gamma($gamma);
+            $image = $image->gamma(['exponent' => $gamma]);
         }
 
         return $image;
@@ -35,7 +35,7 @@ class Gamma extends BaseManipulator
             return;
         }
 
-        if ($this->gam < 0.1 or $this->gam > 9.99) {
+        if ($this->gam < 0.1 || $this->gam > 9.99) {
             return;
         }
 

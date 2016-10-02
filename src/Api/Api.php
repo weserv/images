@@ -6,21 +6,12 @@ use AndriesLouw\imagesweserv\Client;
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface;
 use GuzzleHttp\Exception\RequestException;
-use Imagick;
-use ImagickException;
-use Intervention\Image\Exception\InvalidArgumentException;
-use Intervention\Image\Exception\NotReadableException;
-use Intervention\Image\Exception\RuntimeException;
-use Intervention\Image\ImageManager;
+use InvalidArgumentException;
+use Jcupitt\Vips\Image;
+use RuntimeException;
 
 class Api implements ApiInterface
 {
-    /**
-     * Intervention image manager.
-     * @var ImageManager
-     */
-    protected $imageManager;
-
     /**
      * Collection of manipulators.
      * @var ManipulatorInterface[]
@@ -41,38 +32,18 @@ class Api implements ApiInterface
 
     /**
      * Create API instance.
-     * @param ImageManager $imageManager Intervention image manager.
-     * @param Client $client The Guzzle client
+     * @param Client $client The Guzzle
      * @param array $manipulators Collection of manipulators.
      */
-    public function __construct(ImageManager $imageManager, Client $client, array $manipulators)
+    public function __construct(Client $client, array $manipulators)
     {
-        $this->setImageManager($imageManager);
         $this->setClient($client);
         $this->setManipulators($manipulators);
     }
 
     /**
-     * Get the image manager.
-     * @return ImageManager Intervention image manager.
-     */
-    public function getImageManager()
-    {
-        return $this->imageManager;
-    }
-
-    /**
-     * Set the image manager.
-     * @param ImageManager $imageManager Intervention image manager.
-     */
-    public function setImageManager(ImageManager $imageManager)
-    {
-        $this->imageManager = $imageManager;
-    }
-
-    /**
      * Get the PHP HTTP client
-     * @return ImageManager Intervention image manager.
+     * @return Client The Guzzle client
      */
     public function getClient()
     {
@@ -118,95 +89,37 @@ class Api implements ApiInterface
      * @param  string $url Source URL
      * @param  array $params The manipulation params.
      * @param  string $extension Extension of URL
-     * @throws NotReadableException if the provided file can not be read
      * @throws ImageTooLargeException if the provided image is too large for processing.
      * @throws RequestException for errors that occur during a transfer or during the on_headers event
-     * @throws ImagickException for errors that occur during image manipulation
-     * @return string Manipulated image binary data.
+     * @return array ['image' => *Manipulated image binary data*, 'type' => *The mimetype*, 'extension' => *The extension*]
      */
     public function run($url, $extension, array $params)
     {
-        //$tmpFileName = $this->client->get($url);
-
         // Debugging
-        if (strpos($url, 'PNG_transparency_demonstration_1.png') !== false) {
-            $tmpFileName = __DIR__ . '/../../public/test-images/PNG_transparency_demonstration_1.png';
-        } else {
-            $tmpFileName = __DIR__ . '/../../public/test-images/lichtenstein.jpg';
+        /*if (strpos($url, 'PNG_transparency_demonstration_1.png') !== false) {
+            $tmpFileName = __DIR__ . '/../../public_html/test-images/PNG_transparency_demonstration_1.png';
+        } else if (strpos($url, 'Landscape_6.jpg') !== false) {
+            $tmpFileName = __DIR__ . '/../../public_html/test-images/Landscape_6.jpg';
+        } else if (strpos($url, 'lichtenstein.jpg') !== false) {
+            $tmpFileName = __DIR__ . '/../../public_html/test-images/lichtenstein.jpg';
+        } else {*/
+            $tmpFileName = $this->client->get($url);
+        /*}*/
+
+        $image = Image::newFromFile($tmpFileName);
+
+        $allowed =  $this->getAllowedImageTypes();
+
+        if ($image === null) {
+            @unlink($tmpFileName);
+            trigger_error('Image not readable. URL: ' . $url, E_USER_WARNING);
         }
 
-        try {
-            $image = $this->imageManager->make($tmpFileName);
-
-            // Upscale ImageMagick memory limits for 16GB-ram servers (TODO Should we do this in the policy.xml file?)
-            if ($image->getDriver()->getDriverName() == 'Imagick') {
-                // Get ImageMagick core
-                $imagick = $image->getCore();
-
-                // Set the h*w pixel limit that can exist in memory
-                $imagick->setResourceLimit(imagick::RESOURCETYPE_AREA, 4e+6);
-                // Set maximum disk usage (-1 = infinite)
-                $imagick->setResourceLimit(imagick::RESOURCETYPE_DISK, -1);
-                // Set maximum number of cache files that can be open at once
-                $imagick->setResourceLimit(imagick::RESOURCETYPE_FILE, 768);
-                // Set maximum memory map (in bytes) until things are offloaded to disk
-                $imagick->setResourceLimit(imagick::RESOURCETYPE_MAP, 256e+6);
-                // How much memory to allocate (in bytes)
-                $imagick->setResourceLimit(imagick::RESOURCETYPE_MEMORY, 256e+6);
-                // Use 2 threads (because we have OpenMP enabled) equivalent of Imagick::setResourceLimit(imagick::RESOURCETYPE_THREAD, 2) or MAGICK_THREAD_LIMIT=2;
-                $imagick->setResourceLimit(6, 2);
-                // Set max image width of 4000
-                $imagick->setResourceLimit(9, 4000);
-                // Set max image height of 4000
-                $imagick->setResourceLimit(10, 4000);
-
-                // Display resource values (debugging)
-                if (true == false) {
-                    print("Undefined: ");
-                    print($imagick->getResourceLimit(imagick::RESOURCETYPE_UNDEFINED));
-
-                    print("<br><br>Area: ");
-                    print($imagick->getResourceLimit(imagick::RESOURCETYPE_AREA));
-
-                    print("<br><br>Disk: ");
-                    print($imagick->getResourceLimit(imagick::RESOURCETYPE_DISK));
-
-                    print("<br><br>File: ");
-                    print($imagick->getResourceLimit(imagick::RESOURCETYPE_FILE));
-
-                    print("<br><br>Map: ");
-                    print($imagick->getResourceLimit(imagick::RESOURCETYPE_MAP));
-
-                    print("<br><br>Memory: ");
-                    print($imagick->getResourceLimit(imagick::RESOURCETYPE_MEMORY));
-
-                    print("<br><br>Thread(s): ");
-                    print($imagick->getResourceLimit(6));
-                    die;
-                }
-            }
-        } catch (NotReadableException $e) {
-            if (strpos($e->getMessage(), 'Unable to read image type') !== false || strpos($e->getMessage(),
-                    'Unable to read image from file') !== false
-            ) {
-                try {
-                    $png = $this->convertToPng($extension, $tmpFileName);
-
-                    $image = $this->imageManager->make($png);
-                } catch (NotReadableException $e) {
-                    @unlink($tmpFileName);
-                    trigger_error($e->getMessage() . ' URL: ' . $url, E_USER_WARNING);
-                    throw $e;
-                } catch (ImagickException $e) {
-                    @unlink($tmpFileName);
-                    trigger_error($e->getMessage() . ' URL: ' . $url . ' Params: ' . implode(', ', $params),
-                        E_USER_WARNING);
-                    throw $e;
-                }
+        if (!isset($params['output'])) {
+            if (array_key_exists($extension, $allowed)) {
+                $params['output'] = $extension;
             } else {
-                @unlink($tmpFileName);
-                trigger_error($e->getMessage() . ' URL: ' . $url, E_USER_WARNING);
-                throw $e;
+                $params['output'] = 'jpg';
             }
         }
 
@@ -222,40 +135,81 @@ class Api implements ApiInterface
                 trigger_error($e->getMessage() . ' URL: ' . $url . ' Params: ' . implode(', ', $params),
                     E_USER_WARNING);
                 throw $e;
-            } catch (ImagickException $e) {
-                trigger_error($e->getMessage() . ' URL: ' . $url . ' Params: ' . implode(', ', $params),
-                    E_USER_WARNING);
-                throw $e;
             }
         }
 
-        $image->destroy();
+        if (array_key_exists($params['output'], $allowed)) {
+            $extension = $params['output'];
+        }
 
-        return $image->getEncoded();
+        $options = [];
+
+        if ($extension == 'jpg' || $extension == 'webp' || $extension == 'tiff') {
+            $options['Q'] = $this->getQuality($params);
+        }
+        if ($extension == 'jpg' || $extension == 'png') {
+            $options['interlace'] = array_key_exists('il', $params);
+        }
+        if ($extension == 'png') {
+            $options['compression'] = $this->getCompressionLevel($params);
+        }
+
+        return ['image' => $image->writeToBuffer('.' . $extension, $options), 'type' => $allowed[$extension], 'extension' => $extension];
     }
 
     /**
-     * Use Imagick and convert to PNG if GD
-     * cannot process the format.
-     * @param  string $extension Current unsupported extension
-     * @param  string $tmpFileName Temporary file which has the unsupported picture
-     * @throws ImagickException for errors that occur during image manipulation
-     * @return string Manipulated PNG image binary data.
+     * Get the allowed image types to convert to.
+     * @return array
      */
-    public function convertToPng($extension, $tmpFileName)
+    public function getAllowedImageTypes()
     {
-        if ($extension == 'ico') {
-            $imagick = new Imagick('ico:' . $tmpFileName . '[0]');
-        } else {
-            $imagick = new Imagick($tmpFileName . '[0]');
+        return [
+            //'gif' => 'image/gif',
+            'jpg' => 'image/jpeg',
+            'png' => 'image/png',
+            'tiff' => 'image/tiff',
+            'webp' => 'image/webp',
+        ];
+    }
+
+    /**
+     * Resolve quality.
+     * @param  array $params
+     * @return string The resolved quality.
+     */
+    public function getQuality($params)
+    {
+        $default = 85;
+
+        if (!isset($params['q']) || !is_numeric($params['q'])) {
+            return $default;
         }
 
-        $imagick->setImageFormat('png');
-        $imagick->stripImage();
+        if ($params['q'] < 0 || $params['q'] > 100) {
+            return $default;
+        }
 
-        $pngString = $imagick->getImageBlob();
-        $imagick->clear();
+        return (int)$params['q'];
+    }
 
-        return $pngString;
+    /**
+     * Get the zlib compression level of the lossless PNG output format.
+     * The default level is 6.
+     * @param  array $params
+     * @return string The resolved zlib compression level.
+     */
+    public function getCompressionLevel($params)
+    {
+        $default = 6;
+
+        if (!isset($params['level']) || !is_numeric($params['level'])) {
+            return $default;
+        }
+
+        if ($params['level'] < 0 || $params['level'] > 9) {
+            return $default;
+        }
+
+        return (int)$params['level'];
     }
 }
