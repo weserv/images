@@ -670,7 +670,7 @@ if(!empty($_GET['url'])){
                         <li>We do support SSL, you can use <a href="https://images.weserv.nl/"><b>https</b>://images.weserv.nl/</a>.
                             <br /><small class="sslnote">This can be very useful for embedding HTTP images on HTTPS websites. HTTPS origin hosts can be used by <a href="https://imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/2693328-add-support-to-fetch-images-over-https">prefixing the hostname with ssl:</a></small></li>
                     </ul>
-                    <p>We're part of the <a href="https://www.cloudflare.com/">CloudFlare</a> community. Images are being cached and delivered straight from <a href="https://www.cloudflare.com/network-map">70+ global datacenters</a>. This ensures the fastest load times and best performance. On average, we process 450 000 000 images per month, which generates around 16TB of outbound traffic.</p>
+                    <p>We're part of the <a href="https://www.cloudflare.com/">CloudFlare</a> community. Images are being cached and delivered straight from <a href="https://www.cloudflare.com/network-map">80+ global datacenters</a>. This ensures the fastest load times and best performance. On average, we resize 1 million (10<sup>6</sup>) images per hour, which generates around 25TB of outbound traffic per month.</p>
                     <p>Requesting an image:</p>
                     <ul>
                         <li><code>?url=</code> (URL encoded) link to your image, without http://</li>
@@ -805,7 +805,7 @@ if(!empty($_GET['url'])){
                             <tr>
                                 <td>Base64 (data URL)</td>
                                 <td><code>encoding</code></td>
-                                <td>Encodes the image to be used directly in the src= of the <img>-tag.</td>
+                                <td>Encodes the image to be used directly in the src= of the &lt;img&gt;-tag.</td>
                                 <td><a href="#base64-encoding">info</a></td>
                             </tr>
                         </tbody>
