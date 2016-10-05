@@ -8,12 +8,73 @@ class Utils
 {
     const EXIF_IFD0_ORIENTATION = "exif-ifd0-Orientation";
 
-    const VIPS_INTERPRETATION_B_W = "b-w";
-    const VIPS_INTERPRETATION_CMYK = "cmyk";
-    const VIPS_INTERPRETATION_RGB = "rgb";
-    const VIPS_INTERPRETATION_sRGB = "srgb";
-    const VIPS_INTERPRETATION_RGB16 = "rgb16";
-    const VIPS_INTERPRETATION_GREY16 = "grey16";
+    const VIPS_INTERPRETATION_ERROR = -1;
+    const VIPS_INTERPRETATION_MULTIBAND = 0;
+    const VIPS_INTERPRETATION_B_W = 1;
+    const VIPS_INTERPRETATION_HISTOGRAM = 10;
+    const VIPS_INTERPRETATION_XYZ = 12;
+    const VIPS_INTERPRETATION_LAB = 13;
+    const VIPS_INTERPRETATION_CMYK = 15;
+    const VIPS_INTERPRETATION_LABQ = 16;
+    const VIPS_INTERPRETATION_RGB = 17;
+    const VIPS_INTERPRETATION_CMC = 18;
+    const VIPS_INTERPRETATION_LCH = 19;
+    const VIPS_INTERPRETATION_LABS = 21;
+    const VIPS_INTERPRETATION_sRGB = 22;
+    const VIPS_INTERPRETATION_YXY = 23;
+    const VIPS_INTERPRETATION_FOURIER = 24;
+    const VIPS_INTERPRETATION_RGB16 = 25;
+    const VIPS_INTERPRETATION_GREY16 = 26;
+    const VIPS_INTERPRETATION_MATRIX = 27;
+    const VIPS_INTERPRETATION_scRGB = 28;
+    const VIPS_INTERPRETATION_HSV = 29;
+    const VIPS_INTERPRETATION_LAST = 30;
+
+    const VIPS_COLOURSPACE_ERROR = "error";
+    const VIPS_COLOURSPACE_MULTIBAND = "multiband";
+    const VIPS_COLOURSPACE_B_W = "b-w";
+    const VIPS_COLOURSPACE_HISTOGRAM = "histogram";
+    const VIPS_COLOURSPACE_XYZ = "xyz";
+    const VIPS_COLOURSPACE_LAB = "lab";
+    const VIPS_COLOURSPACE_CMYK = "cmyk";
+    const VIPS_COLOURSPACE_LABQ = "labq";
+    const VIPS_COLOURSPACE_RGB = "rgb";
+    const VIPS_COLOURSPACE_CMC = "cmc";
+    const VIPS_COLOURSPACE_LCH = "lch";
+    const VIPS_COLOURSPACE_LABS = "labs";
+    const VIPS_COLOURSPACE_sRGB = "srgb";
+    const VIPS_COLOURSPACE_YXY = "yxy";
+    const VIPS_COLOURSPACE_FOURIER = "fourier";
+    const VIPS_COLOURSPACE_RGB16 = "rgb16";
+    const VIPS_COLOURSPACE_GREY16 = "grey16";
+    const VIPS_COLOURSPACE_MATRIX = "matrix";
+    const VIPS_COLOURSPACE_scRGB = "scrgb";
+    const VIPS_COLOURSPACE_HSV = "hsv";
+    const VIPS_COLOURSPACE_LAST = "last";
+
+    const VIPS_INTERPRETATION_TO_COLOURSPACE = [
+        self::VIPS_INTERPRETATION_ERROR => self::VIPS_COLOURSPACE_ERROR,
+        self::VIPS_INTERPRETATION_MULTIBAND => self::VIPS_COLOURSPACE_MULTIBAND,
+        self::VIPS_INTERPRETATION_B_W => self::VIPS_COLOURSPACE_B_W,
+        self::VIPS_INTERPRETATION_HISTOGRAM => self::VIPS_COLOURSPACE_HISTOGRAM,
+        self::VIPS_INTERPRETATION_XYZ => self::VIPS_COLOURSPACE_XYZ,
+        self::VIPS_INTERPRETATION_LAB => self::VIPS_COLOURSPACE_LAB,
+        self::VIPS_INTERPRETATION_CMYK => self::VIPS_COLOURSPACE_CMYK,
+        self::VIPS_INTERPRETATION_LABQ => self::VIPS_COLOURSPACE_LABQ,
+        self::VIPS_INTERPRETATION_RGB => self::VIPS_COLOURSPACE_RGB,
+        self::VIPS_INTERPRETATION_CMC => self::VIPS_COLOURSPACE_CMC,
+        self::VIPS_INTERPRETATION_LCH => self::VIPS_COLOURSPACE_LCH,
+        self::VIPS_INTERPRETATION_LABS => self::VIPS_COLOURSPACE_LABS,
+        self::VIPS_INTERPRETATION_sRGB => self::VIPS_COLOURSPACE_sRGB,
+        self::VIPS_INTERPRETATION_YXY => self::VIPS_COLOURSPACE_YXY,
+        self::VIPS_INTERPRETATION_FOURIER => self::VIPS_COLOURSPACE_FOURIER,
+        self::VIPS_INTERPRETATION_RGB16 => self::VIPS_COLOURSPACE_RGB16,
+        self::VIPS_INTERPRETATION_GREY16 => self::VIPS_COLOURSPACE_GREY16,
+        self::VIPS_INTERPRETATION_MATRIX => self::VIPS_COLOURSPACE_MATRIX,
+        self::VIPS_INTERPRETATION_scRGB => self::VIPS_COLOURSPACE_scRGB,
+        self::VIPS_INTERPRETATION_HSV => self::VIPS_COLOURSPACE_HSV,
+        self::VIPS_INTERPRETATION_LAST => self::VIPS_COLOURSPACE_LAST
+    ];
 
     const VIPS_ANGLE_D0 = "d0";
     const VIPS_ANGLE_D90 = "d90";
@@ -23,22 +84,25 @@ class Utils
     /**
      * Are pixel values in this image 16-bit integer?
      *
-     * @param  string $interpretation The VipsInterpretation
+     * @param  int $interpretation The VipsInterpretation
+     *
      * @return bool indicating if the pixel values in this image are 16-bit
      */
-    public static function is16Bit($interpretation)
+    public static function is16Bit(int $interpretation)
     {
-        return $interpretation == self::VIPS_INTERPRETATION_RGB16 || $interpretation == self::VIPS_INTERPRETATION_GREY16;
+        return $interpretation == self::VIPS_INTERPRETATION_RGB16
+        || $interpretation == self::VIPS_INTERPRETATION_GREY16;
     }
 
     /**
      * Return the image alpha maximum. Useful for combining alpha bands. scRGB
      * images are 0 - 1 for image data, but the alpha is 0 - 255.
      *
-     * @param  string $interpretation The VipsInterpretation
+     * @param  int $interpretation The VipsInterpretation
+     *
      * @return int the image alpha maximum
      */
-    public static function maximumImageAlpha($interpretation)
+    public static function maximumImageAlpha(int $interpretation)
     {
         return self::is16Bit($interpretation) ? 65535 : 255;
     }
@@ -48,6 +112,7 @@ class Utils
      * Uses colour space interpretation with number of channels to guess this.
      *
      * @param  Image $image The source image.
+     *
      * @return bool indicating if this image has an alpha channel.
      */
     public static function hasAlpha($image)
@@ -55,27 +120,25 @@ class Utils
         $bands = $image->bands;
         $interpretation = $image->interpretation;
 
-        return ($bands == 2 && $interpretation == self::VIPS_INTERPRETATION_B_W) || ($bands == 4 && $interpretation != self::VIPS_INTERPRETATION_CMYK) || ($bands == 5 && $interpretation == self::VIPS_INTERPRETATION_CMYK);
+        return ($bands == 2 && $interpretation == self::VIPS_INTERPRETATION_B_W)
+        || ($bands == 4 && $interpretation != self::VIPS_INTERPRETATION_CMYK)
+        || ($bands == 5 && $interpretation == self::VIPS_INTERPRETATION_CMYK);
     }
 
     /**
      * Get EXIF Orientation of image, if any.
      *
      * @param  Image $image The source image.
+     *
      * @return bool indicating if this image has an alpha channel.
      */
     public static function exifOrientation($image)
     {
         $orientation = 0;
-        // FIXME: vips_call(): VipsOperation: class 'get_typeof' not found
-        /*if ($image->get_typeof(self::EXIF_IFD0_ORIENTATION) != 0) {
-            $exif = $image->get_string(self::EXIF_IFD0_ORIENTATION);
-            if ($exif !== null) {
-                $orientation = (int)$exif[0];
-            }
-        }*/
-        // FIXME: Also not working:
-        /*vips_image_get_typeof($image, self::EXIF_IFD0_ORIENTATION)*/
+        $exif = $image->get(self::EXIF_IFD0_ORIENTATION);
+        if ($exif !== null) {
+            $orientation = array_shift($exif);
+        }
         return $orientation;
     }
 
@@ -83,15 +146,12 @@ class Utils
      * Set EXIF Orientation of image.
      *
      * @param Image $image The source image.
-     * $param integer $orientation EXIF Orientation.
+     * @param int $orientation EXIF Orientation.
      */
     public static function setExifOrientation($image, $orientation)
     {
-         /*$exif = [$orientation, $orientation, $orientation];
-         // FIXME: vips_call(): VipsOperation: class 'set' not found
-         $image->set(self::EXIF_IFD0_ORIENTATION, $exif);*/
-         // FIXME: Also not working:
-         /*vips_image_set_string($image, self::EXIF_IFD0_ORIENTATION, (string) $orientation);*/
+        $exif = [$orientation];
+        $image->set(self::EXIF_IFD0_ORIENTATION, $exif);
     }
 
     /**
@@ -111,8 +171,9 @@ class Utils
      *  2. Use input image EXIF Orientation header - supports mirroring
      *  3. Otherwise default to zero, i.e. no rotation
      *
-     * @param  integer $angle explicitly requested angle
+     * @param  int $angle explicitly requested angle
      * @param  Image $image The source image.
+     *
      * @return array [rotation, flip, flop]
      */
     public static function calculateRotationAndFlip($angle, $image)
@@ -163,5 +224,31 @@ class Utils
         return [$rotate, $flip, $flop];
     }
 
+    /**
+     * Convert interpretation to colourspace
+     *
+     * @param int $interpretation The VipsInterpretation
+     *
+     * @return string The colourspace
+     */
+    public static function interpretationToColourSpace($interpretation)
+    {
+        return self::VIPS_INTERPRETATION_TO_COLOURSPACE[$interpretation];
+    }
 
+    /**
+     * Convert a number range to another range, maintaining ratio
+     *
+     * @param $value
+     * @param $in_min
+     * @param $in_max
+     * @param $out_min
+     * @param $out_max
+     *
+     * @return float|int
+     */
+    public static function mapToRange($value, $in_min, $in_max, $out_min, $out_max)
+    {
+        return ($value - $in_min) * ($out_max - $out_min) / ($in_max - $in_min) + $out_min;
+    }
 }

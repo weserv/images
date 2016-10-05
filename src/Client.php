@@ -13,18 +13,21 @@ class Client
 {
     /**
      * Temp file name to download to
+     *
      * @var string
      */
     protected $fileName;
 
     /**
      * Temp file
+     *
      * @var resource
      */
     protected $handle;
 
     /**
      * Options for this client
+     *
      * @var array
      */
     protected $options;
@@ -38,7 +41,7 @@ class Client
      * @param string $fileName
      * @param array $options
      */
-    public function __construct($fileName, array $options)
+    public function __construct(string $fileName, array $options)
     {
         $this->fileName = $fileName;
         $this->handle = fopen($fileName, 'w');
@@ -46,57 +49,71 @@ class Client
         $this->initClient();
     }
 
+    /**
+     * Initialize the client
+     *
+     * @return void
+     */
     private function initClient()
     {
-        $this->client = new \GuzzleHttp\Client([
-            //'debug' => $this->handle,
-            'connect_timeout' => $this->options['connect_timeout'],
-            'decode_content' => true,
-            'verify' => false,
-            'allow_redirects' => [
-                'max' => $this->options['max_redirects'], // allow at most 10 redirects.
-                'strict' => false,      // use "strict" RFC compliant redirects.
-                'referer' => true,      // add a Referer header
-                'on_redirect' => function (
-                    RequestInterface $request,
-                    ResponseInterface $response,
-                    UriInterface $uri
-                ) {
-                    //trigger_error('Internal redirecting  ' . $request->getUri() . ' to ' . $uri, E_USER_NOTICE);
+        $this->client = new \GuzzleHttp\Client(
+            [
+                //'debug' => $this->handle,
+                'connect_timeout' => $this->options['connect_timeout'],
+                'decode_content' => true,
+                'verify' => false,
+                'allow_redirects' => [
+                    'max' => $this->options['max_redirects'], // allow at most 10 redirects.
+                    'strict' => false,      // use "strict" RFC compliant redirects.
+                    'referer' => true,      // add a Referer header
+                    'on_redirect' => function (
+                        RequestInterface $request,
+                        ResponseInterface $response,
+                        UriInterface $uri
+                    ) {
+                        //trigger_error('Internal redirecting  ' . $request->getUri() . ' to ' . $uri, E_USER_NOTICE);
+                    },
+                    'track_redirects' => false
+                ],
+                'expect' => false, // Send an empty Expect header (avoids 100 responses)
+                'http_errors' => true,
+                'curl' => [
+                    CURLOPT_FILE => $this->handle,
+                    //CURLOPT_SSL_VERIFYPEER => false,
+                    //CURLOPT_SSL_VERIFYHOST => false
+                ],
+                'on_headers' => function (ResponseInterface $response) {
+                    if (!empty($this->options['allowed_mime_types']) && !array_key_exists(
+                        $response->getHeaderLine('Content-Type'),
+                        $this->options['allowed_mime_types']
+                    )) {
+                        $error = $this->options['error_message']['invalid_image'];
+                        $str = array_pop($this->options['allowed_mime_types']);
+                        $supportedImages = implode(', ', $this->options['allowed_mime_types']) . " and " . $str;
+                        throw new ImageNotValidException(sprintf($error['message'], $supportedImages));
+                    }
+                    if ($this->options['max_image_size'] != 0
+                        && $response->getHeaderLine('Content-Length') > $this->options['max_image_size']
+                    ) {
+                        $error = $this->options['error_message']['too_big_image'];
+                        $size = $response->getHeaderLine('Content-Length');
+                        $imageSize = $this->formatSizeUnits($size);
+                        $maxImageSize = $this->formatSizeUnits($this->options['max_image_size']);
+                        throw new ImageTooBigException(sprintf($error['message'], $imageSize, $maxImageSize));
+                    }
                 },
-                'track_redirects' => false
-            ],
-            'expect' => false, # Send an empty Expect header (avoids 100 responses)
-            'http_errors' => true,
-            'curl' => [
-                CURLOPT_FILE => $this->handle,
-                //CURLOPT_SSL_VERIFYPEER => false,
-                //CURLOPT_SSL_VERIFYHOST => false
-            ],
-            'on_headers' => function (ResponseInterface $response) {
-                if (!empty($this->options['allowed_mime_types']) && !array_key_exists($response->getHeaderLine('Content-Type'),
-                        $this->options['allowed_mime_types'])
-                ) {
-                    $str = array_pop($this->options['allowed_mime_types']);
-                    $supportedImages = implode(', ', $this->options['allowed_mime_types']) . " and " . $str;
-                    throw new ImageNotValidException('The request image is not a valid (supported) image. Supported images are: ' . $supportedImages);
-                }
-                if ($this->options['max_image_size'] != 0 && $response->getHeaderLine('Content-Length') > $this->options['max_image_size']) {
-                    $imageSize = $this->formatSizeUnits($response->getHeaderLine('Content-Length'));
-                    $maxImageSize = $this->formatSizeUnits($this->options['max_image_size']);
-                    throw new ImageTooBigException('The image is too big to be downloaded.' . PHP_EOL . 'Image size: ' . $imageSize . PHP_EOL . 'Max image size: ' . $maxImageSize);
-                }
-            },
-        ]);
+            ]
+        );
     }
 
     /**
      * http://stackoverflow.com/questions/5501427/php-filesize-mb-kb-conversion
      *
-     * @param integer $bytes
+     * @param  int $bytes
+     *
      * @return string
      */
-    private function formatSizeUnits($bytes)
+    private function formatSizeUnits(int $bytes): string
     {
         if ($bytes >= 1073741824) {
             $bytes = number_format($bytes / 1073741824, 2) . ' GB';
@@ -118,18 +135,19 @@ class Client
     /**
      * @return string
      */
-    public function getFileName()
+    public function getFileName(): string
     {
         return $this->fileName;
     }
 
     /**
      * @param string $url
+     *
      * @throws RequestException for errors that occur during a transfer or during the on_headers event
      *
      * @return string File name
      */
-    public function get($url)
+    public function get(string $url): string
     {
         $requestOptions = [
             'timeout' => $this->options['timeout'],
@@ -150,18 +168,40 @@ class Client
             $previousException = $e->getPrevious();
             if ($previousException != null) {
                 if ($previousException instanceof ImageNotValidException) {
-                    trigger_error($previousException->getMessage() . ' URL: ' . $url, E_USER_WARNING);
+                    $error = $this->options['error_message']['invalid_image'];
+                    trigger_error(sprintf($error['log'], $url), E_USER_WARNING);
                 } else {
                     if ($previousException instanceof ImageTooBigException) {
-                        trigger_error($previousException->getMessage() . ' URL: ' . $url, E_USER_WARNING);
+                        $error = $this->options['error_message']['too_big'];
+                        trigger_error(sprintf($error['log'], $url), E_USER_WARNING);
                     } else {
-                        trigger_error('Unknown exception. URL: ' . $url . ' Message ' . $previousException->getMessage() . ' Instance: ' . get_class($previousException),
-                            E_USER_WARNING);
+                        $error = $this->options['error_message']['unknown'];
+                        trigger_error(
+                            sprintf(
+                                $error['log'],
+                                $url,
+                                $previousException->getMessage(),
+                                get_class($previousException)
+                            ),
+                            E_USER_WARNING
+                        );
                     }
                 }
             } else {
-                trigger_error('cURL Request error: ' . $e->getMessage() . ' URL: ' . $url . ' Status code: ' . ($e->hasResponse() && $e->getResponse() != null ? $e->getResponse()->getStatusCode() : $e->getCode()),
-                    E_USER_WARNING);
+                $error = $this->options['error_message']['curl_error'];
+
+
+                trigger_error(
+                    sprintf(
+                        $error['log'],
+                        $e->getMessage(),
+                        $url,
+                        ($e->hasResponse() && $e->getResponse() != null ?
+                            $e->getResponse()->getStatusCode()
+                            : $e->getCode())
+                    ),
+                    E_USER_WARNING
+                );
             }
             throw $e;
         }
@@ -170,5 +210,4 @@ class Client
 
         return $this->fileName;
     }
-
 }

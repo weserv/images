@@ -26,30 +26,35 @@ class Color
 
     /**
      * The red value.
+     *
      * @var int
      */
     protected $red;
 
     /**
      * The green value.
+     *
      * @var int
      */
     protected $green;
 
     /**
      * The blue value.
+     *
      * @var int
      */
     protected $blue;
 
     /**
      * The alpha value.
-     * @var int|double
+     *
+     * @var int
      */
     protected $alpha;
 
     /**
      * Create color helper instance.
+     *
      * @param string $value The color value.
      */
     public function __construct($value)
@@ -97,7 +102,9 @@ class Color
 
     /**
      * Parse hex color to RGB values.
+     *
      * @param  string $hex The hex value.
+     *
      * @return array  The RGB values.
      */
     public function parseHex($hex)
@@ -107,6 +114,7 @@ class Color
 
     /**
      * Format color for consumption.
+     *
      * @return string The formatted color.
      */
     public function formatted()
@@ -121,7 +129,9 @@ class Color
 
     /**
      * Get hex code by color name.
-     * @param  string $name The color name.
+     *
+     * @param string $name The color name
+     *
      * @return string The hex code.
      */
     public function getHexFromColorName($name)

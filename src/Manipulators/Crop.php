@@ -11,14 +11,16 @@ class Crop extends BaseManipulator
 {
     /**
      * Perform crop image manipulation.
+     *
      * @param  Image $image The source image.
+     *
      * @return Image The manipulated image.
      */
-    public function run(Image $image)
+    public function run(Image $image): Image
     {
         $coordinates = $this->getCoordinates($image);
 
-        if ($coordinates) {
+        if ($coordinates !== null) {
             $coordinates = $this->limitToImageBoundaries($image, $coordinates);
 
             $image = $image->crop(
@@ -34,26 +36,28 @@ class Crop extends BaseManipulator
 
     /**
      * Resolve coordinates.
+     *
      * @param  Image $image The source image.
-     * @return int[] The resolved coordinates.
+     *
+     * @return array|null The resolved coordinates.
      */
     public function getCoordinates(Image $image)
     {
         $coordinates = explode(',', $this->crop);
 
-        if (count($coordinates) !== 4 ||
-            (!is_numeric($coordinates[0])) ||
-            (!is_numeric($coordinates[1])) ||
-            (!is_numeric($coordinates[2])) ||
-            (!is_numeric($coordinates[3])) ||
-            ($coordinates[0] <= 0) ||
-            ($coordinates[1] <= 0) ||
-            ($coordinates[2] < 0) ||
-            ($coordinates[3] < 0) ||
-            ($coordinates[2] >= $image->width) ||
-            ($coordinates[3] >= $image->height)
+        if (count($coordinates) !== 4
+            || (!is_numeric($coordinates[0]))
+            || (!is_numeric($coordinates[1]))
+            || (!is_numeric($coordinates[2]))
+            || (!is_numeric($coordinates[3]))
+            || ($coordinates[0] <= 0)
+            || ($coordinates[1] <= 0)
+            || ($coordinates[2] < 0)
+            || ($coordinates[3] < 0)
+            || ($coordinates[2] >= $image->width)
+            || ($coordinates[3] >= $image->height)
         ) {
-            return;
+            return null;
         }
 
         return [
@@ -66,11 +70,13 @@ class Crop extends BaseManipulator
 
     /**
      * Limit coordinates to image boundaries.
-     * @param  Image $image The source image.
-     * @param  int[] $coordinates The coordinates.
-     * @return int[] The limited coordinates.
+     *
+     * @param  Image $image       The source image.
+     * @param  array $coordinates The coordinates.
+     *
+     * @return array The limited coordinates.
      */
-    public function limitToImageBoundaries(Image $image, array $coordinates)
+    public function limitToImageBoundaries(Image $image, array $coordinates): array
     {
         if ($coordinates[0] > ($image->width - $coordinates[2])) {
             $coordinates[0] = $image->width - $coordinates[2];

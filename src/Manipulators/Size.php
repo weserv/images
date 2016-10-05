@@ -12,18 +12,21 @@ use Jcupitt\Vips\Image;
  * @property string $a
  * @property string $h
  * @property string $w
+ * @property string $bg;
  */
 class Size extends BaseManipulator
 {
     /**
      * Maximum image size in pixels.
-     * @var integer|null
+     *
+     * @var int|null
      */
     protected $maxImageSize;
 
     /**
      * Create Size instance.
-     * @param integer|null $maxImageSize Maximum image size in pixels.
+     *
+     * @param int|null $maxImageSize Maximum image size in pixels.
      */
     public function __construct($maxImageSize = null)
     {
@@ -32,7 +35,8 @@ class Size extends BaseManipulator
 
     /**
      * Get the maximum image size.
-     * @return integer|null Maximum image size in pixels.
+     *
+     * @return int|null Maximum image size in pixels.
      */
     public function getMaxImageSize()
     {
@@ -41,7 +45,8 @@ class Size extends BaseManipulator
 
     /**
      * Set the maximum image size.
-     * @param integer|null Maximum image size in pixels.
+     *
+     * @param int|null Maximum image size in pixels.
      */
     public function setMaxImageSize($maxImageSize)
     {
@@ -50,10 +55,12 @@ class Size extends BaseManipulator
 
     /**
      * Perform size image manipulation.
+     *
      * @param  Image $image The source image.
+     *
      * @return Image The manipulated image.
      */
-    public function run(Image $image)
+    public function run(Image $image): Image
     {
         $width = $this->getWidth();
         $height = $this->getHeight();
@@ -69,9 +76,10 @@ class Size extends BaseManipulator
 
     /**
      * Resolve width.
-     * @return integer The resolved width.
+     *
+     * @return int The resolved width.
      */
-    public function getWidth()
+    public function getWidth(): int
     {
         if (!is_numeric($this->w)) {
             return 0;
@@ -86,9 +94,10 @@ class Size extends BaseManipulator
 
     /**
      * Resolve height.
-     * @return integer The resolved height.
+     *
+     * @return int The resolved height.
      */
-    public function getHeight()
+    public function getHeight(): int
     {
         if (!is_numeric($this->h)) {
             return 0;
@@ -105,10 +114,11 @@ class Size extends BaseManipulator
      * Indicating if we should not enlarge the output if the input width
      * *or* height are already less than the required dimensions
      *
-     * @param string $fit The resolved fit.
+     * @param  string $fit The resolved fit.
+     *
      * @return bool
      */
-    public function withoutEnlargement($fit)
+    public function withoutEnlargement(string $fit): bool
     {
         if (in_array($fit, ['fit', 'squaredown'], true)) {
             return true;
@@ -120,16 +130,19 @@ class Size extends BaseManipulator
 
     /**
      * Resolve fit.
+     *
      * @return string The resolved fit.
      */
-    public function getFit()
+    public function getFit(): string
     {
         if (in_array($this->t, ['fit', 'fitup', 'square', 'squaredown', 'absolute', 'letterbox'], true)) {
             return $this->t;
         }
 
-        if (preg_match('/^(crop)(-top-left|-top|-top-right|-left|-center|-right|-bottom-left|-bottom|-bottom-right|-[\d]{1,3}-[\d]{1,3})*$/',
-            $this->t)) {
+        if (preg_match(
+            '/^(crop)(-top-left|-top|-top-right|-left|-center|-right|-bottom-left|-bottom|-bottom-right|-[\d]{1,3}-[\d]{1,3})*$/',
+            $this->t
+        )) {
             return 'crop';
         }
 
@@ -138,12 +151,14 @@ class Size extends BaseManipulator
 
     /**
      * Check if image size is greater then the maximum allowed image size.
+     *
      * @param  Image $image The source image.
-     * @param  double $width The image width.
-     * @param  double $height The image height.
-     * @throws \Exception if the provided image is too large for processing.
+     * @param  int $width The image width.
+     * @param  int $height The image height.
+     *
+     * @throws ImageTooLargeException if the provided image is too large for processing.
      */
-    public function checkImageSize($image, $width, $height)
+    public function checkImageSize(Image $image, int $width, int $height)
     {
         if ($width === 0 && $height === 0) {
             $width = $image->width;
@@ -160,19 +175,21 @@ class Size extends BaseManipulator
             $imageSize = $width * $height;
 
             if ($imageSize > $this->maxImageSize) {
-                throw new ImageTooLargeException('Image is too large for processing. Width x Height should be less than 70 megapixels.');
+                throw new ImageTooLargeException();
             }
         }
     }
 
     /**
      * Resolve the crop resize dimensions.
+     *
      * @param  Image $image The source image.
-     * @param  integer $width The width.
-     * @param  integer $height The height.
+     * @param  int $width The width.
+     * @param  int $height The height.
+     *
      * @return array   The resize dimensions.
      */
-    public function resolveCropResizeDimensions(Image $image, $width, $height)
+    public function resolveCropResizeDimensions(Image $image, int $width, int $height): array
     {
         if ($height > $width * ($image->height / $image->width)) {
             return [$height * ($image->width / $image->height), $height];
@@ -183,12 +200,14 @@ class Size extends BaseManipulator
 
     /**
      * Resolve the crop offset.
+     *
      * @param  Image $image The source image.
-     * @param  integer $width The width.
-     * @param  integer $height The height.
-     * @return array   The crop offset.
+     * @param  int $width The width.
+     * @param  int $height The height.
+     *
+     * @return array The crop offset.
      */
-    public function resolveCropOffset(Image $image, $width, $height)
+    public function resolveCropOffset(Image $image, int $width, int $height): array
     {
         list($offset_percentage_x, $offset_percentage_y) = $this->getCrop();
 
@@ -219,9 +238,10 @@ class Size extends BaseManipulator
 
     /**
      * Resolve crop.
-     * @return integer[] The resolved crop.
+     *
+     * @return array The resolved crop.
      */
-    public function getCrop()
+    public function getCrop(): array
     {
         $cropMethods = [
             'top-left' => [0, 0],
@@ -259,13 +279,15 @@ class Size extends BaseManipulator
 
     /**
      * Perform resize image manipulation.
+     *
      * @param  Image $image The source image.
      * @param  string $fit The fit.
-     * @param  integer $width The width.
-     * @param  integer $height The height.
+     * @param  int $width The width.
+     * @param  int $height The height.
+     *
      * @return Image The manipulated image.
      */
-    public function doResize(Image $image, $fit, $width, $height)
+    public function doResize(Image $image, string $fit, int $width, int $height): Image
     {
         $inputWidth = $image->width;
         $inputHeight = $image->height;
@@ -277,17 +299,17 @@ class Size extends BaseManipulator
         $targetResizeHeight = $height;
         if ($width > 0 && $height > 0) {
             // Fixed width and height
-            $xFactor = (double)($inputWidth / $width);
-            $yFactor = (double)($inputHeight / $height);
+            $xFactor = (float)($inputWidth / $width);
+            $yFactor = (float)($inputHeight / $height);
             switch ($fit) {
                 case 'square':
                 case 'squaredown':
                 case 'crop':
                     if ($xFactor < $yFactor) {
-                        $targetResizeHeight = (int)round((double)($inputHeight / $xFactor));
+                        $targetResizeHeight = (int)round((float)($inputHeight / $xFactor));
                         $yFactor = $xFactor;
                     } else {
-                        $targetResizeWidth = (int)round((double)($inputWidth / $yFactor));
+                        $targetResizeWidth = (int)round((float)($inputWidth / $yFactor));
                         $xFactor = $yFactor;
                     }
                     break;
@@ -295,10 +317,10 @@ class Size extends BaseManipulator
                 case 'fit':
                 case 'fitup':
                     if ($xFactor > $yFactor) {
-                        $targetResizeHeight = (int)round((double)($inputHeight / $xFactor));
+                        $targetResizeHeight = (int)round((float)($inputHeight / $xFactor));
                         $yFactor = $xFactor;
                     } else {
-                        $targetResizeWidth = (int)round((double)($inputWidth / $yFactor));
+                        $targetResizeWidth = (int)round((float)($inputWidth / $yFactor));
                         $xFactor = $yFactor;
                     }
                     break;
@@ -306,24 +328,24 @@ class Size extends BaseManipulator
         } else {
             if ($width > 0) {
                 // Fixed width
-                $xFactor = (double)($inputWidth / $width);
+                $xFactor = (float)($inputWidth / $width);
                 if ($fit == 'absolute') {
                     $targetResizeHeight = $height = $inputHeight;
                 } else {
                     // Auto height
                     $yFactor = $xFactor;
-                    $targetResizeHeight = $height = (int)round((double)($inputHeight / $yFactor));
+                    $targetResizeHeight = $height = (int)round((float)($inputHeight / $yFactor));
                 }
             } else {
                 if ($height > 0) {
                     // Fixed height
-                    $yFactor = (double)($inputHeight / $height);
+                    $yFactor = (float)($inputHeight / $height);
                     if ($fit == 'absolute') {
                         $targetResizeWidth = $width = $inputWidth;
                     } else {
                         // Auto width
                         $xFactor = $yFactor;
-                        $targetResizeWidth = $width = (int)round((double)($inputWidth / $xFactor));
+                        $targetResizeWidth = $width = (int)round((float)($inputWidth / $xFactor));
                     }
                 } else {
                     // Identity transform
@@ -338,8 +360,8 @@ class Size extends BaseManipulator
         $yShrink = max(1, (int)floor($yFactor));
 
         // Calculate residual float affine transformation
-        $xResidual = (double)($xShrink / $xFactor);
-        $yResidual = (double)($yShrink / $yFactor);
+        $xResidual = (float)($xShrink / $xFactor);
+        $yResidual = (float)($yShrink / $yFactor);
 
         // Do not enlarge the output if the input width *or* height
         // are already less than the required dimensions
@@ -367,8 +389,8 @@ class Size extends BaseManipulator
             // Recalculate residual float based on dimensions of required vs shrunk images
             $shrunkWidth = $image->width;
             $shrunkHeight = $image->height;
-            $xResidual = (double)($targetResizeWidth / $shrunkWidth);
-            $yResidual = (double)($targetResizeHeight / $shrunkHeight);
+            $xResidual = (float)($targetResizeWidth / $shrunkWidth);
+            $yResidual = (float)($targetResizeHeight / $shrunkHeight);
         }
 
         // Use affine increase or kernel reduce with the remaining float part
@@ -432,14 +454,22 @@ class Size extends BaseManipulator
 
                 // Add non-transparent alpha channel, if required
                 if ($backgroundColor[3] < 255 && !$hasAlpha) {
-                    $image = $image->bandjoin(vips_image_new_matrix($image->width,
-                        $image->height))->new_from_image(255 * $multiplier);
+                    $pixel = Image::black(1, 1)->add(255 * $multiplier)->cast($image->format);
+                    $result = $pixel->embed(0, 0, $image->width, $image->height, ["extend" => "copy"]);
+                    $result->interpretation = $image->interpretation;
+
+                    $image = $image->bandjoin($result);
                 }
 
                 $left = (int)round(($width - $image->width) / 2);
                 $top = (int)round(($height - $image->height) / 2);
-                $image = $image->embed($left, $top, $width, $height,
-                    ['extend' => 'background', 'background' => $background]);
+                $image = $image->embed(
+                    $left,
+                    $top,
+                    $width,
+                    $height,
+                    ['extend' => 'background', 'background' => $background]
+                );
             } else {
                 if (in_array($fit, ['square', 'squaredown', 'crop'], true)) {
                     list($offset_x, $offset_y) = $this->resolveCropOffset($image, $width, $height);

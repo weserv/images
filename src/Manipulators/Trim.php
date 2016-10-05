@@ -2,6 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
+use AndriesLouw\imagesweserv\Exception\ImageProcessingException;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Image;
 
@@ -12,36 +13,39 @@ class Trim extends BaseManipulator
 {
     /**
      * Perform trim image manipulation.
+     *
      * @param  Image $image The source image.
+     *
      * @return Image The manipulated image.
      */
-    public function run(Image $image)
+    public function run(Image $image): Image
     {
+        if ($this->trim === null) {
+            return $image;
+        }
+
         $trim = $this->getTrim();
 
-        if ($trim) {
-            $image = $this->getTrimmedImage($image, $trim);
-        }
+        $image = $this->getTrimmedImage($image, $trim);
 
         return $image;
     }
 
     /**
      * Resolve trim amount.
-     * @return string The resolved trim amount.
+     *
+     * @return int The resolved trim amount.
      */
-    public function getTrim()
+    public function getTrim(): int
     {
-        if ($this->trim === '') {
-            return 10;
-        }
+        $default = 10;
 
         if (!is_numeric($this->trim)) {
-            return;
+            return $default;
         }
 
         if ($this->trim < 0 || $this->trim > 100) {
-            return;
+            return $default;
         }
 
         return (int)$this->trim;
@@ -49,10 +53,15 @@ class Trim extends BaseManipulator
 
     /**
      * Perform trim image manipulation.
-     * @param  Image $image The source image.
+     *
+     * @param  Image $image     The source image.
+     * @param  int   $tolerance Trim tolerance
+     *
+     * @throws ImageProcessingException for errors that occur during the processing of a Image
+     *
      * @return Image The manipulated image.
      */
-    public function getTrimmedImage($image, $tolerance)
+    public function getTrimmedImage(Image $image, $tolerance): Image
     {
         $background = $image->getpoint(0, 0);
 
@@ -80,7 +89,7 @@ class Trim extends BaseManipulator
         $height = $bottom - $top;
 
         if ($width <= 0 || $height <= 0) {
-            throw new \RuntimeException("Unexpected error while trimming. Try to lower the tolerance");
+            throw new ImageProcessingException("Unexpected error while trimming. Try to lower the tolerance");
         }
 
         // and now crop the original image

@@ -12,10 +12,12 @@ class Orientation extends BaseManipulator
 {
     /**
      * Perform orientation image manipulation.
+     *
      * @param  Image $image The source image.
+     *
      * @return Image The manipulated image.
      */
-    public function run(Image $image)
+    public function run(Image $image): Image
     {
         // Resolve orientation
         $orientation = $this->getOrientation();
@@ -45,9 +47,10 @@ class Orientation extends BaseManipulator
 
     /**
      * Resolve orientation.
-     * @return string The resolved orientation.
+     *
+     * @return int The resolved orientation.
      */
-    public function getOrientation()
+    public function getOrientation(): int
     {
         if (in_array($this->or, ['90', '180', '270'], true)) {
             return (int)$this->or;

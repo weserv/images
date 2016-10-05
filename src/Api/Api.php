@@ -3,37 +3,41 @@
 namespace AndriesLouw\imagesweserv\Api;
 
 use AndriesLouw\imagesweserv\Client;
+use AndriesLouw\imagesweserv\Exception\ImageProcessingException;
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface;
 use GuzzleHttp\Exception\RequestException;
 use InvalidArgumentException;
 use Jcupitt\Vips\Image;
-use RuntimeException;
 
 class Api implements ApiInterface
 {
     /**
      * Collection of manipulators.
-     * @var ManipulatorInterface[]
+     *
+     * @var array
      */
     protected $manipulators;
 
     /**
      * The PHP HTTP client
+     *
      * @var Client
      */
     protected $client;
 
     /**
      * The current mime type
+     *
      * @var Client
      */
     protected $mimeType;
 
     /**
      * Create API instance.
-     * @param Client $client The Guzzle
-     * @param array $manipulators Collection of manipulators.
+     *
+     * @param Client $client       The Guzzle
+     * @param array  $manipulators Collection of manipulators.
      */
     public function __construct(Client $client, array $manipulators)
     {
@@ -43,6 +47,7 @@ class Api implements ApiInterface
 
     /**
      * Get the PHP HTTP client
+     *
      * @return Client The Guzzle client
      */
     public function getClient()
@@ -52,7 +57,10 @@ class Api implements ApiInterface
 
     /**
      * Set the PHP HTTP client
+     *
      * @param Client $client Guzzle client
+     *
+     * @return void
      */
     public function setClient(Client $client)
     {
@@ -61,17 +69,23 @@ class Api implements ApiInterface
 
     /**
      * Get the manipulators.
+     *
      * @return array Collection of manipulators.
      */
-    public function getManipulators()
+    public function getManipulators(): array
     {
         return $this->manipulators;
     }
 
     /**
      * Set the manipulators.
+     *
      * @param array $manipulators Collection of manipulators.
-     * @throws InvalidArgumentException if there's a manipulator which not extends ManipulatorInterface
+     *
+     * @throws InvalidArgumentException if there's a manipulator which not extends
+     *      ManipulatorInterface
+     *
+     * @return void
      */
     public function setManipulators(array $manipulators)
     {
@@ -86,29 +100,39 @@ class Api implements ApiInterface
 
     /**
      * Perform image manipulations.
-     * @param  string $url Source URL
-     * @param  array $params The manipulation params.
-     * @param  string $extension Extension of URL
-     * @throws ImageTooLargeException if the provided image is too large for processing.
-     * @throws RequestException for errors that occur during a transfer or during the on_headers event
-     * @return array ['image' => *Manipulated image binary data*, 'type' => *The mimetype*, 'extension' => *The extension*]
+     *
+     * @param string $url       Source URL
+     * @param string $extension Extension of URL
+     * @param array  $params    The manipulation params.
+     *
+     * @throws ImageTooLargeException if the provided image is too large for
+     *      processing.
+     * @throws RequestException for errors that occur during a transfer or during
+     *      the on_headers event
+     * @throws ImageProcessingException for errors that occur during the processing of a Image
+     *
+     * @return array [
+     *      'image' => *Manipulated image binary data*,
+     *      'type' => *The mimetype*,
+     *      'extension' => *The extension*
+     * ]
      */
-    public function run($url, $extension, array $params)
+    public function run(string $url, string $extension, array $params): array
     {
         // Debugging
-        /*if (strpos($url, 'PNG_transparency_demonstration_1.png') !== false) {
-            $tmpFileName = __DIR__ . '/../../public_html/test-images/PNG_transparency_demonstration_1.png';
-        } else if (strpos($url, 'Landscape_6.jpg') !== false) {
-            $tmpFileName = __DIR__ . '/../../public_html/test-images/Landscape_6.jpg';
-        } else if (strpos($url, 'lichtenstein.jpg') !== false) {
+        if (strpos($url, 'PNG_transparency_demonstration_1.png') !== false) {
+            $tmpFileName = __DIR__ . '/../../public_html/test-images/example.png';
+        } elseif (strpos($url, 'orientation.jpg') !== false) {
+            $tmpFileName = __DIR__ . '/../../public_html/test-images/orientation.jpg';
+        } elseif (strpos($url, 'lichtenstein.jpg') !== false) {
             $tmpFileName = __DIR__ . '/../../public_html/test-images/lichtenstein.jpg';
-        } else {*/
+        } else {
             $tmpFileName = $this->client->get($url);
-        /*}*/
+        }
 
         $image = Image::newFromFile($tmpFileName);
 
-        $allowed =  $this->getAllowedImageTypes();
+        $allowed = $this->getAllowedImageTypes();
 
         if ($image === null) {
             @unlink($tmpFileName);
@@ -131,9 +155,8 @@ class Api implements ApiInterface
             } catch (ImageTooLargeException $e) {
                 trigger_error($e->getMessage() . ' URL: ' . $url, E_USER_WARNING);
                 throw $e;
-            } catch (RuntimeException $e) {
-                trigger_error($e->getMessage() . ' URL: ' . $url . ' Params: ' . implode(', ', $params),
-                    E_USER_WARNING);
+            } catch (ImageProcessingException $e) {
+                trigger_error($e->getMessage() . ' URL: ' . $url, E_USER_WARNING);
                 throw $e;
             }
         }
@@ -154,14 +177,19 @@ class Api implements ApiInterface
             $options['compression'] = $this->getCompressionLevel($params);
         }
 
-        return ['image' => $image->writeToBuffer('.' . $extension, $options), 'type' => $allowed[$extension], 'extension' => $extension];
+        return [
+            'image' => $image->writeToBuffer('.' . $extension, $options),
+            'type' => $allowed[$extension],
+            'extension' => $extension
+        ];
     }
 
     /**
      * Get the allowed image types to convert to.
+     *
      * @return array
      */
-    public function getAllowedImageTypes()
+    public function getAllowedImageTypes(): array
     {
         return [
             //'gif' => 'image/gif',
@@ -174,10 +202,12 @@ class Api implements ApiInterface
 
     /**
      * Resolve quality.
-     * @param  array $params
-     * @return string The resolved quality.
+     *
+     * @param array $params Parameters array
+     *
+     * @return int The resolved quality.
      */
-    public function getQuality($params)
+    public function getQuality(array $params): int
     {
         $default = 85;
 
@@ -195,10 +225,12 @@ class Api implements ApiInterface
     /**
      * Get the zlib compression level of the lossless PNG output format.
      * The default level is 6.
-     * @param  array $params
-     * @return string The resolved zlib compression level.
+     *
+     * @param array $params Parameters array
+     *
+     * @return int The resolved zlib compression level.
      */
-    public function getCompressionLevel($params)
+    public function getCompressionLevel(array $params): int
     {
         $default = 6;
 

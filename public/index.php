@@ -1,10 +1,17 @@
 <?php
 /**
- * @author Andries Louw Wolthuizen
- * @author Kleis Auke Wolthuizen
- * @site images.weserv.nl
+ * Source code of images.weserv.nl, to be used on your own server(s).
+ *
+ * PHP version 7
+ *
+ * @category  Images
+ * @package   Imagesweserv
+ * @author    Andries Louw Wolthuizen <info@andrieslouw.nl>
+ * @author    Kleis Auke Wolthuizen   <info@kleisauke.nl>
+ * @license   http://opensource.org/licenses/bsd-license.php New BSD License
+ * @link      images.weserv.nl
  * @copyright 2016
- **/
+ */
 
 error_reporting(E_ALL);
 set_time_limit(180);
@@ -12,9 +19,57 @@ ini_set('display_errors', 0);
 
 require __DIR__ . '/../vendor/autoload.php';
 
+use AndriesLouw\imagesweserv\Exception\ImageProcessingException;
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use GuzzleHttp\Exception\RequestException;
 use League\Uri\Schemes\Http as HttpUri;
+
+$error_messages = [
+    'invalid_url' => [
+        'header' => '404 Not Found',
+        'content-type' => 'text/plain',
+        'message' => 'Error 404: Invalid url.',
+        'log' => 'URL failed, unable to parse. URL: %s',
+    ],
+    'invalid_image' => [
+        'header' => '400 Bad Request',
+        'content-type' => 'text/plain',
+        'message' => 'The request image is not a valid (supported) image. Supported images are: %s',
+        'log' => 'Non-supported image. URL: %s',
+    ],
+    'too_big_image' => [
+        'header' => '400 Bad Request',
+        'content-type' => 'text/plain',
+        'message' => 'The image is too big to be downloaded.' . PHP_EOL . 'Image size %s'
+            . PHP_EOL . 'Max image size: %s',
+        'log' => 'Image too big. URL: %s',
+    ],
+    'too_large_image' => [
+        'header' => '400 Bad Request',
+        'content-type' => 'text/plain',
+        'message' => 'Image is too large for processing. Width x Height should be less than 70 megapixels.',
+        'log' => 'Image too large. URL: %s',
+    ],
+    'curl_error' => [
+        'header' => '400 Bad Request',
+        'content-type' => 'text/plain',
+        'message' => 'cURL Request error: %s Status code: %s',
+        'log' => 'cURL Request error: %s URL: %s Status code: %s',
+    ],
+    'processing_error' => [
+        'header' => '400 Bad Request',
+        'content-type' => 'text/plain',
+    ],
+    'unknown' => [
+        'header' => '500 Internal Server Error',
+        'content-type' => 'text/plain',
+        'message' => 'Something\'s wrong!' . PHP_EOL .
+            'It looks as though we\'ve broken something on our system.' . PHP_EOL .
+            'Don\'t panic, we are fixing it! Please come back in a while.. ',
+        'log' => 'URL: %s, Message: %s, Instance: %s',
+    ]
+];
+
 
 if (!empty($_GET['url'])) {
     try {
@@ -29,14 +84,15 @@ if (!empty($_GET['url'])) {
             }
         }
     } catch (RuntimeException $e) {
-        header('HTTP/1.0 404 Not Found');
-        header('Content-type: text/plain');
-        echo 'Error 404: Server could not parse the ?url= that you were looking for, because it isn\'t a valid url.';
-        trigger_error('URL failed, unable to parse. URL: ' . $_GET['url'], E_USER_WARNING);
+        $error = $error_messages['invalid_url'];
+        header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
+        header('Content-type: ' . $error['content-type']);
+        echo $error['message'];
+        trigger_error(sprintf($error['log'], $_GET['url']), E_USER_WARNING);
         die;
     }
 
-    $extension = is_null($uri->path->getExtension()) ? 'png' : $uri->path->getExtension();
+    $extension = $uri->path->getExtension() ?? 'png';
 
     $tmpFileName = tempnam('/dev/shm', 'imo_');
 
@@ -44,7 +100,8 @@ if (!empty($_GET['url'])) {
     $client = new AndriesLouw\imagesweserv\Client($tmpFileName, [
         // User agent for this client
         'user_agent' => 'Mozilla/5.0 (compatible; ImageFetcher/6.0; +http://images.weserv.nl/)',
-        // Float describing the number of seconds to wait while trying to connect to a server. Use 0 to wait indefinitely.
+        // Float describing the number of seconds to wait while trying to connect to a server.
+        // Use 0 to wait indefinitely.
         'connect_timeout' => 5,
         // Float describing the timeout of the request in seconds. Use 0 to wait indefinitely.
         'timeout' => 10,
@@ -61,7 +118,8 @@ if (!empty($_GET['url'])) {
             'image/tiff' => 'tiff',
             'image/x-icon' => 'ico',
             'image/vnd.microsoft.icon' => 'ico',*/
-        ]
+        ],
+        'error_message' => $error_messages,
     ]);
 
     // Set manipulators
@@ -108,47 +166,54 @@ if (!empty($_GET['url'])) {
         /**
          * Get the image
          *
-         * @var array ['image' => *Manipulated image binary data*, 'type' => *The mimetype*, 'extension' => *The extension*]
+         * @var array [
+         *      'image' => *Manipulated image binary data*,
+         *      'type' => *The mimetype*,
+         *      'extension' => *The extension*
+         * ]
          */
         $image = $server->outputImage($uri->__toString(), $extension, $_GET);
     } catch (ImageTooLargeException $e) {
-        // We are not doing trigger_error here because that is already handled in Api.php
-        header($_SERVER['SERVER_PROTOCOL'] . ' 400 Bad Request');
-        header('Content-type: text/plain');
-        echo $e->getMessage();
+        $error = $error_messages['too_large_image'];
+        header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
+        header('Content-type: ' . $error['content-type']);
+        echo $error['message'];
         die;
     } catch (RequestException $e) {
-        // We are not doing trigger_error here because that is already handled in Client.php
         $previousException = $e->getPrevious();
 
         // Check if there is a previous exception
         if ($previousException != null) {
             if ($previousException instanceof AndriesLouw\imagesweserv\Exception\ImageNotValidException) {
-                header($_SERVER['SERVER_PROTOCOL'] . ' 400 Bad Request');
-                header('Content-type: text/plain');
+                $error = $error_messages['invalid_image'];
+                header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
+                header('Content-type: ' . $error['content-type']);
                 echo $previousException->getMessage();
             } else {
                 if ($previousException instanceof AndriesLouw\imagesweserv\Exception\ImageTooBigException) {
-                    header($_SERVER['SERVER_PROTOCOL'] . ' 400 Bad Request');
-                    header('Content-type: text/plain');
+                    $error = $error_messages['too_big_image'];
+                    header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
+                    header('Content-type: ' . $error['content-type']);
                     echo $previousException->getMessage();
                 } else {
-                    header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error');
-                    header('Content-type: text/plain');
-                    echo 'Error 500: Unknown exception: ' . $previousException->getMessage();
+                    $error = $error_messages['unknown'];
+                    header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
+                    header('Content-type: ' . $error['content-type']);
+                    echo $error['message'];
                 }
             }
         } else {
-            header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
-            header('Content-type: text/plain');
-            echo 'Error 404: Server could not parse the ?url= that you were looking for. Message: ' . $e->getMessage();
+            $error = $error_messages['curl_error'];
+            header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
+            header('Content-type: ' . $error['content-type']);
+            echo $e->getMessage();
         }
         die;
-    } catch (RuntimeException $e) {
-        // We are not doing trigger_error here because that is already handled in Api.php
-        header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error');
+    } catch (ImageProcessingException $e) {
+        $error = $error_messages['processing_error'];
+        header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
         header('Content-type: text/plain');
-        echo 'Error 500: ' . $e->getMessage();
+        echo $error['header'] . ' - ' . $e->getMessage();
         die;
     }
 
@@ -182,22 +247,6 @@ if (!empty($_GET['url'])) {
     exit;
 } else {
     $url = '//images.weserv.nl';
-
-    // Debugging
-    /*$html = <<<HTML
-<a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300"/></a>
-<a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;h=300"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;h=300"/></a>
-<a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=fit"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=fit"/></a>
-<a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=square"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=square"/></a>
-<a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=absolute"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=absolute"/></a>
-<a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=square&amp;a=top"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=square&amp;a=top"/></a>
-<a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;crop=300,300,680,500"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;crop=300,300,680,500"/></a>
-<a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle"/></a>
-<a href="$url/?url=ssl:upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png&amp;w=300&amp;trim"><img src="$url/?url=ssl:upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png&amp;w=300&amp;trim"/></a>
-<a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;q=20"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;q=20"/></a>
-<a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;output=gif"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;output=gif"/></a>
-<a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;il"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;il"/></a>
-HTML;*/
 
     $html = <<<HTML
 <!DOCTYPE html>
@@ -253,7 +302,6 @@ HTML;*/
                         <ul class="nav inner">
                             <li class="dd-item"><a href="#deprecated"><span>Deprecated</span></a></li>
                             <li class="dd-item"><a href="#quick-reference"><span>Quick reference</span></a></li>
-                            <li class="dd-item"><a href="#colors"><span>Colors</span></a></li>
                             <li class="dd-item"><a href="#size"><span>Size</span></a></li>
                             <li class="dd-item"><a href="#orientation"><span>Orientation</span></a></li>
                             <li class="dd-item"><a href="#trans"><span>Transformation</span></a></li>
@@ -261,7 +309,6 @@ HTML;*/
                             <li class="dd-item"><a href="#shape"><span>Shape</span></a></li>
                             <li class="dd-item"><a href="#adjustments"><span>Adjustments</span></a></li>
                             <li class="dd-item"><a href="#effects"><span>Effects</span></a></li>
-                            <li class="dd-item"><a href="#background"><span>Background</span></a></li>
                             <li class="dd-item"><a href="#encoding"><span>Encoding</span></a></li>
                         </ul>
                     </li>
@@ -412,13 +459,13 @@ HTML;*/
                                 <td>Crops the image to a specific shape.</td>
                                 <td><a href="#shape-shape">info</a></td>
                             </tr>
-                             <!-- <tr>
+                            <tr>
                                 <td>Brightness</td>
                                 <td><code>bri</code></td>
                                 <td>Adjusts the image brightness.</td>
                                 <td><a href="#brightness-bri">info</a></td>
                             </tr>
-                            <tr>
+                            <!-- <tr>
                                 <td>Contrast</td>
                                 <td><code>con</code></td>
                                 <td>Adjusts the image contrast.</td>
@@ -487,17 +534,6 @@ HTML;*/
                         </tbody>
                     </table>
                 </section>
-                <section id="colors" class="goto">
-                    <h1>Colors</h1>
-                    <p>Images.weserv.nl supports a variety of color formats. In addition to the 140 color names supported by all modern browsers (listed <a href="$url/colors.html">here</a>), Images.weserv.nl accepts hexadecimal RGB and RBG alpha formats.</p>
-                    <h4 id="hexadecimal">Hexadecimal</h4>
-                    <ul>
-                        <li>3 digit RGB: <code>CCC</code></li>
-                        <li>4 digit ARGB (alpha): <code>5CCC</code></li>
-                        <li>6 digit RGB: <code>CCCCCC</code></li>
-                        <li>8 digit ARGB (alpha): <code>55CCCCCC</code></li>
-                    </ul>
-                </section>
                 <section id="size" class="goto">
                     <h1>Size</h1>
                     <h3 id="width-w">Width <code>&amp;w=</code></h3>
@@ -510,7 +546,7 @@ HTML;*/
                     <a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;h=300"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;h=300" alt=""/></a>
                 </section>
                 <section id="orientation" class="goto">
-                    <h1>Orientation <div class="new">New!</div></h1>
+                    <h1>Orientation <span class="new">New!</span></h1>
                     <h3 id="orientation-or">Orientation <code>or</code></h3>
                     <p>Rotates the image. Accepts <code>auto</code>, <code>0</code>, <code>90</code>, <code>180</code> or <code>270</code>. Default is <code>auto</code>. The <code>auto</code> option uses Exif data to automatically orient images correctly.</p>
                     <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;h=300&amp;or=90"&gt;</code></pre>
@@ -537,7 +573,7 @@ HTML;*/
                     <p>Stretches the image to fit the constraining dimensions exactly. The resulting image will fill the dimensions, and will not maintain the aspect ratio of the input image.</p>
                     <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=absolute"&gt;</code></pre>
                     <a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=absolute"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=absolute" alt=""/></a>
-                    <h3 id="trans-letterbox">Letterbox <code>&amp;t=letterbox</code> <div class="new">New!</div></h3>
+                    <h3 id="trans-letterbox">Letterbox <code>&amp;t=letterbox</code> <span class="new">New!</span></h3>
                     <p>Resizes the image to fit within the width and height boundaries without cropping or distorting the image, and the remaining space is filled with the background color. The resulting image will match the constraining dimensions.</p><p>More info: <a href="https://imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/9495519-letterbox-images-that-need-to-fit">#9495519 - letterbox images that need to fit</a></p>
                     <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black"&gt;</code></pre>
                     <a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black" alt=""/></a>
@@ -547,7 +583,7 @@ HTML;*/
                     <p>You can also set where the image is cropped by adding a crop position. Only works when <code>t=square</code>. Accepts <code>top</code>, <code>left</code>, <code>center</code>, <code>right</code> or <code>bottom</code>. Default is <code>center</code>. For more information, please see the suggestion on our UserVoice forum: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/2570350-aligning">#2570350 - Aligning</a>.</p>
                     <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=square&amp;a=top"&gt;</code></pre>
                     <a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=square&amp;a=top"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=square&amp;a=top" alt=""/></a>
-                    <h3 id="crop-focal-point">Crop Focal Point <div class="new">New!</div></h3>
+                    <h3 id="crop-focal-point">Crop Focal Point <span class="new">New!</span></h3>
                     <p>In addition to the crop position, you can be more specific about the exact crop position using a focal point. Only works when <code>t=square</code>. This is defined using two offset percentages: <code>crop-x%-y%</code>.</p>
                     <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-25-45"&gt;</code></pre>
                     <a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-25-45"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-25-45" alt=""/></a>
@@ -559,17 +595,30 @@ HTML;*/
                 <section id="shape" class="goto">
                     <h1>Shape</h1>
                     <h3 id="shape-shape">Shape <code>&amp;shape=</code></h3>
-                    <p>Crops the image to a specific shape. Currently only supporting <code>&amp;shape=circle</code>. More info: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/3910149-add-circle-effect-to-photos">#3910149 - Add circle effect to photos</a>.</p>
+                    <p>Crops the image to a specific shape. More info: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/3910149-add-circle-effect-to-photos">#3910149 - Add circle effect to photos</a>.</p>
+                    <h4 id="shape-accepts">Accepts:</h4>
+                    <ul>
+                        <li><code>circle</code></li>
+                        <li><code>ellipse</code></li>
+                        <li><code>triangle</code></li>
+                        <li><code>triangle-180</code>: Triangle tilted upside down</li>
+                        <li><code>pentagon</code></li>
+                        <li><code>pentagon-180</code>: Pentagon tilted upside down</li>
+                        <li><code>hexagon</code></li>
+                        <li><code>square</code>: Square tilted 45 degrees</li>
+                        <li><code>square-rounded</code>: Square with border-radius of 5%</li>
+                        <li><code>star</code>: 5-point star</li>
+                    </ul>
                     <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle"&gt;</code></pre>
                     <a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle" alt=""/></a>
                 </section>
                 <section id="adjustments" class="goto">
-                    <h1>Adjustments <div class="new">New!</div></h1>
-                    <!-- <h3 id="brightness-bri">Brightness <code>bri</code></h3>
+                    <h1>Adjustments <span class="new">New!</span></h1>
+                    <h3 id="brightness-bri">Brightness <code>bri</code></h3>
                     <p>Adjusts the image brightness. Use values between <code>-100</code> and <code>+100</code>, where <code>0</code> represents no change.</p>
                     <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;bri=-25"&gt;</code></pre>
                     <a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;bri=-25"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;bri=-25" alt=""/></a>
-                    <h3 id="contrast-con">Contrast <code>con</code></h3>
+                    <!-- <h3 id="contrast-con">Contrast <code>con</code></h3>
                     <p>Adjusts the image contrast. Use values between <code>-100</code> and <code>+100</code>, where <code>0</code> represents no change.</p>
                     <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;con=25"&gt;</code></pre>
                     <a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;con=25"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;con=25" alt=""/></a> -->
@@ -591,27 +640,31 @@ HTML;*/
                     <p>Trim "boring" pixels from all edges that contain values within a percentage similarity of the top-left pixel. Trimming occurs before any resize operation. Use values between <code>0</code> and <code>100</code> to define a percentaged tolerance level to trim away similar color values. You also can specify just &trim, which defaults to a percentaged tolerance level of 10.</p><p>More info: <a href="https://imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/3083264-able-to-remove-black-white-whitespace">#3083264 - Able to remove black/white whitespace</a></p>
                     <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=ssl:upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png&amp;w=300&amp;trim=10"&gt;</code></pre>
                     <a class="trimedges" href="$url/?url=ssl:upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png&amp;w=300&amp;trim=10"><img src="$url/?url=ssl:upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png&amp;w=300&amp;trim=10" alt=""/></a>
+                    <h3 id="background-bg">Background <code>bg</code></h3>
+                    <p>Sets the background color of the image. Supports a variety of color formats. In addition to the 140 color names supported by all modern browsers (listed <a href="$url/colors.html">here</a>), it also accepts hexadecimal RGB and RBG alpha formats.</p>
+                    <h4 id="hexadecimal">Hexadecimal</h4>
+                    <ul>
+                        <li>3 digit RGB: <code>CCC</code></li>
+                        <li>4 digit ARGB (alpha): <code>5CCC</code></li>
+                        <li>6 digit RGB: <code>CCCCCC</code></li>
+                        <li>8 digit ARGB (alpha): <code>55CCCCCC</code></li>
+                    </ul>
+                    <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=ssl:upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.pngName&amp;w=400&amp;bg=black"&gt;</code></pre>
+                    <a href="$url/?url=ssl:upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png&amp;w=400&amp;bg=black"><img src="$url/?url=ssl:upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png&amp;w=400&amp;bg=black" alt=""/></a>
                 </section>
                 <section id="effects" class="goto">
-                    <h1>Effects <div class="new">New!</div></h1>
+                    <h1>Effects <span class="new">New!</span></h1>
                     <h3 id="blur-blur">Blur <code>blur</code></h3>
                     <p>Adds a blur effect to the image. Use values between <code>0</code> and <code>100</code>.</p>
                     <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;blur=5"&gt;</code></pre>
                     <a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;blur=5"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;blur=5" alt=""/></a>
                     <h3 id="filter-filt">Filter <code>filt</code></h3>
-                    <p>Applies a filter effect to the image. Accepts <code>greyscale</code>.</p><!-- or <code>sepia</code>. -->
+                    <p>Applies a filter effect to the image. Accepts <code>greyscale</code> or <code>sepia</code>.</p>
                     <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;filt=greyscale"&gt;</code></pre>
                     <a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;filt=greyscale"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;filt=greyscale" alt=""/></a>
                 </section>
-                <section id="background" class="goto">
-                    <h1>Background <div class="new">New!</div></h1>
-                    <h3 id="background-bg">Background <code>bg</code></h3>
-                    <p>Sets the background color of the image. See <a href="#colors">colors</a> for more information on the available color formats.</p>
-                    <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=ssl:upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.pngName&amp;w=400&amp;bg=black"&gt;</code></pre>
-                    <a href="$url/?url=ssl:upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png&amp;w=400&amp;bg=black"><img src="$url/?url=ssl:upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png&amp;w=400&amp;bg=black" alt=""/></a>
-                </section>
                 <section id="encoding" class="goto">
-                	<h1>Encoding</h1>
+                    <h1>Encoding</h1>
                     <h3 id="quality-q">Quality <code>&amp;q=</code></h3>
                     <p>Defines the quality of the image. Use values between <code>0</code> and <code>100</code>. Defaults to <code>85</code>. Only relevant if the format is set to <code>jpg</code>.</p>
                     <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;q=20"&gt;</code></pre>

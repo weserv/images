@@ -11,10 +11,12 @@ class Filter extends BaseManipulator
 {
     /**
      * Perform filter image manipulation.
+     *
      * @param  Image $image The source image.
+     *
      * @return Image The manipulated image.
      */
-    public function run(Image $image)
+    public function run(Image $image): Image
     {
         if ($this->filt === 'greyscale') {
             $image = $this->runGreyscaleFilter($image);
@@ -29,30 +31,33 @@ class Filter extends BaseManipulator
 
     /**
      * Perform greyscale manipulation.
+     *
      * @param  Image $image The source image.
+     *
      * @return Image The manipulated image.
      */
-    public function runGreyscaleFilter(Image $image)
+    public function runGreyscaleFilter(Image $image): Image
     {
         return $image->colourspace("b-w");
     }
 
     /**
      * Perform sepia manipulation.
+     *
      * @param  Image $image The source image.
+     *
      * @return Image The manipulated image.
      */
-    public function runSepiaFilter(Image $image)
+    public function runSepiaFilter(Image $image): Image
     {
-        // TODO Make the sepia filter working
-        /*$sepia = vips_image_new_matrixv([
-            3, 3,
-            0.3588, 0.7044, 0.1368,
-            0.2990, 0.5870, 0.1140,
-            0.2392, 0.4696, 0.0912
-        ]);
+        $sepia = Image::newFromArray(
+            [
+                [0.3588, 0.7044, 0.1368],
+                [0.2990, 0.5870, 0.1140],
+                [0.2392, 0.4696, 0.0912]
+            ]
+        );
 
-       return $image->recomb($sepia);*/
-        return $image;
+        return $image->recomb($sepia);
     }
 }

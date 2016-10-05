@@ -12,10 +12,12 @@ class Sharpen extends BaseManipulator
 {
     /**
      * Perform sharpen image manipulation.
+     *
      * @param  Image $image The source image.
+     *
      * @return Image The manipulated image.
      */
-    public function run(Image $image)
+    public function run(Image $image): Image
     {
         if ($this->sharp === null) {
             return $image;
@@ -30,6 +32,7 @@ class Sharpen extends BaseManipulator
 
     /**
      * Resolve sharpen amount.
+     *
      * @return string The resolved sharpen amount.
      */
     public function getSharpen()
@@ -65,30 +68,26 @@ class Sharpen extends BaseManipulator
 
     /**
      * Sharpen flat and jagged areas. Use sigma of -1.0 for fast sharpen.
-     * @param Image $image The source image.
-     * @param double $sigma Sharpening mask to apply in pixels, but comes at a performance cost. (Default: -1)
-     * @param integer $flat Sharpening to apply to flat areas. (Default: 1.0)
-     * @param integer $jagged Sharpening to apply to jagged areas. (Default: 2.0)
+     *
+     * @param  Image $image  The source image.
+     * @param  float $sigma  Sharpening mask to apply in pixels, but comes at a performance cost. (Default: -1)
+     * @param  int   $flat   Sharpening to apply to flat areas. (Default: 1.0)
+     * @param  int   $jagged Sharpening to apply to jagged areas. (Default: 2.0)
+     *
      * @return Image The manipulated image.
      */
-    public function sharpen($image, $sigma, $flat, $jagged)
+    public function sharpen($image, $sigma, $flat, $jagged): Image
     {
         if ($sigma == -1.0) {
             // Fast, mild sharpen
-            // TODO vips_image_new_matrixv or Image::new_matrixv needs to be working
-            /*$sharpen = Image::new_matrixv(3, 3,
-                -1.0, -1.0, -1.0,
-                -1.0, 32.0, -1.0,
-                -1.0, -1.0, -1.0);
-            $sharpen->set("scale", 24.0);*/
-            $min = $sigma >= 10 ? $sigma * -0.01 : 0;
-            $max = $sigma * -0.025;
-            $abs = ((4 * $min + 4 * $max) * -1) + 1;
-            $matrix = Image::newFromArray([
-                [$min, $max, $min],
-                [$max, $abs, $max],
-                [$min, $max, $min]
-            ]);
+            $matrix = Image::newFromArray(
+                [
+                    [-1.0, -1.0, -1.0],
+                    [-1.0, 32, -1.0],
+                    [-1.0, -1.0, -1.0]
+                ],
+                24.0
+            );
 
             return $image->conv($matrix);
         } else {
@@ -97,11 +96,13 @@ class Sharpen extends BaseManipulator
             if ($colourspaceBeforeSharpen == Utils::VIPS_INTERPRETATION_RGB) {
                 $colourspaceBeforeSharpen = Utils::VIPS_INTERPRETATION_sRGB;
             }
-            return $image->sharpen([
+            return $image->sharpen(
+                [
                 "sigma" => $sigma,
                 "m1" => $flat,
                 "m2" => $jagged
-            ])->colourspace($colourspaceBeforeSharpen);
+                ]
+            )->colourspace($colourspaceBeforeSharpen);
         }
     }
 }
