@@ -5,6 +5,7 @@ namespace AndriesLouw\imagesweserv\Api;
 use AndriesLouw\imagesweserv\Client;
 use AndriesLouw\imagesweserv\Exception\ImageProcessingException;
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
+use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface;
 use GuzzleHttp\Exception\RequestException;
 use InvalidArgumentException;
@@ -36,8 +37,8 @@ class Api implements ApiInterface
     /**
      * Create API instance.
      *
-     * @param Client $client       The Guzzle
-     * @param array  $manipulators Collection of manipulators.
+     * @param Client $client The Guzzle
+     * @param array $manipulators Collection of manipulators.
      */
     public function __construct(Client $client, array $manipulators)
     {
@@ -101,9 +102,9 @@ class Api implements ApiInterface
     /**
      * Perform image manipulations.
      *
-     * @param string $url       Source URL
+     * @param string $url Source URL
      * @param string $extension Extension of URL
-     * @param array  $params    The manipulation params.
+     * @param array $params The manipulation parameters.
      *
      * @throws ImageTooLargeException if the provided image is too large for
      *      processing.
@@ -120,17 +121,24 @@ class Api implements ApiInterface
     public function run(string $url, string $extension, array $params): array
     {
         // Debugging
-        if (strpos($url, 'PNG_transparency_demonstration_1.png') !== false) {
-            $tmpFileName = __DIR__ . '/../../public_html/test-images/example.png';
-        } elseif (strpos($url, 'orientation.jpg') !== false) {
-            $tmpFileName = __DIR__ . '/../../public_html/test-images/orientation.jpg';
-        } elseif (strpos($url, 'lichtenstein.jpg') !== false) {
-            $tmpFileName = __DIR__ . '/../../public_html/test-images/lichtenstein.jpg';
+        $debug = true;
+
+        if ($debug) {
+            if (strpos($url, 'PNG_transparency_demonstration_1.png') !== false) {
+                $tmpFileName = __DIR__ . '/../../public_html/test-images/example.png';
+            } elseif (strpos($url, 'orientation.jpg') !== false) {
+                $tmpFileName = __DIR__ . '/../../public_html/test-images/orientation.jpg';
+            } elseif (strpos($url, 'lichtenstein.jpg') !== false) {
+                $tmpFileName = __DIR__ . '/../../public_html/test-images/lichtenstein.jpg';
+            } else {
+                $tmpFileName = $this->client->get($url);
+            }
         } else {
             $tmpFileName = $this->client->get($url);
         }
 
         $image = Image::newFromFile($tmpFileName);
+        //$image->setLogging($debug);
 
         $allowed = $this->getAllowedImageTypes();
 
@@ -147,6 +155,13 @@ class Api implements ApiInterface
             }
         }
 
+        $interpretation = $image->interpretation;
+
+        // Put common variables in the parameters
+        $params['hasAlpha'] = Utils::hasAlpha($image);
+        $params['is16Bit'] = Utils::is16Bit($interpretation);
+        $params['maxAlpha'] = Utils::maximumImageAlpha($interpretation);
+
         foreach ($this->manipulators as $manipulator) {
             $manipulator->setParams($params);
 
@@ -158,6 +173,19 @@ class Api implements ApiInterface
             } catch (ImageProcessingException $e) {
                 trigger_error($e->getMessage() . ' URL: ' . $url, E_USER_WARNING);
                 throw $e;
+            }
+        }
+
+        // Reverse premultiplication after all transformations:
+        if (Utils::isPremultiplied($image)) {
+            //$image->set(Utils::EXIF_IS_PREMULTIPLIED, 'false');
+            $image = $image->unpremultiply(['max_alpha' => $params['maxAlpha']]);
+
+            // Cast pixel values to integer
+            if ($params['is16Bit']) {
+                $image = $image->cast(Utils::VIPS_FORMAT_USHORT);
+            } else {
+                $image = $image->cast(Utils::VIPS_FORMAT_UCHAR);
             }
         }
 

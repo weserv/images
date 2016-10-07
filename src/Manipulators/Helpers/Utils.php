@@ -6,7 +6,9 @@ use Jcupitt\Vips\Image;
 
 class Utils
 {
-    const EXIF_IFD0_ORIENTATION = "exif-ifd0-Orientation";
+    const EXIF_IFD0_ORIENTATION = 'exif-ifd0-Orientation';
+
+    const EXIF_IS_PREMULTIPLIED = 'exif-isPremultiplied';
 
     const VIPS_INTERPRETATION_ERROR = -1;
     const VIPS_INTERPRETATION_MULTIBAND = 0;
@@ -30,27 +32,30 @@ class Utils
     const VIPS_INTERPRETATION_HSV = 29;
     const VIPS_INTERPRETATION_LAST = 30;
 
-    const VIPS_COLOURSPACE_ERROR = "error";
-    const VIPS_COLOURSPACE_MULTIBAND = "multiband";
-    const VIPS_COLOURSPACE_B_W = "b-w";
-    const VIPS_COLOURSPACE_HISTOGRAM = "histogram";
-    const VIPS_COLOURSPACE_XYZ = "xyz";
-    const VIPS_COLOURSPACE_LAB = "lab";
-    const VIPS_COLOURSPACE_CMYK = "cmyk";
-    const VIPS_COLOURSPACE_LABQ = "labq";
-    const VIPS_COLOURSPACE_RGB = "rgb";
-    const VIPS_COLOURSPACE_CMC = "cmc";
-    const VIPS_COLOURSPACE_LCH = "lch";
-    const VIPS_COLOURSPACE_LABS = "labs";
-    const VIPS_COLOURSPACE_sRGB = "srgb";
-    const VIPS_COLOURSPACE_YXY = "yxy";
-    const VIPS_COLOURSPACE_FOURIER = "fourier";
-    const VIPS_COLOURSPACE_RGB16 = "rgb16";
-    const VIPS_COLOURSPACE_GREY16 = "grey16";
-    const VIPS_COLOURSPACE_MATRIX = "matrix";
-    const VIPS_COLOURSPACE_scRGB = "scrgb";
-    const VIPS_COLOURSPACE_HSV = "hsv";
-    const VIPS_COLOURSPACE_LAST = "last";
+    const VIPS_COLOURSPACE_ERROR = 'error';
+    const VIPS_COLOURSPACE_MULTIBAND = 'multiband';
+    const VIPS_COLOURSPACE_B_W = 'b-w';
+    const VIPS_COLOURSPACE_HISTOGRAM = 'histogram';
+    const VIPS_COLOURSPACE_XYZ = 'xyz';
+    const VIPS_COLOURSPACE_LAB = 'lab';
+    const VIPS_COLOURSPACE_CMYK = 'cmyk';
+    const VIPS_COLOURSPACE_LABQ = 'labq';
+    const VIPS_COLOURSPACE_RGB = 'rgb';
+    const VIPS_COLOURSPACE_CMC = 'cmc';
+    const VIPS_COLOURSPACE_LCH = 'lch';
+    const VIPS_COLOURSPACE_LABS = 'labs';
+    const VIPS_COLOURSPACE_sRGB = 'srgb';
+    const VIPS_COLOURSPACE_YXY = 'yxy';
+    const VIPS_COLOURSPACE_FOURIER = 'fourier';
+    const VIPS_COLOURSPACE_RGB16 = 'rgb16';
+    const VIPS_COLOURSPACE_GREY16 = 'grey16';
+    const VIPS_COLOURSPACE_MATRIX = 'matrix';
+    const VIPS_COLOURSPACE_scRGB = 'scrgb';
+    const VIPS_COLOURSPACE_HSV = 'hsv';
+    const VIPS_COLOURSPACE_LAST = 'last';
+
+    const VIPS_FORMAT_UCHAR = 0;
+    const VIPS_FORMAT_USHORT = 2;
 
     const VIPS_INTERPRETATION_TO_COLOURSPACE = [
         self::VIPS_INTERPRETATION_ERROR => self::VIPS_COLOURSPACE_ERROR,
@@ -76,10 +81,10 @@ class Utils
         self::VIPS_INTERPRETATION_LAST => self::VIPS_COLOURSPACE_LAST
     ];
 
-    const VIPS_ANGLE_D0 = "d0";
-    const VIPS_ANGLE_D90 = "d90";
-    const VIPS_ANGLE_D180 = "d180";
-    const VIPS_ANGLE_D270 = "d270";
+    const VIPS_ANGLE_D0 = 'd0';
+    const VIPS_ANGLE_D90 = 'd90';
+    const VIPS_ANGLE_D180 = 'd180';
+    const VIPS_ANGLE_D270 = 'd270';
 
     /**
      * Are pixel values in this image 16-bit integer?
@@ -88,7 +93,7 @@ class Utils
      *
      * @return bool indicating if the pixel values in this image are 16-bit
      */
-    public static function is16Bit(int $interpretation)
+    public static function is16Bit(int $interpretation): bool
     {
         return $interpretation == self::VIPS_INTERPRETATION_RGB16
         || $interpretation == self::VIPS_INTERPRETATION_GREY16;
@@ -102,7 +107,7 @@ class Utils
      *
      * @return int the image alpha maximum
      */
-    public static function maximumImageAlpha(int $interpretation)
+    public static function maximumImageAlpha(int $interpretation): int
     {
         return self::is16Bit($interpretation) ? 65535 : 255;
     }
@@ -115,7 +120,7 @@ class Utils
      *
      * @return bool indicating if this image has an alpha channel.
      */
-    public static function hasAlpha($image)
+    public static function hasAlpha(Image $image): bool
     {
         $bands = $image->bands;
         $interpretation = $image->interpretation;
@@ -128,40 +133,79 @@ class Utils
     /**
      * Get EXIF Orientation of image, if any.
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
      *
      * @return bool indicating if this image has an alpha channel.
      */
-    public static function exifOrientation($image)
+    public static function exifOrientation(Image $image): int
     {
-        $orientation = 0;
-        $exif = $image->get(self::EXIF_IFD0_ORIENTATION);
-        if ($exif !== null) {
-            $orientation = array_shift($exif);
+        try {
+            $exif = $image->get(self::EXIF_IFD0_ORIENTATION);
+            return (int)$exif[0];
+        } catch (\Exception $e) {
+            return 0;
         }
-        return $orientation;
     }
+
 
     /**
      * Set EXIF Orientation of image.
      *
      * @param Image $image The source image.
      * @param int $orientation EXIF Orientation.
+     *
+     * @return void
      */
-    public static function setExifOrientation($image, $orientation)
+    public static function setExifOrientation(Image $image, int $orientation)
     {
-        $exif = [$orientation];
-        $image->set(self::EXIF_IFD0_ORIENTATION, $exif);
+        // TODO Overriding/removing exif orientation doesn't work
+        $image->set(self::EXIF_IFD0_ORIENTATION, (string)$orientation);
     }
 
     /**
      * Remove EXIF Orientation from image.
      *
      * @param Image $image The source image.
+     *
+     * @return void
      */
-    public static function removeExifOrientation($image)
+    public static function removeExifOrientation(Image $image)
     {
         self::setExifOrientation($image, 0);
+    }
+
+    /**
+     * Checks if this image is premultiplied.
+     *
+     * @param Image $image The source image.
+     *
+     * @return bool indicating if this image premultiplied.
+     */
+    public static function isPremultiplied(Image $image): bool
+    {
+        try {
+            $image->get(self::EXIF_IS_PREMULTIPLIED);
+        } catch (\Exception $e) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Premultiply the alpha channel if it hasn't premultiplied before.
+     *
+     * @param Image $image The (premultiplied or non-premultiplied) source image.
+     *
+     * @return Image The premultiplied image.
+     */
+    public static function premultiplyImage(Image $image, int $maxAlpha): Image
+    {
+        if (self::isPremultiplied($image)) {
+            return $image;
+        }
+
+        $image->set(self::EXIF_IS_PREMULTIPLIED, 'true');
+        return $image->premultiply(['max_alpha' => $maxAlpha]);
     }
 
     /**
@@ -176,7 +220,7 @@ class Utils
      *
      * @return array [rotation, flip, flop]
      */
-    public static function calculateRotationAndFlip($angle, $image)
+    public static function calculateRotationAndFlip(int $angle, Image $image): array
     {
         $rotate = self::VIPS_ANGLE_D0;
         $flip = false;
@@ -231,7 +275,7 @@ class Utils
      *
      * @return string The colourspace
      */
-    public static function interpretationToColourSpace($interpretation)
+    public static function interpretationToColourSpace(int $interpretation): string
     {
         return self::VIPS_INTERPRETATION_TO_COLOURSPACE[$interpretation];
     }

@@ -2,11 +2,11 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
-use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Image;
 
 /**
  * @property string $gam
+ * @property bool $hasAlpha
  */
 class Gamma extends BaseManipulator
 {
@@ -25,9 +25,9 @@ class Gamma extends BaseManipulator
 
         $gamma = $this->getGamma();
 
-        if (Utils::hasAlpha($image)) {
+        if ($this->hasAlpha) {
             // Separate alpha channel
-            $imageWithoutAlpha = $image->extract_band(0, ["n", $image->bands - 1]);
+            $imageWithoutAlpha = $image->extract_band(0, ['n' => $image->bands - 1]);
             $alpha = $image->extract_band($image->bands - 1, ['n' => 1]);
             $image = $imageWithoutAlpha->gamma(['exponent' => $gamma])->bandjoin($alpha);
         } else {

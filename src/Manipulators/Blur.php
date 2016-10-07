@@ -2,10 +2,13 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
+use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Image;
 
 /**
  * @property string $blur
+ * @property bool $hasAlpha
+ * @property int $maxAlpha
  */
 class Blur extends BaseManipulator
 {
@@ -20,6 +23,13 @@ class Blur extends BaseManipulator
     {
         if ($this->blur === null) {
             return $image;
+        }
+
+        if ($this->hasAlpha) {
+            // Ensures that the image alpha channel is premultiplied before doing any blur transformations
+            // to avoid dark fringing around bright pixels
+            // See: http://entropymine.com/imageworsener/resizealpha/
+            $image = Utils::premultiplyImage($image, $this->maxAlpha);
         }
 
         $blur = $this->getBlur();

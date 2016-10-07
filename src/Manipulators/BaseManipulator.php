@@ -28,13 +28,27 @@ abstract class BaseManipulator implements ManipulatorInterface
      *
      * @param  string $name The manipulation name.
      *
-     * @return string The manipulation value.
+     * @return string|null The manipulation value.
      */
     public function __get(string $name)
     {
-        if (array_key_exists($name, $this->params)) {
-            return ($this->params[$name] != null) ? $this->params[$name] : '';
+        if (isset($this->params[$name])) {
+            return $this->params[$name];
         }
+        return null;
+    }
+
+    /**
+     * Set any property on the manipulation params.
+     *
+     * @param string $name The property name.
+     * @param mixed $value The value to set for this property.
+     *
+     * @return void
+     */
+    public function __set(string $name, $value)
+    {
+        $this->params[$name] = $value;
     }
 
     /**

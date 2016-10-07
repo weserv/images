@@ -105,8 +105,8 @@ class Server
     /**
      * Generate and output image.
      *
-     * @param  string $url       Image URL
-     * @param  array  $params    Image manipulation params.
+     * @param  string $url Image URL
+     * @param  array $params Image manipulation params.
      * @param  string $extension Extension of URL
      *
      * @throws ImageTooLargeException if the provided image is too large for processing.

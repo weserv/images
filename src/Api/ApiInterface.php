@@ -7,9 +7,9 @@ interface ApiInterface
     /**
      * Perform image manipulations.
      *
-     * @param  string $url       Source URL
+     * @param  string $url Source URL
      * @param  string $extension Extension of URL
-     * @param  array  $params    The manipulation params
+     * @param  array $params The manipulation params
      *
      * @return array [
      *      'image' => *Manipulated image binary data*,

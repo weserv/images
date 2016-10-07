@@ -3,11 +3,11 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Exception\ImageProcessingException;
-use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Image;
 
 /**
  * @property string $trim
+ * @property int $maxAlpha
  */
 class Trim extends BaseManipulator
 {
@@ -54,8 +54,8 @@ class Trim extends BaseManipulator
     /**
      * Perform trim image manipulation.
      *
-     * @param  Image $image     The source image.
-     * @param  int   $tolerance Trim tolerance
+     * @param  Image $image The source image.
+     * @param  int $tolerance Trim tolerance
      *
      * @throws ImageProcessingException for errors that occur during the processing of a Image
      *
@@ -65,7 +65,7 @@ class Trim extends BaseManipulator
     {
         $background = $image->getpoint(0, 0);
 
-        $max = Utils::maximumImageAlpha($image->interpretation);
+        $max = $this->maxAlpha;
 
         // we need to smooth the image, subtract the background from every pixel, take
         // the absolute value of the difference, then threshold
@@ -89,7 +89,7 @@ class Trim extends BaseManipulator
         $height = $bottom - $top;
 
         if ($width <= 0 || $height <= 0) {
-            throw new ImageProcessingException("Unexpected error while trimming. Try to lower the tolerance");
+            throw new ImageProcessingException('Unexpected error while trimming. Try to lower the tolerance');
         }
 
         // and now crop the original image

@@ -130,7 +130,7 @@ if (!empty($_GET['url'])) {
         new AndriesLouw\imagesweserv\Manipulators\Size(71000000),
         new AndriesLouw\imagesweserv\Manipulators\Shape,
         new AndriesLouw\imagesweserv\Manipulators\Brightness(),
-        new AndriesLouw\imagesweserv\Manipulators\Contrast(),
+        //new AndriesLouw\imagesweserv\Manipulators\Contrast(),
         new AndriesLouw\imagesweserv\Manipulators\Gamma(),
         new AndriesLouw\imagesweserv\Manipulators\Sharpen(),
         new AndriesLouw\imagesweserv\Manipulators\Filter(),
@@ -649,7 +649,7 @@ if (!empty($_GET['url'])) {
                         <li>6 digit RGB: <code>CCCCCC</code></li>
                         <li>8 digit ARGB (alpha): <code>55CCCCCC</code></li>
                     </ul>
-                    <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=ssl:upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.pngName&amp;w=400&amp;bg=black"&gt;</code></pre>
+                    <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=ssl:upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png&amp;w=400&amp;bg=black"&gt;</code></pre>
                     <a href="$url/?url=ssl:upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png&amp;w=400&amp;bg=black"><img src="$url/?url=ssl:upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png&amp;w=400&amp;bg=black" alt=""/></a>
                 </section>
                 <section id="effects" class="goto">

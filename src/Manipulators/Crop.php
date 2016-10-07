@@ -71,7 +71,7 @@ class Crop extends BaseManipulator
     /**
      * Limit coordinates to image boundaries.
      *
-     * @param  Image $image       The source image.
+     * @param  Image $image The source image.
      * @param  array $coordinates The coordinates.
      *
      * @return array The limited coordinates.

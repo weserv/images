@@ -89,7 +89,7 @@ class Client
                     )) {
                         $error = $this->options['error_message']['invalid_image'];
                         $str = array_pop($this->options['allowed_mime_types']);
-                        $supportedImages = implode(', ', $this->options['allowed_mime_types']) . " and " . $str;
+                        $supportedImages = implode(', ', $this->options['allowed_mime_types']) . ' and ' . $str;
                         throw new ImageNotValidException(sprintf($error['message'], $supportedImages));
                     }
                     if ($this->options['max_image_size'] != 0

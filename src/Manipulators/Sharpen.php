@@ -7,6 +7,8 @@ use Jcupitt\Vips\Image;
 
 /**
  * @property string $sharp
+ * @property bool $hasAlpha
+ * @property int $maxAlpha
  */
 class Sharpen extends BaseManipulator
 {
@@ -21,6 +23,13 @@ class Sharpen extends BaseManipulator
     {
         if ($this->sharp === null) {
             return $image;
+        }
+
+        if ($this->hasAlpha) {
+            // Ensures that the image alpha channel is premultiplied before doing any sharpen transformations
+            // to avoid dark fringing around bright pixels
+            // See: http://entropymine.com/imageworsener/resizealpha/
+            $image = Utils::premultiplyImage($image, $this->maxAlpha);
         }
 
         list($flat, $jagged, $sigma) = $this->getSharpen();
@@ -69,10 +78,10 @@ class Sharpen extends BaseManipulator
     /**
      * Sharpen flat and jagged areas. Use sigma of -1.0 for fast sharpen.
      *
-     * @param  Image $image  The source image.
-     * @param  float $sigma  Sharpening mask to apply in pixels, but comes at a performance cost. (Default: -1)
-     * @param  int   $flat   Sharpening to apply to flat areas. (Default: 1.0)
-     * @param  int   $jagged Sharpening to apply to jagged areas. (Default: 2.0)
+     * @param  Image $image The source image.
+     * @param  float $sigma Sharpening mask to apply in pixels, but comes at a performance cost. (Default: -1)
+     * @param  int $flat Sharpening to apply to flat areas. (Default: 1.0)
+     * @param  int $jagged Sharpening to apply to jagged areas. (Default: 2.0)
      *
      * @return Image The manipulated image.
      */
@@ -92,17 +101,17 @@ class Sharpen extends BaseManipulator
             return $image->conv($matrix);
         } else {
             // Slow, accurate sharpen in LAB colour space, with control over flat vs jagged areas
-            $colourspaceBeforeSharpen = $image->interpretation;
-            if ($colourspaceBeforeSharpen == Utils::VIPS_INTERPRETATION_RGB) {
-                $colourspaceBeforeSharpen = Utils::VIPS_INTERPRETATION_sRGB;
+            $colourSpaceBeforeSharpen = $image->interpretation;
+            if ($colourSpaceBeforeSharpen == Utils::VIPS_INTERPRETATION_RGB) {
+                $colourSpaceBeforeSharpen = Utils::VIPS_INTERPRETATION_sRGB;
             }
             return $image->sharpen(
                 [
-                "sigma" => $sigma,
-                "m1" => $flat,
-                "m2" => $jagged
+                    "sigma" => $sigma,
+                    "m1" => $flat,
+                    "m2" => $jagged
                 ]
-            )->colourspace($colourspaceBeforeSharpen);
+            )->colourspace($colourSpaceBeforeSharpen);
         }
     }
 }

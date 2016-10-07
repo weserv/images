@@ -21,19 +21,19 @@ class Contrast extends BaseManipulator
         $contrast = $this->getContrast();
 
         if ($contrast !== 0) {
-            /*$colourSpace = Utils::interpretationToColourSpace($image->interpretation);
+            /*$colourSpaceBeforeContrast = Utils::interpretationToColourSpace($image->interpretation);
 
             $sharpen = $contrast > 0;
             $contrast /= 4;*/
 
-            /*
+            /**
              * TODO: Find an alternative for this imagick function in php-vips:
              * Imagick::sigmoidalContrastImage($sharpen, $contrast, 0);
              *
              * References:
-             * http://www.imagemagick.org/Usage/color_mods/#sigmoidal
-             * http://php.net/manual/en/imagick.sigmoidalcontrastimage.php
-             * */
+             * - http://www.imagemagick.org/Usage/color_mods/#sigmoidal
+             * - http://php.net/manual/en/imagick.sigmoidalcontrastimage.php
+             */
         }
 
         return $image;

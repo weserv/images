@@ -9,6 +9,8 @@ use Jcupitt\Vips\Image;
 /**
  * @property string $shape
  * @property string $circle
+ * @property bool $hasAlpha
+ * @property int $maxAlpha
  */
 class Shape extends BaseManipulator
 {
@@ -33,11 +35,11 @@ class Shape extends BaseManipulator
 
             $maskHasAlpha = Utils::hasAlpha($mask);
 
-            if ($mask == null || (!$maskHasAlpha && $mask->bands > 1)) {
-                throw new ImageProcessingException("Overlay image must have an alpha channel or one band");
+            if ($mask === null || (!$maskHasAlpha && $mask->bands > 1)) {
+                throw new ImageProcessingException('Overlay image must have an alpha channel or one band');
             }
 
-            $imageHasAlpha = Utils::hasAlpha($image);
+            $imageHasAlpha = $this->hasAlpha;
 
             // we use the mask alpha if it has alpha
             if ($maskHasAlpha) {
@@ -49,20 +51,20 @@ class Shape extends BaseManipulator
 
             // we use the image non-alpha
             if ($imageHasAlpha) {
-                $image = $image->extract_band(0, ["n", $image->bands - 1]);
+                $image = $image->extract_band(0, ['n' => $image->bands - 1]);
             }
 
             // the range of the mask and the image need to match .. one could be
             // 16-bit, one 8-bit
-            $imageMax = Utils::maximumImageAlpha($image->interpretation);
+            $imageMax = $this->maxAlpha;
             $maskMax = Utils::maximumImageAlpha($mask->interpretation);
 
             if ($imageHasAlpha) {
                 // combine the new mask and the existing alpha ... there are
                 // many ways of doing this, mult is the simplest
-                $mask = $mask->divide($maskMax)->multiply($imageMax)->multiply($imageAlpha / $imageMax);
+                $mask = $mask->divide($maskMax)->multiply($imageAlpha->divide($imageMax))->multiply($imageMax);
             } else {
-                if ($imageMax != $imageMax) {
+                if ($imageMax != $maskMax) {
                     // adjust the range of the mask to match the image
                     $mask = $mask->divide($maskMax)->multiply($imageMax);
                 }
@@ -120,7 +122,7 @@ class Shape extends BaseManipulator
     {
         $xml = "<?xml version='1.0' encoding='UTF-8' standalone='no'?>";
         $svgHead = "<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='$width' height='$height' viewBox='0 0 $width $height' id='svg-$shape' shape-rendering='geometricPrecision' ";
-        if ($shape == "ellipse") {
+        if ($shape == 'ellipse') {
             $svgHead .= "preserveAspectRatio='none'>";
         } else {
             $svgHead .= "preserveAspectRatio='xMidYMid meet'>";
@@ -175,8 +177,8 @@ class Shape extends BaseManipulator
         }
         $svgTail = '</svg>';
 
-        // TODO: SVG loading is slow.
-        // Find alternatives such as $image->draw_circle(255, $midX, $midY, $outerRadius, ["fill" => true]);
+        // TODO: SVG loading is slow:
+        // Find alternatives such as $image->draw_circle(255, $midX, $midY, $outerRadius, ['fill' => true]);
         return Image::newFromBuffer($xml . $svgHead . $svgShape . $svgTail);
     }
 
@@ -187,8 +189,8 @@ class Shape extends BaseManipulator
      * @param  int|float $x midX
      * @param  int|float $y midY
      * @param  int|float $points number of points (or number of sides for polygons)
-     * @param  int|float $outerRadius "outer" radius of the star
-     * @param  int|float $innerRadius "inner" radius of the star (if equal to outerRadius, a polygon is drawn)
+     * @param  int|float $outerRadius 'outer' radius of the star
+     * @param  int|float $innerRadius 'inner' radius of the star (if equal to outerRadius, a polygon is drawn)
      * @param  int|float $initialAngle (optional) initial angle (clockwise),
      *      by default, stars and polygons are 'pointing' up
      *
@@ -196,7 +198,7 @@ class Shape extends BaseManipulator
      */
     private function getShapePath($x, $y, $points, $outerRadius, $innerRadius, $initialAngle = 0): string
     {
-        $path = "";
+        $path = '';
         if ($innerRadius !== $outerRadius) {
             $points *= 2;
         }
@@ -217,11 +219,11 @@ class Shape extends BaseManipulator
                 $path .= ' L';
             }
 
-            $path .= round($x + $radius * cos($angle)) . " " . round($y + $radius * sin($angle));
+            $path .= round($x + $radius * cos($angle)) . ' ' . round($y + $radius * sin($angle));
         }
 
-        $path .= " Z";
+        $path .= ' Z';
 
-        return "<path d='" . $path . "'/>";
+        return "<path d='$path'/>";
     }
 }

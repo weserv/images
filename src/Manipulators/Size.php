@@ -13,6 +13,9 @@ use Jcupitt\Vips\Image;
  * @property string $h
  * @property string $w
  * @property string $bg;
+ * @property bool $hasAlpha
+ * @property bool $is16Bit
+ * @property int $maxAlpha
  */
 class Size extends BaseManipulator
 {
@@ -209,31 +212,31 @@ class Size extends BaseManipulator
      */
     public function resolveCropOffset(Image $image, int $width, int $height): array
     {
-        list($offset_percentage_x, $offset_percentage_y) = $this->getCrop();
+        list($offsetPercentageX, $offsetPercentageY) = $this->getCrop();
 
-        $offset_x = (int)(($image->width * $offset_percentage_x / 100) - ($width / 2));
-        $offset_y = (int)(($image->height * $offset_percentage_y / 100) - ($height / 2));
+        $offsetX = (int)(($image->width * $offsetPercentageX / 100) - ($width / 2));
+        $offsetY = (int)(($image->height * $offsetPercentageY / 100) - ($height / 2));
 
-        $max_offset_x = $image->width - $width;
-        $max_offset_y = $image->height - $height;
+        $maxOffsetX = $image->width - $width;
+        $maxOffsetY = $image->height - $height;
 
-        if ($offset_x < 0) {
-            $offset_x = 0;
+        if ($offsetX < 0) {
+            $offsetX = 0;
         }
 
-        if ($offset_y < 0) {
-            $offset_y = 0;
+        if ($offsetY < 0) {
+            $offsetY = 0;
         }
 
-        if ($offset_x > $max_offset_x) {
-            $offset_x = $max_offset_x;
+        if ($offsetX > $maxOffsetX) {
+            $offsetX = $maxOffsetX;
         }
 
-        if ($offset_y > $max_offset_y) {
-            $offset_y = $max_offset_y;
+        if ($offsetY > $maxOffsetY) {
+            $offsetY = $maxOffsetY;
         }
 
-        return [$offset_x, $offset_y];
+        return [$offsetX, $offsetY];
     }
 
     /**
@@ -397,6 +400,13 @@ class Size extends BaseManipulator
         $shouldAffineTransform = $xResidual != 1.0 || $yResidual != 1.0;
 
         if ($shouldAffineTransform) {
+            if ($this->hasAlpha) {
+                // Ensures that the image alpha channel is premultiplied before doing any affine transformations
+                // to avoid dark fringing around bright pixels
+                // See: http://entropymine.com/imageworsener/resizealpha/
+                $image = Utils::premultiplyImage($image, $this->maxAlpha);
+            }
+
             // Perform kernel-based reduction
             if ($yResidual < 1.0 || $xResidual < 1.0) {
                 if ($yResidual < 1.0) {
@@ -431,7 +441,7 @@ class Size extends BaseManipulator
                 }
 
                 // Scale up 8-bit values to match 16-bit input image
-                $multiplier = Utils::is16Bit($image->interpretation) ? 256 : 1;
+                $multiplier = $this->is16Bit ? 256 : 1;
 
                 // Create background colour
                 if ($image->bands > 2) {
@@ -445,7 +455,7 @@ class Size extends BaseManipulator
                     $background = [$multiplier * (0.2126 * $backgroundColor[0] + 0.7152 * $backgroundColor[1] + 0.0722 * $backgroundColor[2])];
                 }
 
-                $hasAlpha = Utils::hasAlpha($image);
+                $hasAlpha = $this->hasAlpha;
 
                 // Add alpha channel to background colour
                 if ($backgroundColor[3] < 255 || $hasAlpha) {
@@ -455,7 +465,7 @@ class Size extends BaseManipulator
                 // Add non-transparent alpha channel, if required
                 if ($backgroundColor[3] < 255 && !$hasAlpha) {
                     $pixel = Image::black(1, 1)->add(255 * $multiplier)->cast($image->format);
-                    $result = $pixel->embed(0, 0, $image->width, $image->height, ["extend" => "copy"]);
+                    $result = $pixel->embed(0, 0, $image->width, $image->height, ['extend' => 'copy']);
                     $result->interpretation = $image->interpretation;
 
                     $image = $image->bandjoin($result);
@@ -472,11 +482,11 @@ class Size extends BaseManipulator
                 );
             } else {
                 if (in_array($fit, ['square', 'squaredown', 'crop'], true)) {
-                    list($offset_x, $offset_y) = $this->resolveCropOffset($image, $width, $height);
+                    list($offsetX, $offsetY) = $this->resolveCropOffset($image, $width, $height);
                     $width = min($image->width, $width);
                     $height = min($image->height, $height);
 
-                    $image = $image->extract_area($offset_x, $offset_y, $width, $height);
+                    $image = $image->extract_area($offsetX, $offsetY, $width, $height);
                 }
             }
         }
