@@ -61,42 +61,43 @@ class Color
     {
         do {
             if ($hex = $this->getHexFromColorName($value)) {
-                $rgba = $this->parseHex($hex);
+                $rgb = $this->parseHex($hex);
                 $alpha = 255;
                 break;
             }
 
             if (preg_match(self::SHORT_RGB, $value)) {
-                $rgba = $this->parseHex($value . $value);
+                $rgb = $this->parseHex($value . $value);
                 $alpha = 255;
                 break;
             }
 
             if (preg_match(self::SHORT_ARGB, $value)) {
-                $rgba = $this->parseHex(substr($value, 1) . substr($value, 1));
+                $rgb = $this->parseHex(substr($value, 1) . substr($value, 1));
                 $alpha = (substr($value, 0, 1) / 10) * 255;
                 break;
             }
 
             if (preg_match(self::LONG_RGB, $value)) {
-                $rgba = $this->parseHex($value);
+                $rgb = $this->parseHex($value);
                 $alpha = 255;
                 break;
             }
 
             if (preg_match(self::LONG_ARGB, $value)) {
-                $rgba = $this->parseHex(substr($value, 2));
+                $rgb = $this->parseHex(substr($value, 2));
                 $alpha = (substr($value, 0, 2) / 100) * 255;
                 break;
             }
 
-            $rgba = [255, 255, 255];
-            $alpha = 255;
+            // Defaults to transparent
+            $rgb = [0, 0, 0];
+            $alpha = 0;
         } while (false);
 
-        $this->red = $rgba[0];
-        $this->green = $rgba[1];
-        $this->blue = $rgba[2];
+        $this->red = $rgb[0];
+        $this->green = $rgb[1];
+        $this->blue = $rgb[2];
         $this->alpha = $alpha;
     }
 
@@ -107,7 +108,7 @@ class Color
      *
      * @return array  The RGB values.
      */
-    public function parseHex($hex)
+    public function parseHex(string $hex): array
     {
         return array_map('hexdec', str_split($hex, 2));
     }
@@ -115,9 +116,9 @@ class Color
     /**
      * Format color for consumption.
      *
-     * @return string The formatted color.
+     * @return array The formatted RGBA color.
      */
-    public function formatted()
+    public function formatted(): array
     {
         return [
             $this->red,
@@ -132,9 +133,9 @@ class Color
      *
      * @param string $name The color name
      *
-     * @return string The hex code.
+     * @return string|null The hex code.
      */
-    public function getHexFromColorName($name)
+    public function getHexFromColorName(string $name)
     {
         $colors = [
             'aliceblue' => 'F0F8FF',

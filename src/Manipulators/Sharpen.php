@@ -42,9 +42,9 @@ class Sharpen extends BaseManipulator
     /**
      * Resolve sharpen amount.
      *
-     * @return string The resolved sharpen amount.
+     * @return array The resolved sharpen amount.
      */
-    public function getSharpen()
+    public function getSharpen(): array
     {
         $sharpPieces = explode(',', $this->sharp);
         $sharpenFlat = 1.0;

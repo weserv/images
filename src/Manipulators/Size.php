@@ -469,6 +469,9 @@ class Size extends BaseManipulator
                     $result->interpretation = $image->interpretation;
 
                     $image = $image->bandjoin($result);
+
+                    // Image has now a alpha channel. Useful for the next manipulators.
+                    $this->hasAlpha = true;
                 }
 
                 $left = (int)round(($width - $image->width) / 2);

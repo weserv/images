@@ -6,7 +6,7 @@ use Jcupitt\Vips\Image;
 
 class Utils
 {
-    const EXIF_IFD0_ORIENTATION = 'exif-ifd0-Orientation';
+    const EXIF_ORIENTATION = 'orientation';
 
     const EXIF_IS_PREMULTIPLIED = 'exif-isPremultiplied';
 
@@ -135,16 +135,15 @@ class Utils
      *
      * @param Image $image The source image.
      *
-     * @return bool indicating if this image has an alpha channel.
+     * @return int EXIF Orientation
      */
     public static function exifOrientation(Image $image): int
     {
-        try {
-            $exif = $image->get(self::EXIF_IFD0_ORIENTATION);
-            return (int)$exif[0];
-        } catch (\Exception $e) {
-            return 0;
+        if ($image->typeof(self::EXIF_ORIENTATION) !== 0) {
+            $exif = $image->get(self::EXIF_ORIENTATION);
+            return $exif;
         }
+        return 0;
     }
 
 
@@ -158,8 +157,7 @@ class Utils
      */
     public static function setExifOrientation(Image $image, int $orientation)
     {
-        // TODO Overriding/removing exif orientation doesn't work
-        $image->set(self::EXIF_IFD0_ORIENTATION, (string)$orientation);
+        $image->set(self::EXIF_ORIENTATION, $orientation);
     }
 
     /**
@@ -171,7 +169,7 @@ class Utils
      */
     public static function removeExifOrientation(Image $image)
     {
-        self::setExifOrientation($image, 0);
+        self::setExifOrientation($image, 1);
     }
 
     /**
@@ -183,18 +181,18 @@ class Utils
      */
     public static function isPremultiplied(Image $image): bool
     {
-        try {
-            $image->get(self::EXIF_IS_PREMULTIPLIED);
-        } catch (\Exception $e) {
-            return false;
+        if ($image->typeof(self::EXIF_IS_PREMULTIPLIED) !== 0) {
+            return true;
         }
-        return true;
+        return false;
     }
 
     /**
      * Premultiply the alpha channel if it hasn't premultiplied before.
      *
      * @param Image $image The (premultiplied or non-premultiplied) source image.
+     * @param int $maxAlpha has the value 255, or 65535 for images tagged as
+     * VIPS_INTERPRETATION_RGB16 or VIPS_INTERPRETATION_GREY16.
      *
      * @return Image The premultiplied image.
      */

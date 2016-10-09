@@ -7,6 +7,9 @@ use AndriesLouw\imagesweserv\Exception\ImageProcessingException;
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface;
+use AndriesLouw\imagesweserv\Manipulators\Shape;
+use AndriesLouw\imagesweserv\Manipulators\Size;
+use Exception;
 use GuzzleHttp\Exception\RequestException;
 use InvalidArgumentException;
 use Jcupitt\Vips\Image;
@@ -112,6 +115,7 @@ class Api implements ApiInterface
      *      the on_headers event
      * @throws ImageProcessingException for errors that occur during the processing of a Image
      *
+     *
      * @return array [
      *      'image' => *Manipulated image binary data*,
      *      'type' => *The mimetype*,
@@ -147,14 +151,6 @@ class Api implements ApiInterface
             trigger_error('Image not readable. URL: ' . $url, E_USER_WARNING);
         }
 
-        if (!isset($params['output'])) {
-            if (array_key_exists($extension, $allowed)) {
-                $params['output'] = $extension;
-            } else {
-                $params['output'] = 'jpg';
-            }
-        }
-
         $interpretation = $image->interpretation;
 
         // Put common variables in the parameters
@@ -167,12 +163,20 @@ class Api implements ApiInterface
 
             try {
                 $image = $manipulator->run($image);
-            } catch (ImageTooLargeException $e) {
-                trigger_error($e->getMessage() . ' URL: ' . $url, E_USER_WARNING);
-                throw $e;
-            } catch (ImageProcessingException $e) {
-                trigger_error($e->getMessage() . ' URL: ' . $url, E_USER_WARNING);
-                throw $e;
+            } catch (Exception $e) {
+                if ($e instanceof ImageTooLargeException || $e instanceof ImageProcessingException) {
+                    trigger_error($e->getMessage() . ' URL: ' . $url, E_USER_WARNING);
+
+                    // Keep throwing it.
+                    throw $e;
+                } else {
+                    // TODO: Catch php-vips exceptions
+                }
+            }
+
+            // Shape and size manipulators can override `hasAlpha` parameter.
+            if ($manipulator instanceof Shape || $manipulator instanceof Size) {
+                $params['hasAlpha'] = $manipulator->hasAlpha;
             }
         }
 
@@ -189,13 +193,24 @@ class Api implements ApiInterface
             }
         }
 
-        if (array_key_exists($params['output'], $allowed)) {
+        // Check if output is set and allowed
+        if (isset($params['output']) && isset($allowed[$params['output']])) {
             $extension = $params['output'];
+        } else {
+            $supportsAlpha = ['png', 'webp'];
+            if ($params['hasAlpha'] && !isset($supportsAlpha[$extension])) {
+                // If image has alpha and doesn't have the right extension to output alpha.
+                // Then force it to PNG (useful for shape masking and letterboxing).
+                $extension = 'png';
+            } elseif (!isset($allowed[$extension])) {
+                // If extension is not allowed (and doesn't have alpha) we need to output it as jpg.
+                $extension = 'jpg';
+            }
         }
 
         $options = [];
 
-        if ($extension == 'jpg' || $extension == 'webp' || $extension == 'tiff') {
+        if ($extension == 'jpg' || $extension == 'webp'/* || $extension == 'tiff'*/) {
             $options['Q'] = $this->getQuality($params);
         }
         if ($extension == 'jpg' || $extension == 'png') {
@@ -219,11 +234,12 @@ class Api implements ApiInterface
      */
     public function getAllowedImageTypes(): array
     {
+        // TODO Fix tiff saving
         return [
             //'gif' => 'image/gif',
             'jpg' => 'image/jpeg',
             'png' => 'image/png',
-            'tiff' => 'image/tiff',
+            //'tiff' => 'image/tiff',
             'webp' => 'image/webp',
         ];
     }

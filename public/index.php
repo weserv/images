@@ -75,15 +75,15 @@ if (!empty($_GET['url'])) {
     try {
         if (substr($_GET['url'], 0, 4) == 'ssl:') {
             $_GET['url'] = substr($_GET['url'], 4);
-            $uri = HttpUri::createFromString('https://' . $_GET['url']);
+            $uri = HttpUri::createFromString('https://' . ltrim($_GET['url'], '/'));
         } else {
             if (substr($_GET['url'], 0, 5) != 'http:' && substr($_GET['url'], 0, 6) != 'https:') {
-                $uri = HttpUri::createFromString('http://' . $_GET['url']);
+                $uri = HttpUri::createFromString('http://' . ltrim($_GET['url'], '/'));
             } else {
-                throw new RuntimeException('Invalid URL');
+                throw new InvalidArgumentException('Invalid URL');
             }
         }
-    } catch (RuntimeException $e) {
+    } catch (Exception $e) {
         $error = $error_messages['invalid_url'];
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
         header('Content-type: ' . $error['content-type']);
@@ -94,7 +94,15 @@ if (!empty($_GET['url'])) {
 
     $extension = $uri->path->getExtension() ?? 'png';
 
-    $tmpFileName = tempnam('/dev/shm', 'imo_');
+    $sysFileName = tempnam('/dev/shm', 'imo_');
+
+    // We need to add the extension to the temp file.
+    // This ensures that the image is correctly recognized.
+    $tmpFileName = $sysFileName . '.' . $extension;
+
+    @link($sysFileName, $tmpFileName);
+
+    unlink($sysFileName);
 
     // Create an PHP HTTP client
     $client = new AndriesLouw\imagesweserv\Client($tmpFileName, [
@@ -385,6 +393,12 @@ if (!empty($_GET['url'])) {
                                 <td><code style="color:green;">=percentaged tolerance level between 0 and 100</code></td>
                                 <td><a href="#trim-trim">info</a></td>
                             </tr>
+                            <tr>
+                                <td><code>output</code></td>
+                                <td><code style="color:red;">=gif</code></td>
+                                <td><code style="color:green;">=jpg, =png or =webp</code></td>
+                                <td><a href="#output-output">info</a></td>
+                            </tr>
                         </tbody>
                     </table>
                     <h2 id="deprecated-functions">Deprecated URL-parameters</h2>
@@ -670,10 +684,9 @@ if (!empty($_GET['url'])) {
                     <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;q=20"&gt;</code></pre>
                     <a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;q=20"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;q=20" alt=""/></a>
                     <h3 id="output-output">Output <code>&amp;output=</code></h3>
-                    <!-- TODO Gif support -->
-                    <p>Encodes the image to a specific format. Accepts <code>jpg</code>, <code>png</code> or <code>gif</code>. If none is given, it will honor the origin image format.</p><p>More info: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/5097964-format-conversion">#5097964 - Format conversion</a>.</p>
-                    <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;output=gif"&gt;</code></pre>
-                    <a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;output=gif"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;output=gif" alt=""/></a>
+                    <p>Encodes the image to a specific format. Accepts <code>jpg</code>, <code>png</code> or <code>webp</code>. If none is given, it will honor the origin image format.</p><p>More info: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/5097964-format-conversion">#5097964 - Format conversion</a>.</p>
+                    <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;output=webp"&gt;</code></pre>
+                    <a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;output=webp"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;output=webp" alt=""/></a>
                     <h3 id="interlace-progressive-il">Interlace / progressive <code>&amp;il</code></h3>
                     <p>Adds interlacing to PNG. JPEG's become progressive.</p><p>More info: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/3998911-add-parameter-to-use-progressive-jpegs">#3998911 - Add parameter to use progressive JPEGs</a>.</p>
                     <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;il"&gt;</code></pre>
