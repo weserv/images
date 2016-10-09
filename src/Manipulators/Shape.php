@@ -5,7 +5,6 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 use AndriesLouw\imagesweserv\Exception\ImageProcessingException;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Image;
-use phpDocumentor\Descriptor\PackageDescriptor;
 
 /**
  * @property string $shape

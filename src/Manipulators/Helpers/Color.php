@@ -114,11 +114,11 @@ class Color
     }
 
     /**
-     * Format color for consumption.
+     * Format color to RGBA array.
      *
      * @return array The formatted RGBA color.
      */
-    public function formatted(): array
+    public function toRGBA(): array
     {
         return [
             $this->red,
@@ -126,6 +126,26 @@ class Color
             $this->blue,
             $this->alpha
         ];
+    }
+
+    /**
+     * Indicates if this color is completely transparent.
+     *
+     * @return bool If the color is transparent.
+     */
+    public function isTransparent(): bool
+    {
+        return $this->alpha == 0;
+    }
+
+    /**
+     * Indicates if this color has an alpha channel.
+     *
+     * @return bool If the color has an alpha channel.
+     */
+    public function hasAlphaChannel(): bool
+    {
+        return $this->alpha < 255;
     }
 
     /**
@@ -283,7 +303,7 @@ class Color
 
         $name = strtolower($name);
 
-        if (array_key_exists($name, $colors)) {
+        if (isset($colors[$name])) {
             return $colors[$name];
         }
     }

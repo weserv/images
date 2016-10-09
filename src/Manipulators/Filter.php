@@ -2,6 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
+use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Image;
 
 /**
@@ -38,7 +39,7 @@ class Filter extends BaseManipulator
      */
     public function runGreyscaleFilter(Image $image): Image
     {
-        return $image->colourspace("b-w");
+        return $image->colourspace(Utils::VIPS_COLOURSPACE_B_W);
     }
 
     /**

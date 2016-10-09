@@ -83,10 +83,9 @@ class Client
                     //CURLOPT_SSL_VERIFYHOST => false
                 ],
                 'on_headers' => function (ResponseInterface $response) {
-                    if (!empty($this->options['allowed_mime_types']) && !array_key_exists(
-                        $response->getHeaderLine('Content-Type'),
-                        $this->options['allowed_mime_types']
-                    )) {
+                    if (!empty($this->options['allowed_mime_types']) &&
+                        !isset($this->options['allowed_mime_types'][$response->getHeaderLine('Content-Type')])
+                    ) {
                         $error = $this->options['error_message']['invalid_image'];
                         $str = array_pop($this->options['allowed_mime_types']);
                         $supportedImages = implode(', ', $this->options['allowed_mime_types']) . ' and ' . $str;

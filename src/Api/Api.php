@@ -5,9 +5,12 @@ namespace AndriesLouw\imagesweserv\Api;
 use AndriesLouw\imagesweserv\Client;
 use AndriesLouw\imagesweserv\Exception\ImageProcessingException;
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
+use AndriesLouw\imagesweserv\Manipulators\Background;
+use AndriesLouw\imagesweserv\Manipulators\Blur;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface;
 use AndriesLouw\imagesweserv\Manipulators\Shape;
+use AndriesLouw\imagesweserv\Manipulators\Sharpen;
 use AndriesLouw\imagesweserv\Manipulators\Size;
 use Exception;
 use GuzzleHttp\Exception\RequestException;
@@ -132,6 +135,10 @@ class Api implements ApiInterface
                 $tmpFileName = __DIR__ . '/../../public_html/test-images/example.png';
             } elseif (strpos($url, 'orientation.jpg') !== false) {
                 $tmpFileName = __DIR__ . '/../../public_html/test-images/orientation.jpg';
+            } elseif (strpos($url, 'grey-8bit-alpha.png') !== false) {
+                $tmpFileName = __DIR__ . '/../../public_html/test-images/grey-8bit-alpha.png';
+            } elseif (strpos($url, 'tbgn2c16.png') !== false) {
+                $tmpFileName = __DIR__ . '/../../public_html/test-images/tbgn2c16.png';
             } elseif (strpos($url, 'lichtenstein.jpg') !== false) {
                 $tmpFileName = __DIR__ . '/../../public_html/test-images/lichtenstein.jpg';
             } else {
@@ -157,6 +164,7 @@ class Api implements ApiInterface
         $params['hasAlpha'] = Utils::hasAlpha($image);
         $params['is16Bit'] = Utils::is16Bit($interpretation);
         $params['maxAlpha'] = Utils::maximumImageAlpha($interpretation);
+        $params['isPremultiplied'] = false;
 
         foreach ($this->manipulators as $manipulator) {
             $manipulator->setParams($params);
@@ -174,15 +182,23 @@ class Api implements ApiInterface
                 }
             }
 
-            // Shape and size manipulators can override `hasAlpha` parameter.
-            if ($manipulator instanceof Shape || $manipulator instanceof Size) {
+            // Size and shape manipulators can override `hasAlpha` parameter.
+            if ($manipulator instanceof Size || $manipulator instanceof Shape) {
                 $params['hasAlpha'] = $manipulator->hasAlpha;
+            }
+
+            // Size, sharpen, blur and background manipulators can override `isPremultiplied` parameter.
+            if ($manipulator instanceof Size
+                || $manipulator instanceof Sharpen
+                || $manipulator instanceof Blur
+                || $manipulator instanceof Background
+            ) {
+                $params['isPremultiplied'] = $manipulator->isPremultiplied;
             }
         }
 
         // Reverse premultiplication after all transformations:
-        if (Utils::isPremultiplied($image)) {
-            //$image->set(Utils::EXIF_IS_PREMULTIPLIED, 'false');
+        if ($params['isPremultiplied']) {
             $image = $image->unpremultiply(['max_alpha' => $params['maxAlpha']]);
 
             // Cast pixel values to integer

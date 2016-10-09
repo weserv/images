@@ -9,6 +9,7 @@ use Jcupitt\Vips\Image;
  * @property string $sharp
  * @property bool $hasAlpha
  * @property int $maxAlpha
+ * @property bool $isPremultiplied
  */
 class Sharpen extends BaseManipulator
 {
@@ -25,11 +26,12 @@ class Sharpen extends BaseManipulator
             return $image;
         }
 
-        if ($this->hasAlpha) {
+        if ($this->hasAlpha && !$this->isPremultiplied) {
             // Ensures that the image alpha channel is premultiplied before doing any sharpen transformations
             // to avoid dark fringing around bright pixels
             // See: http://entropymine.com/imageworsener/resizealpha/
-            $image = Utils::premultiplyImage($image, $this->maxAlpha);
+            $image = $image->premultiply(['max_alpha' => $this->maxAlpha]);
+            $this->isPremultiplied = true;
         }
 
         list($flat, $jagged, $sigma) = $this->getSharpen();
@@ -101,9 +103,9 @@ class Sharpen extends BaseManipulator
             return $image->conv($matrix);
         } else {
             // Slow, accurate sharpen in LAB colour space, with control over flat vs jagged areas
-            $colourSpaceBeforeSharpen = $image->interpretation;
-            if ($colourSpaceBeforeSharpen == Utils::VIPS_INTERPRETATION_RGB) {
-                $colourSpaceBeforeSharpen = Utils::VIPS_INTERPRETATION_sRGB;
+            $interpretationBeforeSharpen = $image->interpretation;
+            if ($interpretationBeforeSharpen == Utils::VIPS_INTERPRETATION_RGB) {
+                $interpretationBeforeSharpen = Utils::VIPS_INTERPRETATION_sRGB;
             }
             return $image->sharpen(
                 [
@@ -111,7 +113,7 @@ class Sharpen extends BaseManipulator
                     "m1" => $flat,
                     "m2" => $jagged
                 ]
-            )->colourspace($colourSpaceBeforeSharpen);
+            )->colourspace(Utils::interpretationToColourSpace($interpretationBeforeSharpen));
         }
     }
 }

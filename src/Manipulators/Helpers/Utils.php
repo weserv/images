@@ -8,8 +8,6 @@ class Utils
 {
     const EXIF_ORIENTATION = 'orientation';
 
-    const EXIF_IS_PREMULTIPLIED = 'exif-isPremultiplied';
-
     const VIPS_INTERPRETATION_ERROR = -1;
     const VIPS_INTERPRETATION_MULTIBAND = 0;
     const VIPS_INTERPRETATION_B_W = 1;
@@ -54,8 +52,18 @@ class Utils
     const VIPS_COLOURSPACE_HSV = 'hsv';
     const VIPS_COLOURSPACE_LAST = 'last';
 
+    const VIPS_FORMAT_NOTSET = -1;
     const VIPS_FORMAT_UCHAR = 0;
+    const VIPS_FORMAT_CHAR = 1;
     const VIPS_FORMAT_USHORT = 2;
+    const VIPS_FORMAT_SHORT = 3;
+    const VIPS_FORMAT_UINT = 4;
+    const VIPS_FORMAT_INT = 5;
+    const VIPS_FORMAT_FLOAT = 6;
+    const VIPS_FORMAT_COMPLEX = 7;
+    const VIPS_FORMAT_DOUBLE = 8;
+    const VIPS_FORMAT_DPCOMPLEX = 9;
+    const VIPS_FORMAT_LAST = 10;
 
     const VIPS_INTERPRETATION_TO_COLOURSPACE = [
         self::VIPS_INTERPRETATION_ERROR => self::VIPS_COLOURSPACE_ERROR,
@@ -170,40 +178,6 @@ class Utils
     public static function removeExifOrientation(Image $image)
     {
         self::setExifOrientation($image, 1);
-    }
-
-    /**
-     * Checks if this image is premultiplied.
-     *
-     * @param Image $image The source image.
-     *
-     * @return bool indicating if this image premultiplied.
-     */
-    public static function isPremultiplied(Image $image): bool
-    {
-        if ($image->typeof(self::EXIF_IS_PREMULTIPLIED) !== 0) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Premultiply the alpha channel if it hasn't premultiplied before.
-     *
-     * @param Image $image The (premultiplied or non-premultiplied) source image.
-     * @param int $maxAlpha has the value 255, or 65535 for images tagged as
-     * VIPS_INTERPRETATION_RGB16 or VIPS_INTERPRETATION_GREY16.
-     *
-     * @return Image The premultiplied image.
-     */
-    public static function premultiplyImage(Image $image, int $maxAlpha): Image
-    {
-        if (self::isPremultiplied($image)) {
-            return $image;
-        }
-
-        $image->set(self::EXIF_IS_PREMULTIPLIED, 'true');
-        return $image->premultiply(['max_alpha' => $maxAlpha]);
     }
 
     /**

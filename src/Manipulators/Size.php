@@ -4,7 +4,6 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Color;
-use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Image;
 
 /**
@@ -16,6 +15,7 @@ use Jcupitt\Vips\Image;
  * @property bool $hasAlpha
  * @property bool $is16Bit
  * @property int $maxAlpha
+ * @property bool $isPremultiplied
  */
 class Size extends BaseManipulator
 {
@@ -262,7 +262,7 @@ class Size extends BaseManipulator
             'bottom-right' => [100, 100],
         ];
 
-        if (array_key_exists($this->a, $cropMethods)) {
+        if (isset($cropMethods[$this->a])) {
             return $cropMethods[$this->a];
         }
 
@@ -400,11 +400,12 @@ class Size extends BaseManipulator
         $shouldAffineTransform = $xResidual != 1.0 || $yResidual != 1.0;
 
         if ($shouldAffineTransform) {
-            if ($this->hasAlpha) {
+            if ($this->hasAlpha && !$this->isPremultiplied) {
                 // Ensures that the image alpha channel is premultiplied before doing any affine transformations
                 // to avoid dark fringing around bright pixels
                 // See: http://entropymine.com/imageworsener/resizealpha/
-                $image = Utils::premultiplyImage($image, $this->maxAlpha);
+                $image = $image->premultiply(['max_alpha' => $this->maxAlpha]);
+                $this->isPremultiplied = true;
             }
 
             // Perform kernel-based reduction
@@ -430,7 +431,7 @@ class Size extends BaseManipulator
         if ($image->width != $width || $image->height != $height) {
             if ($fit == 'letterbox') {
                 if ($this->bg !== null) {
-                    $backgroundColor = (new Color($this->bg))->formatted();
+                    $backgroundColor = (new Color($this->bg))->toRGBA();
                 } else {
                     $backgroundColor = [
                         0,
@@ -452,7 +453,13 @@ class Size extends BaseManipulator
                     ];
                 } else {
                     // Convert sRGB to greyscale
-                    $background = [$multiplier * (0.2126 * $backgroundColor[0] + 0.7152 * $backgroundColor[1] + 0.0722 * $backgroundColor[2])];
+                    $background = [
+                        $multiplier * (
+                            (0.2126 * $backgroundColor[0]) +
+                            (0.7152 * $backgroundColor[1]) +
+                            (0.0722 * $backgroundColor[2])
+                        )
+                    ];
                 }
 
                 $hasAlpha = $this->hasAlpha;

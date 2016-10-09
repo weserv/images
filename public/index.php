@@ -233,10 +233,10 @@ if (!empty($_GET['url'])) {
         $base64 = sprintf('data:%s;base64,%s', $image['type'], base64_encode($image['image']));
 
         header('Content-type: text/plain');
-        header('Content-Length: ' . strlen($base64));
 
         echo $base64;
     } else {
+        header('Content-type: text/plain');
         header('Content-type: ' . $image['type']);
 
         $friendlyName = pathinfo($uri->path->getBasename(), PATHINFO_FILENAME) . '.' . $image['extension'];
@@ -247,8 +247,10 @@ if (!empty($_GET['url'])) {
             header('Content-Disposition: inline; filename="' . $friendlyName . '"');
         }
 
-        header('Content-Length: ' . strlen($image['image']));
+        ob_start();
         echo $image['image'];
+        header('Content-Length: ' . ob_get_length());
+        ob_end_flush();
     }
 
     unlink($tmpFileName);
