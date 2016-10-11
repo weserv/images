@@ -622,7 +622,6 @@ if (!empty($_GET['url'])) {
                         <li><code>pentagon-180</code>: Pentagon tilted upside down</li>
                         <li><code>hexagon</code></li>
                         <li><code>square</code>: Square tilted 45 degrees</li>
-                        <li><code>square-rounded</code>: Square with border-radius of 5%</li>
                         <li><code>star</code>: 5-point star</li>
                     </ul>
                     <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle"&gt;</code></pre>

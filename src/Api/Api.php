@@ -226,7 +226,7 @@ class Api implements ApiInterface
 
         $options = [];
 
-        if ($extension == 'jpg' || $extension == 'webp'/* || $extension == 'tiff'*/) {
+        if ($extension == 'jpg' || $extension == 'webp') {
             $options['Q'] = $this->getQuality($params);
         }
         if ($extension == 'jpg' || $extension == 'png') {
@@ -250,12 +250,9 @@ class Api implements ApiInterface
      */
     public function getAllowedImageTypes(): array
     {
-        // TODO Fix tiff saving
         return [
-            //'gif' => 'image/gif',
             'jpg' => 'image/jpeg',
             'png' => 'image/png',
-            //'tiff' => 'image/tiff',
             'webp' => 'image/webp',
         ];
     }
