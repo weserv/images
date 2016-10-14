@@ -8,6 +8,7 @@ use Jcupitt\Vips\Image;
 
 /**
  * @property string $shape
+ * @property bool $sharp
  * @property string $circle
  * @property bool $hasAlpha
  * @property int $maxAlpha
@@ -34,7 +35,7 @@ class Shape extends BaseManipulator
             list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getMaskShape($width, $height, $shape);
 
             // Enlarge overlay mask, if required
-            if ($maskWidth < $width || $maskHeight < $height) {
+            if ($this->sharp === null && ($maskWidth < $width || $maskHeight < $height)) {
                 $mask = $mask->embed($xMin, $yMin, $width, $height, [
                     'extend' => 'background',
                     'background' => [0.0, 0.0, 0.0, 0.0]
@@ -142,89 +143,187 @@ class Shape extends BaseManipulator
      */
     private function getMaskShape(int $width, int $height, string $shape): array
     {
+        $preserveAspectRatio = $shape == 'ellipse' ? 'none' : 'xMidYMid meet';
+
+        $svgTemplate = <<<SVG
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='$width' height='$height' viewBox='0 0 $width $height' 
+shape-rendering='geometricPrecision' preserveAspectRatio='$preserveAspectRatio'> 
+%s
+</svg>
+SVG;
+
+        $sharp = $this->sharp !== null;
+
         $min = min($width, $height);
         $outerRadius = $min / 2;
         $midX = $width / 2;
         $midY = $height / 2;
 
         switch ($shape) {
-            // TODO There's isn't a `draw_ellipse` function in libvips. Find out how to make an ellipse shape.
-            /*case 'ellipse':
+            case 'ellipse':
                 $xMin = 0;
                 $yMin = 0;
 
-                break;*/
+                $maskWidth = $width;
+                $maskHeight = $height;
+
+                $svg = sprintf($svgTemplate, "<ellipse cx='$midX' cy='$midY' rx='$midX' ry='$midY'/>");
+
+                $mask = Image::newFromBuffer($svg, "", ['dpi' => 72]);
+
+                break;
             case 'hexagon':
                 // Hexagon
-                list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getMask(
-                    $midX,
-                    $midY,
-                    6,
-                    $outerRadius,
-                    $outerRadius
-                );
+                if ($sharp) {
+                    list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getSVGMask(
+                        $svgTemplate,
+                        $midX,
+                        $midY,
+                        6,
+                        $outerRadius,
+                        $outerRadius
+                    );
+                } else {
+                    list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getMask(
+                        $midX,
+                        $midY,
+                        6,
+                        $outerRadius,
+                        $outerRadius
+                    );
+                }
                 break;
             case 'pentagon':
                 // Pentagon
-                list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getMask(
-                    $midX,
-                    $midY,
-                    5,
-                    $outerRadius,
-                    $outerRadius
-                );
+                if ($sharp) {
+                    list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getSVGMask(
+                        $svgTemplate,
+                        $midX,
+                        $midY,
+                        5,
+                        $outerRadius,
+                        $outerRadius
+                    );
+                } else {
+                    list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getMask(
+                        $midX,
+                        $midY,
+                        5,
+                        $outerRadius,
+                        $outerRadius
+                    );
+                }
                 break;
             case 'pentagon-180':
                 // Pentagon tilted upside down
-                list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getMask(
-                    $midX,
-                    $midY,
-                    5,
-                    $outerRadius,
-                    $outerRadius,
-                    pi()
-                );
+                if ($sharp) {
+                    list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getSVGMask(
+                        $svgTemplate,
+                        $midX,
+                        $midY,
+                        5,
+                        $outerRadius,
+                        $outerRadius,
+                        pi()
+                    );
+                } else {
+                    list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getMask(
+                        $midX,
+                        $midY,
+                        5,
+                        $outerRadius,
+                        $outerRadius,
+                        pi()
+                    );
+                }
                 break;
             case 'square':
                 // Square tilted 45 degrees
-                list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getMask(
-                    $midX,
-                    $midY,
-                    4,
-                    $outerRadius,
-                    $outerRadius
-                );
+                if ($sharp) {
+                    list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getSVGMask(
+                        $svgTemplate,
+                        $midX,
+                        $midY,
+                        4,
+                        $outerRadius,
+                        $outerRadius
+                    );
+                } else {
+                    list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getMask(
+                        $midX,
+                        $midY,
+                        4,
+                        $outerRadius,
+                        $outerRadius
+                    );
+                }
                 break;
             case 'star':
                 // 5 point star
-                list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getMask(
-                    $midX,
-                    $midY,
-                    5,
-                    $outerRadius,
-                    $outerRadius * .382
-                );
+                if ($sharp) {
+                    list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getSVGMask(
+                        $svgTemplate,
+                        $midX,
+                        $midY,
+                        5,
+                        $outerRadius,
+                        $outerRadius * .382
+                    );
+                } else {
+                    list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getMask(
+                        $midX,
+                        $midY,
+                        5,
+                        $outerRadius,
+                        $outerRadius * .382
+                    );
+                }
                 break;
             case 'triangle':
                 // Triangle
-                list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getMask(
-                    $midX,
-                    $midY,
-                    3,
-                    $outerRadius,
-                    $outerRadius
-                );
+                if ($sharp) {
+                    list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getSVGMask(
+                        $svgTemplate,
+                        $midX,
+                        $midY,
+                        3,
+                        $outerRadius,
+                        $outerRadius
+                    );
+                } else {
+                    list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getMask(
+                        $midX,
+                        $midY,
+                        3,
+                        $outerRadius,
+                        $outerRadius
+                    );
+                }
                 break;
             case 'triangle-180':
                 // Triangle upside down
-                list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getMask(
-                    $midX,
-                    $midY,
-                    3,
-                    $outerRadius,
-                    $outerRadius,
-                    pi()
-                );
+                if ($sharp) {
+                    list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getSVGMask(
+                        $svgTemplate,
+                        $midX,
+                        $midY,
+                        3,
+                        $outerRadius,
+                        $outerRadius,
+                        pi()
+                    );
+                } else {
+                    list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getMask(
+                        $midX,
+                        $midY,
+                        3,
+                        $outerRadius,
+                        $outerRadius,
+                        pi()
+                    );
+                }
+
                 break;
             case 'circle':
             default:
@@ -233,11 +332,18 @@ class Shape extends BaseManipulator
                 $maskWidth = $min;
                 $maskHeight = $min;
 
-                // Make a transparent mask matching the origin image dimensions.
-                $mask = Image::black($width, $height, ['bands' => 4]);
+                if ($sharp) {
+                    $svg = sprintf($svgTemplate, "<circle r='$outerRadius' cx='$midX' cy='$midY'/>");
 
-                // Draw a filled black circle on the mask.
-                $mask = $mask->draw_circle(255, $midX - $xMin, $midY - $yMin, $outerRadius, ["fill" => true]);
+                    $mask = Image::newFromBuffer($svg, "", ['dpi' => 72]);
+                } else {
+                    // Make a transparent mask matching the origin image dimensions.
+                    $mask = Image::black($width, $height, ['bands' => 4]);
+
+                    // Draw a filled black circle on the mask.
+                    $mask = $mask->draw_circle(255, $midX - $xMin, $midY - $yMin, $outerRadius, ["fill" => true]);
+                }
+
                 break;
         }
 
@@ -333,5 +439,67 @@ class Shape extends BaseManipulator
         }
 
         return [$logic/*->eorimage(-1)*/, $xMin, $yMin, $width, $height];
+    }
+
+    /**
+     * Inspired by this JSFiddle: http://jsfiddle.net/tohan/8vwjn4cx/
+     * modified to support SVG paths
+     *
+     * @param  string $template The SVG template
+     * @param  int|float $midX midX
+     * @param  int|float $midY midY
+     * @param  int|float $points number of points (or number of sides for polygons)
+     * @param  int|float $outerRadius 'outer' radius of the star
+     * @param  int|float $innerRadius 'inner' radius of the star (if equal to outerRadius, a polygon is drawn)
+     * @param  int|float $initialAngle (optional) initial angle (clockwise),
+     *      by default, stars and polygons are 'pointing' up
+     *
+     * @return array [
+     *      *The SVG path*,
+     *      *Left edge of mask*,
+     *      *Top edge of mask*,
+     *      *Mask width*,
+     *      *Mask height*
+     * ]
+     */
+    private function getSVGMask($template, $midX, $midY, $points, $outerRadius, $innerRadius, $initialAngle = 0): array
+    {
+        $path = '';
+        $X = [];
+        $Y = [];
+        if ($innerRadius !== $outerRadius) {
+            $points *= 2;
+        }
+        for ($i = 0; $i <= $points; $i++) {
+            $angle = $i * 2 * pi() / $points - pi() / 2 + $initialAngle;
+            $radius = $i % 2 === 0 ? $outerRadius : $innerRadius;
+            if ($i == 0) {
+                $path = 'M';
+                // If an odd number of points, add an additional point at the top of the polygon
+                // -- this will shift the calculated center point of the shape so that the center point
+                // of the polygon is at x,y (otherwise the center is mis-located)
+                if ($points % 2 == 1) {
+                    $path .= '0 ' . $radius . ' M';
+                }
+            } else {
+                $path .= ' L';
+            }
+            $x = round($midX + $radius * cos($angle));
+            $y = round($midY + $radius * sin($angle));
+            $X[] = $x;
+            $Y[] = $y;
+            $path .= $x . ' ' . $y;
+        }
+        $path .= ' Z';
+        $xMin = min($X);
+        $yMin = min($Y);
+        $xMax = max($X);
+        $yMax = max($Y);
+        $width = $xMax - $xMin;
+        $height = $yMax - $yMin;
+
+        $svg = sprintf($template, "<path d='$path'/>");
+
+        return [Image::newFromBuffer($svg, "", ['dpi' => 72]), $xMin, $yMin, $width, $height];
     }
 }

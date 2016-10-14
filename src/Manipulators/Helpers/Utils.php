@@ -6,7 +6,7 @@ use Jcupitt\Vips\Image;
 
 class Utils
 {
-    const EXIF_ORIENTATION = 'orientation';
+    const VIPS_META_ORIENTATION = 'orientation';
 
     const VIPS_INTERPRETATION_ERROR = -1;
     const VIPS_INTERPRETATION_MULTIBAND = 0;
@@ -89,11 +89,6 @@ class Utils
         self::VIPS_INTERPRETATION_LAST => self::VIPS_COLOURSPACE_LAST
     ];
 
-    const VIPS_ANGLE_D0 = 'd0';
-    const VIPS_ANGLE_D90 = 'd90';
-    const VIPS_ANGLE_D180 = 'd180';
-    const VIPS_ANGLE_D270 = 'd270';
-
     /**
      * Are pixel values in this image 16-bit integer?
      *
@@ -147,45 +142,29 @@ class Utils
      */
     public static function exifOrientation(Image $image): int
     {
-        if ($image->typeof(self::EXIF_ORIENTATION) !== 0) {
-            $exif = $image->get(self::EXIF_ORIENTATION);
+        if ($image->typeof(self::VIPS_META_ORIENTATION) !== 0) {
+            $exif = $image->get(self::VIPS_META_ORIENTATION);
             return $exif;
         }
         return 0;
     }
 
-
-    /**
-     * Set EXIF Orientation of image.
-     *
-     * @param Image $image The source image.
-     * @param int $orientation EXIF Orientation.
-     *
-     * @return void
-     */
-    public static function setExifOrientation(Image $image, int $orientation)
-    {
-        $image->set(self::EXIF_ORIENTATION, $orientation);
-    }
-
-    /**
-     * Remove EXIF Orientation from image.
-     *
-     * @param Image $image The source image.
-     *
-     * @return void
-     */
-    public static function removeExifOrientation(Image $image)
-    {
-        self::setExifOrientation($image, 1);
-    }
-
     /**
      * Calculate the angle of rotation and need-to-flip for the output image.
+     * Removes the EXIF orientation header if the image contains one.
+     *
      * In order of priority:
-     *  1. Use explicitly requested angle (supports 90, 180, 270)
-     *  2. Use input image EXIF Orientation header - supports mirroring
-     *  3. Otherwise default to zero, i.e. no rotation
+     *  1. Check the rotation and mirroring of the EXIF orientation header
+     *     and init the $rotate variable, $flip and the $flop variable.
+     *  2. Removes the EXIF orientation header if the image contains one.
+     *  3. Add explicitly requested angle (supports 90, 180, 270) to the $rotate variable
+     *     (e.g. if the image is already rotated 90 degrees due to EXIF orientation header and
+     *     the user wants also to rotate 90 degrees then we need to rotate 180 degrees).
+     *  4. If the rotation is 360 degrees then add no rotation.
+     *  5. Subtract 360 degrees if the rotation is higher than 270
+     *     (this ensures that we have a valid rotation).
+     *  6. If there's no EXIF orientation header and no explicitly requested angle
+     *     then default the $rotate variable to zero, i.e. no rotation.
      *
      * @param  int $angle explicitly requested angle
      * @param  Image $image The source image.
@@ -194,49 +173,70 @@ class Utils
      */
     public static function calculateRotationAndFlip(int $angle, Image $image): array
     {
-        $rotate = self::VIPS_ANGLE_D0;
+        $rotate = 0;
         $flip = false;
         $flop = false;
-        if ($angle == -1) {
-            switch (self::exifOrientation($image)) {
-                case 6:
-                    $rotate = self::VIPS_ANGLE_D90;
-                    break;
-                case 3:
-                    $rotate = self::VIPS_ANGLE_D180;
-                    break;
-                case 8:
-                    $rotate = self::VIPS_ANGLE_D270;
-                    break;
-                case 2: // flop 1
-                    $flop = true;
-                    break;
-                case 7: // flip 6
-                    $flip = true;
-                    $rotate = self::VIPS_ANGLE_D90;
-                    break;
-                case 4: // flop 3
-                    $flop = true;
-                    $rotate = self::VIPS_ANGLE_D180;
-                    break;
-                case 5: // flip 8
-                    $flip = true;
-                    $rotate = self::VIPS_ANGLE_D270;
-                    break;
-            }
+
+        $exifOrientation = self::exifOrientation($image);
+
+        // First auto-rotate the image if the image has the EXIF orientation header.
+        // We could use `$image->autorot();` if it's supports the the various mirror modes.
+        // Currently it doesn't support that so we need to check it by our self.
+        switch ($exifOrientation) {
+            case 6:
+                $rotate = 90;
+                break;
+            case 3:
+                $rotate = 180;
+                break;
+            case 8:
+                $rotate = 270;
+                break;
+            case 2: // flop 1
+                $flop = true;
+                break;
+            case 7: // flip 6
+                $flip = true;
+                $rotate = 90;
+                break;
+            case 4: // flop 3
+                $flop = true;
+                $rotate = 180;
+                break;
+            case 5: // flip 8
+                $flip = true;
+                $rotate = 270;
+                break;
+        }
+
+        // Remove EXIF Orientation from image, if required.
+        if ($exifOrientation !== 0) {
+            $image->remove(self::VIPS_META_ORIENTATION);
+        }
+
+        // Add explicitly requested angle (supports 90, 180, 270) to the $rotate variable.
+        if ($angle == 90) {
+            $rotate += 90;
         } else {
-            if ($angle == 90) {
-                $rotate = self::VIPS_ANGLE_D90;
+            if ($angle == 180) {
+                $rotate += 180;
             } else {
-                if ($angle == 180) {
-                    $rotate = self::VIPS_ANGLE_D180;
-                } else {
-                    if ($angle == 270) {
-                        $rotate = self::VIPS_ANGLE_D270;
-                    }
+                if ($angle == 270) {
+                    $rotate += 270;
                 }
             }
         }
+
+        // If the rotation is 360 degrees then add no rotation.
+        if ($rotate == 360) {
+            $rotate = 0;
+        }
+
+        // Subtract 360 degrees if the rotation is higher than 270.
+        if ($rotate > 270) {
+            $rotate -= 360;
+        }
+
         return [$rotate, $flip, $flop];
     }
 

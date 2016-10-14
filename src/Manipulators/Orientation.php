@@ -25,21 +25,19 @@ class Orientation extends BaseManipulator
         // Calculate angle of rotation
         list($rotation, $flip, $flop) = Utils::calculateRotationAndFlip($orientation, $image);
 
-        if ($rotation != Utils::VIPS_ANGLE_D0) {
-            $image = $image->rot($rotation);
-            Utils::removeExifOrientation($image);
+        // Rotate if required.
+        if ($rotation != 0) {
+            $image = $image->rot('d' . $rotation);
         }
 
-        // Flip (mirror about Y axis)
+        // Flip (mirror about Y axis) if required.
         if ($flip) {
             $image = $image->flipver();
-            Utils::removeExifOrientation($image);
         }
 
-        // Flop (mirror about X axis)
+        // Flop (mirror about X axis) if required.
         if ($flop) {
             $image = $image->fliphor();
-            Utils::removeExifOrientation($image);
         }
 
         return $image;
