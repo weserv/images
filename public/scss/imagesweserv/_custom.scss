@@ -1,0 +1,77 @@
+#weserv-logo {
+  font-size: 2em;
+}
+
+.new {
+  display: inline-block;
+  line-height: 1;
+  vertical-align: middle;
+  margin-left: .5rem;
+  margin-right: .14285714em;
+  background-color: $core-accent;
+  border: 0 solid $core-accent;
+  padding: .5833em .833em;
+  color: $white;
+  text-transform: none;
+  font-weight: $font-weight-bold;
+  font-size: .85714286rem;
+  border-radius: .28571429rem;
+}
+
+#header strong {
+  color: $core-accent;
+}
+
+.highlightable {
+  padding: 20px;
+}
+
+.dd-item .cen {
+  text-align: center;
+}
+
+tr, td, th {
+  vertical-align: middle;
+}
+
+a.trimedges:hover img {
+  background-color: $peter_river !important;
+}
+
+a.trimedges img {
+  border: 1px dashed $peter_river;
+}
+
+// Media Query stuff
+@include breakpoint(desktop-only) {
+  #sidebar {
+    width: $sidebar-width-smaller;
+  }
+
+  #body {
+    margin-left: $sidebar-width-smaller;
+  }
+
+  #weserv-logo {
+    font-size: 1.6em;
+  }
+}
+
+
+@include breakpoint(mobile-only) {
+  #sidebar {
+    position: relative;
+    clear: both;
+    height: auto;
+    width: 100%;
+
+    .scrollbar-inner {
+      display: none;
+    }
+  }
+
+  #body {
+    margin-left: 0;
+    width: 100%;
+  }
+}

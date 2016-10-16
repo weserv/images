@@ -2,6 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
+use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Image;
 
 /**
@@ -21,19 +22,26 @@ class Contrast extends BaseManipulator
         $contrast = $this->getContrast();
 
         if ($contrast !== 0) {
-            /*$colourSpaceBeforeContrast = Utils::interpretationToColourSpace($image->interpretation);
+            $contrast = Utils::mapToRange($contrast, -100, 100, -30, 30);
 
-            $sharpen = $contrast > 0;
-            $contrast /= 4;*/
+            $increase = $contrast > 0;
 
-            /**
-             * TODO: Find an alternative for this imagick function in php-vips:
-             * Imagick::sigmoidalContrastImage($sharpen, $contrast, 0);
-             *
-             * References:
-             * - http://www.imagemagick.org/Usage/color_mods/#sigmoidal
-             * - http://php.net/manual/en/imagick.sigmoidalcontrastimage.php
-             */
+            $max = $this->maxAlpha;
+
+            $abs = abs($contrast);
+
+            $toneLUT = Image::tonelut([
+                'in_max' => $max,
+                'out_max' => $max,
+                'Ps' => 0,
+                'Pm' => 0.5,
+                'Ph' => 1,
+                'S' => $increase ? -$abs : $abs,
+                'M' => 0,
+                'H' => $increase ? $abs : -$abs,
+            ]);
+
+            $image = $image->maplut($toneLUT);
         }
 
         return $image;

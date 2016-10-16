@@ -19,9 +19,12 @@ ini_set('display_errors', 0);
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use AndriesLouw\imagesweserv\Exception\ImageProcessingException;
+use AndriesLouw\imagesweserv\Exception\ImageNotReadableException;
+use AndriesLouw\imagesweserv\Exception\ImageNotValidException;
+use AndriesLouw\imagesweserv\Exception\ImageTooBigException;
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use GuzzleHttp\Exception\RequestException;
+use Jcupitt\Vips\Exception as VipsException;
 use League\Uri\Schemes\Http as HttpUri;
 
 $error_messages = [
@@ -37,18 +40,12 @@ $error_messages = [
         'message' => 'The request image is not a valid (supported) image. Supported images are: %s',
         'log' => 'Non-supported image. URL: %s',
     ],
-    'too_big_image' => [
+    'image_too_big' => [
         'header' => '400 Bad Request',
         'content-type' => 'text/plain',
         'message' => 'The image is too big to be downloaded.' . PHP_EOL . 'Image size %s'
             . PHP_EOL . 'Max image size: %s',
         'log' => 'Image too big. URL: %s',
-    ],
-    'too_large_image' => [
-        'header' => '400 Bad Request',
-        'content-type' => 'text/plain',
-        'message' => 'Image is too large for processing. Width x Height should be less than 70 megapixels.',
-        'log' => 'Image too large. URL: %s',
     ],
     'curl_error' => [
         'header' => '400 Bad Request',
@@ -56,7 +53,17 @@ $error_messages = [
         'message' => 'cURL Request error: %s Status code: %s',
         'log' => 'cURL Request error: %s URL: %s Status code: %s',
     ],
-    'processing_error' => [
+    'image_not_readable' => [
+        'header' => '400 Bad Request',
+        'content-type' => 'text/plain',
+    ],
+    'image_too_large' => [
+        'header' => '400 Bad Request',
+        'content-type' => 'text/plain',
+        'message' => 'Image is too large for processing. Width x Height should be less than 70 megapixels.',
+        'log' => 'Image too large. URL: %s',
+    ],
+    'libvips_error' => [
         'header' => '400 Bad Request',
         'content-type' => 'text/plain',
     ],
@@ -138,7 +145,7 @@ if (!empty($_GET['url'])) {
         new AndriesLouw\imagesweserv\Manipulators\Size(71000000),
         new AndriesLouw\imagesweserv\Manipulators\Shape,
         new AndriesLouw\imagesweserv\Manipulators\Brightness(),
-        //new AndriesLouw\imagesweserv\Manipulators\Contrast(),
+        new AndriesLouw\imagesweserv\Manipulators\Contrast(),
         new AndriesLouw\imagesweserv\Manipulators\Gamma(),
         new AndriesLouw\imagesweserv\Manipulators\Sharpen(),
         new AndriesLouw\imagesweserv\Manipulators\Filter(),
@@ -182,7 +189,7 @@ if (!empty($_GET['url'])) {
          */
         $image = $server->outputImage($uri->__toString(), $extension, $_GET);
     } catch (ImageTooLargeException $e) {
-        $error = $error_messages['too_large_image'];
+        $error = $error_messages['image_too_large'];
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
         header('Content-type: ' . $error['content-type']);
         echo $error['message'];
@@ -191,23 +198,19 @@ if (!empty($_GET['url'])) {
         $previousException = $e->getPrevious();
 
         // Check if there is a previous exception
-        if ($previousException != null) {
-            if ($previousException instanceof AndriesLouw\imagesweserv\Exception\ImageNotValidException) {
+        if ($previousException instanceof ImageNotValidException
+            || $previousException instanceof ImageTooBigException) {
+            if ($previousException instanceof ImageNotValidException) {
                 $error = $error_messages['invalid_image'];
                 header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
                 header('Content-type: ' . $error['content-type']);
                 echo $previousException->getMessage();
             } else {
-                if ($previousException instanceof AndriesLouw\imagesweserv\Exception\ImageTooBigException) {
-                    $error = $error_messages['too_big_image'];
+                if ($previousException instanceof ImageTooBigException) {
+                    $error = $error_messages['image_too_big'];
                     header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
                     header('Content-type: ' . $error['content-type']);
                     echo $previousException->getMessage();
-                } else {
-                    $error = $error_messages['unknown'];
-                    header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
-                    header('Content-type: ' . $error['content-type']);
-                    echo $error['message'];
                 }
             }
         } else {
@@ -216,12 +219,38 @@ if (!empty($_GET['url'])) {
             header('Content-type: ' . $error['content-type']);
             echo $e->getMessage();
         }
+
         die;
-    } catch (ImageProcessingException $e) {
-        $error = $error_messages['processing_error'];
+    } catch (ImageNotReadableException $e) {
+        $error = $error_messages['image_not_readable'];
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
         header('Content-type: text/plain');
         echo $error['header'] . ' - ' . $e->getMessage();
+        die;
+    } catch (VipsException $e) {
+        $error = $error_messages['libvips_error'];
+        header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
+        header('Content-type: text/plain');
+        echo $error['header'] . ' - ' . $e->getMessage();
+        die;
+    } catch (\Exception $e) {
+        // If there's an exception which is not already caught.
+        // Then it's a unknown exception.
+        $error = $error_messages['unknown'];
+
+        trigger_error(
+            sprintf(
+                $error['log'],
+                $uri->__toString(),
+                $e->getMessage(),
+                get_class($previousException)
+            ),
+            E_USER_WARNING
+        );
+
+        header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
+        header('Content-type: ' . $error['content-type']);
+        echo $error['message'];
         die;
     }
 
@@ -266,34 +295,11 @@ if (!empty($_GET['url'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
     <title>Image cache &amp; resize proxy</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico"/>
+    <!-- TODO: Update old css (and SRI integrity) to the new Sass css -->
     <link href="//static.weserv.nl/images-v2.css" type="text/css" rel="stylesheet" integrity="sha384-Hbsu1aa2We8FHR6UVE0dG6SPY/JzwDukp+uWCpgR+Qkcai6cDzvItzPkyvto6Gai" crossorigin="anonymous"/>
     <!--[if lte IE 9]><script src="//static.weserv.nl/html5shiv-printshiv.min.js" type="text/javascript"></script><![endif]-->
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js" type="text/javascript" integrity="sha384-8gBf6Y4YYq7Jx97PIqmTwLPin4hxIzQw5aDmUg/DDhul9fFpbbLcLh3nTIIDJKhx" crossorigin="anonymous"></script>
     <script src="//static.weserv.nl/bootstrap.min.js" type="text/javascript" integrity="sha384-knhWhSzIcpYIfitKUjDBo/EQ3F5MWCwASUtB6UCe2N038X5KhwbGAoxmLaV8hn12" crossorigin="anonymous"></script>
-    <!-- TODO: Place this inside the images-v2.css -->
-    <style type="text/css">
-    .new {
-        display: inline-block;
-        line-height: 1;
-        vertical-align: middle;
-        margin-left: .5rem;
-        margin-right: .14285714em;
-        background-color: #a72376;
-        border: 0 solid #a72376;
-        padding: .5833em .833em;
-        color: #fff;
-        text-transform: none;
-        font-weight: 600;
-        font-size: .85714286rem;
-        border-radius: .28571429rem;
-    }
-    h3 > .new {
-        margin-top: -.29165em;
-    }
-    h1 > .new {
-        margin-top: -.39165em;
-    }
-</style>
 </head>
 <body data-spy="scroll" data-target=".scrollspy">
     <nav id="sidebar">
@@ -343,7 +349,7 @@ if (!empty($_GET['url'])) {
                         <li>We do support SSL, you can use <a href="https://images.weserv.nl/"><b>https</b>://images.weserv.nl/</a>.
                             <br /><small class="sslnote">This can be very useful for embedding HTTP images on HTTPS websites. HTTPS origin hosts can be used by <a href="https://imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/2693328-add-support-to-fetch-images-over-https">prefixing the hostname with ssl:</a></small></li>
                     </ul>
-                    <p>We're part of the <a href="https://www.cloudflare.com/">CloudFlare</a> community. Images are being cached and delivered straight from <a href="https://www.cloudflare.com/network-map">80+ global datacenters</a>. This ensures the fastest load times and best performance. On average, we resize 1 million (10<sup>6</sup>) images per hour, which generates around 25TB of outbound traffic per month.</p>
+                    <p>We're part of the <a href="https://www.cloudflare.com/">Cloudflare</a> community. Images are being cached and delivered straight from <a href="https://www.cloudflare.com/network-map">100+ global datacenters</a>. This ensures the fastest load times and best performance. On average, we resize 1 million (10<sup>6</sup>) images per hour, which generates around 25TB of outbound traffic per month.</p>
                     <p>Requesting an image:</p>
                     <ul>
                         <li><code>?url=</code> (URL encoded) link to your image, without http://</li>
@@ -481,12 +487,12 @@ if (!empty($_GET['url'])) {
                                 <td>Adjusts the image brightness.</td>
                                 <td><a href="#brightness-bri">info</a></td>
                             </tr>
-                            <!-- <tr>
+                            <tr>
                                 <td>Contrast</td>
                                 <td><code>con</code></td>
                                 <td>Adjusts the image contrast.</td>
                                 <td><a href="#contrast-con">info</a></td>
-                            </tr> -->
+                            </tr>
                             <tr>
                                 <td>Gamma</td>
                                 <td><code>gam</code></td>
@@ -633,10 +639,10 @@ if (!empty($_GET['url'])) {
                     <p>Adjusts the image brightness. Use values between <code>-100</code> and <code>+100</code>, where <code>0</code> represents no change.</p>
                     <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;bri=-25"&gt;</code></pre>
                     <a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;bri=-25"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;bri=-25" alt=""/></a>
-                    <!-- <h3 id="contrast-con">Contrast <code>con</code></h3>
+                    <h3 id="contrast-con">Contrast <code>con</code></h3>
                     <p>Adjusts the image contrast. Use values between <code>-100</code> and <code>+100</code>, where <code>0</code> represents no change.</p>
                     <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;con=25"&gt;</code></pre>
-                    <a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;con=25"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;con=25" alt=""/></a> -->
+                    <a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;con=25"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;con=25" alt=""/></a>
                     <h3 id="gamma-gam">Gamma <code>gam</code></h3>
                     <p>Adjusts the image gamma. Use values between <code>1</code> and <code>3</code>. The default value is <code>2.2</code>, a suitable approximation for sRGB images.</p>
                     <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;gam=3"&gt;</code></pre>

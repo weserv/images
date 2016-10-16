@@ -1,0 +1,127 @@
+// Headings
+h1, h2, h3 {
+  font-weight: $font-weight-regular;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -1px;
+  margin: .85rem 0 1.7rem;
+}
+
+h1 {
+  font-size: 2.15rem;
+
+  > .new {
+    margin-top: -.39165em;
+  }
+}
+
+h2 {
+  font-size: 1.8rem;
+}
+
+h3 {
+  font-size: 1.4rem;
+
+  > .new {
+    margin-top: -.29165em;
+  }
+}
+
+// NOTES!!!!
+div.notices {
+  margin: 2rem 0;
+  position: relative;
+
+  p {
+    padding: 15px;
+    display: block;
+    font-size: 1rem;
+    margin-top: 0;
+    margin-bottom: 0;
+    color: $core-text;
+
+    &:first-child {
+      &:before, &:after {
+        position: absolute;
+        top: 2px;
+        color: $white;
+        left: 1rem;
+      }
+    }
+  }
+
+  &.info p {
+    border-top: 30px solid #F0B37E;
+    background: #FFF2DB;
+
+    &:first-child:after {
+      content: 'Info';
+    }
+  }
+
+  &.warning p {
+    border-top: 30px solid #F92F2F;
+    background: #FAE2E2;
+
+    &:first-child:after {
+      content: 'Warning';
+    }
+  }
+
+  &.note p {
+    border-top: 30px solid #6AB0DE;
+    background: #E7F2FA;
+
+    &:first-child:after {
+      content: 'Note';
+    }
+  }
+
+  &.tip p {
+    border-top: 30px solid #5CB85C;
+    background: #E6F9E6;
+
+    &:first-child:after {
+      content: 'Tip';
+    }
+  }
+}
+
+// Inline and Code
+code,
+kbd,
+pre,
+samp {
+  font-family: $font-family-mono;
+  font-size: 1rem;
+}
+
+code {
+  background: $code-bg;
+  white-space: nowrap;
+  color: $code-text;
+  border: 1px solid $code-border;
+  padding: 0 2px;
+  vertical-align: middle;
+  border-radius: 2px;
+}
+
+pre {
+  padding: .5rem .5rem .2rem .5rem;
+  margin: 2rem 0;
+  background: $pre-bg;
+  border: 1px solid $core-border-color;
+  border-radius: 2px;
+  line-height: 1.15;
+  font-size: 1rem;
+  overflow-x: scroll;
+
+  code {
+    color: $pre-text;
+    background: inherit;
+    font-size: 1rem;
+    white-space: inherit;
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+}

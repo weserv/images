@@ -94,7 +94,7 @@ class Client
                     if ($this->options['max_image_size'] != 0
                         && $response->getHeaderLine('Content-Length') > $this->options['max_image_size']
                     ) {
-                        $error = $this->options['error_message']['too_big_image'];
+                        $error = $this->options['error_message']['image_too_big'];
                         $size = $response->getHeaderLine('Content-Length');
                         $imageSize = $this->formatSizeUnits($size);
                         $maxImageSize = $this->formatSizeUnits($this->options['max_image_size']);
@@ -165,30 +165,20 @@ class Client
             @fclose($this->handle);
             @unlink($this->fileName);
             $previousException = $e->getPrevious();
-            if ($previousException != null) {
+            if ($previousException instanceof ImageNotValidException
+                || $previousException instanceof ImageTooBigException
+            ) {
                 if ($previousException instanceof ImageNotValidException) {
                     $error = $this->options['error_message']['invalid_image'];
                     trigger_error(sprintf($error['log'], $url), E_USER_WARNING);
                 } else {
                     if ($previousException instanceof ImageTooBigException) {
-                        $error = $this->options['error_message']['too_big'];
+                        $error = $this->options['error_message']['image_too_big'];
                         trigger_error(sprintf($error['log'], $url), E_USER_WARNING);
-                    } else {
-                        $error = $this->options['error_message']['unknown'];
-                        trigger_error(
-                            sprintf(
-                                $error['log'],
-                                $url,
-                                $previousException->getMessage(),
-                                get_class($previousException)
-                            ),
-                            E_USER_WARNING
-                        );
                     }
                 }
             } else {
                 $error = $this->options['error_message']['curl_error'];
-
 
                 trigger_error(
                     sprintf(

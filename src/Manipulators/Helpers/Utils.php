@@ -255,16 +255,16 @@ class Utils
     /**
      * Convert a number range to another range, maintaining ratio
      *
-     * @param $value
-     * @param $in_min
-     * @param $in_max
-     * @param $out_min
-     * @param $out_max
+     * @param int $value
+     * @param int $in_min
+     * @param int $in_max
+     * @param int $out_min
+     * @param int $out_max
      *
-     * @return float|int
+     * @return float
      */
-    public static function mapToRange($value, $in_min, $in_max, $out_min, $out_max)
+    public static function mapToRange(int $value, int $in_min, int $in_max, int $out_min, int $out_max): float
     {
-        return ($value - $in_min) * ($out_max - $out_min) / ($in_max - $in_min) + $out_min;
+        return (float) ($value - $in_min) * ($out_max - $out_min) / ($in_max - $in_min) + $out_min;
     }
 }

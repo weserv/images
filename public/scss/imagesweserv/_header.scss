@@ -1,0 +1,11 @@
+#header {
+  background: $header-bg;
+  color: $white;
+  text-align: center;
+  border-bottom: 4px solid $core-accent;
+  padding: 1rem;
+
+  a {
+    display: inline-block;
+  }
+}

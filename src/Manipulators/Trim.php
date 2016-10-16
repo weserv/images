@@ -2,7 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
-use AndriesLouw\imagesweserv\Exception\ImageProcessingException;
+use Jcupitt\Vips\Exception as VipsException;
 use Jcupitt\Vips\Image;
 
 /**
@@ -57,7 +57,7 @@ class Trim extends BaseManipulator
      * @param  Image $image The source image.
      * @param  int $tolerance Trim tolerance
      *
-     * @throws ImageProcessingException for errors that occur during the processing of a Image
+     * @throws VipsException for errors that occur during the processing of a Image
      *
      * @return Image The manipulated image.
      */
@@ -89,7 +89,7 @@ class Trim extends BaseManipulator
         $height = $bottom - $top;
 
         if ($width <= 0 || $height <= 0) {
-            throw new ImageProcessingException('Unexpected error while trimming. Try to lower the tolerance');
+            throw new VipsException('Unexpected error while trimming. Try to lower the tolerance.');
         }
 
         // and now crop the original image

@@ -1,0 +1,20 @@
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  border: 1px solid lighten($core-border-color, 5%);
+  table-layout: auto;
+}
+
+th {
+  @extend strong;
+
+  text-align: left;
+  background: lighten($core-border-color, 10%);
+  padding: 0.5rem;
+}
+
+td {
+  padding: 0.5rem;
+  border: 1px solid lighten($core-border-color, 5%);
+}

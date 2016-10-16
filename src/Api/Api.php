@@ -3,7 +3,7 @@
 namespace AndriesLouw\imagesweserv\Api;
 
 use AndriesLouw\imagesweserv\Client;
-use AndriesLouw\imagesweserv\Exception\ImageProcessingException;
+use AndriesLouw\imagesweserv\Exception\ImageNotReadableException;
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Manipulators\Background;
 use AndriesLouw\imagesweserv\Manipulators\Blur;
@@ -12,9 +12,9 @@ use AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface;
 use AndriesLouw\imagesweserv\Manipulators\Shape;
 use AndriesLouw\imagesweserv\Manipulators\Sharpen;
 use AndriesLouw\imagesweserv\Manipulators\Size;
-use Exception;
 use GuzzleHttp\Exception\RequestException;
 use InvalidArgumentException;
+use Jcupitt\Vips\Exception as VipsException;
 use Jcupitt\Vips\Image;
 
 class Api implements ApiInterface
@@ -112,12 +112,12 @@ class Api implements ApiInterface
      * @param string $extension Extension of URL
      * @param array $params The manipulation parameters.
      *
+     * @throws ImageNotReadableException if the provided image is not readable.
      * @throws ImageTooLargeException if the provided image is too large for
      *      processing.
      * @throws RequestException for errors that occur during a transfer or during
      *      the on_headers event
-     * @throws ImageProcessingException for errors that occur during the processing of a Image
-     *
+     * @throws VipsException for errors that occur during the processing of a Image
      *
      * @return array [
      *      'image' => *Manipulated image binary data*,
@@ -148,15 +148,19 @@ class Api implements ApiInterface
             $tmpFileName = $this->client->get($url);
         }
 
-        $image = Image::newFromFile($tmpFileName);
-        //$image->setLogging($debug);
+        try {
+            $image = Image::newFromFile($tmpFileName);
+            //$image->setLogging($debug);
+        } catch (VipsException $e) {
+            @unlink($tmpFileName);
+
+            trigger_error('Image not readable. Message: `' . $e->getMessage() . '` URL: ' . $url, E_USER_WARNING);
+
+            // Keep throwing it (with a wrapper).
+            throw new ImageNotReadableException('Image not readable. Is it a valid image?', 0, $e);
+        }
 
         $allowed = $this->getAllowedImageTypes();
-
-        if ($image === null) {
-            @unlink($tmpFileName);
-            trigger_error('Image not readable. URL: ' . $url, E_USER_WARNING);
-        }
 
         $interpretation = $image->interpretation;
 
@@ -171,15 +175,20 @@ class Api implements ApiInterface
 
             try {
                 $image = $manipulator->run($image);
-            } catch (Exception $e) {
-                if ($e instanceof ImageTooLargeException || $e instanceof ImageProcessingException) {
-                    trigger_error($e->getMessage() . ' URL: ' . $url, E_USER_WARNING);
+            } catch (ImageTooLargeException $e) {
+                @unlink($tmpFileName);
 
-                    // Keep throwing it.
-                    throw $e;
-                } else {
-                    // TODO: Catch php-vips exceptions
-                }
+                trigger_error($e->getMessage() . ' URL: ' . $url, E_USER_WARNING);
+
+                // Keep throwing it.
+                throw $e;
+            } catch (VipsException $e) {
+                @unlink($tmpFileName);
+
+                trigger_error($e->getMessage() . ' URL: ' . $url, E_USER_WARNING);
+
+                // Keep throwing it.
+                throw $e;
             }
 
             // Size and shape manipulators can override `hasAlpha` parameter.

@@ -248,16 +248,16 @@ class Size extends BaseManipulator
     {
         $cropMethods = [
             'top-left' => [0, 0],
-            't' => [50, 0],
+            't' => [50, 0], // Deprecated use top instead
             'top' => [50, 0],
             'top-right' => [100, 0],
-            'l' => [0, 50],
+            'l' => [0, 50], // Deprecated use left instead
             'left' => [0, 50],
             'center' => [50, 50],
-            'r' => [0, 50],
+            'r' => [0, 50], // Deprecated use right instead
             'right' => [100, 50],
             'bottom-left' => [0, 100],
-            'b' => [50, 100],
+            'b' => [50, 100], // Deprecated use bottom instead
             'bottom' => [50, 100],
             'bottom-right' => [100, 100],
         ];

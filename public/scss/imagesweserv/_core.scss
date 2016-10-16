@@ -1,0 +1,32 @@
+body {
+  background: $page-bg;
+  color: $core-text;
+  font-family: $font-family-default;
+  font-weight: $font-weight-light;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  text-decoration: none;
+  color: $core-accent;
+
+  &:hover {
+    color: darken($core-accent, 30%);
+  }
+}
+
+pre {
+  position: relative;
+}
+
+b, strong, label, th {
+  font-weight: $font-weight-bold;
+}
+
+// Fix for ScrollSpy, see: http://stackoverflow.com/a/12606867/1480019
+section.goto {
+  padding-top: 10px;
+  margin-top: -10px;
+}
