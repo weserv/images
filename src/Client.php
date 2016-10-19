@@ -163,7 +163,6 @@ class Client
             $this->client->get($url, $requestOptions);
         } catch (RequestException $e) {
             @fclose($this->handle);
-            @unlink($this->fileName);
             $previousException = $e->getPrevious();
             if ($previousException instanceof ImageNotValidException
                 || $previousException instanceof ImageTooBigException

@@ -4,6 +4,8 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Color;
+use Jcupitt\Vips\Enum\Extend;
+use Jcupitt\Vips\Enum\Kernel;
 use Jcupitt\Vips\Image;
 
 /**
@@ -411,10 +413,10 @@ class Size extends BaseManipulator
             // Perform kernel-based reduction
             if ($yResidual < 1.0 || $xResidual < 1.0) {
                 if ($yResidual < 1.0) {
-                    $image = $image->reducev(1.0 / $yResidual, ['kernel' => 'lanczos3']);
+                    $image = $image->reducev(1.0 / $yResidual, ['kernel' => Kernel::LANCZOS3]);
                 }
                 if ($xResidual < 1.0) {
-                    $image = $image->reduceh(1.0 / $xResidual, ['kernel' => 'lanczos3']);
+                    $image = $image->reduceh(1.0 / $xResidual, ['kernel' => Kernel::LANCZOS3]);
                 }
             }
             // Perform affine enlargement
@@ -472,7 +474,7 @@ class Size extends BaseManipulator
                 // Add non-transparent alpha channel, if required
                 if ($backgroundColor[3] < 255 && !$hasAlpha) {
                     $pixel = Image::black(1, 1)->add(255 * $multiplier)->cast($image->format);
-                    $result = $pixel->embed(0, 0, $image->width, $image->height, ['extend' => 'copy']);
+                    $result = $pixel->embed(0, 0, $image->width, $image->height, ['extend' => Extend::COPY]);
                     $result->interpretation = $image->interpretation;
 
                     $image = $image->bandjoin($result);
@@ -488,7 +490,7 @@ class Size extends BaseManipulator
                     $top,
                     $width,
                     $height,
-                    ['extend' => 'background', 'background' => $background]
+                    ['extend' => Extend::BACKGROUND, 'background' => $background]
                 );
             } else {
                 if (in_array($fit, ['square', 'squaredown', 'crop'], true)) {

@@ -3,6 +3,7 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Color;
+use Jcupitt\Vips\Enum\Extend;
 use Jcupitt\Vips\Image;
 
 /**
@@ -71,7 +72,7 @@ class Background extends BaseManipulator
             $pixel = Image::black(1, 1)->add($multiplier * $backgroundRGBA[0])->cast($image->format);
 
             // Extend this 1x1 pixel to match the origin image dimensions.
-            $backgroundImage = $pixel->embed(0, 0, $image->width, $image->height, ['extend' => 'copy']);
+            $backgroundImage = $pixel->embed(0, 0, $image->width, $image->height, ['extend' => Extend::COPY]);
 
             // Ensure that the interpretation of the background is the same as the origin image.
             $backgroundImage->interpretation = $image->interpretation;

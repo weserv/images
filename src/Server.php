@@ -3,10 +3,7 @@
 namespace AndriesLouw\imagesweserv;
 
 use AndriesLouw\imagesweserv\Api\ApiInterface;
-use AndriesLouw\imagesweserv\Exception\ImageNotReadableException;
-use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
-use GuzzleHttp\Exception\RequestException;
-use Jcupitt\Vips\Exception as VipsException;
+use League\Uri\Schemes\Http as HttpUri;
 
 class Server
 {
@@ -105,28 +102,62 @@ class Server
     }
 
     /**
-     * Generate and output image.
+     * Generate manipulated image.
      *
      * @param  string $url Image URL
      * @param  array $params Image manipulation params.
      * @param  string $extension Extension of URL
      *
-     * @throws ImageNotReadableException if the provided image is not readable.
-     * @throws ImageTooLargeException if the provided image is too large for
-     *      processing.
-     * @throws RequestException for errors that occur during a transfer or during
-     *      the on_headers event
-     * @throws VipsException for errors that occur during the processing of a Image
-     *
      * @return array [
-     *      'image' => *Manipulated image binary data*,
-     *      'type' => *The mimetype*,
-     *      'extension' => *The extension*
+     * @type string Manipulated image binary data,
+     * @type string The mimetype of the image,
+     * @type string The extension of the image
      * ]
      */
-    public function outputImage(string $url, string $extension, array $params): array
+    public function makeImage(string $url, string $extension, array $params): array
     {
         return $this->api->run($url, $extension, $this->getAllParams($params));
+    }
+
+    /**
+     * Generate and output image.
+     *
+     * @param  HttpUri $uri Image URL
+     * @param  array $params Image manipulation params.
+     * @param  string $extension Extension of URL
+     *
+     * @return void
+     */
+    public function outputImage(HttpUri $uri, string $extension, array $params)
+    {
+        list($image, $type, $extension) = $this->makeImage($uri->__toString(), $extension, $params);
+
+        header('Expires: ' . date_create('+31 days')->format('D, d M Y H:i:s') . ' GMT'); //31 days
+        header('Cache-Control: max-age=2678400'); //31 days
+
+        if (isset($params['encoding']) && $params['encoding'] == 'base64') {
+            $base64 = sprintf('data:%s;base64,%s', $type, base64_encode($image));
+
+            header('Content-type: text/plain');
+
+            echo $base64;
+        } else {
+            header('Content-type: text/plain');
+            header('Content-type: ' . $type);
+
+            $friendlyName = pathinfo($uri->path->getBasename(), PATHINFO_FILENAME) . '.' . $extension;
+
+            if (array_key_exists('download', $params)) {
+                header('Content-Disposition: attachment; filename="' . $friendlyName . '"');
+            } else {
+                header('Content-Disposition: inline; filename="' . $friendlyName . '"');
+            }
+
+            ob_start();
+            echo $image;
+            header('Content-Length: ' . ob_get_length());
+            ob_end_flush();
+        }
     }
 
     /**

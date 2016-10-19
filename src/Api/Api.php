@@ -14,6 +14,7 @@ use AndriesLouw\imagesweserv\Manipulators\Sharpen;
 use AndriesLouw\imagesweserv\Manipulators\Size;
 use GuzzleHttp\Exception\RequestException;
 use InvalidArgumentException;
+use Jcupitt\Vips\Enum\BandFormat;
 use Jcupitt\Vips\Exception as VipsException;
 use Jcupitt\Vips\Image;
 
@@ -106,11 +107,7 @@ class Api implements ApiInterface
     }
 
     /**
-     * Perform image manipulations.
-     *
-     * @param string $url Source URL
-     * @param string $extension Extension of URL
-     * @param array $params The manipulation parameters.
+     * {@inheritdoc}
      *
      * @throws ImageNotReadableException if the provided image is not readable.
      * @throws ImageTooLargeException if the provided image is too large for
@@ -118,12 +115,6 @@ class Api implements ApiInterface
      * @throws RequestException for errors that occur during a transfer or during
      *      the on_headers event
      * @throws VipsException for errors that occur during the processing of a Image
-     *
-     * @return array [
-     *      'image' => *Manipulated image binary data*,
-     *      'type' => *The mimetype*,
-     *      'extension' => *The extension*
-     * ]
      */
     public function run(string $url, string $extension, array $params): array
     {
@@ -152,8 +143,6 @@ class Api implements ApiInterface
             $image = Image::newFromFile($tmpFileName);
             //$image->setLogging($debug);
         } catch (VipsException $e) {
-            @unlink($tmpFileName);
-
             trigger_error('Image not readable. Message: `' . $e->getMessage() . '` URL: ' . $url, E_USER_WARNING);
 
             // Keep throwing it (with a wrapper).
@@ -176,15 +165,11 @@ class Api implements ApiInterface
             try {
                 $image = $manipulator->run($image);
             } catch (ImageTooLargeException $e) {
-                @unlink($tmpFileName);
-
                 trigger_error($e->getMessage() . ' URL: ' . $url, E_USER_WARNING);
 
                 // Keep throwing it.
                 throw $e;
             } catch (VipsException $e) {
-                @unlink($tmpFileName);
-
                 trigger_error($e->getMessage() . ' URL: ' . $url, E_USER_WARNING);
 
                 // Keep throwing it.
@@ -212,9 +197,9 @@ class Api implements ApiInterface
 
             // Cast pixel values to integer
             if ($params['is16Bit']) {
-                $image = $image->cast(Utils::VIPS_FORMAT_USHORT);
+                $image = $image->cast(BandFormat::USHORT);
             } else {
-                $image = $image->cast(Utils::VIPS_FORMAT_UCHAR);
+                $image = $image->cast(BandFormat::UCHAR);
             }
         }
 
@@ -246,9 +231,9 @@ class Api implements ApiInterface
         }
 
         return [
-            'image' => $image->writeToBuffer('.' . $extension, $options),
-            'type' => $allowed[$extension],
-            'extension' => $extension
+            $image->writeToBuffer('.' . $extension, $options),
+            $allowed[$extension],
+            $extension
         ];
     }
 

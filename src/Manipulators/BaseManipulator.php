@@ -2,8 +2,6 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
-use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
-use Jcupitt\Vips\Exception as VipsException;
 use Jcupitt\Vips\Image;
 
 abstract class BaseManipulator implements ManipulatorInterface
@@ -16,9 +14,7 @@ abstract class BaseManipulator implements ManipulatorInterface
     public $params = [];
 
     /**
-     * Set the manipulation params.
-     *
-     * @param array $params The manipulation params.
+     * {@inheritdoc}
      */
     public function setParams(array $params)
     {
@@ -54,15 +50,7 @@ abstract class BaseManipulator implements ManipulatorInterface
     }
 
     /**
-     * Perform the image manipulation.
-     *
-     * @param  Image $image The source image.
-     *
-     * @throws ImageTooLargeException if the provided image is too large for
-     *      processing.
-     * @throws VipsException for errors that occur during the processing of a Image
-     *
-     * @return Image The manipulated image.
+     * {@inheritdoc}
      */
     abstract public function run(Image $image): Image;
 }

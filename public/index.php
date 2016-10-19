@@ -103,7 +103,7 @@ if (!empty($_GET['url'])) {
 
     $sysFileName = tempnam('/dev/shm', 'imo_');
 
-    // We need to add the extension to the temp file.
+    // We need to add the extension to the temporary file.
     // This ensures that the image is correctly recognized.
     $tmpFileName = $sysFileName . '.' . $extension;
 
@@ -179,21 +179,14 @@ if (!empty($_GET['url'])) {
 
     try {
         /**
-         * Get the image
-         *
-         * @var array [
-         *      'image' => *Manipulated image binary data*,
-         *      'type' => *The mimetype*,
-         *      'extension' => *The extension*
-         * ]
+         * Generate and output image.
          */
-        $image = $server->outputImage($uri->__toString(), $extension, $_GET);
+        $server->outputImage($uri, $extension, $_GET);
     } catch (ImageTooLargeException $e) {
         $error = $error_messages['image_too_large'];
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
         header('Content-type: ' . $error['content-type']);
         echo $error['message'];
-        die;
     } catch (RequestException $e) {
         $previousException = $e->getPrevious();
 
@@ -219,20 +212,16 @@ if (!empty($_GET['url'])) {
             header('Content-type: ' . $error['content-type']);
             echo $e->getMessage();
         }
-
-        die;
     } catch (ImageNotReadableException $e) {
         $error = $error_messages['image_not_readable'];
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
         header('Content-type: text/plain');
         echo $error['header'] . ' - ' . $e->getMessage();
-        die;
     } catch (VipsException $e) {
         $error = $error_messages['libvips_error'];
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
         header('Content-type: text/plain');
         echo $error['header'] . ' - ' . $e->getMessage();
-        die;
     } catch (\Exception $e) {
         // If there's an exception which is not already caught.
         // Then it's a unknown exception.
@@ -251,39 +240,10 @@ if (!empty($_GET['url'])) {
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
         header('Content-type: ' . $error['content-type']);
         echo $error['message'];
-        die;
     }
 
-    // Still here? All checks are valid so echo te response
-    header('Expires: ' . date_create('+31 days')->format('D, d M Y H:i:s') . ' GMT'); //31 days
-    header('Cache-Control: max-age=2678400'); //31 days
-
-    if (array_key_exists('encoding', $_GET) && $_GET['encoding'] == 'base64') {
-        $base64 = sprintf('data:%s;base64,%s', $image['type'], base64_encode($image['image']));
-
-        header('Content-type: text/plain');
-
-        echo $base64;
-    } else {
-        header('Content-type: text/plain');
-        header('Content-type: ' . $image['type']);
-
-        $friendlyName = pathinfo($uri->path->getBasename(), PATHINFO_FILENAME) . '.' . $image['extension'];
-
-        if (array_key_exists('download', $_GET)) {
-            header('Content-Disposition: attachment; filename="' . $friendlyName . '"');
-        } else {
-            header('Content-Disposition: inline; filename="' . $friendlyName . '"');
-        }
-
-        ob_start();
-        echo $image['image'];
-        header('Content-Length: ' . ob_get_length());
-        ob_end_flush();
-    }
-
-    unlink($tmpFileName);
-    exit;
+    // Still here? Unlink the temporary file.
+    @unlink($tmpFileName);
 } else {
     $url = '//images.weserv.nl';
 

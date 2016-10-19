@@ -105,8 +105,10 @@ class Sharpen extends BaseManipulator
             // Slow, accurate sharpen in LAB colour space, with control over flat vs jagged areas
             $interpretationBeforeSharpen = $image->interpretation;
             if ($interpretationBeforeSharpen == Utils::VIPS_INTERPRETATION_RGB) {
-                $interpretationBeforeSharpen = Utils::VIPS_INTERPRETATION_sRGB;
+                $interpretationBeforeSharpen = Utils::VIPS_INTERPRETATION_SRGB;
             }
+
+            // TODO: Get rid of the `interpretationToColourSpace` function
             return $image->sharpen(
                 [
                     "sigma" => $sigma,

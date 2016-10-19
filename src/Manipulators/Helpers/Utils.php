@@ -2,6 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators\Helpers;
 
+use Jcupitt\Vips\Enum\Interpretation;
 use Jcupitt\Vips\Image;
 
 class Utils
@@ -20,73 +21,36 @@ class Utils
     const VIPS_INTERPRETATION_CMC = 18;
     const VIPS_INTERPRETATION_LCH = 19;
     const VIPS_INTERPRETATION_LABS = 21;
-    const VIPS_INTERPRETATION_sRGB = 22;
+    const VIPS_INTERPRETATION_SRGB = 22;
     const VIPS_INTERPRETATION_YXY = 23;
     const VIPS_INTERPRETATION_FOURIER = 24;
     const VIPS_INTERPRETATION_RGB16 = 25;
     const VIPS_INTERPRETATION_GREY16 = 26;
     const VIPS_INTERPRETATION_MATRIX = 27;
-    const VIPS_INTERPRETATION_scRGB = 28;
+    const VIPS_INTERPRETATION_SCRGB = 28;
     const VIPS_INTERPRETATION_HSV = 29;
-    const VIPS_INTERPRETATION_LAST = 30;
-
-    const VIPS_COLOURSPACE_ERROR = 'error';
-    const VIPS_COLOURSPACE_MULTIBAND = 'multiband';
-    const VIPS_COLOURSPACE_B_W = 'b-w';
-    const VIPS_COLOURSPACE_HISTOGRAM = 'histogram';
-    const VIPS_COLOURSPACE_XYZ = 'xyz';
-    const VIPS_COLOURSPACE_LAB = 'lab';
-    const VIPS_COLOURSPACE_CMYK = 'cmyk';
-    const VIPS_COLOURSPACE_LABQ = 'labq';
-    const VIPS_COLOURSPACE_RGB = 'rgb';
-    const VIPS_COLOURSPACE_CMC = 'cmc';
-    const VIPS_COLOURSPACE_LCH = 'lch';
-    const VIPS_COLOURSPACE_LABS = 'labs';
-    const VIPS_COLOURSPACE_sRGB = 'srgb';
-    const VIPS_COLOURSPACE_YXY = 'yxy';
-    const VIPS_COLOURSPACE_FOURIER = 'fourier';
-    const VIPS_COLOURSPACE_RGB16 = 'rgb16';
-    const VIPS_COLOURSPACE_GREY16 = 'grey16';
-    const VIPS_COLOURSPACE_MATRIX = 'matrix';
-    const VIPS_COLOURSPACE_scRGB = 'scrgb';
-    const VIPS_COLOURSPACE_HSV = 'hsv';
-    const VIPS_COLOURSPACE_LAST = 'last';
-
-    const VIPS_FORMAT_NOTSET = -1;
-    const VIPS_FORMAT_UCHAR = 0;
-    const VIPS_FORMAT_CHAR = 1;
-    const VIPS_FORMAT_USHORT = 2;
-    const VIPS_FORMAT_SHORT = 3;
-    const VIPS_FORMAT_UINT = 4;
-    const VIPS_FORMAT_INT = 5;
-    const VIPS_FORMAT_FLOAT = 6;
-    const VIPS_FORMAT_COMPLEX = 7;
-    const VIPS_FORMAT_DOUBLE = 8;
-    const VIPS_FORMAT_DPCOMPLEX = 9;
-    const VIPS_FORMAT_LAST = 10;
 
     const VIPS_INTERPRETATION_TO_COLOURSPACE = [
-        self::VIPS_INTERPRETATION_ERROR => self::VIPS_COLOURSPACE_ERROR,
-        self::VIPS_INTERPRETATION_MULTIBAND => self::VIPS_COLOURSPACE_MULTIBAND,
-        self::VIPS_INTERPRETATION_B_W => self::VIPS_COLOURSPACE_B_W,
-        self::VIPS_INTERPRETATION_HISTOGRAM => self::VIPS_COLOURSPACE_HISTOGRAM,
-        self::VIPS_INTERPRETATION_XYZ => self::VIPS_COLOURSPACE_XYZ,
-        self::VIPS_INTERPRETATION_LAB => self::VIPS_COLOURSPACE_LAB,
-        self::VIPS_INTERPRETATION_CMYK => self::VIPS_COLOURSPACE_CMYK,
-        self::VIPS_INTERPRETATION_LABQ => self::VIPS_COLOURSPACE_LABQ,
-        self::VIPS_INTERPRETATION_RGB => self::VIPS_COLOURSPACE_RGB,
-        self::VIPS_INTERPRETATION_CMC => self::VIPS_COLOURSPACE_CMC,
-        self::VIPS_INTERPRETATION_LCH => self::VIPS_COLOURSPACE_LCH,
-        self::VIPS_INTERPRETATION_LABS => self::VIPS_COLOURSPACE_LABS,
-        self::VIPS_INTERPRETATION_sRGB => self::VIPS_COLOURSPACE_sRGB,
-        self::VIPS_INTERPRETATION_YXY => self::VIPS_COLOURSPACE_YXY,
-        self::VIPS_INTERPRETATION_FOURIER => self::VIPS_COLOURSPACE_FOURIER,
-        self::VIPS_INTERPRETATION_RGB16 => self::VIPS_COLOURSPACE_RGB16,
-        self::VIPS_INTERPRETATION_GREY16 => self::VIPS_COLOURSPACE_GREY16,
-        self::VIPS_INTERPRETATION_MATRIX => self::VIPS_COLOURSPACE_MATRIX,
-        self::VIPS_INTERPRETATION_scRGB => self::VIPS_COLOURSPACE_scRGB,
-        self::VIPS_INTERPRETATION_HSV => self::VIPS_COLOURSPACE_HSV,
-        self::VIPS_INTERPRETATION_LAST => self::VIPS_COLOURSPACE_LAST
+        self::VIPS_INTERPRETATION_ERROR => Interpretation::ERROR,
+        self::VIPS_INTERPRETATION_MULTIBAND => Interpretation::MULTIBAND,
+        self::VIPS_INTERPRETATION_B_W => Interpretation::B_W,
+        self::VIPS_INTERPRETATION_HISTOGRAM => Interpretation::HISTOGRAM,
+        self::VIPS_INTERPRETATION_XYZ => Interpretation::XYZ,
+        self::VIPS_INTERPRETATION_LAB => Interpretation::LAB,
+        self::VIPS_INTERPRETATION_CMYK => Interpretation::CMYK,
+        self::VIPS_INTERPRETATION_LABQ => Interpretation::LABQ,
+        self::VIPS_INTERPRETATION_RGB => Interpretation::RGB,
+        self::VIPS_INTERPRETATION_CMC => Interpretation::CMC,
+        self::VIPS_INTERPRETATION_LCH => Interpretation::LCH,
+        self::VIPS_INTERPRETATION_LABS => Interpretation::LABS,
+        self::VIPS_INTERPRETATION_SRGB => Interpretation::SRGB,
+        self::VIPS_INTERPRETATION_YXY => Interpretation::YXY,
+        self::VIPS_INTERPRETATION_FOURIER => Interpretation::FOURIER,
+        self::VIPS_INTERPRETATION_RGB16 => Interpretation::RGB16,
+        self::VIPS_INTERPRETATION_GREY16 => Interpretation::GREY16,
+        self::VIPS_INTERPRETATION_MATRIX => Interpretation::MATRIX,
+        self::VIPS_INTERPRETATION_SCRGB => Interpretation::SCRGB,
+        self::VIPS_INTERPRETATION_HSV => Interpretation::HSV
     ];
 
     /**
@@ -265,6 +229,6 @@ class Utils
      */
     public static function mapToRange(int $value, int $in_min, int $in_max, int $out_min, int $out_max): float
     {
-        return (float) ($value - $in_min) * ($out_max - $out_min) / ($in_max - $in_min) + $out_min;
+        return (float)($value - $in_min) * ($out_max - $out_min) / ($in_max - $in_min) + $out_min;
     }
 }
