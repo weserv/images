@@ -9,72 +9,28 @@ class Utils
 {
     const VIPS_META_ORIENTATION = 'orientation';
 
-    const VIPS_INTERPRETATION_ERROR = -1;
-    const VIPS_INTERPRETATION_MULTIBAND = 0;
-    const VIPS_INTERPRETATION_B_W = 1;
-    const VIPS_INTERPRETATION_HISTOGRAM = 10;
-    const VIPS_INTERPRETATION_XYZ = 12;
-    const VIPS_INTERPRETATION_LAB = 13;
-    const VIPS_INTERPRETATION_CMYK = 15;
-    const VIPS_INTERPRETATION_LABQ = 16;
-    const VIPS_INTERPRETATION_RGB = 17;
-    const VIPS_INTERPRETATION_CMC = 18;
-    const VIPS_INTERPRETATION_LCH = 19;
-    const VIPS_INTERPRETATION_LABS = 21;
-    const VIPS_INTERPRETATION_SRGB = 22;
-    const VIPS_INTERPRETATION_YXY = 23;
-    const VIPS_INTERPRETATION_FOURIER = 24;
-    const VIPS_INTERPRETATION_RGB16 = 25;
-    const VIPS_INTERPRETATION_GREY16 = 26;
-    const VIPS_INTERPRETATION_MATRIX = 27;
-    const VIPS_INTERPRETATION_SCRGB = 28;
-    const VIPS_INTERPRETATION_HSV = 29;
-
-    const VIPS_INTERPRETATION_TO_COLOURSPACE = [
-        self::VIPS_INTERPRETATION_ERROR => Interpretation::ERROR,
-        self::VIPS_INTERPRETATION_MULTIBAND => Interpretation::MULTIBAND,
-        self::VIPS_INTERPRETATION_B_W => Interpretation::B_W,
-        self::VIPS_INTERPRETATION_HISTOGRAM => Interpretation::HISTOGRAM,
-        self::VIPS_INTERPRETATION_XYZ => Interpretation::XYZ,
-        self::VIPS_INTERPRETATION_LAB => Interpretation::LAB,
-        self::VIPS_INTERPRETATION_CMYK => Interpretation::CMYK,
-        self::VIPS_INTERPRETATION_LABQ => Interpretation::LABQ,
-        self::VIPS_INTERPRETATION_RGB => Interpretation::RGB,
-        self::VIPS_INTERPRETATION_CMC => Interpretation::CMC,
-        self::VIPS_INTERPRETATION_LCH => Interpretation::LCH,
-        self::VIPS_INTERPRETATION_LABS => Interpretation::LABS,
-        self::VIPS_INTERPRETATION_SRGB => Interpretation::SRGB,
-        self::VIPS_INTERPRETATION_YXY => Interpretation::YXY,
-        self::VIPS_INTERPRETATION_FOURIER => Interpretation::FOURIER,
-        self::VIPS_INTERPRETATION_RGB16 => Interpretation::RGB16,
-        self::VIPS_INTERPRETATION_GREY16 => Interpretation::GREY16,
-        self::VIPS_INTERPRETATION_MATRIX => Interpretation::MATRIX,
-        self::VIPS_INTERPRETATION_SCRGB => Interpretation::SCRGB,
-        self::VIPS_INTERPRETATION_HSV => Interpretation::HSV
-    ];
-
     /**
      * Are pixel values in this image 16-bit integer?
      *
-     * @param  int $interpretation The VipsInterpretation
+     * @param  string $interpretation The VipsInterpretation
      *
      * @return bool indicating if the pixel values in this image are 16-bit
      */
-    public static function is16Bit(int $interpretation): bool
+    public static function is16Bit(string $interpretation): bool
     {
-        return $interpretation == self::VIPS_INTERPRETATION_RGB16
-        || $interpretation == self::VIPS_INTERPRETATION_GREY16;
+        return $interpretation == Interpretation::RGB16
+        || $interpretation == Interpretation::GREY16;
     }
 
     /**
      * Return the image alpha maximum. Useful for combining alpha bands. scRGB
      * images are 0 - 1 for image data, but the alpha is 0 - 255.
      *
-     * @param  int $interpretation The VipsInterpretation
+     * @param  string $interpretation The VipsInterpretation
      *
      * @return int the image alpha maximum
      */
-    public static function maximumImageAlpha(int $interpretation): int
+    public static function maximumImageAlpha(string $interpretation): int
     {
         return self::is16Bit($interpretation) ? 65535 : 255;
     }
@@ -92,9 +48,9 @@ class Utils
         $bands = $image->bands;
         $interpretation = $image->interpretation;
 
-        return ($bands == 2 && $interpretation == self::VIPS_INTERPRETATION_B_W)
-        || ($bands == 4 && $interpretation != self::VIPS_INTERPRETATION_CMYK)
-        || ($bands == 5 && $interpretation == self::VIPS_INTERPRETATION_CMYK);
+        return ($bands == 2 && $interpretation == Interpretation::B_W)
+        || ($bands == 4 && $interpretation != Interpretation::CMYK)
+        || ($bands == 5 && $interpretation == Interpretation::CMYK);
     }
 
     /**
@@ -202,18 +158,6 @@ class Utils
         }
 
         return [$rotate, $flip, $flop];
-    }
-
-    /**
-     * Convert interpretation to colourspace
-     *
-     * @param int $interpretation The VipsInterpretation
-     *
-     * @return string The colourspace
-     */
-    public static function interpretationToColourSpace(int $interpretation): string
-    {
-        return self::VIPS_INTERPRETATION_TO_COLOURSPACE[$interpretation];
     }
 
     /**
