@@ -536,10 +536,6 @@ if(!empty($_GET['url'])){
 		$parts['host'] = utf8_encode($parts['host']);
 	}
 	
-	if(isset($_GET['encoding']) && $_GET['encoding'] == 'base64'){
-		ob_start('custom_base64');
-	}
-	
 	if(!isset($parts['scheme'])){
 		header('HTTP/1.0 404 Not Found');
 		$img_data['mime'] = 'text/plain';
