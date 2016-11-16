@@ -15,11 +15,8 @@
     "homepage": "https://github.com/andrieslouw/imagesweserv",
     "require": {
         "php": ">=7.0.11",
-        "jcupitt/vips": "dev-dev",
-        "ext-fileinfo": "*",
-        "ext-exif": "*",
-        "ext-intl": "*",
-        "ext-mbstring": "*",
+        "ext-curl": "*",
+        "jcupitt/vips": "1.0.0",
         "league/uri": "^4.2",
         "guzzlehttp/guzzle": "^6.2"
     },

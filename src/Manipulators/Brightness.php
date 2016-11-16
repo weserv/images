@@ -4,6 +4,7 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Image;
+use Jcupitt\Vips\Interpretation;
 
 /**
  * @property string $bri
@@ -22,10 +23,17 @@ class Brightness extends BaseManipulator
         $brightness = $this->getBrightness();
 
         if ($brightness !== 0) {
-            $range = Utils::mapToRange($brightness, -100, 100, -255, 255);
+            $brightness = Utils::mapToRange($brightness, -100, 100, -255, 255);
 
             // Edit the brightness
-            $image = $image->linear([1, 1, 1], [$range, $range, $range]);
+            $image = $image->linear([1, 1, 1], [$brightness, $brightness, $brightness]);
+
+            /*$oldInterpretation = $image->interpretation;
+
+            $lch = $image->colourspace(Interpretation::LCH);
+
+            // Edit the brightness
+            $image = $lch->add([$brightness, 1, 1])->colourspace($oldInterpretation);*/
         }
 
         return $image;

@@ -279,8 +279,7 @@ SVG;
         float $outerRadius,
         float $innerRadius,
         float $initialAngle = 0
-    ): array
-    {
+    ): array {
         $path = '';
         $X = [];
         $Y = [];

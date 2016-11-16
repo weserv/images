@@ -14,7 +14,7 @@ use AndriesLouw\imagesweserv\Manipulators\Sharpen;
 use AndriesLouw\imagesweserv\Manipulators\Size;
 use GuzzleHttp\Exception\RequestException;
 use InvalidArgumentException;
-use Jcupitt\Vips\Enum\BandFormat;
+use Jcupitt\Vips\BandFormat;
 use Jcupitt\Vips\Exception as VipsException;
 use Jcupitt\Vips\Image;
 
@@ -141,7 +141,6 @@ class Api implements ApiInterface
 
         try {
             $image = Image::newFromFile($tmpFileName);
-            //$image->setLogging($debug);
         } catch (VipsException $e) {
             trigger_error('Image not readable. Message: `' . $e->getMessage() . '` URL: ' . $url, E_USER_WARNING);
 

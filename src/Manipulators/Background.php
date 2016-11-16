@@ -3,7 +3,7 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Color;
-use Jcupitt\Vips\Enum\Extend;
+use Jcupitt\Vips\Extend;
 use Jcupitt\Vips\Image;
 
 /**

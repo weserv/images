@@ -2,7 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
-use Jcupitt\Vips\Enum\Interpretation;
+use Jcupitt\Vips\Interpretation;
 use Jcupitt\Vips\Image;
 
 /**
@@ -103,19 +103,18 @@ class Sharpen extends BaseManipulator
             return $image->conv($matrix);
         } else {
             // Slow, accurate sharpen in LAB colour space, with control over flat vs jagged areas
-            $interpretationBeforeSharpen = $image->interpretation;
-            if ($interpretationBeforeSharpen == Interpretation::RGB) {
-                $interpretationBeforeSharpen = Interpretation::SRGB;
+            $oldInterpretation = $image->interpretation;
+            if ($oldInterpretation == Interpretation::RGB) {
+                $oldInterpretation = Interpretation::SRGB;
             }
 
-            // TODO: Should we set `->colourspace` or `->interpretation` to change the interpretation?
             return $image->sharpen(
                 [
                     "sigma" => $sigma,
                     "m1" => $flat,
                     "m2" => $jagged
                 ]
-            )->colourspace($interpretationBeforeSharpen);
+            )->colourspace($oldInterpretation);
         }
     }
 }

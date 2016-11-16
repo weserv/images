@@ -2,7 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators\Helpers;
 
-use Jcupitt\Vips\Enum\Interpretation;
+use Jcupitt\Vips\Interpretation;
 use Jcupitt\Vips\Image;
 
 class Utils

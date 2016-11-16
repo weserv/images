@@ -4,8 +4,8 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Color;
-use Jcupitt\Vips\Enum\Extend;
-use Jcupitt\Vips\Enum\Kernel;
+use Jcupitt\Vips\Extend;
+use Jcupitt\Vips\Kernel;
 use Jcupitt\Vips\Image;
 
 /**
@@ -412,11 +412,20 @@ class Size extends BaseManipulator
 
             // Perform kernel-based reduction
             if ($yResidual < 1.0 || $xResidual < 1.0) {
+                // Use *magick centre sampling convention instead of corner sampling
+                $centreSampling = true;
+
                 if ($yResidual < 1.0) {
-                    $image = $image->reducev(1.0 / $yResidual, ['kernel' => Kernel::LANCZOS3]);
+                    $image = $image->reducev(1.0 / $yResidual, [
+                        'kernel' => Kernel::LANCZOS3,
+                        'centre' => $centreSampling
+                    ]);
                 }
                 if ($xResidual < 1.0) {
-                    $image = $image->reduceh(1.0 / $xResidual, ['kernel' => Kernel::LANCZOS3]);
+                    $image = $image->reduceh(1.0 / $xResidual, [
+                        'kernel' => Kernel::LANCZOS3,
+                        'centre' => $centreSampling
+                    ]);
                 }
             }
             // Perform affine enlargement
