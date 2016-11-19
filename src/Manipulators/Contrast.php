@@ -88,7 +88,12 @@ class Contrast extends BaseManipulator
         } else {
             // TODO: Fix equation
             // See: http://osdir.com/ml/video.image-magick.devel/2005-04/msg00006.html
-            $decrease = $alpha - log(1.0 / ($x * ($y - $x)) - 1.0) / $beta;
+            //$decrease = $alpha - log(1.0 / ($x * ($y - $x)) - 1.0) / $beta;
+            $xi = $x + 1.0 * ($y - $x);
+
+            // Not sure if we should use the PHP build-in log operator
+            // Or the libvips log operator
+            $decrease = $alpha - log((1.0 - $xi) / $xi) / $beta;
 
             $z = $lut->multiply(-1)->add($decrease)->multiply($beta)->exp()->add(1);
             $result = $z->pow(-1)->subtract($x)->divide($y);
