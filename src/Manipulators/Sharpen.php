@@ -110,9 +110,9 @@ class Sharpen extends BaseManipulator
 
             return $image->sharpen(
                 [
-                    "sigma" => $sigma,
-                    "m1" => $flat,
-                    "m2" => $jagged
+                    'sigma' => $sigma,
+                    'm1' => $flat,
+                    'm2' => $jagged
                 ]
             )->colourspace($oldInterpretation);
         }

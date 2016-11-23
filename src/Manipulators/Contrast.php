@@ -41,16 +41,14 @@ class Contrast extends BaseManipulator
      * an S-shaped curve which boosts the slope in the mid-tones and drops it for
      * white and black.
      *
-     * TODO: Contrast reduction: https://github.com/ImageMagick/ImageMagick/blob/master/MagickCore/enhance.c#L3736
-     *
      * @param bool $sharpen If true increase the contrast, if false decrease the contrast.
-     * @param float $alpha Midpoint of the contrast (typically 0.5).
-     * @param float $beta Strength of the contrast (typically 3-20).
+     * @param float $midpoint Midpoint of the contrast (typically 0.5).
+     * @param float $contrast Strength of the contrast (typically 3-20).
      * @param bool $ushort Indicating if we have a 16-bit LUT.
      *
      * @return Image 16-bit or 8-bit LUT
      */
-    public function sigmoid(bool $sharpen, float $alpha, float $beta, bool $ushort = false): Image
+    public function sigmoid(bool $sharpen, float $midpoint, float $contrast, bool $ushort = false): Image
     {
         /**
          * Make a identity LUT, that is, a lut where each pixel has the value of
@@ -64,13 +62,19 @@ class Contrast extends BaseManipulator
          * otherwise it's 8-bit (0 - 255)
          */
         $lut = Image::identity(["ushort" => $ushort]);
+
         // Rescale so each element is in [0, 1]
-        $max = $lut->max();
-        $lut = $lut->divide($max);
+        $range = $lut->max();
+        $lut = $lut->divide($range);
+
         /**
          * The sigmoidal equation, see
          *
          * http://www.imagemagick.org/Usage/color_mods/#sigmoidal
+         *
+         * and
+         *
+         * http://osdir.com/ml/video.image-magick.devel/2005-04/msg00006.html
          *
          * Though that's missing a term -- it should be
          *
@@ -79,28 +83,21 @@ class Contrast extends BaseManipulator
          *
          * ie. there should be an extra α in the second term
          */
-        $x = 1.0 / (1.0 + exp($beta * $alpha));
-        $y = 1.0 / (1.0 + exp($beta * ($alpha - 1.0))) - $x;
-
         if ($sharpen) {
-            $z = $lut->multiply(-1)->add($alpha)->multiply($beta)->exp()->add(1);
-            $result = $z->pow(-1)->subtract($x)->divide($y);
+            $x = $lut->multiply(-1)->add($midpoint)->multiply($contrast)->exp()->add(1)->pow(-1);
+            $min = $x->min();
+            $max = $x->max();
+            $result = $x->subtract($min)->divide($max - $min);
         } else {
-            // TODO: Fix equation
-            // See: http://osdir.com/ml/video.image-magick.devel/2005-04/msg00006.html
-            //$decrease = $alpha - log(1.0 / ($x * ($y - $x)) - 1.0) / $beta;
-            $xi = $x + 1.0 * ($y - $x);
-
-            // Not sure if we should use the PHP build-in log operator
-            // Or the libvips log operator
-            $decrease = $alpha - log((1.0 - $xi) / $xi) / $beta;
-
-            $z = $lut->multiply(-1)->add($decrease)->multiply($beta)->exp()->add(1);
-            $result = $z->pow(-1)->subtract($x)->divide($y);
+            $min = 1 / (1 + exp($contrast * $midpoint));
+            $max = 1 / (1 + exp($contrast * ($midpoint - 1)));
+            $x = $lut->multiply($max - $min)->add($min);
+            $result = $x->multiply(-1)->add(1)->divide($x)->log()->divide($contrast)->multiply(-1)->add($midpoint);
         }
 
         // Rescale back to 0 - 255 or 0 - 65535
-        $result = $result->multiply($max);
+        $result = $result->multiply($range);
+
         /**
          * And get the format right ... $result will be a float image after all
          * that maths, but we want uchar or ushort
@@ -115,14 +112,14 @@ class Contrast extends BaseManipulator
      *
      * @param Image $image The source image.
      * @param bool $sharpen If true increase the contrast, if false decrease the contrast.
-     * @param float $alpha Midpoint of the contrast (typically 0.5).
-     * @param float $beta Strength of the contrast (typically 3-20).
+     * @param float $midpoint Midpoint of the contrast (typically 0.5).
+     * @param float $contrast Strength of the contrast (typically 3-20).
      *
      * @return Image The manipulated image.
      */
-    public function sigRGB(Image $image, bool $sharpen, float $alpha, float $beta): Image
+    public function sigRGB(Image $image, bool $sharpen, float $midpoint, float $contrast): Image
     {
-        $lut = $this->sigmoid($sharpen, $alpha, $beta, $image->format == BandFormat::USHORT);
+        $lut = $this->sigmoid($sharpen, $midpoint, $contrast, $image->format == BandFormat::USHORT);
         return $image->maplut($lut);
     }
 
@@ -133,12 +130,12 @@ class Contrast extends BaseManipulator
      *
      * @param Image $image The source image.
      * @param bool $sharpen If true increase the contrast, if false decrease the contrast.
-     * @param float $alpha Midpoint of the contrast (typically 0.5).
-     * @param float $beta Strength of the contrast (typically 3-20).
+     * @param float $midpoint Midpoint of the contrast (typically 0.5).
+     * @param float $contrast Strength of the contrast (typically 3-20).
      *
      * @return Image The manipulated image.
      */
-    public function sigLAB(Image $image, bool $sharpen, float $alpha, float $beta): Image
+    public function sigLAB(Image $image, bool $sharpen, float $midpoint, float $contrast): Image
     {
         $oldInterpretation = $image->interpretation;
 
@@ -149,7 +146,7 @@ class Contrast extends BaseManipulator
         $image = $image->colourspace(Interpretation::LABS);
 
         // Make a 16-bit LUT, then shrink by x2 to make it fit the range of L in labs
-        $lut = $this->sigmoid($sharpen, $alpha, $beta, true);
+        $lut = $this->sigmoid($sharpen, $midpoint, $contrast, true);
         $lut = $lut->shrinkh(2)->multiply(0.5);
         $lut = $lut->cast(BandFormat::SHORT);
 

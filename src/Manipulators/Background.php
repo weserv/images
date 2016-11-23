@@ -61,8 +61,8 @@ class Background extends BaseManipulator
             }
 
             $image = $image->flatten([
-                "background" => $backgroundColor,
-                "max_alpha" => $maxAlpha
+                'background' => $backgroundColor,
+                'max_alpha' => $maxAlpha
             ]);
         } else {
             // If the image has more than two bands and the requested background color has an alpha channel;

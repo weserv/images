@@ -13,18 +13,6 @@
         "proxy"
     ],
     "homepage": "https://github.com/andrieslouw/imagesweserv",
-    "require": {
-        "php": ">=7.0.11",
-        "ext-curl": "*",
-        "jcupitt/vips": "1.0.0",
-        "league/uri": "^4.2",
-        "guzzlehttp/guzzle": "^6.2"
-    },
-    "autoload": {
-        "psr-4": {
-            "AndriesLouw\\imagesweserv\\": "src/"
-        }
-    },
     "authors": [
         {
             "name": "Andries Louw Wolthuizen",
@@ -34,5 +22,21 @@
             "name": "Kleis Auke Wolthuizen",
             "email": "info@kleisauke.nl"
         }
-    ]
+    ],
+    "require": {
+        "php": ">=7.0.11",
+        "ext-curl": "*",
+        "jcupitt/vips": "1.0.0",
+        "league/uri": "^4.2",
+        "guzzlehttp/guzzle": "^6.2"
+    },
+    "require-dev": {
+        "mockery/mockery": "dev-master",
+        "phpunit/phpunit": "^5.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "AndriesLouw\\imagesweserv\\": "src/"
+        }
+    }
 }

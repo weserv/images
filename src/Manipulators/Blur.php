@@ -64,10 +64,11 @@ class Blur extends BaseManipulator
             return -1.0;
         }
 
-        if ($this->blur >= 0.3 || $this->blur <= 1000) {
-            return (float)$this->blur;
+        if ($this->blur < 0.3 || $this->blur > 1000) {
+            return -1.0;
+
         }
 
-        return -1.0;
+        return (float)$this->blur;
     }
 }

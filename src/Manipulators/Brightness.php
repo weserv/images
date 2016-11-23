@@ -50,7 +50,7 @@ class Brightness extends BaseManipulator
             return 0;
         }
 
-        if ($this->bri < -100 or $this->bri > 100) {
+        if ($this->bri < -100 || $this->bri > 100) {
             return 0;
         }
 

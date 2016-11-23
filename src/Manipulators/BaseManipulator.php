@@ -19,6 +19,8 @@ abstract class BaseManipulator implements ManipulatorInterface
     public function setParams(array $params)
     {
         $this->params = $params;
+
+        return $this;
     }
 
     /**
