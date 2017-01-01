@@ -1,6 +1,7 @@
 # Images.weserv.nl
 
 [![Author](https://img.shields.io/badge/author-andrieslouw-blue.svg?style=flat-square)](https://github.com/andrieslouw)
+[![Author](https://img.shields.io/badge/author-kleisauke-blue.svg?style=flat-square)](https://github.com/kleisauke)
 [![Source Code](https://img.shields.io/badge/source-andrieslouw/imagesweserv-blue.svg?style=flat-square)](https://github.com/andrieslouw/imagesweserv)
 [![Software License](https://img.shields.io/badge/license-BSD3-brightgreen.svg?style=flat-square)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29)
 
@@ -10,7 +11,7 @@ Source code of images.weserv.nl, to be used on your own server(s). Images.weserv
 
 - Linux, nginx, libvips and PHP (without these technologies, this project would never have been possible)
 - CloudFlare (for caching and IP-blocking)
-- Memcached (for rate limiting)
+- Memcached/Redis (for rate limiting)
 - OpenDNS (for DNS-filtering)
 
 ## Documentation

@@ -3,9 +3,11 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
+use Jcupitt\Vips\Extend;
+use Jcupitt\Vips\Kernel;
 use Mockery;
+use Mockery\MockInterface;
 
-// TODO: Test t=fitup, t=square, t=squaredown, t=absolute, t=letterbox
 class SizeTest extends \PHPUnit_Framework_TestCase
 {
     private $manipulator;
@@ -36,35 +38,52 @@ class SizeTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($this->manipulator->getMaxImageSize());
     }
 
-    public function testRun()
+    public function testFit()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function (Mockery\MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function (MockInterface $mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
-                ->andReturn(200, 200, 100, 100)
-                ->times(4);
+                ->andReturn(1967, 1967, 1967, 245, 244)
+                ->times(5);
 
             $mock->shouldReceive('__get')
                 ->with('height')
-                ->andReturn(200, 200, 100, 100)
+                ->andReturn(2421, 2421, 2421, 302)
                 ->times(4);
 
             $mock->shouldReceive('shrinkv')
-                ->with(2.0)
+                ->with(8.0)
                 ->andReturnSelf()
                 ->once();
 
             $mock->shouldReceive('shrinkh')
-                ->with(2.0)
+                ->with(8.0)
+                ->andReturnSelf()
+                ->once();
+
+            $mock->shouldReceive('reducev')
+                ->with(Mockery::any(), [
+                    'kernel' => Kernel::LANCZOS3,
+                    'centre' => true,
+                ])
+                ->andReturnSelf()
+                ->once();
+
+            $mock->shouldReceive('reduceh')
+                ->with(Mockery::any(), [
+                    'kernel' => Kernel::LANCZOS3,
+                    'centre' => true,
+                ])
                 ->andReturnSelf()
                 ->once();
         });
 
         $params = [
-            'w' => 100,
+            'w' => 300,
+            'h' => 300,
+            't' => 'fit',
             'hasAlpha' => false,
             'is16Bit' => false,
-            'maxAlpha' => 255,
             'isPremultiplied' => false,
         ];
 
@@ -73,6 +92,259 @@ class SizeTest extends \PHPUnit_Framework_TestCase
             $this->manipulator->setParams($params)->run($image)
         );
     }
+
+    public function testFitup()
+    {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function (MockInterface $mock) {
+            $mock->shouldReceive('__get')
+                ->with('width')
+                ->andReturn(1967, 1967, 1967, 2437)
+                ->times(4);
+
+            $mock->shouldReceive('__get')
+                ->with('height')
+                ->andReturn(2421)
+                ->times(3);
+
+            $mock->shouldReceive('affine')
+                ->with(Mockery::any(), ['interpolate' => 'bicubic'])
+                ->andReturnSelf()
+                ->twice();
+        });
+
+        $params = [
+            'w' => 3000,
+            'h' => 3000,
+            't' => 'fitup',
+            'hasAlpha' => false,
+            'is16Bit' => false,
+            'isPremultiplied' => false,
+        ];
+
+        $this->assertInstanceOf(
+            'Jcupitt\Vips\Image',
+            $this->manipulator->setParams($params)->run($image)
+        );
+    }
+
+    public function testSquare()
+    {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function (MockInterface $mock) {
+            $mock->shouldReceive('__get')
+                ->with('width')
+                ->andReturn(1967, 1967, 1967, 327, 327, 327, 327, 327)
+                ->times(8);
+
+            $mock->shouldReceive('__get')
+                ->with('height')
+                ->andReturn(2421, 2421, 2421, 403, 369, 369, 369)
+                ->times(7);
+
+            $mock->shouldReceive('shrinkv')
+                ->with(6.0)
+                ->andReturnSelf()
+                ->once();
+
+            $mock->shouldReceive('shrinkh')
+                ->with(6.0)
+                ->andReturnSelf()
+                ->once();
+
+            $mock->shouldReceive('reducev')
+                ->with(Mockery::any(), [
+                    'kernel' => Kernel::LANCZOS3,
+                    'centre' => true,
+                ])
+                ->andReturnSelf()
+                ->once();
+
+            $mock->shouldReceive('reduceh')
+                ->with(Mockery::any(), [
+                    'kernel' => Kernel::LANCZOS3,
+                    'centre' => true,
+                ])
+                ->andReturnSelf()
+                ->once();
+
+            $mock->shouldReceive('extract_area')
+                ->with(0, 0, 300, 300)
+                ->andReturnSelf()
+                ->once();
+        });
+
+        $params = [
+            'w' => 300,
+            'h' => 300,
+            't' => 'square',
+            'a' => 'top-left',
+            'hasAlpha' => false,
+            'is16Bit' => false,
+            'isPremultiplied' => false,
+        ];
+
+        $this->assertInstanceOf(
+            'Jcupitt\Vips\Image',
+            $this->manipulator->setParams($params)->run($image)
+        );
+    }
+
+    public function testSquareDown()
+    {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function (MockInterface $mock) {
+            $mock->shouldReceive('__get')
+                ->with('width')
+                ->andReturn(1967)
+                ->times(4);
+
+            $mock->shouldReceive('__get')
+                ->with('height')
+                ->andReturn(2421)
+                ->times(4);
+        });
+
+        $params = [
+            'w' => 3000,
+            'h' => 3000,
+            't' => 'squaredown',
+            'hasAlpha' => false,
+            'is16Bit' => false,
+            'isPremultiplied' => false,
+        ];
+
+        $this->assertInstanceOf(
+            'Jcupitt\Vips\Image',
+            $this->manipulator->setParams($params)->run($image)
+        );
+    }
+
+
+    public function testAbsolute()
+    {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function (MockInterface $mock) {
+            $mock->shouldReceive('__get')
+                ->with('width')
+                ->andReturn(1967, 1967, 1967, 327, 300)
+                ->times(5);
+
+            $mock->shouldReceive('__get')
+                ->with('height')
+                ->andReturn(2421, 2421, 2421, 302, 300)
+                ->times(5);
+
+            $mock->shouldReceive('shrinkv')
+                ->with(8.0)
+                ->andReturnSelf()
+                ->once();
+
+            $mock->shouldReceive('shrinkh')
+                ->with(6.0)
+                ->andReturnSelf()
+                ->once();
+
+            $mock->shouldReceive('reducev')
+                ->with(Mockery::any(), [
+                    'kernel' => Kernel::LANCZOS3,
+                    'centre' => true,
+                ])
+                ->andReturnSelf()
+                ->once();
+
+            $mock->shouldReceive('reduceh')
+                ->with(Mockery::any(), [
+                    'kernel' => Kernel::LANCZOS3,
+                    'centre' => true,
+                ])
+                ->andReturnSelf()
+                ->once();
+        });
+
+        $params = [
+            'w' => 300,
+            'h' => 300,
+            't' => 'absolute',
+            'hasAlpha' => false,
+            'is16Bit' => false,
+            'isPremultiplied' => false,
+        ];
+
+        $this->assertInstanceOf(
+            'Jcupitt\Vips\Image',
+            $this->manipulator->setParams($params)->run($image)
+        );
+    }
+
+    public function testLetterbox()
+    {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function (MockInterface $mock) {
+            $mock->shouldReceive('__get')
+                ->with('width')
+                ->andReturn(1967, 1967, 1967, 245, 244, 244)
+                ->times(6);
+
+            $mock->shouldReceive('__get')
+                ->with('height')
+                ->andReturn(2421, 2421, 2421, 302, 300)
+                ->times(5);
+
+            $mock->shouldReceive('__get')
+                ->with('bands')
+                ->andReturn(3)
+                ->once();
+
+            $mock->shouldReceive('shrinkv')
+                ->with(8.0)
+                ->andReturnSelf()
+                ->once();
+
+            $mock->shouldReceive('shrinkh')
+                ->with(8.0)
+                ->andReturnSelf()
+                ->once();
+
+            $mock->shouldReceive('reducev')
+                ->with(Mockery::any(), [
+                    'kernel' => Kernel::LANCZOS3,
+                    'centre' => true,
+                ])
+                ->andReturnSelf()
+                ->once();
+
+            $mock->shouldReceive('reduceh')
+                ->with(Mockery::any(), [
+                    'kernel' => Kernel::LANCZOS3,
+                    'centre' => true,
+                ])
+                ->andReturnSelf()
+                ->once();
+
+            $mock->shouldReceive('embed')
+                ->with(
+                    (300 - 244) / 2,
+                    0,
+                    300,
+                    300,
+                    ['extend' => Extend::BACKGROUND, 'background' => [0, 0, 0]]
+                )
+                ->andReturnSelf()
+                ->once();
+        });
+
+        $params = [
+            'w' => 300,
+            'h' => 300,
+            't' => 'letterbox',
+            'bg' => 'black',
+            'hasAlpha' => false,
+            'is16Bit' => false,
+            'isPremultiplied' => false,
+        ];
+
+        $this->assertInstanceOf(
+            'Jcupitt\Vips\Image',
+            $this->manipulator->setParams($params)->run($image)
+        );
+    }
+
 
     public function testGetWidth()
     {
@@ -125,7 +397,7 @@ class SizeTest extends \PHPUnit_Framework_TestCase
     {
         $this->manipulator->setMaxImageSize(500 * 500);
 
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function (Mockery\MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function (MockInterface $mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
                 ->andReturn(1000)

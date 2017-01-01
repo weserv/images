@@ -3,6 +3,7 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use Mockery;
+use Mockery\MockInterface;
 
 class CropTest extends \PHPUnit_Framework_TestCase
 {
@@ -12,7 +13,7 @@ class CropTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->manipulator = new Crop();
-        $this->image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function (Mockery\MockInterface $mock) {
+        $this->image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function (MockInterface $mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
                 ->andReturn(100);
@@ -44,12 +45,18 @@ class CropTest extends \PHPUnit_Framework_TestCase
 
     public function testGetCoordinates()
     {
-        $this->assertSame([100, 100, 0, 0],
-            $this->manipulator->setParams(['crop' => '100,100,0,0'])->getCoordinates($this->image));
-        $this->assertSame([101, 1, 1, 1],
-            $this->manipulator->setParams(['crop' => '101,1,1,1'])->getCoordinates($this->image));
-        $this->assertSame([1, 101, 1, 1],
-            $this->manipulator->setParams(['crop' => '1,101,1,1'])->getCoordinates($this->image));
+        $this->assertSame(
+            [100, 100, 0, 0],
+            $this->manipulator->setParams(['crop' => '100,100,0,0'])->getCoordinates($this->image)
+        );
+        $this->assertSame(
+            [101, 1, 1, 1],
+            $this->manipulator->setParams(['crop' => '101,1,1,1'])->getCoordinates($this->image)
+        );
+        $this->assertSame(
+            [1, 101, 1, 1],
+            $this->manipulator->setParams(['crop' => '1,101,1,1'])->getCoordinates($this->image)
+        );
         $this->assertSame(null, $this->manipulator->setParams(['crop' => null])->getCoordinates($this->image));
         $this->assertSame(null, $this->manipulator->setParams(['crop' => '1,1,1,'])->getCoordinates($this->image));
         $this->assertSame(null, $this->manipulator->setParams(['crop' => '1,1,,1'])->getCoordinates($this->image));
@@ -65,7 +72,9 @@ class CropTest extends \PHPUnit_Framework_TestCase
     public function testValidateCoordinates()
     {
         $this->assertSame([100, 100, 0, 0], $this->manipulator->limitToImageBoundaries($this->image, [100, 100, 0, 0]));
-        $this->assertSame([90, 90, 10, 10],
-            $this->manipulator->limitToImageBoundaries($this->image, [100, 100, 10, 10]));
+        $this->assertSame(
+            [90, 90, 10, 10],
+            $this->manipulator->limitToImageBoundaries($this->image, [100, 100, 10, 10])
+        );
     }
 }

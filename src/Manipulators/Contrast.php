@@ -9,7 +9,6 @@ use Jcupitt\Vips\Interpretation;
 
 /**
  * @property string $con
- * @property int $maxAlpha
  */
 class Contrast extends BaseManipulator
 {

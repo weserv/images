@@ -43,8 +43,6 @@ abstract class BaseManipulator implements ManipulatorInterface
      *
      * @param string $name The property name.
      * @param mixed $value The value to set for this property.
-     *
-     * @return void
      */
     public function __set(string $name, $value)
     {

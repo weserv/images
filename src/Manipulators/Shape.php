@@ -9,7 +9,6 @@ use Jcupitt\Vips\Image;
  * @property string $shape
  * @property string $circle
  * @property bool $hasAlpha
- * @property int $maxAlpha
  */
 class Shape extends BaseManipulator
 {
@@ -49,7 +48,7 @@ class Shape extends BaseManipulator
 
             // the range of the mask and the image need to match .. one could be
             // 16-bit, one 8-bit
-            $imageMax = $this->maxAlpha;
+            $imageMax = Utils::maximumImageAlpha($image->interpretation);
             $maskMax = Utils::maximumImageAlpha($mask->interpretation);
 
             if ($imageHasAlpha) {
@@ -278,7 +277,7 @@ SVG;
         int $points,
         float $outerRadius,
         float $innerRadius,
-        float $initialAngle = 0
+        float $initialAngle = 0.0
     ): array {
         $path = '';
         $X = [];

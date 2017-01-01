@@ -3,6 +3,7 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use Mockery;
+use Mockery\MockInterface;
 
 class BackgroundTest extends \PHPUnit_Framework_TestCase
 {
@@ -25,7 +26,7 @@ class BackgroundTest extends \PHPUnit_Framework_TestCase
 
     public function testRun()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function (Mockery\MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function (MockInterface $mock) {
             $mock->shouldReceive('__get')
                 ->with('bands')
                 ->andReturn(3)
@@ -37,8 +38,7 @@ class BackgroundTest extends \PHPUnit_Framework_TestCase
                         0,
                         0,
                         0,
-                    ],
-                    'max_alpha' => 255
+                    ]
                 ])
                 ->andReturnSelf()
                 ->once();
@@ -50,7 +50,6 @@ class BackgroundTest extends \PHPUnit_Framework_TestCase
             'bg' => 'black',
             'hasAlpha' => true,
             'is16Bit' => false,
-            'maxAlpha' => 255,
             'isPremultiplied' => false,
         ];
 

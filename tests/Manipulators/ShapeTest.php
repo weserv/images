@@ -3,7 +3,9 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use Jcupitt\Vips\BandFormat;
+use Jcupitt\Vips\Interpretation;
 use Mockery;
+use Mockery\MockInterface;
 
 class ShapeTest extends \PHPUnit_Framework_TestCase
 {
@@ -26,11 +28,16 @@ class ShapeTest extends \PHPUnit_Framework_TestCase
 
     public function testRun()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[bandjoin, __get]', [''], function (Mockery\MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image[bandjoin, __get]', [''], function (MockInterface $mock) {
             $mock->shouldReceive('__get')
                 ->with('bands')
                 ->andReturn(3)
                 ->twice();
+
+            $mock->shouldReceive('__get')
+                ->with('interpretation')
+                ->andReturn(Interpretation::SRGB)
+                ->once();
 
             $mock->shouldReceive('__get')
                 ->with('width')
@@ -67,7 +74,6 @@ class ShapeTest extends \PHPUnit_Framework_TestCase
             'shape' => 'circle',
             'hasAlpha' => true,
             'is16Bit' => false,
-            'maxAlpha' => 255,
             'isPremultiplied' => false,
         ];
 

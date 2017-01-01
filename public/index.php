@@ -10,7 +10,7 @@
  * @author    Kleis Auke Wolthuizen   <info@kleisauke.nl>
  * @license   http://opensource.org/licenses/bsd-license.php New BSD License
  * @link      images.weserv.nl
- * @copyright 2016
+ * @copyright 2017
  */
 
 error_reporting(E_ALL);
@@ -23,6 +23,7 @@ use AndriesLouw\imagesweserv\Exception\ImageNotReadableException;
 use AndriesLouw\imagesweserv\Exception\ImageNotValidException;
 use AndriesLouw\imagesweserv\Exception\ImageTooBigException;
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
+use AndriesLouw\imagesweserv\Exception\RateExceededException;
 use GuzzleHttp\Exception\RequestException;
 use Jcupitt\Vips\Exception as VipsException;
 use League\Uri\Schemes\Http as HttpUri;
@@ -53,6 +54,11 @@ $error_messages = [
         'message' => 'cURL Request error: %s Status code: %s',
         'log' => 'cURL Request error: %s URL: %s Status code: %s',
     ],
+    'rate_exceeded' => [
+        'header' => '429 Too Many Requests',
+        'content-type' => 'text/plain',
+        'message' => 'There are an unusual number of requests coming from this IP address. More requests available in %d seconds.',
+    ],
     'image_not_readable' => [
         'header' => '400 Bad Request',
         'content-type' => 'text/plain',
@@ -66,6 +72,7 @@ $error_messages = [
     'libvips_error' => [
         'header' => '400 Bad Request',
         'content-type' => 'text/plain',
+        'log' => 'libvips error. URL: %s Message: %s',
     ],
     'unknown' => [
         'header' => '500 Internal Server Error',
@@ -137,6 +144,42 @@ if (!empty($_GET['url'])) {
         'error_message' => $error_messages,
     ]);
 
+    /*$memcached = new Memcached('mc');
+
+    // When using persistent connections, it's important to not re-add servers.
+    if (!count($memcached->getServerList())) {
+        $memcached->setOptions([
+            Memcached::OPT_BINARY_PROTOCOL => true,
+            Memcached::OPT_COMPRESSION => false
+        ]);
+
+        $memcached->addServer('127.0.0.1', 11211, 0);
+    }
+
+    // Create an new Memcached throttler instance
+    $throttler = new AndriesLouw\imagesweserv\Throttler\MemcachedThrottler($memcached, [
+        'allowed_requests' => 700, // 700 allowed requests
+        'minutes' => 3, // In 3 minutes
+        'ban_time' => 60, // If exceed, ban for 60 minutes
+        'prefix' => 'c', // Cache key prefix
+    ]);*/
+
+    /*$redis = new Predis\Client([
+        'scheme' => 'tcp',
+        'host'   => '127.0.0.1',
+        'port'   => 6379,
+    ]);
+
+    // Create an new Redis throttler instance
+    $throttler = new AndriesLouw\imagesweserv\Throttler\RedisThrottler($redis, [
+        'allowed_requests' => 700, // 700 allowed requests
+        'minutes'  => 3, // In 3 minutes
+        'ban_time'  => 60, // If exceed, ban for 60 minutes
+        'prefix' => 'c', // Cache key prefix
+    ]);*/
+
+    $throttler = null;
+
     // Set manipulators
     $manipulators = [
         new AndriesLouw\imagesweserv\Manipulators\Orientation(),
@@ -154,7 +197,7 @@ if (!empty($_GET['url'])) {
     ];
 
     // Set API
-    $api = new AndriesLouw\imagesweserv\Api\Api($client, $manipulators);
+    $api = new AndriesLouw\imagesweserv\Api\Api($client, $throttler, $manipulators);
 
     // Setup server
     $server = new AndriesLouw\imagesweserv\Server(
@@ -192,7 +235,8 @@ if (!empty($_GET['url'])) {
 
         // Check if there is a previous exception
         if ($previousException instanceof ImageNotValidException
-            || $previousException instanceof ImageTooBigException) {
+            || $previousException instanceof ImageTooBigException
+        ) {
             if ($previousException instanceof ImageNotValidException) {
                 $error = $error_messages['invalid_image'];
                 header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
@@ -212,15 +256,30 @@ if (!empty($_GET['url'])) {
             header('Content-type: ' . $error['content-type']);
             echo $e->getMessage();
         }
+    } catch (RateExceededException $e) {
+        $error = $error_messages['rate_exceeded'];
+        header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
+        header('Content-type: ' . $error['content-type']);
+        echo $error['header'] . ' - ' . sprintf($error['message'], $throttler->availableIn($_SERVER['REMOTE_ADDR']));
     } catch (ImageNotReadableException $e) {
         $error = $error_messages['image_not_readable'];
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
-        header('Content-type: text/plain');
+        header('Content-type: ' . $error['content-type']);
         echo $error['header'] . ' - ' . $e->getMessage();
     } catch (VipsException $e) {
         $error = $error_messages['libvips_error'];
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
-        header('Content-type: text/plain');
+        header('Content-type: ' . $error['content-type']);
+
+        trigger_error(
+            sprintf(
+                $error['log'],
+                $uri->__toString(),
+                $e->getMessage()
+            ),
+            E_USER_WARNING
+        );
+
         echo $error['header'] . ' - ' . $e->getMessage();
     } catch (\Exception $e) {
         // If there's an exception which is not already caught.
@@ -232,7 +291,7 @@ if (!empty($_GET['url'])) {
                 $error['log'],
                 $uri->__toString(),
                 $e->getMessage(),
-                get_class($previousException)
+                get_class($e)
             ),
             E_USER_WARNING
         );
@@ -353,12 +412,6 @@ if (!empty($_GET['url'])) {
                                 <td><code style="color:red;">=r</code></td>
                                 <td><code style="color:green;">=right</code></td>
                                 <td><a href="#crop-position">info</a></td>
-                            </tr>
-                            <tr>
-                                <td><code>trim</code></td>
-                                <td><code style="color:red;">=sensitivity between 0 and 255</code></td>
-                                <td><code style="color:green;">=percentaged tolerance level between 0 and 100</code></td>
-                                <td><a href="#trim-trim">info</a></td>
                             </tr>
                             <tr>
                                 <td><code>output</code></td>
@@ -617,7 +670,7 @@ if (!empty($_GET['url'])) {
                     <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;sharp=5,5,3"&gt;</code></pre>
                     <a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;sharp=5,5,3"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;sharp=5,5,3" alt=""/></a>
                     <h3 id="trim-trim">Trim <code>trim</code></h3>
-                    <p>Trim "boring" pixels from all edges that contain values within a percentage similarity of the top-left pixel. Trimming occurs before any resize operation. Use values between <code>0</code> and <code>100</code> to define a percentaged tolerance level to trim away similar color values. You also can specify just &trim, which defaults to a percentaged tolerance level of 10.</p><p>More info: <a href="https://imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/3083264-able-to-remove-black-white-whitespace">#3083264 - Able to remove black/white whitespace</a></p>
+                    <p>Trim "boring" pixels from all edges that contain values within a similarity of the top-left pixel. Trimming occurs before any resize operation. Use values between <code>0</code> and <code>255</code> to define a tolerance level to trim away similar color values. You also can specify just &trim, which defaults to a tolerance level of 10.</p><p>More info: <a href="https://imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/3083264-able-to-remove-black-white-whitespace">#3083264 - Able to remove black/white whitespace</a></p>
                     <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=ssl:upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png&amp;w=300&amp;trim=10"&gt;</code></pre>
                     <a class="trimedges" href="$url/?url=ssl:upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png&amp;w=300&amp;trim=10"><img src="$url/?url=ssl:upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png&amp;w=300&amp;trim=10" alt=""/></a>
                     <h3 id="background-bg">Background <code>bg</code></h3>

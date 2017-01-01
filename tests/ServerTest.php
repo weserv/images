@@ -2,9 +2,10 @@
 
 namespace AndriesLouw\imagesweserv;
 
+use League\Uri\Schemes\Http as HttpUri;
 use Mockery;
+use Mockery\MockInterface;
 
-// TODO Server output
 class ServerTest extends \PHPUnit_Framework_TestCase
 {
     private $server;
@@ -47,11 +48,6 @@ class ServerTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($defaults, $this->server->getDefaults());
     }
 
-    public function testGetDefaults()
-    {
-        $this->testSetDefaults();
-    }
-
     public function testSetPresets()
     {
         $presets = [
@@ -65,11 +61,6 @@ class ServerTest extends \PHPUnit_Framework_TestCase
         $this->server->setPresets($presets);
 
         $this->assertSame($presets, $this->server->getPresets());
-    }
-
-    public function testGetPresets()
-    {
-        $this->testSetPresets();
     }
 
     public function testGetAllParams()
@@ -100,22 +91,123 @@ class ServerTest extends \PHPUnit_Framework_TestCase
         ], $all_params);
     }
 
-    public function testGetImageResponse()
-    {
-
-    }
-
-
-    public function testGetImageAsBase64()
-    {
-
-    }
-
     /**
      * @runInSeparateProcess
      */
     public function testOutputImage()
     {
+        /* 1x1 transparent pixel */
+        $base64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
+        $pixel = base64_decode($base64);
+        $extension = 'png';
 
+        $uri = HttpUri::createFromString('https://images.weserv.nl/pixel.' . $extension);
+
+        $tempFile = tempnam(sys_get_temp_dir(), 'phpunit');
+        rename($tempFile, $tempFile .= '.' . $extension);
+
+        file_put_contents($tempFile, $pixel);
+
+        $client = Mockery::mock(
+            'AndriesLouw\imagesweserv\Client',
+            function (MockInterface $mock) use ($uri, $tempFile) {
+                $mock->shouldReceive('get')->with($uri->__toString())->andReturn($tempFile);
+            }
+        );
+
+        $throttler = Mockery::mock(
+            'AndriesLouw\imagesweserv\Throttler\ThrottlerInterface',
+            function (MockInterface $mock) {
+                $mock->shouldReceive('isExceeded')->with('127.0.0.1', Mockery::any());
+            }
+        );
+
+        $image = Mockery::mock('Jcupitt\Vips\Image', function (MockInterface $mock) use ($pixel) {
+            $mock->shouldReceive('writeToBuffer')->andReturn($pixel);
+        });
+
+        $manipulator = Mockery::mock(
+            'AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface',
+            function (MockInterface $mock) use ($image) {
+                $mock->shouldReceive('setParams')->with([
+                    'hasAlpha' => true,
+                    'is16Bit' => false,
+                    'isPremultiplied' => false
+                ]);
+                $mock->shouldReceive('run')->andReturn($image);
+            }
+        );
+
+        $api = new Api\Api($client, $throttler, [$manipulator]);
+
+        $this->server->setApi($api);
+        ob_start();
+        $response = $this->server->outputImage($uri, $extension, []);
+        $content = ob_get_clean();
+        $this->assertNull($response);
+        $this->assertEquals($pixel, $content);
+
+        unlink($tempFile);
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testOutputImageAsBase64()
+    {
+        /* 1x1 transparent pixel */
+        $base64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
+        $pixel = base64_decode($base64);
+        $extension = 'png';
+        $type = 'image/png';
+
+        $uri = HttpUri::createFromString('https://images.weserv.nl/pixel.' . $extension);
+
+        $tempFile = tempnam(sys_get_temp_dir(), 'phpunit');
+        rename($tempFile, $tempFile .= '.' . $extension);
+
+        file_put_contents($tempFile, $pixel);
+
+        $client = Mockery::mock(
+            'AndriesLouw\imagesweserv\Client',
+            function (MockInterface $mock) use ($uri, $tempFile) {
+                $mock->shouldReceive('get')->with($uri->__toString())->andReturn($tempFile);
+            }
+        );
+
+        $throttler = Mockery::mock(
+            'AndriesLouw\imagesweserv\Throttler\ThrottlerInterface',
+            function (MockInterface $mock) {
+                $mock->shouldReceive('isExceeded')->with('127.0.0.1', Mockery::any());
+            }
+        );
+
+        $image = Mockery::mock('Jcupitt\Vips\Image', function (MockInterface $mock) use ($pixel) {
+            $mock->shouldReceive('writeToBuffer')->andReturn($pixel);
+        });
+
+        $manipulator = Mockery::mock(
+            'AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface',
+            function (MockInterface $mock) use ($image) {
+                $mock->shouldReceive('setParams')->with([
+                    'hasAlpha' => true,
+                    'is16Bit' => false,
+                    'isPremultiplied' => false,
+                    'encoding' => 'base64',
+                ]);
+                $mock->shouldReceive('run')->andReturn($image);
+            }
+        );
+
+        $api = new Api\Api($client, $throttler, [$manipulator]);
+
+        $this->server->setApi($api);
+        ob_start();
+        $response = $this->server->outputImage($uri, $extension, ['encoding' => 'base64']);
+        $content = ob_get_clean();
+        $this->assertNull($response);
+        $this->assertEquals(sprintf('data:%s;base64,%s', $type, $base64), $content);
+
+        unlink($tempFile);
     }
 }

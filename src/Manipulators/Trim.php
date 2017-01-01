@@ -7,7 +7,7 @@ use Jcupitt\Vips\Image;
 
 /**
  * @property string $trim
- * @property int $maxAlpha
+ * @property bool $is16Bit
  */
 class Trim extends BaseManipulator
 {
@@ -44,7 +44,7 @@ class Trim extends BaseManipulator
             return $default;
         }
 
-        if ($this->trim < 0 || $this->trim > 100) {
+        if ($this->trim < 0 || $this->trim > 255) {
             return $default;
         }
 
@@ -55,21 +55,22 @@ class Trim extends BaseManipulator
      * Perform trim image manipulation.
      *
      * @param  Image $image The source image.
-     * @param  int $tolerance Trim tolerance
+     * @param  int $sensitivity Trim sensitivity
      *
      * @throws VipsException for errors that occur during the processing of a Image
      *
      * @return Image The manipulated image.
      */
-    public function getTrimmedImage(Image $image, $tolerance): Image
+    public function getTrimmedImage(Image $image, $sensitivity): Image
     {
         $background = $image->getpoint(0, 0);
 
-        $max = $this->maxAlpha;
+        // Scale up 8-bit values to match 16-bit input image
+        $multiplier = $this->is16Bit ? 256 : 1;
 
         // we need to smooth the image, subtract the background from every pixel, take
         // the absolute value of the difference, then threshold
-        $mask = $image->median(3)->subtract($background)->abs()->more($max * $tolerance / 100);
+        $mask = $image->median(3)->subtract($background)->abs()->more($sensitivity * $multiplier);
 
         // sum mask rows and columns, then search for the first non-zero sum in each
         // direction
@@ -89,7 +90,7 @@ class Trim extends BaseManipulator
         $height = $bottom - $top;
 
         if ($width <= 0 || $height <= 0) {
-            throw new VipsException('Unexpected error while trimming. Try to lower the tolerance.');
+            throw new VipsException('Unexpected error while trimming. Try to lower the sensitivity.');
         }
 
         // and now crop the original image

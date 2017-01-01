@@ -28,15 +28,23 @@
         "ext-curl": "*",
         "jcupitt/vips": "1.0.0",
         "league/uri": "^4.2",
-        "guzzlehttp/guzzle": "^6.2"
+        "guzzlehttp/guzzle": "^6.2",
+        "predis/predis": "^1.1"
     },
     "require-dev": {
         "mockery/mockery": "dev-master",
-        "phpunit/phpunit": "^5.5"
+        "phpunit/phpunit": "^5.5",
+        "jakub-onderka/php-parallel-lint": "^0.9"
     },
     "autoload": {
         "psr-4": {
             "AndriesLouw\\imagesweserv\\": "src/"
         }
+    },
+    "scripts": {
+        "test": [
+            "parallel-lint . --exclude vendor",
+            "phpunit"
+        ]
     }
 }

@@ -72,8 +72,6 @@ class Server
      * Set default image manipulations.
      *
      * @param  array $defaults Default image manipulations.
-     *
-     * @return void
      */
     public function setDefaults(array $defaults)
     {
@@ -93,12 +91,33 @@ class Server
     /**
      * Set preset image manipulations.
      *
-     * @param  array $presets Preset image manipulations.
-     * @return void
+     * @param array $presets Preset image manipulations.
      */
     public function setPresets(array $presets)
     {
         $this->presets = $presets;
+    }
+
+    /**
+     * Get all image manipulations params, including defaults and presets.
+     *
+     * @param array $params Image manipulation params.
+     *
+     * @return array All image manipulation params.
+     */
+    public function getAllParams(array $params): array
+    {
+        $all = $this->defaults;
+
+        if (isset($params['p'])) {
+            foreach (explode(',', $params['p']) as $preset) {
+                if (isset($this->presets[$preset])) {
+                    $all = array_merge($all, $this->presets[$preset]);
+                }
+            }
+        }
+
+        return array_merge($all, $params);
     }
 
     /**
@@ -122,11 +141,9 @@ class Server
     /**
      * Generate and output image.
      *
-     * @param  HttpUri $uri Image URL
-     * @param  array $params Image manipulation params.
-     * @param  string $extension Extension of URL
-     *
-     * @return void
+     * @param HttpUri $uri Image URL
+     * @param array $params Image manipulation params.
+     * @param string $extension Extension of URL
      */
     public function outputImage(HttpUri $uri, string $extension, array $params)
     {
@@ -142,7 +159,6 @@ class Server
 
             echo $base64;
         } else {
-            header('Content-type: text/plain');
             header('Content-type: ' . $type);
 
             $friendlyName = pathinfo($uri->path->getBasename(), PATHINFO_FILENAME) . '.' . $extension;
@@ -158,27 +174,5 @@ class Server
             header('Content-Length: ' . ob_get_length());
             ob_end_flush();
         }
-    }
-
-    /**
-     * Get all image manipulations params, including defaults and presets.
-     *
-     * @param  array $params Image manipulation params.
-     *
-     * @return array All image manipulation params.
-     */
-    public function getAllParams(array $params): array
-    {
-        $all = $this->defaults;
-
-        if (isset($params['p'])) {
-            foreach (explode(',', $params['p']) as $preset) {
-                if (isset($this->presets[$preset])) {
-                    $all = array_merge($all, $this->presets[$preset]);
-                }
-            }
-        }
-
-        return array_merge($all, $params);
     }
 }

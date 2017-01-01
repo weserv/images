@@ -3,6 +3,7 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Color;
+use Jcupitt\Vips\BandFormat;
 use Jcupitt\Vips\Extend;
 use Jcupitt\Vips\Image;
 
@@ -10,7 +11,6 @@ use Jcupitt\Vips\Image;
  * @property string $bg
  * @property bool $hasAlpha
  * @property bool $is16Bit
- * @property int $maxAlpha
  * @property bool $isPremultiplied
  */
 class Background extends BaseManipulator
@@ -36,7 +36,6 @@ class Background extends BaseManipulator
 
         $backgroundRGBA = $background->toRGBA();
 
-        $maxAlpha = $this->maxAlpha;
         $is16Bit = $this->is16Bit;
 
         // Scale up 8-bit values to match 16-bit input image
@@ -60,9 +59,23 @@ class Background extends BaseManipulator
                 ];
             }
 
+            // Flatten on premultiplied images causes weird results
+            // so unpremultiply if we have a premultiplied image.
+            if ($this->isPremultiplied) {
+                $image = $image->unpremultiply();
+
+                // Cast pixel values to integer
+                if ($is16Bit) {
+                    $image = $image->cast(BandFormat::USHORT);
+                } else {
+                    $image = $image->cast(BandFormat::UCHAR);
+                }
+
+                $this->isPremultiplied = false;
+            }
+
             $image = $image->flatten([
-                'background' => $backgroundColor,
-                'max_alpha' => $maxAlpha
+                'background' => $backgroundColor
             ]);
         } else {
             // If the image has more than two bands and the requested background color has an alpha channel;
@@ -93,10 +106,7 @@ class Background extends BaseManipulator
             // transformations to avoid dark fringing around bright pixels
             // See: http://entropymine.com/imageworsener/resizealpha/
             if (!$this->isPremultiplied) {
-                // Ensures that the image alpha channel is premultiplied before doing any affine transformations
-                // to avoid dark fringing around bright pixels
-                // See: http://entropymine.com/imageworsener/resizealpha/
-                $image = $image->premultiply(['max_alpha' => $this->maxAlpha]);
+                $image = $image->premultiply();
                 $this->isPremultiplied = true;
             }
 

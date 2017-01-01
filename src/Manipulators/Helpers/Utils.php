@@ -2,8 +2,8 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators\Helpers;
 
-use Jcupitt\Vips\Interpretation;
 use Jcupitt\Vips\Image;
+use Jcupitt\Vips\Interpretation;
 
 class Utils
 {
@@ -19,7 +19,7 @@ class Utils
     public static function is16Bit(string $interpretation): bool
     {
         return $interpretation == Interpretation::RGB16
-        || $interpretation == Interpretation::GREY16;
+            || $interpretation == Interpretation::GREY16;
     }
 
     /**
@@ -49,8 +49,8 @@ class Utils
         $interpretation = $image->interpretation;
 
         return ($bands == 2 && $interpretation == Interpretation::B_W)
-        || ($bands == 4 && $interpretation != Interpretation::CMYK)
-        || ($bands == 5 && $interpretation == Interpretation::CMYK);
+            || ($bands == 4 && $interpretation != Interpretation::CMYK)
+            || ($bands == 5 && $interpretation == Interpretation::CMYK);
     }
 
     /**

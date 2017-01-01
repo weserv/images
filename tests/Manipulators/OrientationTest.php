@@ -5,6 +5,7 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Angle;
 use Mockery;
+use Mockery\MockInterface;
 
 class OrientationTest extends \PHPUnit_Framework_TestCase
 {
@@ -27,7 +28,7 @@ class OrientationTest extends \PHPUnit_Framework_TestCase
 
     public function testRun()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image', function (Mockery\MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image', function (MockInterface $mock) {
             $mock->shouldReceive('typeof')->with(Utils::VIPS_META_ORIENTATION)->andReturn(1, 0)->twice();
             $mock->shouldReceive('get')->with(Utils::VIPS_META_ORIENTATION)->andReturn(6)->once();
             $mock->shouldReceive('remove')->with(Utils::VIPS_META_ORIENTATION)->once();

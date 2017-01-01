@@ -5,18 +5,17 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Color;
 use Jcupitt\Vips\Extend;
-use Jcupitt\Vips\Kernel;
 use Jcupitt\Vips\Image;
+use Jcupitt\Vips\Kernel;
 
 /**
  * @property string $t
  * @property string $a
  * @property string $h
  * @property string $w
- * @property string $bg;
+ * @property string $bg
  * @property bool $hasAlpha
  * @property bool $is16Bit
- * @property int $maxAlpha
  * @property bool $isPremultiplied
  */
 class Size extends BaseManipulator
@@ -383,8 +382,19 @@ class Size extends BaseManipulator
             }
         }
 
+        $shouldReduce = $xResidual != 1.0 || $yResidual != 1.0;
+        $shouldShrink = $xShrink > 1 || $yShrink > 1;
+        $shouldPremultiplyAlpha = $this->hasAlpha && !$this->isPremultiplied && ($shouldReduce || $shouldShrink);
 
-        if ($xShrink > 1 || $yShrink > 1) {
+        if ($shouldPremultiplyAlpha) {
+            // Premultiply image alpha channel before all transformations to avoid
+            // dark fringing around bright pixels
+            // See: http://entropymine.com/imageworsener/resizealpha/
+            $image = $image->premultiply();
+            $this->isPremultiplied = true;
+        }
+
+        if ($shouldShrink) {
             if ($yShrink > 1) {
                 $image = $image->shrinkv($yShrink);
             }
@@ -399,17 +409,7 @@ class Size extends BaseManipulator
         }
 
         // Use affine increase or kernel reduce with the remaining float part
-        $shouldAffineTransform = $xResidual != 1.0 || $yResidual != 1.0;
-
-        if ($shouldAffineTransform) {
-            if ($this->hasAlpha && !$this->isPremultiplied) {
-                // Ensures that the image alpha channel is premultiplied before doing any affine transformations
-                // to avoid dark fringing around bright pixels
-                // See: http://entropymine.com/imageworsener/resizealpha/
-                $image = $image->premultiply(['max_alpha' => $this->maxAlpha]);
-                $this->isPremultiplied = true;
-            }
-
+        if ($xResidual != 1.0 || $yResidual != 1.0) {
             // Perform kernel-based reduction
             if ($yResidual < 1.0 || $xResidual < 1.0) {
                 // Use *magick centre sampling convention instead of corner sampling

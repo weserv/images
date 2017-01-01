@@ -4,6 +4,7 @@ namespace AndriesLouw\imagesweserv;
 
 use AndriesLouw\imagesweserv\Exception\ImageNotValidException;
 use AndriesLouw\imagesweserv\Exception\ImageTooBigException;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -45,18 +46,16 @@ class Client
     {
         $this->fileName = $fileName;
         $this->handle = fopen($fileName, 'w');
-        $this->options = $options;
+        $this->setOptions($options);
         $this->initClient();
     }
 
     /**
      * Initialize the client
-     *
-     * @return void
      */
     private function initClient()
     {
-        $this->client = new \GuzzleHttp\Client(
+        $guzzleClient = new \GuzzleHttp\Client(
             [
                 //'debug' => $this->handle,
                 'connect_timeout' => $this->options['connect_timeout'],
@@ -103,6 +102,49 @@ class Client
                 },
             ]
         );
+
+        $this->setClient($guzzleClient);
+    }
+
+    /**
+     * Create client instance.
+     *
+     * @param ClientInterface $client The guzzle client.
+     */
+    public function setClient(ClientInterface $client)
+    {
+        $this->client = $client;
+    }
+
+    /**
+     * Get the client instance.
+     *
+     * @return ClientInterface $client The guzzle client.
+     */
+    public function getClient(): ClientInterface
+    {
+        return $this->client;
+    }
+
+
+    /**
+     * Set the client options
+     *
+     * @param array $options Client options
+     */
+    public function setOptions(array $options)
+    {
+        $this->options = $options;
+    }
+
+    /**
+     * Get the client options
+     *
+     * @return  array $options Client options
+     */
+    public function getOptions(): array
+    {
+        return $this->options;
     }
 
     /**

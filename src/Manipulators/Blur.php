@@ -7,7 +7,6 @@ use Jcupitt\Vips\Image;
 /**
  * @property string $blur
  * @property bool $hasAlpha
- * @property int $maxAlpha
  * @property bool $isPremultiplied
  */
 class Blur extends BaseManipulator
@@ -29,7 +28,7 @@ class Blur extends BaseManipulator
             // Ensures that the image alpha channel is premultiplied before doing any blur transformations
             // to avoid dark fringing around bright pixels
             // See: http://entropymine.com/imageworsener/resizealpha/
-            $image = $image->premultiply(['max_alpha' => $this->maxAlpha]);
+            $image = $image->premultiply();
             $this->isPremultiplied = true;
         }
 

@@ -2,11 +2,12 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
-use Jcupitt\Vips\Interpretation;
 use Jcupitt\Vips\Image;
+use Jcupitt\Vips\Interpretation;
 
 /**
  * @property string $filt
+ * @property bool $hasAlpha
  */
 class Filter extends BaseManipulator
 {
@@ -58,6 +59,13 @@ class Filter extends BaseManipulator
                 [0.2392, 0.4696, 0.0912]
             ]
         );
+
+        if ($this->hasAlpha) {
+            // Separate alpha channel
+            $imageWithoutAlpha = $image->extract_band(0, ['n' => $image->bands - 1]);
+            $alpha = $image->extract_band($image->bands - 1, ['n' => 1]);
+            return $imageWithoutAlpha->recomb($sepia)->bandjoin($alpha);
+        }
 
         return $image->recomb($sepia);
     }

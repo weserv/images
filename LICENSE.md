@@ -1,7 +1,7 @@
 ### License
 _I like to keep things simple, so all files are provided under the New BSD License, unless stated otherwise._
 
-Copyright © 2015, Andries Louw Wolthuizen. All rights reserved.
+Copyright © 2017, Andries Louw Wolthuizen. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 

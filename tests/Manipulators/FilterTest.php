@@ -4,6 +4,7 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 
 use Jcupitt\Vips\Interpretation;
 use Mockery;
+use Mockery\MockInterface;
 
 class FilterTest extends \PHPUnit_Framework_TestCase
 {
@@ -24,32 +25,9 @@ class FilterTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('AndriesLouw\imagesweserv\Manipulators\Filter', $this->manipulator);
     }
 
-    public function testRun()
-    {
-        $image = Mockery::mock('Jcupitt\Vips\Image', function (Mockery\MockInterface $mock) {
-            $mock->shouldReceive('colourspace')->with(Interpretation::B_W)->andReturnSelf()->once();
-            $mock->shouldReceive('recomb')->with(Mockery::any())->andReturnSelf()->once();
-        });
-
-        $this->assertInstanceOf(
-            'Jcupitt\Vips\Image',
-            $this->manipulator->setParams(['filt' => 'greyscale'])->run($image)
-        );
-
-        $this->assertInstanceOf(
-            'Jcupitt\Vips\Image',
-            $this->manipulator->setParams(['filt' => 'sepia'])->run($image)
-        );
-
-        $this->assertInstanceOf(
-            'Jcupitt\Vips\Image',
-            $this->manipulator->setParams([])->run($image)
-        );
-    }
-
     public function testRunGreyscaleFilter()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image', function (Mockery\MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image', function (MockInterface $mock) {
             $mock->shouldReceive('colourspace')->with(Interpretation::B_W)->andReturnSelf()->once();
         });
 
@@ -61,7 +39,7 @@ class FilterTest extends \PHPUnit_Framework_TestCase
 
     public function testRunSepiaFilter()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image', function (Mockery\MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image', function (MockInterface $mock) {
             $mock->shouldReceive('recomb')->with(Mockery::any())->andReturnSelf()->once();
         });
 

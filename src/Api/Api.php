@@ -5,6 +5,7 @@ namespace AndriesLouw\imagesweserv\Api;
 use AndriesLouw\imagesweserv\Client;
 use AndriesLouw\imagesweserv\Exception\ImageNotReadableException;
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
+use AndriesLouw\imagesweserv\Exception\RateExceededException;
 use AndriesLouw\imagesweserv\Manipulators\Background;
 use AndriesLouw\imagesweserv\Manipulators\Blur;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
@@ -12,6 +13,7 @@ use AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface;
 use AndriesLouw\imagesweserv\Manipulators\Shape;
 use AndriesLouw\imagesweserv\Manipulators\Sharpen;
 use AndriesLouw\imagesweserv\Manipulators\Size;
+use AndriesLouw\imagesweserv\Throttler\ThrottlerInterface;
 use GuzzleHttp\Exception\RequestException;
 use InvalidArgumentException;
 use Jcupitt\Vips\BandFormat;
@@ -35,6 +37,13 @@ class Api implements ApiInterface
     protected $client;
 
     /**
+     * The throttler
+     *
+     * @var ThrottlerInterface|null
+     */
+    protected $throttler;
+
+    /**
      * The current mime type
      *
      * @var Client
@@ -45,11 +54,13 @@ class Api implements ApiInterface
      * Create API instance.
      *
      * @param Client $client The Guzzle
+     * @param ThrottlerInterface|null $throttler Throttler
      * @param array $manipulators Collection of manipulators.
      */
-    public function __construct(Client $client, array $manipulators)
+    public function __construct(Client $client, ThrottlerInterface $throttler, array $manipulators)
     {
         $this->setClient($client);
+        $this->setThrottler($throttler);
         $this->setManipulators($manipulators);
     }
 
@@ -67,12 +78,30 @@ class Api implements ApiInterface
      * Set the PHP HTTP client
      *
      * @param Client $client Guzzle client
-     *
-     * @return void
      */
     public function setClient(Client $client)
     {
         $this->client = $client;
+    }
+
+    /**
+     * Get the throttler
+     *
+     * @return ThrottlerInterface|null Throttler class
+     */
+    public function getThrottler()
+    {
+        return $this->throttler;
+    }
+
+    /**
+     * Set the throttler
+     *
+     * @param ThrottlerInterface|null $throttler Throttler class
+     */
+    public function setThrottler(ThrottlerInterface $throttler)
+    {
+        $this->throttler = $throttler;
     }
 
     /**
@@ -92,8 +121,6 @@ class Api implements ApiInterface
      *
      * @throws InvalidArgumentException if there's a manipulator which not extends
      *      ManipulatorInterface
-     *
-     * @return void
      */
     public function setManipulators(array $manipulators)
     {
@@ -109,6 +136,7 @@ class Api implements ApiInterface
     /**
      * {@inheritdoc}
      *
+     * @throws RateExceededException if a user rate limit is exceeded
      * @throws ImageNotReadableException if the provided image is not readable.
      * @throws ImageTooLargeException if the provided image is too large for
      *      processing.
@@ -118,6 +146,16 @@ class Api implements ApiInterface
      */
     public function run(string $url, string $extension, array $params): array
     {
+        if ($this->throttler !== null) {
+            // For PHPUnit check if REMOTE_ADDR is set
+            $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
+
+            // Check if rate is exceeded for IP
+            if ($this->throttler->isExceeded($ip, $this->ban())) {
+                throw new RateExceededException();
+            }
+        }
+
         // Debugging
         $debug = true;
 
@@ -142,7 +180,7 @@ class Api implements ApiInterface
         try {
             $image = Image::newFromFile($tmpFileName);
         } catch (VipsException $e) {
-            trigger_error('Image not readable. Message: `' . $e->getMessage() . '` URL: ' . $url, E_USER_WARNING);
+            trigger_error('Image not readable. Message: ' . $e->getMessage() . ' URL: ' . $url, E_USER_WARNING);
 
             // Keep throwing it (with a wrapper).
             throw new ImageNotReadableException('Image not readable. Is it a valid image?', 0, $e);
@@ -155,25 +193,12 @@ class Api implements ApiInterface
         // Put common variables in the parameters
         $params['hasAlpha'] = Utils::hasAlpha($image);
         $params['is16Bit'] = Utils::is16Bit($interpretation);
-        $params['maxAlpha'] = Utils::maximumImageAlpha($interpretation);
         $params['isPremultiplied'] = false;
 
         foreach ($this->manipulators as $manipulator) {
             $manipulator->setParams($params);
 
-            try {
-                $image = $manipulator->run($image);
-            } catch (ImageTooLargeException $e) {
-                trigger_error($e->getMessage() . ' URL: ' . $url, E_USER_WARNING);
-
-                // Keep throwing it.
-                throw $e;
-            } catch (VipsException $e) {
-                trigger_error($e->getMessage() . ' URL: ' . $url, E_USER_WARNING);
-
-                // Keep throwing it.
-                throw $e;
-            }
+            $image = $manipulator->run($image);
 
             // Size and shape manipulators can override `hasAlpha` parameter.
             if ($manipulator instanceof Size || $manipulator instanceof Shape) {
@@ -192,7 +217,7 @@ class Api implements ApiInterface
 
         // Reverse premultiplication after all transformations:
         if ($params['isPremultiplied']) {
-            $image = $image->unpremultiply(['max_alpha' => $params['maxAlpha']]);
+            $image = $image->unpremultiply();
 
             // Cast pixel values to integer
             if ($params['is16Bit']) {
@@ -234,6 +259,24 @@ class Api implements ApiInterface
             $allowed[$extension],
             $extension
         ];
+    }
+
+    /**
+     * Ban's the user if it's getting throttled.
+     *
+     * For example:
+     * This script can call CloudFlare directly through cURL
+     * or log the ban and invoke Fail2Ban on the server.
+     *
+     * Note: only getting called once.
+     */
+    public function ban(): \Closure
+    {
+        $log = 'User rate limit exceeded. IP: %s Expires: %d';
+        return function ($ip, $banTime) use ($log) {
+            // Ban script (just use your imagination)
+            trigger_error(sprintf($log, $ip, $banTime), E_USER_WARNING);
+        };
     }
 
     /**

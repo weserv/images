@@ -3,6 +3,7 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use Mockery;
+use Mockery\MockInterface;
 
 class GammaTest extends \PHPUnit_Framework_TestCase
 {
@@ -25,7 +26,7 @@ class GammaTest extends \PHPUnit_Framework_TestCase
 
     public function testRun()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image', function (Mockery\MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image', function (MockInterface $mock) {
             $mock->shouldReceive('gamma')->with(['exponent' => 1.5])->andReturnSelf()->once();
         });
 

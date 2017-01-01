@@ -3,6 +3,7 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use Mockery;
+use Mockery\MockInterface;
 
 class TrimTest extends \PHPUnit_Framework_TestCase
 {
@@ -25,7 +26,7 @@ class TrimTest extends \PHPUnit_Framework_TestCase
 
     public function testRun()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[more, __get]', [''], function (Mockery\MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image[more, __get]', [''], function (MockInterface $mock) {
             $mock->shouldReceive('__get')
                 ->with('bands')
                 ->andReturn(3)
@@ -61,7 +62,7 @@ class TrimTest extends \PHPUnit_Framework_TestCase
                 ->once();
 
             $mock->shouldReceive('more')
-                ->with(25.5)
+                ->with(10)
                 ->andReturnSelf()
                 ->once();
 
@@ -94,7 +95,6 @@ class TrimTest extends \PHPUnit_Framework_TestCase
             'trim' => '10',
             'hasAlpha' => false,
             'is16Bit' => false,
-            'maxAlpha' => 255,
             'isPremultiplied' => false,
         ];
 
@@ -111,6 +111,6 @@ class TrimTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(10, $this->manipulator->setParams(['trim' => null])->getTrim());
         $this->assertSame(10, $this->manipulator->setParams(['trim' => 'a'])->getTrim());
         $this->assertSame(10, $this->manipulator->setParams(['trim' => '-1'])->getTrim());
-        $this->assertSame(10, $this->manipulator->setParams(['trim' => '101'])->getTrim());
+        $this->assertSame(10, $this->manipulator->setParams(['trim' => '256'])->getTrim());
     }
 }
