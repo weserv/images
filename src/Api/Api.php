@@ -227,6 +227,9 @@ class Api implements ApiInterface
             }
         }
 
+        $needsGif = (isset($params['output']) && $params['output'] == 'gif')
+            || (!isset($params['output']) && $extension == 'gif');
+
         // Check if output is set and allowed
         if (isset($params['output']) && isset($allowed[$params['output']])) {
             $extension = $params['output'];
@@ -254,9 +257,68 @@ class Api implements ApiInterface
             $options['compression'] = $this->getCompressionLevel($params);
         }
 
+        $buffer = $image->writeToBuffer('.' . $extension, $options);
+        $mimeType = $allowed[$extension];
+
+        /*
+         * Note:
+         * It's currently not possible to save gif through libvips.
+         *
+         * We don't deprecate GIF output to make sure to not break
+         * anyone's apps.
+         * If gif output is needed then we are using GD
+         * to convert our libvips image to a gif.
+         *
+         * (Feels a little hackish but there is not an alternative at
+         * this moment..)
+         */
+
+        // Check if GD library is installed on the server
+        $gdAvailable = extension_loaded('gd') && function_exists('gd_info');
+
+        // If the GD library is installed and a gif output is needed.
+        if ($gdAvailable && $needsGif) {
+            // Create GD image from string (suppress any warnings)
+            $gdImage = @imagecreatefromstring($buffer);
+
+            // If image is valid
+            if ($gdImage !== false) {
+                // Enable interlacing if needed
+                if ($options['interlace']) {
+                    imageinterlace($gdImage, true);
+                }
+
+                // Preserve transparency
+                if ($params['hasAlpha']) {
+                    imagecolortransparent($gdImage, imagecolorallocatealpha($gdImage, 0, 0, 0, 127));
+                    imagealphablending($gdImage, false);
+                    imagesavealpha($gdImage, true);
+                }
+
+                // Turn output buffering on
+                ob_start();
+
+                // Output the image to the buffer
+                imagegif($gdImage);
+
+                // Read from buffer
+                $buffer = ob_get_contents();
+
+                // Delete buffer
+                ob_end_clean();
+
+                // Free up memory
+                imagedestroy($gdImage);
+
+                // Extension and mime-type are now gif
+                $extension = 'gif';
+                $mimeType = 'image/gif';
+            }
+        }
+
         return [
-            $image->writeToBuffer('.' . $extension, $options),
-            $allowed[$extension],
+            $buffer,
+            $mimeType,
             $extension
         ];
     }
@@ -282,11 +344,15 @@ class Api implements ApiInterface
     /**
      * Get the allowed image types to convert to.
      *
+     * Note: It's currently not possible to save gif through libvips
+     * See: https://github.com/jcupitt/libvips/issues/235
+     *
      * @return array
      */
     public function getAllowedImageTypes(): array
     {
         return [
+            //'gif' => 'image/gif',
             'jpg' => 'image/jpeg',
             'png' => 'image/png',
             'webp' => 'image/webp',

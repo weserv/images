@@ -413,12 +413,6 @@ if (!empty($_GET['url'])) {
                                 <td><code style="color:green;">=right</code></td>
                                 <td><a href="#crop-position">info</a></td>
                             </tr>
-                            <tr>
-                                <td><code>output</code></td>
-                                <td><code style="color:red;">=gif</code></td>
-                                <td><code style="color:green;">=jpg, =png or =webp</code></td>
-                                <td><a href="#output-output">info</a></td>
-                            </tr>
                         </tbody>
                     </table>
                     <h2 id="deprecated-functions">Deprecated URL-parameters</h2>
@@ -703,11 +697,11 @@ if (!empty($_GET['url'])) {
                     <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;q=20"&gt;</code></pre>
                     <a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;q=20"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;q=20" alt=""/></a>
                     <h3 id="output-output">Output <code>&amp;output=</code></h3>
-                    <p>Encodes the image to a specific format. Accepts <code>jpg</code>, <code>png</code> or <code>webp</code>. If none is given, it will honor the origin image format.</p><p>More info: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/5097964-format-conversion">#5097964 - Format conversion</a>.</p>
+                    <p>Encodes the image to a specific format. Accepts <code>jpg</code>, <code>png</code>, <code>gif</code> or <code>webp</code>. If none is given, it will honor the origin image format.</p><p>More info: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/5097964-format-conversion">#5097964 - Format conversion</a>.</p>
                     <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;output=webp"&gt;</code></pre>
                     <a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;output=webp"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;output=webp" alt=""/></a>
                     <h3 id="interlace-progressive-il">Interlace / progressive <code>&amp;il</code></h3>
-                    <p>Adds interlacing to PNG. JPEG's become progressive.</p><p>More info: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/3998911-add-parameter-to-use-progressive-jpegs">#3998911 - Add parameter to use progressive JPEGs</a>.</p>
+                    <p>Adds interlacing to GIF and PNG. JPEG's become progressive.</p><p>More info: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/3998911-add-parameter-to-use-progressive-jpegs">#3998911 - Add parameter to use progressive JPEGs</a>.</p>
                     <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;il"&gt;</code></pre>
                     <a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;il"><img src="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;il" alt=""/></a>
                     <h3 id="base64-encoding">Base64 (data URL) <code>&amp;encoding=base64</code></h3>
