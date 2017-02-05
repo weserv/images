@@ -49,9 +49,15 @@ $error_messages = [
         'log' => 'Image too big. URL: %s',
     ],
     'curl_error' => [
-        'header' => '400 Bad Request',
+        'header' => '404 Not Found',
         'content-type' => 'text/plain',
         'message' => 'cURL Request error: %s Status code: %s',
+        'log' => 'cURL Request error: %s URL: %s Status code: %s',
+    ],
+    'dns_error' => [
+        'header' => '410 Gone',
+        'content-type' => 'text/plain',
+        'message' => 'Error 410: Server could parse the ?url= that you were looking for, because the hostname of the origin is unresolvable (DNS) or blocked by policy.',
         'log' => 'cURL Request error: %s URL: %s Status code: %s',
     ],
     'rate_exceeded' => [
@@ -251,7 +257,12 @@ if (!empty($_GET['url'])) {
                 }
             }
         } else {
-            $error = $error_messages['curl_error'];
+            $curlHandler = $e->getHandlerContext();
+
+            $isDnsError = array_key_exists('errno', $curlHandler) && $curlHandler['errno'] == 6;
+
+            $error = $isDnsError ? $error_messages['dns_error'] : $error_messages['curl_error'];
+
             header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
             header('Content-type: ' . $error['content-type']);
             echo $e->getMessage();
