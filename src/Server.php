@@ -150,7 +150,7 @@ class Server
         list($image, $type, $extension) = $this->makeImage($uri->__toString(), $extension, $params);
 
         header('Expires: ' . date_create('+31 days')->format('D, d M Y H:i:s') . ' GMT'); //31 days
-        header('Cache-Control: public, max-age=2678400'); //31 days
+        header('Cache-Control: max-age=2678400'); //31 days
 
         if (isset($params['encoding']) && $params['encoding'] == 'base64') {
             $base64 = sprintf('data:%s;base64,%s', $type, base64_encode($image));

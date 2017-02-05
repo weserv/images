@@ -32,8 +32,7 @@ $error_messages = [
     'invalid_url' => [
         'header' => '404 Not Found',
         'content-type' => 'text/plain',
-        'message' => 'Error 404: Invalid url.',
-        'log' => 'URL failed, unable to parse. URL: %s',
+        'message' => 'Error 404: Server couldn\'t parse the ?url= that you were looking for, because it isn\'t a valid url.',
     ],
     'invalid_image' => [
         'header' => '400 Bad Request',
@@ -68,6 +67,7 @@ $error_messages = [
     'image_not_readable' => [
         'header' => '400 Bad Request',
         'content-type' => 'text/plain',
+        'log' => 'Image not readable. URL: %s Message: %s',
     ],
     'image_too_large' => [
         'header' => '400 Bad Request',
@@ -108,7 +108,6 @@ if (!empty($_GET['url'])) {
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
         header('Content-type: ' . $error['content-type']);
         echo $error['message'];
-        trigger_error(sprintf($error['log'], $_GET['url']), E_USER_WARNING);
         die;
     }
 
@@ -283,6 +282,16 @@ if (!empty($_GET['url'])) {
         $error = $error_messages['image_not_readable'];
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
         header('Content-type: ' . $error['content-type']);
+
+        trigger_error(
+            sprintf(
+                $error['log'],
+                $uri->__toString(),
+                $e->getMessage()
+            ),
+            E_USER_WARNING
+        );
+
         echo $error['header'] . ' - ' . $e->getMessage();
     } catch (VipsException $e) {
         $error = $error_messages['libvips_error'];
