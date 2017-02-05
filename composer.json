@@ -1,7 +1,7 @@
 {
     "name": "andrieslouw/imagesweserv",
     "type": "project",
-    "version": "2.0.1",
+    "version": "3.0.0",
     "license": "BSD-3-Clause",
     "description": "An image cache & resize proxy",
     "keywords": [

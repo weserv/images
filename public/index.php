@@ -121,7 +121,7 @@ if (!empty($_GET['url'])) {
     // Create an PHP HTTP client
     $client = new AndriesLouw\imagesweserv\Client($tmpFileName, [
         // User agent for this client
-        'user_agent' => 'Mozilla/5.0 (compatible; ImageFetcher/6.0; +http://images.weserv.nl/)',
+        'user_agent' => 'Mozilla/5.0 (compatible; ImageFetcher/7.0; +http://images.weserv.nl/)',
         // Float describing the number of seconds to wait while trying to connect to a server.
         // Use 0 to wait indefinitely.
         'connect_timeout' => 5,
@@ -153,7 +153,7 @@ if (!empty($_GET['url'])) {
             Memcached::OPT_COMPRESSION => false
         ]);
 
-        $memcached->addServer('127.0.0.1', 11211, 0);
+        $memcached->addServer('/var/run/memcached/memcached.sock', 11211, 0);
     }
 
     // Create an new Memcached throttler instance
@@ -304,7 +304,7 @@ if (!empty($_GET['url'])) {
     // Still here? Unlink the temporary file.
     @unlink($tmpFileName);
 } else {
-    $url = '//images.weserv.nl';
+    $url = '//imagetest.weserv.nl';
 
     $html = <<<HTML
 <!DOCTYPE html>
@@ -314,7 +314,7 @@ if (!empty($_GET['url'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
     <title>Image cache &amp; resize proxy</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico"/>
-    <link href="$url/css/images-v2.css" type="text/css" rel="stylesheet" integrity="sha384-epw26m5VgAVAl7qz23SeBrKA8FtSN/Hgq/DlK90PVpjPioKaOqJL6C9O1xVPWgcs" crossorigin="anonymous"/>
+    <link href="//static.weserv.nl/images-v3.css" type="text/css" rel="stylesheet" integrity="sha384-dbMMPrXd4UDCtcpPfDc7rjccFtBphcMvDaoGMCs+2Sbg4L2MrI21XJwn3hvLY6tr" crossorigin="anonymous"/>
     <!--[if lte IE 9]><script src="//static.weserv.nl/html5shiv-printshiv.min.js" type="text/javascript"></script><![endif]-->
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js" type="text/javascript" integrity="sha384-8gBf6Y4YYq7Jx97PIqmTwLPin4hxIzQw5aDmUg/DDhul9fFpbbLcLh3nTIIDJKhx" crossorigin="anonymous"></script>
     <script src="//static.weserv.nl/bootstrap.min.js" type="text/javascript" integrity="sha384-knhWhSzIcpYIfitKUjDBo/EQ3F5MWCwASUtB6UCe2N038X5KhwbGAoxmLaV8hn12" crossorigin="anonymous"></script>
@@ -332,9 +332,8 @@ if (!empty($_GET['url'])) {
         <div class="scrollbar-inner">
             <div class="scrollspy">
                 <ul id="nav" class="nav topics" data-spy="affix">
-                    <li class="dd-item active"><a href="#image-api" class="cen"><span>API 2 - RBX, FR</span></a>
+                    <li class="dd-item active"><a href="#image-api" class="cen"><span>API 3 - EDOA, DE</span></a>
                         <ul class="nav inner">
-                            <li class="dd-item"><a href="#deprecated"><span>Deprecated</span></a></li>
                             <li class="dd-item"><a href="#quick-reference"><span>Quick reference</span></a></li>
                             <li class="dd-item"><a href="#size"><span>Size</span></a></li>
                             <li class="dd-item"><a href="#orientation"><span>Orientation</span></a></li>
@@ -344,6 +343,7 @@ if (!empty($_GET['url'])) {
                             <li class="dd-item"><a href="#adjustments"><span>Adjustments</span></a></li>
                             <li class="dd-item"><a href="#effects"><span>Effects</span></a></li>
                             <li class="dd-item"><a href="#encoding"><span>Encoding</span></a></li>
+                            <li class="dd-item"><a href="#deprecated"><span>Deprecated</span></a></li>
                         </ul>
                     </li>
                 </ul>
@@ -372,66 +372,6 @@ if (!empty($_GET['url'])) {
                     <ul>
                         <li><code>?url=</code> (URL encoded) link to your image, without http://</li>
                     </ul>
-                </section>
-                <section id="deprecated" class="goto">
-                    <h1>Deprecated</h1>
-                    <div class="notices warning">
-                        <p>In January 2016 we introduced Version 2 of the Images.weserv.nl API. To make room for new improvements some parameters will be changed in the future.<br/>We also kept Version 1 (which is in place since December 2010) of the API  in place so as not to break anyone's apps. Please update your code to use the changed API parameters.</p>
-                    </div>
-                    <h2 id="deprecated-values">Deprecated URL-parameter values</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>GET</th>
-                                <th>Value</th>
-                                <th>Use instead</th>
-                                <th>&nbsp;</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>a</code></td>
-                                <td><code style="color:red;">=t</code></td>
-                                <td><code style="color:green;">=top</code></td>
-                                <td><a href="#crop-position">info</a></td>
-                            </tr>
-                            <tr>
-                                <td><code>a</code></td>
-                                <td><code style="color:red;">=b</code></td>
-                                <td><code style="color:green;">=bottom</code></td>
-                                <td><a href="#crop-position">info</a></td>
-                            </tr>
-                            <tr>
-                                <td><code>a</code></td>
-                                <td><code style="color:red;">=l</code></td>
-                                <td><code style="color:green;">=left</code></td>
-                                <td><a href="#crop-position">info</a></td>
-                            </tr>
-                            <tr>
-                                <td><code>a</code></td>
-                                <td><code style="color:red;">=r</code></td>
-                                <td><code style="color:green;">=right</code></td>
-                                <td><a href="#crop-position">info</a></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <h2 id="deprecated-functions">Deprecated URL-parameters</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>GET</th>
-                                <th>Use instead</th>
-                                <th>&nbsp;</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code style="color:red;">circle</code></td>
-                                <td><code style="color:green;">shape=circle</code></td>
-                                <td><a href="#shape">info</a></td>
-                            </tr>
-                        </tbody>
-                    </table>
                 </section>
                 <section id="quick-reference" class="goto">
                     <h1>Quick reference</h1>
@@ -707,6 +647,66 @@ if (!empty($_GET['url'])) {
                     <h3 id="base64-encoding">Base64 (data URL) <code>&amp;encoding=base64</code></h3>
                     <p>Encodes the image to be used directly in the src= of the <code>&lt;img&gt;</code>-tag. <a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;crop=100,100,680,500&amp;encoding=base64">Use this link to see the output result</a>.</p><p>More info: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/4522336-return-image-base64-encoded">#4522336 - Return image base64 encoded</a>.</p>
                     <pre><code>//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;crop=100,100,680,500&amp;encoding=base64</code></pre>
+                </section>
+                <section id="deprecated" class="goto">
+                    <h1>Deprecated</h1>
+                    <div class="notices warning">
+                        <p>In January 2016 we introduced Version 2 of the Images.weserv.nl API. To make room for new improvements some parameters will be changed in the future.<br/>We also kept Version 1 (which is in place since December 2010) of the API  in place so as not to break anyone's apps. Please update your code to use the changed API parameters.</p>
+                    </div>
+                    <h2 id="deprecated-values">Deprecated URL-parameter values</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>GET</th>
+                                <th>Value</th>
+                                <th>Use instead</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>a</code></td>
+                                <td><code style="color:red;">=t</code></td>
+                                <td><code style="color:green;">=top</code></td>
+                                <td><a href="#crop-position">info</a></td>
+                            </tr>
+                            <tr>
+                                <td><code>a</code></td>
+                                <td><code style="color:red;">=b</code></td>
+                                <td><code style="color:green;">=bottom</code></td>
+                                <td><a href="#crop-position">info</a></td>
+                            </tr>
+                            <tr>
+                                <td><code>a</code></td>
+                                <td><code style="color:red;">=l</code></td>
+                                <td><code style="color:green;">=left</code></td>
+                                <td><a href="#crop-position">info</a></td>
+                            </tr>
+                            <tr>
+                                <td><code>a</code></td>
+                                <td><code style="color:red;">=r</code></td>
+                                <td><code style="color:green;">=right</code></td>
+                                <td><a href="#crop-position">info</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h2 id="deprecated-functions">Deprecated URL-parameters</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>GET</th>
+                                <th>Use instead</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code style="color:red;">circle</code></td>
+                                <td><code style="color:green;">shape=circle</code></td>
+                                <td><a href="#shape">info</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </section>
             </div>
         </div>

@@ -57,7 +57,7 @@ class Api implements ApiInterface
      * @param ThrottlerInterface|null $throttler Throttler
      * @param array $manipulators Collection of manipulators.
      */
-    public function __construct(Client $client, ThrottlerInterface $throttler, array $manipulators)
+    public function __construct(Client $client, $throttler, array $manipulators)
     {
         $this->setClient($client);
         $this->setThrottler($throttler);
@@ -99,7 +99,7 @@ class Api implements ApiInterface
      *
      * @param ThrottlerInterface|null $throttler Throttler class
      */
-    public function setThrottler(ThrottlerInterface $throttler)
+    public function setThrottler($throttler)
     {
         $this->throttler = $throttler;
     }
@@ -156,26 +156,7 @@ class Api implements ApiInterface
             }
         }
 
-        // Debugging
-        $debug = true;
-
-        if ($debug) {
-            if (strpos($url, 'PNG_transparency_demonstration_1.png') !== false) {
-                $tmpFileName = __DIR__ . '/../../public_html/test-images/example.png';
-            } elseif (strpos($url, 'orientation.jpg') !== false) {
-                $tmpFileName = __DIR__ . '/../../public_html/test-images/orientation.jpg';
-            } elseif (strpos($url, 'grey-8bit-alpha.png') !== false) {
-                $tmpFileName = __DIR__ . '/../../public_html/test-images/grey-8bit-alpha.png';
-            } elseif (strpos($url, 'tbgn2c16.png') !== false) {
-                $tmpFileName = __DIR__ . '/../../public_html/test-images/tbgn2c16.png';
-            } elseif (strpos($url, 'lichtenstein.jpg') !== false) {
-                $tmpFileName = __DIR__ . '/../../public_html/test-images/lichtenstein.jpg';
-            } else {
-                $tmpFileName = $this->client->get($url);
-            }
-        } else {
-            $tmpFileName = $this->client->get($url);
-        }
+        $tmpFileName = $this->client->get($url);
 
         try {
             $image = Image::newFromFile($tmpFileName);
