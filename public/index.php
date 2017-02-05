@@ -265,7 +265,13 @@ if (!empty($_GET['url'])) {
 
             header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
             header('Content-type: ' . $error['content-type']);
-            echo $e->getMessage();
+
+            $message = $isDnsError ? $error['message'] : sprintf($error['message'], $e->getMessage(),
+                ($e->hasResponse() && $e->getResponse() != null ?
+                    $e->getResponse()->getStatusCode()
+                    : $e->getCode()));
+
+            echo $message;
         }
     } catch (RateExceededException $e) {
         $error = $error_messages['rate_exceeded'];
