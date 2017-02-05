@@ -343,7 +343,6 @@ if (!empty($_GET['url'])) {
                             <li class="dd-item"><a href="#adjustments"><span>Adjustments</span></a></li>
                             <li class="dd-item"><a href="#effects"><span>Effects</span></a></li>
                             <li class="dd-item"><a href="#encoding"><span>Encoding</span></a></li>
-                            <li class="dd-item"><a href="#deprecated"><span>Deprecated</span></a></li>
                         </ul>
                     </li>
                 </ul>
@@ -645,66 +644,6 @@ if (!empty($_GET['url'])) {
                     <h3 id="base64-encoding">Base64 (data URL) <code>&amp;encoding=base64</code></h3>
                     <p>Encodes the image to be used directly in the src= of the <code>&lt;img&gt;</code>-tag. <a href="$url/?url=rbx.weserv.nl/lichtenstein.jpg&amp;crop=100,100,680,500&amp;encoding=base64">Use this link to see the output result</a>.</p><p>More info: <a href="//imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/4522336-return-image-base64-encoded">#4522336 - Return image base64 encoded</a>.</p>
                     <pre><code>//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;crop=100,100,680,500&amp;encoding=base64</code></pre>
-                </section>
-                <section id="deprecated" class="goto">
-                    <h1>Deprecated</h1>
-                    <div class="notices warning">
-                        <p>In January 2016 we introduced Version 2 of the Images.weserv.nl API. To make room for new improvements some parameters will be changed in the future.<br/>We also kept Version 1 (which is in place since December 2010) of the API  in place so as not to break anyone's apps. Please update your code to use the changed API parameters.</p>
-                    </div>
-                    <h2 id="deprecated-values">Deprecated URL-parameter values</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>GET</th>
-                                <th>Value</th>
-                                <th>Use instead</th>
-                                <th>&nbsp;</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>a</code></td>
-                                <td><code style="color:red;">=t</code></td>
-                                <td><code style="color:green;">=top</code></td>
-                                <td><a href="#crop-position">info</a></td>
-                            </tr>
-                            <tr>
-                                <td><code>a</code></td>
-                                <td><code style="color:red;">=b</code></td>
-                                <td><code style="color:green;">=bottom</code></td>
-                                <td><a href="#crop-position">info</a></td>
-                            </tr>
-                            <tr>
-                                <td><code>a</code></td>
-                                <td><code style="color:red;">=l</code></td>
-                                <td><code style="color:green;">=left</code></td>
-                                <td><a href="#crop-position">info</a></td>
-                            </tr>
-                            <tr>
-                                <td><code>a</code></td>
-                                <td><code style="color:red;">=r</code></td>
-                                <td><code style="color:green;">=right</code></td>
-                                <td><a href="#crop-position">info</a></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <h2 id="deprecated-functions">Deprecated URL-parameters</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>GET</th>
-                                <th>Use instead</th>
-                                <th>&nbsp;</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code style="color:red;">circle</code></td>
-                                <td><code style="color:green;">shape=circle</code></td>
-                                <td><a href="#shape">info</a></td>
-                            </tr>
-                        </tbody>
-                    </table>
                 </section>
             </div>
         </div>
