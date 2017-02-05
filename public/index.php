@@ -51,7 +51,7 @@ $error_messages = [
     'curl_error' => [
         'header' => '404 Not Found',
         'content-type' => 'text/plain',
-        'message' => 'cURL Request error: %s Status code: %s',
+        'message' => 'Error %s: Server could parse the ?url= that you were looking for, error it got: The requested URL returned error: %s',
         'log' => 'cURL Request error: %s URL: %s Status code: %s',
     ],
     'dns_error' => [
@@ -266,10 +266,12 @@ if (!empty($_GET['url'])) {
             header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
             header('Content-type: ' . $error['content-type']);
 
-            $message = $isDnsError ? $error['message'] : sprintf($error['message'], $e->getMessage(),
-                ($e->hasResponse() && $e->getResponse() != null ?
-                    $e->getResponse()->getStatusCode()
-                    : $e->getCode()));
+            $hasResponse = $e->hasResponse() && $e->getResponse() != null;
+            $errorCode = ($hasResponse ? $e->getResponse()->getStatusCode() : $e->getCode());
+            $errorMessage = ($hasResponse ? $e->getResponse()->getReasonPhrase() : $e->getMessage());
+
+            $message = $isDnsError ? $error['message'] : sprintf($error['message'],
+                $errorCode, $errorCode . ' ' . $errorMessage);
 
             echo $message;
         }
