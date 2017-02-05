@@ -49,7 +49,7 @@ $error_messages = [
     ],
     'curl_error' => [
         'header' => '404 Not Found',
-        'content-type' => 'text/plain',
+        'content-type' => 'text/html',
         'message' => 'Error 404: Server could parse the ?url= that you were looking for, error it got: The requested URL returned error: %s',
         'log' => 'cURL Request error: %s URL: %s Status code: %s',
     ],
