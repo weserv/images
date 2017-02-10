@@ -2,6 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Api;
 
+use Jcupitt\Vips\Access;
 use Mockery;
 use Mockery\MockInterface;
 
@@ -30,6 +31,11 @@ class ApiTest extends \PHPUnit_Framework_TestCase
 
     public function testSetThrottler()
     {
+        // Test if we can set a `null` throttler
+        $this->api->setThrottler(null);
+        $this->assertNull($this->api->getThrottler());
+
+        // Test if we can set a `real` throttler
         $this->api->setThrottler(Mockery::mock('AndriesLouw\imagesweserv\Throttler\ThrottlerInterface'));
         $this->assertInstanceOf('AndriesLouw\imagesweserv\Throttler\ThrottlerInterface', $this->api->getThrottler());
     }
@@ -101,6 +107,7 @@ class ApiTest extends \PHPUnit_Framework_TestCase
             'AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface',
             function (MockInterface $mock) use ($image) {
                 $mock->shouldReceive('setParams')->with([
+                    'accessMethod' => Access::SEQUENTIAL,
                     'hasAlpha' => true,
                     'is16Bit' => false,
                     'isPremultiplied' => false

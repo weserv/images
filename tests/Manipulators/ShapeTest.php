@@ -2,6 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
+use Jcupitt\Vips\Access;
 use Jcupitt\Vips\BandFormat;
 use Jcupitt\Vips\Interpretation;
 use Mockery;
@@ -72,6 +73,7 @@ class ShapeTest extends \PHPUnit_Framework_TestCase
 
         $params = [
             'shape' => 'circle',
+            'accessMethod' => Access::SEQUENTIAL,
             'hasAlpha' => true,
             'is16Bit' => false,
             'isPremultiplied' => false,

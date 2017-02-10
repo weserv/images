@@ -2,6 +2,7 @@
 
 namespace AndriesLouw\imagesweserv;
 
+use Jcupitt\Vips\Access;
 use League\Uri\Schemes\Http as HttpUri;
 use Mockery;
 use Mockery\MockInterface;
@@ -130,6 +131,7 @@ class ServerTest extends \PHPUnit_Framework_TestCase
             'AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface',
             function (MockInterface $mock) use ($image) {
                 $mock->shouldReceive('setParams')->with([
+                    'accessMethod' => Access::SEQUENTIAL,
                     'hasAlpha' => true,
                     'is16Bit' => false,
                     'isPremultiplied' => false
@@ -190,6 +192,7 @@ class ServerTest extends \PHPUnit_Framework_TestCase
             'AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface',
             function (MockInterface $mock) use ($image) {
                 $mock->shouldReceive('setParams')->with([
+                    'accessMethod' => Access::SEQUENTIAL,
                     'hasAlpha' => true,
                     'is16Bit' => false,
                     'isPremultiplied' => false,
