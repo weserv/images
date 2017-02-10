@@ -4,6 +4,8 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Color;
+use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
+use Jcupitt\Vips\Access;
 use Jcupitt\Vips\Extend;
 use Jcupitt\Vips\Image;
 use Jcupitt\Vips\Kernel;
@@ -17,6 +19,7 @@ use Jcupitt\Vips\Kernel;
  * @property bool $hasAlpha
  * @property bool $is16Bit
  * @property bool $isPremultiplied
+ * @property string $accessMethod
  */
 class Size extends BaseManipulator
 {
@@ -410,6 +413,11 @@ class Size extends BaseManipulator
 
         // Use affine increase or kernel reduce with the remaining float part
         if ($xResidual != 1.0 || $yResidual != 1.0) {
+            // Insert tile cache to prevent over-computation of previous operations
+            /*if ($this->accessMethod == Access::SEQUENTIAL) {
+                $image = Utils::tileCache($image, $yResidual);
+            }*/
+
             // Perform kernel-based reduction
             if ($yResidual < 1.0 || $xResidual < 1.0) {
                 // Use *magick centre sampling convention instead of corner sampling

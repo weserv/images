@@ -9,6 +9,7 @@ use Jcupitt\Vips\Image;
  * @property string $shape
  * @property string $circle
  * @property bool $hasAlpha
+ * @property string $accessMethod
  */
 class Shape extends BaseManipulator
 {
@@ -152,7 +153,10 @@ SVG;
 
                 $svg = sprintf($svgTemplate, "<ellipse cx='$midX' cy='$midY' rx='$midX' ry='$midY'/>");
 
-                $mask = Image::newFromBuffer($svg, '', ['dpi' => 72]);
+                $mask = Image::newFromBuffer($svg, '', [
+                    'dpi' => 72,
+                    'access' => $this->accessMethod,
+                ]);
                 break;
             case 'hexagon':
                 // Hexagon
@@ -242,7 +246,10 @@ SVG;
 
                 $svg = sprintf($svgTemplate, "<circle r='$outerRadius' cx='$midX' cy='$midY'/>");
 
-                $mask = Image::newFromBuffer($svg, '', ['dpi' => 72]);
+                $mask = Image::newFromBuffer($svg, '', [
+                    'dpi' => 72,
+                    'access' => $this->accessMethod,
+                ]);
                 break;
         }
 
@@ -315,6 +322,9 @@ SVG;
 
         $svg = sprintf($template, "<path d='$path'/>");
 
-        return [Image::newFromBuffer($svg, '', ['dpi' => 72]), $xMin, $yMin, $width, $height];
+        return [Image::newFromBuffer($svg, '', [
+            'dpi' => 72,
+            'access' => $this->accessMethod,
+        ]), $xMin, $yMin, $width, $height];
     }
 }

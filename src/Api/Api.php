@@ -16,6 +16,7 @@ use AndriesLouw\imagesweserv\Manipulators\Size;
 use AndriesLouw\imagesweserv\Throttler\ThrottlerInterface;
 use GuzzleHttp\Exception\RequestException;
 use InvalidArgumentException;
+use Jcupitt\Vips\Access;
 use Jcupitt\Vips\BandFormat;
 use Jcupitt\Vips\Exception as VipsException;
 use Jcupitt\Vips\Image;
@@ -158,8 +159,22 @@ class Api implements ApiInterface
 
         $tmpFileName = $this->client->get($url);
 
+        // Things that won't work with sequential mode images:
+        //  - Trim (will scan the whole image once to find the crop area).
+        //  - A 90/270-degree rotate (will need to read a column of pixels for every output line it writes).
+        //  - Adjustments such blurring or sharpen.
+        $isTrim = isset($params['trim']);
+        $isOrientation = isset($params['or']) && in_array($params['or'], ['90', '270'], true);
+        $isBlur = isset($params['blur']);
+        $isSharp = isset($params['sharp']);
+
+        // If any of the above adjustments; don't use sequential mode read.
+        $params['accessMethod'] = $isTrim || $isOrientation || $isBlur || $isSharp ?
+            Access::RANDOM :
+            Access::SEQUENTIAL;
+
         try {
-            $image = Image::newFromFile($tmpFileName);
+            $image = Image::newFromFile($tmpFileName, ['access' => $params['accessMethod']]);
         } catch (VipsException $e) {
             trigger_error('Image not readable. Message: ' . $e->getMessage() . ' URL: ' . $url, E_USER_WARNING);
 

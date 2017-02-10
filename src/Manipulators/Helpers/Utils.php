@@ -2,6 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators\Helpers;
 
+use Jcupitt\Vips\Access;
 use Jcupitt\Vips\Image;
 use Jcupitt\Vips\Interpretation;
 
@@ -51,6 +52,34 @@ class Utils
         return ($bands == 2 && $interpretation == Interpretation::B_W)
             || ($bands == 4 && $interpretation != Interpretation::CMYK)
             || ($bands == 5 && $interpretation == Interpretation::CMYK);
+    }
+
+    /**
+     * Insert a tile cache to prevent over-computation
+     * of any previous operations.
+     *
+     * @param  Image $image The source image.
+     * @param  float $factor The factor
+     *
+     * @return Image Inserted tile cache image
+     */
+    public static function tileCache(Image $image, float $factor): Image
+    {
+
+        $tileWidth = 0;
+        $tileHeight = 0;
+        $scanlineCount = 0;
+        // TODO Support for `vips_get_tile_size` in php-vips-ext
+        //list($tileWidth, $tileHeight, $scanlineCount) = Image::get_tile_size($image);
+        $needLines = (float) 1.2 * $scanlineCount / $factor;
+
+        return $image->tilecache([
+            'tile_width' => $image->width,
+            'tile_height' => 10,
+            'max_tiles' => (int) round(1.0 + $needLines / 10.0),
+            'access' => Access::SEQUENTIAL,
+            'threaded' => true
+        ]);
     }
 
     /**
