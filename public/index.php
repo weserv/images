@@ -342,7 +342,7 @@ if (!empty($_GET['url'])) {
     <title>Image cache &amp; resize proxy</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico"/>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css" integrity="sha384-HoFyoZ18hzctAGKv3BkTqlVH019/pvkU+3BKRAlDRgLuguzWZI0MMuF0JpcMOAye" crossorigin="anonymous" />
-    <link rel="stylesheet" href="//static.weserv.nl/images-v3a.css" integrity="sha384-7mmMcgIBxecpzHk3aYziYxgc/0dLEijGEPYTvtdWqkeNVoSOzTtC1gDWK2/752GG" crossorigin="anonymous">
+    <link rel="stylesheet" href="//static.weserv.nl/images-v3b.css" integrity="sha384-uK5EDEl5284pk7sp8AC3YxS4EqJ6yZO8/yT4sCB8iwG2As8Fv9QJA2l7leomLlbQ" crossorigin="anonymous">
 	<!--[if lte IE 9]>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.ie.min.css" />
 	<script src="//static.weserv.nl/html5shiv-printshiv.min.js" type="text/javascript"></script>

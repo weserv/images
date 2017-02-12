@@ -228,9 +228,9 @@ td {
   font-size: .85714286rem;
   border-radius: .28571429rem; }
 
-.github-fork-ribbon .right-top {
+.github-fork-ribbon {
   position: fixed !important; }
-  .github-fork-ribbon .right-top:before {
+  .github-fork-ribbon:before {
     background-color: #a72376; }
 
 #header strong, #header th {
