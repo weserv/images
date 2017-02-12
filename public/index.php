@@ -341,8 +341,12 @@ if (!empty($_GET['url'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
     <title>Image cache &amp; resize proxy</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico"/>
-    <link href="//static.weserv.nl/images-v3.css" type="text/css" rel="stylesheet" integrity="sha384-dbMMPrXd4UDCtcpPfDc7rjccFtBphcMvDaoGMCs+2Sbg4L2MrI21XJwn3hvLY6tr" crossorigin="anonymous"/>
-    <!--[if lte IE 9]><script src="//static.weserv.nl/html5shiv-printshiv.min.js" type="text/javascript"></script><![endif]-->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css" integrity="sha384-HoFyoZ18hzctAGKv3BkTqlVH019/pvkU+3BKRAlDRgLuguzWZI0MMuF0JpcMOAye" crossorigin="anonymous" />
+    <link rel="stylesheet" href="//static.weserv.nl/images-v3a.css" integrity="sha384-7mmMcgIBxecpzHk3aYziYxgc/0dLEijGEPYTvtdWqkeNVoSOzTtC1gDWK2/752GG" crossorigin="anonymous">
+	<!--[if lte IE 9]>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.ie.min.css" />
+	<script src="//static.weserv.nl/html5shiv-printshiv.min.js" type="text/javascript"></script>
+	<![endif]-->
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js" type="text/javascript" integrity="sha384-8gBf6Y4YYq7Jx97PIqmTwLPin4hxIzQw5aDmUg/DDhul9fFpbbLcLh3nTIIDJKhx" crossorigin="anonymous"></script>
     <script src="//static.weserv.nl/bootstrap.min.js" type="text/javascript" integrity="sha384-knhWhSzIcpYIfitKUjDBo/EQ3F5MWCwASUtB6UCe2N038X5KhwbGAoxmLaV8hn12" crossorigin="anonymous"></script>
 </head>
@@ -359,7 +363,7 @@ if (!empty($_GET['url'])) {
         <div class="scrollbar-inner">
             <div class="scrollspy">
                 <ul id="nav" class="nav topics" data-spy="affix">
-                    <li class="dd-item active"><a href="#image-api" class="cen"><span>API 3 - EDOA, DE</span></a>
+                    <li class="dd-item active"><a href="#image-api" class="cen"><span>API 3 - GitHub, DEMO</span></a>
                         <ul class="nav inner">
                             <li class="dd-item"><a href="#quick-reference"><span>Quick reference</span></a></li>
                             <li class="dd-item"><a href="#size"><span>Size</span></a></li>
@@ -384,7 +388,7 @@ if (!empty($_GET['url'])) {
         <div class="highlightable">
             <div id="body-inner">
                 <section id="image-api" class="goto">
-                    <p>Images.<b>weserv</b>.nl is an image <b>cache</b> &amp; <b>resize</b> proxy. Our servers resize your image, cache it worldwide, and display it.</p>
+                    <p>Images.<b>weserv</b>.nl is an image <b>cache</b> &amp; <b>resize</b> proxy. Our servers resize your image, cache it worldwide, and display it. <a class="github-fork-ribbon right-top" href="https://github.com/andrieslouw/imagesweserv/issues" title="Feedback? Github!">Feedback? GitHub!</a></p>
                     <ul>
                         <li>We don't support animated images (yet), but we do support GIF, JPEG, PNG, BMP, XBM, WebP and other filetypes, even transparent images.</li>
                         <li>We do support IPv6, <a href="http://ipv6-test.com/validate.php?url=images.weserv.nl" rel="nofollow">serving dual stack</a>, and supporting <a href="https://images.weserv.nl/?url=ipv6.google.com/logos/logo.gif">IPv6-only origin hosts</a>.</li>
@@ -675,29 +679,6 @@ if (!empty($_GET['url'])) {
             </div>
         </div>
     </section>
-    <!-- UserVoice JavaScript -->
-    <script type="text/javascript">
-        (function() {
-            var uv = document.createElement('script');
-            uv.type = 'text/javascript';
-            uv.async = true;
-            uv.src = '//widget.uservoice.com/PLImJMGVdhdO2160d8dog.js';
-            var s = document.getElementsByTagName('script')[0];
-            s.parentNode.insertBefore(uv, s)
-        })();
-        UserVoice = window.UserVoice || [];
-        UserVoice.push(['showTab', 'classic_widget', {
-            mode: 'full',
-            primary_color: '#292929',
-            link_color: '#a72376',
-            default_mode: 'feedback',
-            forum_id: 144259,
-            tab_label: 'Feedback',
-            tab_color: '#a72376',
-            tab_position: 'top-right',
-            tab_inverted: false
-        }]);
-    </script>
 </body>
 </html>
 HTML;

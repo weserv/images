@@ -18,9 +18,9 @@ Source code of images.weserv.nl, to be used on your own server(s). Images.weserv
 
 Full documentation can be found at [images.weserv.nl](https://images.weserv.nl/).
 
-## Support
+## Submitting Bugs and Suggestions
 
-[UserVoice forum](https://imagesweserv.uservoice.com/).
+We track support tickets, issues and feature requests using the [GitHub issue tracker](https://github.com/andrieslouw/imagesweserv/issues).
 
 ## Credits
 [![Andries Louw Wolthuizen](https://avatars2.githubusercontent.com/u/11487455?v=3&s=120)](https://github.com/andrieslouw) | [![Kleis Auke Wolthuizen](https://avatars2.githubusercontent.com/u/12746591?v=3&s=120)](https://github.com/kleisauke)

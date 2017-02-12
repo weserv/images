@@ -18,6 +18,13 @@
   border-radius: .28571429rem;
 }
 
+.github-fork-ribbon .right-top {
+  &:before {
+    background-color: #a72376;
+  }
+  position: fixed !important;
+}
+
 #header strong {
   color: $core-accent;
 }
