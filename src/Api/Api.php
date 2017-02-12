@@ -231,26 +231,42 @@ class Api implements ApiInterface
             $extension = $params['output'];
         } else {
             $supportsAlpha = ['png', 'webp'];
-            if ($params['hasAlpha'] && !isset($supportsAlpha[$extension])) {
-                // If image has alpha and doesn't have the right extension to output alpha.
-                // Then force it to PNG (useful for shape masking and letterboxing).
+            if (($params['hasAlpha'] && !isset($supportsAlpha[$extension])) || !isset($allowed[$extension])) {
+                // We force the extension to PNG if:
+                //  - The image has alpha and doesn't have the right extension to output alpha.
+                //    (useful for shape masking and letterboxing)
+                //  - The input extension is not allowed for output.
                 $extension = 'png';
-            } elseif (!isset($allowed[$extension])) {
-                // If extension is not allowed (and doesn't have alpha) we need to output it as jpg.
-                $extension = 'jpg';
             }
         }
 
         $options = [];
 
-        if ($extension == 'jpg' || $extension == 'webp') {
-            $options['Q'] = $this->getQuality($params);
-        }
-        if ($extension == 'jpg' || $extension == 'png') {
-            $options['interlace'] = array_key_exists('il', $params);
-        }
-        if ($extension == 'png') {
-            $options['compression'] = $this->getCompressionLevel($params);
+        switch ($extension) {
+            case 'jpg':
+                // Strip all metadata (EXIF, XMP, IPTC)
+                $options['strip'] = true;
+                // Set quality (default is 85)
+                $options['Q'] = $this->getQuality($params);
+                // Use progressive (interlace) scan, if necessary
+                $options['interlace'] = array_key_exists('il', $params);
+                // Enable libjpeg's Huffman table optimiser
+                $options['optimize_coding'] = true;
+                break;
+            case 'png':
+                // Use progressive (interlace) scan, if necessary
+                $options['interlace'] = array_key_exists('il', $params);
+                // zlib compression level (default is 6)
+                $options['compression'] = $this->getCompressionLevel($params);
+                break;
+            case 'webp':
+                // Strip all metadata (EXIF, XMP, IPTC)
+                $options['strip'] = true;
+                // Set quality (default is 85)
+                $options['Q'] = $this->getQuality($params);
+                // Set quality of alpha layer to 100
+                $options['alpha_q'] = 100;
+                break;
         }
 
         $buffer = $image->writeToBuffer('.' . $extension, $options);
