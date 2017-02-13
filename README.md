@@ -9,14 +9,14 @@ Source code of images.weserv.nl, to be used on your own server(s). Images.weserv
 
 ## Technologies used
 
-- Linux, nginx, libvips and PHP (without these technologies, this project would never have been possible)
-- CloudFlare (for caching and IP-blocking)
-- Memcached/Redis (for rate limiting)
-- OpenDNS (for DNS-filtering)
+- Linux, [nginx](https://github.com/nginx/nginx), [libvips](https://github.com/jcupitt/libvips) and [PHP](https://github.com/php/php-src) (without these technologies, this project would never have been possible)
+- [Cloudflare](https://www.cloudflare.com/) (for caching and IP-blocking)
+- [Memcached](https://github.com/memcached/memcached)/[Redis](https://github.com/antirez/redis) (for rate limiting)
+- [OpenDNS](https://www.opendns.com/) (for DNS-filtering)
 
 ## Documentation
 
-Full documentation can be found at [images.weserv.nl](https://images.weserv.nl/).
+See our [wiki documentation](https://github.com/andrieslouw/imagesweserv/wiki) or [API reference](https://images.weserv.nl/) for information on using images.weserv.nl.
 
 ## Submitting Bugs and Suggestions
 
