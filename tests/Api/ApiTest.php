@@ -5,8 +5,9 @@ namespace AndriesLouw\imagesweserv\Api;
 use Jcupitt\Vips\Access;
 use Mockery;
 use Mockery\MockInterface;
+use PHPUnit\Framework\TestCase;
 
-class ApiTest extends \PHPUnit_Framework_TestCase
+class ApiTest extends TestCase
 {
     private $api;
 

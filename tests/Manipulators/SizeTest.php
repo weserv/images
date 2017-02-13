@@ -7,8 +7,9 @@ use Jcupitt\Vips\Extend;
 use Jcupitt\Vips\Kernel;
 use Mockery;
 use Mockery\MockInterface;
+use PHPUnit\Framework\TestCase;
 
-class SizeTest extends \PHPUnit_Framework_TestCase
+class SizeTest extends TestCase
 {
     private $manipulator;
 

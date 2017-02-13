@@ -6,8 +6,9 @@ use Jcupitt\Vips\Access;
 use League\Uri\Schemes\Http as HttpUri;
 use Mockery;
 use Mockery\MockInterface;
+use PHPUnit\Framework\TestCase;
 
-class ServerTest extends \PHPUnit_Framework_TestCase
+class ServerTest extends TestCase
 {
     private $server;
 

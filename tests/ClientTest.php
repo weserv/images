@@ -4,8 +4,9 @@ namespace AndriesLouw\imagesweserv;
 
 use Mockery;
 use Mockery\MockInterface;
+use PHPUnit\Framework\TestCase;
 
-class ClientTest extends \PHPUnit_Framework_TestCase
+class ClientTest extends TestCase
 {
     private $client;
 

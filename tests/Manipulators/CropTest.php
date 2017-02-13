@@ -4,8 +4,9 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 
 use Mockery;
 use Mockery\MockInterface;
+use PHPUnit\Framework\TestCase;
 
-class CropTest extends \PHPUnit_Framework_TestCase
+class CropTest extends TestCase
 {
     private $manipulator;
     private $image;

@@ -5,8 +5,9 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 use Jcupitt\Vips\Interpretation;
 use Mockery;
 use Mockery\MockInterface;
+use PHPUnit\Framework\TestCase;
 
-class FilterTest extends \PHPUnit_Framework_TestCase
+class FilterTest extends TestCase
 {
     private $manipulator;
 

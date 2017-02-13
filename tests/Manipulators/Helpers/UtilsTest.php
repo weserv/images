@@ -5,8 +5,9 @@ namespace AndriesLouw\imagesweserv\Manipulators\Helpers;
 use Jcupitt\Vips\Interpretation;
 use Mockery;
 use Mockery\MockInterface;
+use PHPUnit\Framework\TestCase;
 
-class UtilsTest extends \PHPUnit_Framework_TestCase
+class UtilsTest extends TestCase
 {
     public function tearDown()
     {

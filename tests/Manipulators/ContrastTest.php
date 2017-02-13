@@ -5,8 +5,9 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 use Jcupitt\Vips\BandFormat;
 use Mockery;
 use Mockery\MockInterface;
+use PHPUnit\Framework\TestCase;
 
-class ContrastTest extends \PHPUnit_Framework_TestCase
+class ContrastTest extends TestCase
 {
     private $manipulator;
 

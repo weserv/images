@@ -7,8 +7,9 @@ use Jcupitt\Vips\BandFormat;
 use Jcupitt\Vips\Interpretation;
 use Mockery;
 use Mockery\MockInterface;
+use PHPUnit\Framework\TestCase;
 
-class ShapeTest extends \PHPUnit_Framework_TestCase
+class ShapeTest extends TestCase
 {
     private $manipulator;
 

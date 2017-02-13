@@ -4,8 +4,9 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 
 use Mockery;
 use Mockery\MockInterface;
+use PHPUnit\Framework\TestCase;
 
-class BlurTest extends \PHPUnit_Framework_TestCase
+class BlurTest extends TestCase
 {
     private $manipulator;
 

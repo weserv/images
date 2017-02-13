@@ -3,6 +3,7 @@
 namespace AndriesLouw\imagesweserv;
 
 use AndriesLouw\imagesweserv\Api\ApiInterface;
+/*use League\Uri\Components\HierarchicalPath as Path;*/
 use League\Uri\Schemes\Http as HttpUri;
 
 class Server
@@ -161,7 +162,7 @@ class Server
         } else {
             header('Content-type: ' . $type);
 
-            /* pathinfo($uri->path->getBasename(), PATHINFO_FILENAME) */
+            /*pathinfo((new Path($uri->getPath()))->getBasename(), PATHINFO_FILENAME);*/
             $friendlyName = 'image.' . $extension;
 
             if (array_key_exists('download', $params)) {

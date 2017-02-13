@@ -27,6 +27,7 @@ use AndriesLouw\imagesweserv\Exception\RateExceededException;
 use GuzzleHttp\Exception\RequestException;
 use Jcupitt\Vips\Exception as VipsException;
 use League\Uri\Schemes\Http as HttpUri;
+use League\Uri\Components\HierarchicalPath as Path;
 
 $error_messages = [
     'invalid_url' => [
@@ -111,7 +112,7 @@ if (!empty($_GET['url'])) {
         die;
     }
 
-    $extension = $uri->path->getExtension() ?? 'png';
+    $extension = (new Path($uri->getPath()))->getExtension() ?? 'png';
 
     $sysFileName = tempnam('/dev/shm', 'imo_');
 
@@ -119,9 +120,7 @@ if (!empty($_GET['url'])) {
     // This ensures that the image is correctly recognized.
     $tmpFileName = $sysFileName . '.' . $extension;
 
-    @link($sysFileName, $tmpFileName);
-
-    unlink($sysFileName);
+    rename($sysFileName, $tmpFileName);
 
     // Create an PHP HTTP client
     $client = new AndriesLouw\imagesweserv\Client($tmpFileName, [

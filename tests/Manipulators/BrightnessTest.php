@@ -4,8 +4,9 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 
 use Mockery;
 use Mockery\MockInterface;
+use PHPUnit\Framework\TestCase;
 
-class BrightnessTest extends \PHPUnit_Framework_TestCase
+class BrightnessTest extends TestCase
 {
     private $manipulator;
 

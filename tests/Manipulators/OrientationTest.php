@@ -6,8 +6,9 @@ use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Angle;
 use Mockery;
 use Mockery\MockInterface;
+use PHPUnit\Framework\TestCase;
 
-class OrientationTest extends \PHPUnit_Framework_TestCase
+class OrientationTest extends TestCase
 {
     private $manipulator;
 
