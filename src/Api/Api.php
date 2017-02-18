@@ -258,6 +258,8 @@ class Api implements ApiInterface
                 $options['interlace'] = array_key_exists('il', $params);
                 // zlib compression level (default is 6)
                 $options['compression'] = $this->getCompressionLevel($params);
+                // Use adaptive row filtering (default is none)
+                $options['filter'] = array_key_exists('filter', $params) ? 'all' : 'none';
                 break;
             case 'webp':
                 // Strip all metadata (EXIF, XMP, IPTC)
