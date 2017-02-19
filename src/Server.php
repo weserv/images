@@ -126,7 +126,6 @@ class Server
      *
      * @param  string $url Image URL
      * @param  array $params Image manipulation params.
-     * @param  string $extension Extension of URL
      *
      * @return array [
      * @type string Manipulated image binary data,
@@ -134,9 +133,9 @@ class Server
      * @type string The extension of the image
      * ]
      */
-    public function makeImage(string $url, string $extension, array $params): array
+    public function makeImage(string $url, array $params): array
     {
-        return $this->api->run($url, $extension, $this->getAllParams($params));
+        return $this->api->run($url, $this->getAllParams($params));
     }
 
     /**
@@ -144,11 +143,10 @@ class Server
      *
      * @param HttpUri $uri Image URL
      * @param array $params Image manipulation params.
-     * @param string $extension Extension of URL
      */
-    public function outputImage(HttpUri $uri, string $extension, array $params)
+    public function outputImage(HttpUri $uri, array $params)
     {
-        list($image, $type, $extension) = $this->makeImage($uri->__toString(), $extension, $params);
+        list($image, $type, $extension) = $this->makeImage($uri->__toString(), $params);
 
         header('Expires: ' . date_create('+31 days')->format('D, d M Y H:i:s') . ' GMT'); //31 days
         header('Cache-Control: max-age=2678400'); //31 days

@@ -130,12 +130,17 @@ class ServerTest extends TestCase
 
         $manipulator = Mockery::mock(
             'AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface',
-            function (MockInterface $mock) use ($image) {
+            function (MockInterface $mock) use ($image, $tempFile) {
                 $mock->shouldReceive('setParams')->with([
                     'accessMethod' => Access::SEQUENTIAL,
+                    'tmpFileName' => $tempFile,
                     'hasAlpha' => true,
                     'is16Bit' => false,
-                    'isPremultiplied' => false
+                    'isPremultiplied' => false,
+                    'rotation' => 0,
+                    'flip' => false,
+                    'flop' => false,
+                    'cropCoordinates' => null
                 ]);
                 $mock->shouldReceive('run')->andReturn($image);
             }
@@ -145,7 +150,7 @@ class ServerTest extends TestCase
 
         $this->server->setApi($api);
         ob_start();
-        $response = $this->server->outputImage($uri, $extension, []);
+        $response = $this->server->outputImage($uri, []);
         $content = ob_get_clean();
         $this->assertNull($response);
         $this->assertEquals($pixel, $content);
@@ -191,13 +196,18 @@ class ServerTest extends TestCase
 
         $manipulator = Mockery::mock(
             'AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface',
-            function (MockInterface $mock) use ($image) {
+            function (MockInterface $mock) use ($image, $tempFile) {
                 $mock->shouldReceive('setParams')->with([
                     'accessMethod' => Access::SEQUENTIAL,
+                    'tmpFileName' => $tempFile,
                     'hasAlpha' => true,
                     'is16Bit' => false,
                     'isPremultiplied' => false,
                     'encoding' => 'base64',
+                    'rotation' => 0,
+                    'flip' => false,
+                    'flop' => false,
+                    'cropCoordinates' => null
                 ]);
                 $mock->shouldReceive('run')->andReturn($image);
             }
@@ -207,7 +217,7 @@ class ServerTest extends TestCase
 
         $this->server->setApi($api);
         ob_start();
-        $response = $this->server->outputImage($uri, $extension, ['encoding' => 'base64']);
+        $response = $this->server->outputImage($uri, ['encoding' => 'base64']);
         $content = ob_get_clean();
         $this->assertNull($response);
         $this->assertEquals(sprintf('data:%s;base64,%s', $type, $base64), $content);

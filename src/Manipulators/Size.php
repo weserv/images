@@ -4,8 +4,6 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Color;
-use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
-use Jcupitt\Vips\Access;
 use Jcupitt\Vips\Extend;
 use Jcupitt\Vips\Image;
 use Jcupitt\Vips\Kernel;
@@ -19,7 +17,11 @@ use Jcupitt\Vips\Kernel;
  * @property bool $hasAlpha
  * @property bool $is16Bit
  * @property bool $isPremultiplied
+ * @property int $rotation
  * @property string $accessMethod
+ * @property string $tmpFileName
+ * @property string $trim
+ * @property array|null $cropCoordinates
  */
 class Size extends BaseManipulator
 {
@@ -298,6 +300,11 @@ class Size extends BaseManipulator
     {
         $inputWidth = $image->width;
         $inputHeight = $image->height;
+        $rotation = $this->rotation;
+        if ($rotation == 90 || $rotation == 270) {
+            // Swap input output width and height when rotating by 90 or 270 degrees
+            list($inputWidth, $inputHeight) = [$inputHeight, $inputWidth];
+        }
 
         // Scaling calculations
         $xFactor = 1.0;
@@ -329,6 +336,11 @@ class Size extends BaseManipulator
                     } else {
                         $targetResizeWidth = (int)round((float)($inputWidth / $yFactor));
                         $xFactor = $yFactor;
+                    }
+                    break;
+                case 'absolute':
+                    if ($rotation == 90 || $rotation == 270) {
+                        list($xFactor, $yFactor) = [$yFactor, $xFactor];
                     }
                     break;
             }
@@ -382,6 +394,64 @@ class Size extends BaseManipulator
                 $yResidual = 1.0;
                 $width = $inputWidth;
                 $height = $inputHeight;
+            }
+        }
+
+        // Get the current vips loader
+        $loader = $image->get('vips-loader');
+
+        // If integral x and y shrink are equal, try to use shrink-on-load for JPEG, WebP, PDF and SVG
+        // but not when trimming or pre-resize crop
+        $shrinkOnLoad = 1;
+        if ($xShrink == $yShrink && $xShrink >= 2 &&
+            ($loader == 'jpegload' || $loader == 'webpload' || $loader == 'pdfload' || $loader == 'svgload') &&
+            $this->trim == null && $this->cropCoordinates == null
+        ) {
+            if ($xShrink >= 8) {
+                $xFactor /= 8;
+                $yFactor /= 8;
+                $shrinkOnLoad = 8;
+            } elseif ($xShrink >= 4) {
+                $xFactor /= 4;
+                $yFactor /= 4;
+                $shrinkOnLoad = 4;
+            } elseif ($xShrink >= 2) {
+                $xFactor /= 2;
+                $yFactor /= 2;
+                $shrinkOnLoad = 2;
+            }
+        }
+
+        if ($shrinkOnLoad > 1) {
+            // Reload input using shrink-on-load
+            if ($loader == 'jpegload') {
+                // Reload JPEG file
+                $image = Image::jpegload($this->tmpFileName, ['shrink' => $shrinkOnLoad]);
+            } elseif ($loader == 'webpload') {
+                // Reload WebP file
+                $image = Image::webpload($this->tmpFileName, ['shrink' => $shrinkOnLoad]);
+            } elseif ($loader == 'pdfload') {
+                // Reload PDF file
+                $image = Image::pdfload($this->tmpFileName, ['scale' => 1.0 / $shrinkOnLoad]);
+            } else {
+                // Reload SVG file
+                $image = Image::svgload($this->tmpFileName, ['scale' => 1.0 / $shrinkOnLoad]);
+            }
+            // Recalculate integral shrink and float residual
+            $shrunkOnLoadWidth = $image->width;
+            $shrunkOnLoadHeight = $image->height;
+            if ($rotation == 90 || $rotation == 270) {
+                // Swap input output width and height when rotating by 90 or 270 degrees
+                list($shrunkOnLoadWidth, $shrunkOnLoadHeight) = [$shrunkOnLoadHeight, $shrunkOnLoadWidth];
+            }
+            $xFactor = (float)($shrunkOnLoadWidth) / (float)($targetResizeWidth);
+            $yFactor = (float)($shrunkOnLoadHeight) / (float)($targetResizeHeight);
+            $xShrink = max(1, (int)floor($xFactor));
+            $yShrink = max(1, (int)floor($yFactor));
+            $xResidual = (float)($xShrink) / $xFactor;
+            $yResidual = (float)($yShrink) / $yFactor;
+            if ($rotation == 90 || $rotation == 270) {
+                list($xResidual, $yResidual) = [$yResidual, $xResidual];
             }
         }
 

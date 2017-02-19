@@ -106,19 +106,24 @@ class ApiTest extends TestCase
 
         $manipulator = Mockery::mock(
             'AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface',
-            function (MockInterface $mock) use ($image) {
+            function (MockInterface $mock) use ($image, $tempFile) {
                 $mock->shouldReceive('setParams')->with([
                     'accessMethod' => Access::SEQUENTIAL,
+                    'tmpFileName' => $tempFile,
                     'hasAlpha' => true,
                     'is16Bit' => false,
-                    'isPremultiplied' => false
+                    'isPremultiplied' => false,
+                    'rotation' => 0,
+                    'flip' => false,
+                    'flop' => false,
+                    'cropCoordinates' => null
                 ]);
                 $mock->shouldReceive('run')->andReturn($image);
             }
         );
 
         $api = new Api($client, $throttler, [$manipulator]);
-        $this->assertEquals([$pixel, $type, $extension], $api->run($tempFile, $extension, []));
+        $this->assertEquals([$pixel, $type, $extension], $api->run($tempFile, []));
 
         unlink($tempFile);
     }

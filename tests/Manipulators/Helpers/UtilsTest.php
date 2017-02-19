@@ -68,10 +68,46 @@ class UtilsTest extends TestCase
         });
 
         // Rotate 90 degrees EXIF orientation; auto rotate
-        $this->assertSame([90, false, false], Utils::calculateRotationAndFlip(-1, $image));
+        $this->assertSame([90, false, false], Utils::calculateRotationAndFlip(['or' => '-1'], $image));
 
         // No EXIF Orientation + user wants to rotate it 90 degrees
-        $this->assertSame([90, false, false], Utils::calculateRotationAndFlip(90, $image));
+        $this->assertSame([90, false, false], Utils::calculateRotationAndFlip(['or' => '90'], $image));
+    }
+    
+    public function testResolveCropCoordinates()
+    {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function (MockInterface $mock) {
+            $mock->shouldReceive('__get')
+                ->with('width')
+                ->andReturn(100);
+            $mock->shouldReceive('__get')
+                ->with('height')
+                ->andReturn(100);
+        });
+
+
+        $this->assertSame(
+            [100, 100, 0, 0],
+            Utils::resolveCropCoordinates(['crop' => '100,100,0,0'], $image)
+        );
+        $this->assertSame(
+            [101, 1, 1, 1],
+            Utils::resolveCropCoordinates(['crop' => '101,1,1,1'], $image)
+        );
+        $this->assertSame(
+            [1, 101, 1, 1],
+            Utils::resolveCropCoordinates(['crop' => '1,101,1,1'], $image)
+        );
+        $this->assertSame(null, Utils::resolveCropCoordinates(['crop' => null], $image));
+        $this->assertSame(null, Utils::resolveCropCoordinates(['crop' => '1,1,1,'], $image));
+        $this->assertSame(null, Utils::resolveCropCoordinates(['crop' => '1,1,,1'], $image));
+        $this->assertSame(null, Utils::resolveCropCoordinates(['crop' => '1,,1,1'], $image));
+        $this->assertSame(null, Utils::resolveCropCoordinates(['crop' => ',1,1,1'], $image));
+        $this->assertSame(null, Utils::resolveCropCoordinates(['crop' => '-1,1,1,1'], $image));
+        $this->assertSame(null, Utils::resolveCropCoordinates(['crop' => '1,1,101,1'], $image));
+        $this->assertSame(null, Utils::resolveCropCoordinates(['crop' => '1,1,1,101'], $image));
+        $this->assertSame(null, Utils::resolveCropCoordinates(['crop' => 'a'], $image));
+        $this->assertSame(null, Utils::resolveCropCoordinates(['crop' => ''], $image));
     }
 
     public function testMapToRange()

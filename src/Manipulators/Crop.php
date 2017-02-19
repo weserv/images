@@ -6,6 +6,7 @@ use Jcupitt\Vips\Image;
 
 /**
  * @property string $crop
+ * @property array|null $cropCoordinates
  */
 class Crop extends BaseManipulator
 {
@@ -18,7 +19,7 @@ class Crop extends BaseManipulator
      */
     public function run(Image $image): Image
     {
-        $coordinates = $this->getCoordinates($image);
+        $coordinates = $this->cropCoordinates;
 
         if ($coordinates !== null) {
             $coordinates = $this->limitToImageBoundaries($image, $coordinates);
@@ -32,40 +33,6 @@ class Crop extends BaseManipulator
         }
 
         return $image;
-    }
-
-    /**
-     * Resolve coordinates.
-     *
-     * @param  Image $image The source image.
-     *
-     * @return array|null The resolved coordinates.
-     */
-    public function getCoordinates(Image $image)
-    {
-        $coordinates = explode(',', $this->crop);
-
-        if (count($coordinates) !== 4
-            || (!is_numeric($coordinates[0]))
-            || (!is_numeric($coordinates[1]))
-            || (!is_numeric($coordinates[2]))
-            || (!is_numeric($coordinates[3]))
-            || ($coordinates[0] <= 0)
-            || ($coordinates[1] <= 0)
-            || ($coordinates[2] < 0)
-            || ($coordinates[3] < 0)
-            || ($coordinates[2] >= $image->width)
-            || ($coordinates[3] >= $image->height)
-        ) {
-            return null;
-        }
-
-        return [
-            (int)$coordinates[0],
-            (int)$coordinates[1],
-            (int)$coordinates[2],
-            (int)$coordinates[3],
-        ];
     }
 
     /**

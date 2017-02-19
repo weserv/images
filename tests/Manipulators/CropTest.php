@@ -40,34 +40,8 @@ class CropTest extends TestCase
 
         $this->assertInstanceOf(
             'Jcupitt\Vips\Image',
-            $this->manipulator->setParams(['crop' => '100,100,0,0'])->run($this->image)
+            $this->manipulator->setParams(['cropCoordinates' => [100, 100, 0, 0]])->run($this->image)
         );
-    }
-
-    public function testGetCoordinates()
-    {
-        $this->assertSame(
-            [100, 100, 0, 0],
-            $this->manipulator->setParams(['crop' => '100,100,0,0'])->getCoordinates($this->image)
-        );
-        $this->assertSame(
-            [101, 1, 1, 1],
-            $this->manipulator->setParams(['crop' => '101,1,1,1'])->getCoordinates($this->image)
-        );
-        $this->assertSame(
-            [1, 101, 1, 1],
-            $this->manipulator->setParams(['crop' => '1,101,1,1'])->getCoordinates($this->image)
-        );
-        $this->assertSame(null, $this->manipulator->setParams(['crop' => null])->getCoordinates($this->image));
-        $this->assertSame(null, $this->manipulator->setParams(['crop' => '1,1,1,'])->getCoordinates($this->image));
-        $this->assertSame(null, $this->manipulator->setParams(['crop' => '1,1,,1'])->getCoordinates($this->image));
-        $this->assertSame(null, $this->manipulator->setParams(['crop' => '1,,1,1'])->getCoordinates($this->image));
-        $this->assertSame(null, $this->manipulator->setParams(['crop' => ',1,1,1'])->getCoordinates($this->image));
-        $this->assertSame(null, $this->manipulator->setParams(['crop' => '-1,1,1,1'])->getCoordinates($this->image));
-        $this->assertSame(null, $this->manipulator->setParams(['crop' => '1,1,101,1'])->getCoordinates($this->image));
-        $this->assertSame(null, $this->manipulator->setParams(['crop' => '1,1,1,101'])->getCoordinates($this->image));
-        $this->assertSame(null, $this->manipulator->setParams(['crop' => 'a'])->getCoordinates($this->image));
-        $this->assertSame(null, $this->manipulator->setParams(['crop' => ''])->getCoordinates($this->image));
     }
 
     public function testValidateCoordinates()

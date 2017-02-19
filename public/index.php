@@ -186,10 +186,10 @@ if (!empty($_GET['url'])) {
 
     // Set manipulators
     $manipulators = [
-        new AndriesLouw\imagesweserv\Manipulators\Orientation(),
         new AndriesLouw\imagesweserv\Manipulators\Crop(),
         new AndriesLouw\imagesweserv\Manipulators\Trim(),
         new AndriesLouw\imagesweserv\Manipulators\Size(71000000),
+        new AndriesLouw\imagesweserv\Manipulators\Orientation(),
         new AndriesLouw\imagesweserv\Manipulators\Shape,
         new AndriesLouw\imagesweserv\Manipulators\Brightness(),
         new AndriesLouw\imagesweserv\Manipulators\Contrast(),
@@ -228,7 +228,7 @@ if (!empty($_GET['url'])) {
         /**
          * Generate and output image.
          */
-        $server->outputImage($uri, $extension, $_GET);
+        $server->outputImage($uri, $_GET);
     } catch (ImageTooLargeException $e) {
         $error = $error_messages['image_too_large'];
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);

@@ -8,8 +8,10 @@ use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Exception\RateExceededException;
 use AndriesLouw\imagesweserv\Manipulators\Background;
 use AndriesLouw\imagesweserv\Manipulators\Blur;
+use AndriesLouw\imagesweserv\Manipulators\Crop;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface;
+use AndriesLouw\imagesweserv\Manipulators\Orientation;
 use AndriesLouw\imagesweserv\Manipulators\Shape;
 use AndriesLouw\imagesweserv\Manipulators\Sharpen;
 use AndriesLouw\imagesweserv\Manipulators\Size;
@@ -145,7 +147,7 @@ class Api implements ApiInterface
      *      the on_headers event
      * @throws VipsException for errors that occur during the processing of a Image
      */
-    public function run(string $url, string $extension, array $params): array
+    public function run(string $url, array $params): array
     {
         if ($this->throttler !== null) {
             // For PHPUnit check if REMOTE_ADDR is set
@@ -173,6 +175,8 @@ class Api implements ApiInterface
             Access::RANDOM :
             Access::SEQUENTIAL;
 
+        $params['tmpFileName'] = $tmpFileName;
+
         try {
             $image = Image::newFromFile($tmpFileName, ['access' => $params['accessMethod']]);
         } catch (VipsException $e) {
@@ -182,14 +186,22 @@ class Api implements ApiInterface
             throw new ImageNotReadableException('Image not readable. Is it a valid image?', 0, $e);
         }
 
-        $allowed = $this->getAllowedImageTypes();
+        // Determine image extension from the libvips loader
+        $extension = Utils::determineImageExtension($image->get('vips-loader'));
 
-        $interpretation = $image->interpretation;
+        // Get the allowed image types to convert to
+        $allowed = $this->getAllowedImageTypes();
 
         // Put common variables in the parameters
         $params['hasAlpha'] = Utils::hasAlpha($image);
-        $params['is16Bit'] = Utils::is16Bit($interpretation);
+        $params['is16Bit'] = Utils::is16Bit($image->interpretation);
         $params['isPremultiplied'] = false;
+
+        // Calculate angle of rotation
+        list($params['rotation'], $params['flip'], $params['flop']) = Utils::calculateRotationAndFlip($params, $image);
+
+        // Resolve crop coordinates
+        $params['cropCoordinates'] = Utils::resolveCropCoordinates($params, $image);
 
         foreach ($this->manipulators as $manipulator) {
             $manipulator->setParams($params);

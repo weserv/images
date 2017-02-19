@@ -6,7 +6,9 @@ use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Image;
 
 /**
- * @property string $or
+ * @property int $rotation
+ * @property bool $flip
+ * @property bool $flop
  */
 class Orientation extends BaseManipulator
 {
@@ -19,41 +21,21 @@ class Orientation extends BaseManipulator
      */
     public function run(Image $image): Image
     {
-        // Resolve orientation
-        $orientation = $this->getOrientation();
-
-        // Calculate angle of rotation
-        list($rotation, $flip, $flop) = Utils::calculateRotationAndFlip($orientation, $image);
-
         // Rotate if required.
-        if ($rotation != 0) {
-            $image = $image->rot('d' . $rotation);
+        if ($this->rotation != 0) {
+            $image = $image->rot('d' . $this->rotation);
         }
 
         // Flip (mirror about Y axis) if required.
-        if ($flip) {
+        if ($this->flip) {
             $image = $image->flipver();
         }
 
         // Flop (mirror about X axis) if required.
-        if ($flop) {
+        if ($this->flop) {
             $image = $image->fliphor();
         }
 
         return $image;
-    }
-
-    /**
-     * Resolve orientation.
-     *
-     * @return int The resolved orientation.
-     */
-    public function getOrientation(): int
-    {
-        if (in_array($this->or, ['90', '180', '270'], true)) {
-            return (int)$this->or;
-        }
-
-        return -1;
     }
 }

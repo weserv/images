@@ -71,12 +71,12 @@ class Utils
         $scanlineCount = 0;
         // TODO Support for `vips_get_tile_size` in php-vips-ext
         //list($tileWidth, $tileHeight, $scanlineCount) = Image::get_tile_size($image);
-        $needLines = (float) 1.2 * $scanlineCount / $factor;
+        $needLines = (float)1.2 * $scanlineCount / $factor;
 
         return $image->tilecache([
             'tile_width' => $image->width,
             'tile_height' => 10,
-            'max_tiles' => (int) round(1.0 + $needLines / 10.0),
+            'max_tiles' => (int)round(1.0 + $needLines / 10.0),
             'access' => Access::SEQUENTIAL,
             'threaded' => true
         ]);
@@ -99,6 +99,45 @@ class Utils
     }
 
     /**
+     * Resolve crop coordinates.
+     *
+     * @param  array $params Image manipulation params.
+     * @param  Image $image The source image.
+     *
+     * @return array|null The resolved coordinates.
+     */
+    public static function resolveCropCoordinates(array $params, Image $image)
+    {
+        if (!isset($params['crop'])) {
+            return null;
+        }
+
+        $coordinates = explode(',', $params['crop']);
+
+        if (count($coordinates) !== 4
+            || (!is_numeric($coordinates[0]))
+            || (!is_numeric($coordinates[1]))
+            || (!is_numeric($coordinates[2]))
+            || (!is_numeric($coordinates[3]))
+            || ($coordinates[0] <= 0)
+            || ($coordinates[1] <= 0)
+            || ($coordinates[2] < 0)
+            || ($coordinates[3] < 0)
+            || ($coordinates[2] >= $image->width)
+            || ($coordinates[3] >= $image->height)
+        ) {
+            return null;
+        }
+
+        return [
+            (int)$coordinates[0],
+            (int)$coordinates[1],
+            (int)$coordinates[2],
+            (int)$coordinates[3],
+        ];
+    }
+
+    /**
      * Calculate the angle of rotation and need-to-flip for the output image.
      * Removes the EXIF orientation header if the image contains one.
      *
@@ -115,13 +154,18 @@ class Utils
      *  6. If there's no EXIF orientation header and no explicitly requested angle
      *     then default the $rotate variable to zero, i.e. no rotation.
      *
-     * @param  int $angle explicitly requested angle
+     * @param  array $params Image manipulation params.
      * @param  Image $image The source image.
      *
      * @return array [rotation, flip, flop]
      */
-    public static function calculateRotationAndFlip(int $angle, Image $image): array
+    public static function calculateRotationAndFlip(array $params, Image $image): array
     {
+        $angle = 0;
+        if (isset($params['or']) && in_array($params['or'], ['90', '180', '270'], true)) {
+            $angle = (int)$params['or'];
+        }
+
         $rotate = 0;
         $flip = false;
         $flop = false;
@@ -203,5 +247,48 @@ class Utils
     public static function mapToRange(int $value, int $in_min, int $in_max, int $out_min, int $out_max): float
     {
         return (float)($value - $in_min) * ($out_max - $out_min) / ($in_max - $in_min) + $out_min;
+    }
+
+    /**
+     * Determine image extension from the libvips loader
+     *
+     * @param string $loader The libvips loader
+     *
+     * @return string image type
+     */
+    public static function determineImageExtension(string $loader)
+    {
+        switch ($loader) {
+            case 'jpegload':
+                return 'jpg';
+            case 'pngload':
+                return 'png';
+            case 'webpload':
+                return 'webp';
+            case 'tiffload':
+                return 'tiff';
+            case 'gifload':
+                return 'gif';
+            case 'svgload':
+                return 'svg';
+            case 'pdfload':
+                return 'pdf';
+            case 'ppmload':
+                return 'ppm';
+            case 'fitsload':
+                return 'fits';
+            case 'vipsload':
+                return 'v';
+            case 'rawload':
+                return 'raw';
+            case 'magickload':
+                // Not a extension
+                return 'magick';
+            case 'openslideload':
+                // Not a extension
+                return 'openslide';
+            default:
+                return 'unknown';
+        }
     }
 }
