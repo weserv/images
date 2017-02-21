@@ -8,10 +8,8 @@ use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Exception\RateExceededException;
 use AndriesLouw\imagesweserv\Manipulators\Background;
 use AndriesLouw\imagesweserv\Manipulators\Blur;
-use AndriesLouw\imagesweserv\Manipulators\Crop;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface;
-use AndriesLouw\imagesweserv\Manipulators\Orientation;
 use AndriesLouw\imagesweserv\Manipulators\Shape;
 use AndriesLouw\imagesweserv\Manipulators\Sharpen;
 use AndriesLouw\imagesweserv\Manipulators\Size;
@@ -149,6 +147,7 @@ class Api implements ApiInterface
      */
     public function run(string $url, array $params): array
     {
+        // Throttler can be null
         if ($this->throttler !== null) {
             // For PHPUnit check if REMOTE_ADDR is set
             $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
@@ -164,7 +163,7 @@ class Api implements ApiInterface
         // Things that won't work with sequential mode images:
         //  - Trim (will scan the whole image once to find the crop area).
         //  - A 90/270-degree rotate (will need to read a column of pixels for every output line it writes).
-        //  - Adjustments such blurring or sharpen.
+        //  - Adjustments such blurring or sharpen. (TODO: Is maybe fixable with a tilecache)
         $isTrim = isset($params['trim']);
         $isOrientation = isset($params['or']) && in_array($params['or'], ['90', '270'], true);
         $isBlur = isset($params['blur']);
@@ -175,13 +174,13 @@ class Api implements ApiInterface
             Access::RANDOM :
             Access::SEQUENTIAL;
 
+        // Save our temporary file name
         $params['tmpFileName'] = $tmpFileName;
 
         try {
+            // Create a new Image instance from our temporary file
             $image = Image::newFromFile($tmpFileName, ['access' => $params['accessMethod']]);
         } catch (VipsException $e) {
-            trigger_error('Image not readable. Message: ' . $e->getMessage() . ' URL: ' . $url, E_USER_WARNING);
-
             // Keep throwing it (with a wrapper).
             throw new ImageNotReadableException('Image not readable. Is it a valid image?', 0, $e);
         }
@@ -203,6 +202,7 @@ class Api implements ApiInterface
         // Resolve crop coordinates
         $params['cropCoordinates'] = Utils::resolveCropCoordinates($params, $image);
 
+        // Do our image manipulations
         foreach ($this->manipulators as $manipulator) {
             $manipulator->setParams($params);
 

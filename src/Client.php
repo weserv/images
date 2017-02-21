@@ -4,6 +4,7 @@ namespace AndriesLouw\imagesweserv;
 
 use AndriesLouw\imagesweserv\Exception\ImageNotValidException;
 use AndriesLouw\imagesweserv\Exception\ImageTooBigException;
+use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\RequestInterface;
@@ -85,21 +86,16 @@ class Client
                     if (!empty($this->options['allowed_mime_types']) &&
                         !isset($this->options['allowed_mime_types'][$response->getHeaderLine('Content-Type')])
                     ) {
-                        $error = $this->options['error_message']['invalid_image'];
-                        $str = array_pop($this->options['allowed_mime_types']);
-                        $supportedImages = implode(', ', $this->options['allowed_mime_types']) . ' and ' . $str;
-                        throw new ImageNotValidException(sprintf($error['message'], $supportedImages));
+                        throw new ImageNotValidException();
                     }
                     if ($this->options['max_image_size'] != 0
                         && $response->getHeaderLine('Content-Length') > $this->options['max_image_size']
                     ) {
-                        $error = $this->options['error_message']['image_too_big'];
                         $size = $response->getHeaderLine('Content-Length');
-                        $imageSize = $this->formatSizeUnits($size);
-                        $maxImageSize = $this->formatSizeUnits($this->options['max_image_size']);
-                        throw new ImageTooBigException(sprintf($error['message'], $imageSize, $maxImageSize));
+                        $imageSize = Utils::formatSizeUnits($size);
+                        throw new ImageTooBigException($imageSize);
                     }
-                },
+                }
             ]
         );
 
@@ -126,7 +122,6 @@ class Client
         return $this->client;
     }
 
-
     /**
      * Set the client options
      *
@@ -145,32 +140,6 @@ class Client
     public function getOptions(): array
     {
         return $this->options;
-    }
-
-    /**
-     * http://stackoverflow.com/questions/5501427/php-filesize-mb-kb-conversion
-     *
-     * @param  int $bytes
-     *
-     * @return string
-     */
-    private function formatSizeUnits(int $bytes): string
-    {
-        if ($bytes >= 1073741824) {
-            $bytes = number_format($bytes / 1073741824, 2) . ' GB';
-        } elseif ($bytes >= 1048576) {
-            $bytes = number_format($bytes / 1048576, 2) . ' MB';
-        } elseif ($bytes >= 1024) {
-            $bytes = number_format($bytes / 1024, 2) . ' KB';
-        } elseif ($bytes > 1) {
-            $bytes = $bytes . ' bytes';
-        } elseif ($bytes == 1) {
-            $bytes = $bytes . ' byte';
-        } else {
-            $bytes = '0 bytes';
-        }
-
-        return $bytes;
     }
 
     /**
@@ -204,35 +173,10 @@ class Client
              */
             $this->client->get($url, $requestOptions);
         } catch (RequestException $e) {
+            // Make sure we've closed the open file (suppress any warnings)
             @fclose($this->handle);
-            $previousException = $e->getPrevious();
-            if ($previousException instanceof ImageNotValidException
-                || $previousException instanceof ImageTooBigException
-            ) {
-                if ($previousException instanceof ImageNotValidException) {
-                    $error = $this->options['error_message']['invalid_image'];
-                    trigger_error(sprintf($error['log'], $url), E_USER_WARNING);
-                } else {
-                    if ($previousException instanceof ImageTooBigException) {
-                        $error = $this->options['error_message']['image_too_big'];
-                        trigger_error(sprintf($error['log'], $url), E_USER_WARNING);
-                    }
-                }
-            } else {
-                $error = $this->options['error_message']['curl_error'];
 
-                trigger_error(
-                    sprintf(
-                        $error['log'],
-                        $e->getMessage(),
-                        $url,
-                        ($e->hasResponse() && $e->getResponse() != null ?
-                            $e->getResponse()->getStatusCode()
-                            : $e->getCode())
-                    ),
-                    E_USER_WARNING
-                );
-            }
+            // Rethrow
             throw $e;
         }
 

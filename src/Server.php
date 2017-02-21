@@ -3,8 +3,9 @@
 namespace AndriesLouw\imagesweserv;
 
 use AndriesLouw\imagesweserv\Api\ApiInterface;
-/*use League\Uri\Components\HierarchicalPath as Path;*/
 use League\Uri\Schemes\Http as HttpUri;
+
+/*use League\Uri\Components\HierarchicalPath as Path;*/
 
 class Server
 {

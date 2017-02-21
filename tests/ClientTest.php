@@ -25,28 +25,7 @@ class ClientTest extends TestCase
             'timeout' => 10,
             'max_image_size' => 0,
             'max_redirects' => 10,
-            'allowed_mime_types' => [],
-            'error_message' => [
-                'invalid_image' => [
-                    'header' => '400 Bad Request',
-                    'content-type' => 'text/plain',
-                    'message' => 'The request image is not a valid (supported) image. Supported images are: %s',
-                    'log' => 'Non-supported image. URL: %s',
-                ],
-                'image_too_big' => [
-                    'header' => '400 Bad Request',
-                    'content-type' => 'text/plain',
-                    'message' => 'The image is too big to be downloaded.' . PHP_EOL . 'Image size %s'
-                        . PHP_EOL . 'Max image size: %s',
-                    'log' => 'Image too big. URL: %s',
-                ],
-                'curl_error' => [
-                    'header' => '400 Bad Request',
-                    'content-type' => 'text/plain',
-                    'message' => 'cURL Request error: %s Status code: %s',
-                    'log' => 'cURL Request error: %s URL: %s Status code: %s',
-                ]
-            ]
+            'allowed_mime_types' => []
         ];
 
         $this->client = new Client($this->tempFile, $this->options);

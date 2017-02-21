@@ -1,4 +1,5 @@
 <?php
+
 namespace AndriesLouw\imagesweserv\Exception;
 
 /**

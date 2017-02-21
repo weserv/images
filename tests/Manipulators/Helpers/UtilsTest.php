@@ -73,7 +73,7 @@ class UtilsTest extends TestCase
         // No EXIF Orientation + user wants to rotate it 90 degrees
         $this->assertSame([90, false, false], Utils::calculateRotationAndFlip(['or' => '90'], $image));
     }
-    
+
     public function testResolveCropCoordinates()
     {
         $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function (MockInterface $mock) {

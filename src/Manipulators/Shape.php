@@ -322,9 +322,15 @@ SVG;
 
         $svg = sprintf($template, "<path d='$path'/>");
 
-        return [Image::newFromBuffer($svg, '', [
-            'dpi' => 72,
-            'access' => $this->accessMethod,
-        ]), $xMin, $yMin, $width, $height];
+        return [
+            Image::newFromBuffer($svg, '', [
+                'dpi' => 72,
+                'access' => $this->accessMethod,
+            ]),
+            $xMin,
+            $yMin,
+            $width,
+            $height
+        ];
     }
 }
