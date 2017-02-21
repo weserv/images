@@ -572,8 +572,8 @@ if (!empty($_GET['url'])) {
                     <a href="//$url/?url=$exampleImage&amp;h=300"><img src="//$url/?url=$exampleImage&amp;h=300" alt=""/></a>
                 </section>
                 <section id="orientation" class="goto">
-                    <h1>Orientation <span class="new">New!</span></h1>
-                    <h3 id="orientation-or">Orientation <code>or</code></h3>
+                    <h1>Orientation</h1>
+                    <h3 id="orientation-or">Orientation <code>&amp;or=</code> <span class="new">New!</span></h3>
                     <p>Rotates the image. Accepts <code>auto</code>, <code>0</code>, <code>90</code>, <code>180</code> or <code>270</code>. Default is <code>auto</code>. The <code>auto</code> option uses Exif data to automatically orient images correctly.</p>
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;h=300&amp;or=90"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;h=300&amp;or=90"><img src="//$url/?url=$exampleImage&amp;h=300&amp;or=90" alt=""/></a>
@@ -638,20 +638,20 @@ if (!empty($_GET['url'])) {
                     <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle" alt=""/></a>
                 </section>
                 <section id="adjustments" class="goto">
-                    <h1>Adjustments <span class="new">New!</span></h1>
-                    <h3 id="brightness-bri">Brightness <code>bri</code></h3>
+                    <h1>Adjustments</h1>
+                    <h3 id="brightness-bri">Brightness <code>&amp;bri=</code> <span class="new">New!</span></h3>
                     <p>Adjusts the image brightness. Use values between <code>-100</code> and <code>+100</code>, where <code>0</code> represents no change.</p>
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;bri=-25"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;w=300&amp;bri=-25"><img src="//$url/?url=$exampleImage&amp;w=300&amp;bri=-25" alt=""/></a>
-                    <h3 id="contrast-con">Contrast <code>con</code></h3>
+                    <h3 id="contrast-con">Contrast <code>&amp;con=</code> <span class="new">New!</span></h3>
                     <p>Adjusts the image contrast. Use values between <code>-100</code> and <code>+100</code>, where <code>0</code> represents no change.</p>
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;con=25"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;w=300&amp;con=25"><img src="//$url/?url=$exampleImage&amp;w=300&amp;con=25" alt=""/></a>
-                    <h3 id="gamma-gam">Gamma <code>gam</code></h3>
+                    <h3 id="gamma-gam">Gamma <code>&amp;gam=</code> <span class="new">New!</span></h3>
                     <p>Adjusts the image gamma. Use values between <code>1</code> and <code>3</code>. The default value is <code>2.2</code>, a suitable approximation for sRGB images.</p>
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;gam=3"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;w=300&amp;gam=3"><img src="//$url/?url=$exampleImage&amp;w=300&amp;gam=3" alt=""/></a>
-                    <h3 id="sharpen-sharp">Sharpen <code>sharp</code></h3>
+                    <h3 id="sharpen-sharp">Sharpen <code>&amp;sharp=</code> <span class="new">New!</span></h3>
                     <p>Sharpen the image. Required format: <code>f,j,r</code></p>
                     <h4 id="sharpen-arguments">Arguments:</h4>
                     <ul>
@@ -661,11 +661,11 @@ if (!empty($_GET['url'])) {
                     </ul>
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;sharp=5,5,3"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;w=300&amp;sharp=5,5,3"><img src="//$url/?url=$exampleImage&amp;w=300&amp;sharp=5,5,3" alt=""/></a>
-                    <h3 id="trim-trim">Trim <code>trim</code></h3>
+                    <h3 id="trim-trim">Trim <code>&amp;trim=</code></h3>
                     <p>Trim "boring" pixels from all edges that contain values within a similarity of the top-left pixel. Trimming occurs before any resize operation. Use values between <code>0</code> and <code>255</code> to define a tolerance level to trim away similar color values. You also can specify just &trim, which defaults to a tolerance level of 10.</p><p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/39">Issue #39 - able to remove black/white whitespace</a>.</p>
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleTransparentImage&amp;w=300&amp;trim=10"&gt;</code></pre>
                     <a class="trimedges" href="//$url/?url=$exampleTransparentImage&amp;w=300&amp;trim=10"><img src="//$url/?url=$exampleTransparentImage&amp;w=300&amp;trim=10" alt=""/></a>
-                    <h3 id="background-bg">Background <code>bg</code></h3>
+                    <h3 id="background-bg">Background <code>&amp;bg=</code> <span class="new">New!</span></h3>
                     <p>Sets the background color of the image. Supports a variety of color formats. In addition to the 140 color names supported by all modern browsers (listed <a href="//$url/colors.html">here</a>), it also accepts hexadecimal RGB and RBG alpha formats.</p>
                     <h4 id="hexadecimal">Hexadecimal</h4>
                     <ul>
@@ -678,12 +678,12 @@ if (!empty($_GET['url'])) {
                     <a href="//$url/?url=$exampleTransparentImage&amp;w=400&amp;bg=black"><img src="//$url/?url=$exampleTransparentImage&amp;w=400&amp;bg=black" alt=""/></a>
                 </section>
                 <section id="effects" class="goto">
-                    <h1>Effects <span class="new">New!</span></h1>
-                    <h3 id="blur-blur">Blur <code>blur</code></h3>
+                    <h1>Effects</h1>
+                    <h3 id="blur-blur">Blur <code>&amp;blur=</code>  <span class="new">New!</span></h3>
                     <p>Adds a blur effect to the image. Use values between <code>0</code> and <code>100</code>.</p>
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;blur=5"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;w=300&amp;blur=5"><img src="//$url/?url=$exampleImage&amp;w=300&amp;blur=5" alt=""/></a>
-                    <h3 id="filter-filt">Filter <code>filt</code></h3>
+                    <h3 id="filter-filt">Filter <code>&amp;filt=</code> <span class="new">New!</span></h3>
                     <p>Applies a filter effect to the image. Accepts <code>greyscale</code> or <code>sepia</code>.</p>
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;filt=greyscale"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;w=300&amp;filt=greyscale"><img src="//$url/?url=$exampleImage&amp;w=300&amp;filt=greyscale" alt=""/></a>
