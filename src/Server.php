@@ -152,16 +152,31 @@ class Server
         header('Expires: ' . date_create('+31 days')->format('D, d M Y H:i:s') . ' GMT'); //31 days
         header('Cache-Control: max-age=2678400'); //31 days
 
-        if (isset($params['encoding']) && $params['encoding'] == 'base64') {
-            $base64 = sprintf('data:%s;base64,%s', $type, base64_encode($image));
+        $isDebug = isset($params['debug']) && $params['debug'] == '1';
+        $needsBase64 = isset($params['encoding']) && $params['encoding'] == 'base64';
 
+        // If base64 output is needed or if debugging is enabled
+        if ($needsBase64 || $isDebug) {
             header('Content-type: text/plain');
 
-            echo $base64;
+            if ($isDebug) {
+                $json = [
+                    'result' => base64_encode($image)
+                ];
+                echo '[' . date('Y-m-d\TH:i:sP') . '] debug: outputImage ';
+                echo json_encode($json) . PHP_EOL;
+            } else {
+                $base64 = sprintf('data:%s;base64,%s', $type, base64_encode($image));
+                echo $base64;
+            }
         } else {
             header('Content-type: ' . $type);
 
-            /*pathinfo((new Path($uri->getPath()))->getBasename(), PATHINFO_FILENAME);*/
+            /*
+             * We could ouput the origin filename with this:
+             * $friendlyName = pathinfo((new Path($uri->getPath()))->getBasename(), PATHINFO_FILENAME) . $extension;
+             * but due to security reasons we've disabled that.
+             */
             $friendlyName = 'image.' . $extension;
 
             if (array_key_exists('download', $params)) {

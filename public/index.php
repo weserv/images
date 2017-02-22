@@ -313,7 +313,7 @@ if (!empty($_GET['url'])) {
             sprintf(
                 $error['log'],
                 $uri->__toString(),
-                $e->getMessage()
+                $e->getPrevious()->getMessage()
             ),
             E_USER_WARNING
         );
@@ -655,9 +655,9 @@ if (!empty($_GET['url'])) {
                     <p>Sharpen the image. Required format: <code>f,j,r</code></p>
                     <h4 id="sharpen-arguments">Arguments:</h4>
                     <ul>
-                        <li>Flat <code>f</code> -  Sharpening to apply to flat areas. (Default: 1.0)</li>
+                        <li>Flat <code>f</code> - Sharpening to apply to flat areas. (Default: 1.0)</li>
                         <li>Jagged <code>j</code> - Sharpening to apply to jagged areas. (Default: 2.0)</li>
-                        <li>Radius <code>r</code> -  Sharpening mask to apply in pixels, but comes at a performance cost. (optional)</li>
+                        <li>Radius <code>r</code> - Sharpening mask to apply in pixels, but comes at a performance cost. (optional)</li>
                     </ul>
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;sharp=5,5,3"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;w=300&amp;sharp=5,5,3"><img src="//$url/?url=$exampleImage&amp;w=300&amp;sharp=5,5,3" alt=""/></a>
@@ -679,7 +679,7 @@ if (!empty($_GET['url'])) {
                 </section>
                 <section id="effects" class="goto">
                     <h1>Effects</h1>
-                    <h3 id="blur-blur">Blur <code>&amp;blur=</code>  <span class="new">New!</span></h3>
+                    <h3 id="blur-blur">Blur <code>&amp;blur=</code> <span class="new">New!</span></h3>
                     <p>Adds a blur effect to the image. Use values between <code>0</code> and <code>100</code>.</p>
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;blur=5"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;w=300&amp;blur=5"><img src="//$url/?url=$exampleImage&amp;w=300&amp;blur=5" alt=""/></a>

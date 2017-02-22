@@ -18,6 +18,8 @@ use GuzzleHttp\Exception\RequestException;
 use InvalidArgumentException;
 use Jcupitt\Vips\Access;
 use Jcupitt\Vips\BandFormat;
+use Jcupitt\Vips\Config;
+use Jcupitt\Vips\DebugLogger;
 use Jcupitt\Vips\Exception as VipsException;
 use Jcupitt\Vips\Image;
 
@@ -156,6 +158,11 @@ class Api implements ApiInterface
             if ($this->throttler->isExceeded($ip, $this->ban())) {
                 throw new RateExceededException();
             }
+        }
+
+        // If debugging is needed; set our php-vips debug logger
+        if (isset($params['debug']) && $params['debug'] == '1') {
+            Config::setLogger(new DebugLogger());
         }
 
         $tmpFileName = $this->client->get($url);
