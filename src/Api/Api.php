@@ -160,8 +160,12 @@ class Api implements ApiInterface
             }
         }
 
-        // If debugging is needed; set our php-vips debug logger
+        // If debugging is needed
         if (isset($params['debug']) && $params['debug'] == '1') {
+            // Turn on output buffering
+            ob_start();
+
+            // Set our php-vips debug logger
             Config::setLogger(new DebugLogger());
         }
 

@@ -152,23 +152,21 @@ class Server
         header('Expires: ' . date_create('+31 days')->format('D, d M Y H:i:s') . ' GMT'); //31 days
         header('Cache-Control: max-age=2678400'); //31 days
 
-        $isDebug = isset($params['debug']) && $params['debug'] == '1';
-        $needsBase64 = isset($params['encoding']) && $params['encoding'] == 'base64';
-
-        // If base64 output is needed or if debugging is enabled
-        if ($needsBase64 || $isDebug) {
+        if (isset($params['debug']) && $params['debug'] == '1') {
             header('Content-type: text/plain');
 
-            if ($isDebug) {
-                $json = [
-                    'result' => base64_encode($image)
-                ];
-                echo '[' . date('Y-m-d\TH:i:sP') . '] debug: outputImage ';
-                echo json_encode($json) . PHP_EOL;
-            } else {
-                $base64 = sprintf('data:%s;base64,%s', $type, base64_encode($image));
-                echo $base64;
-            }
+            $json = [
+                'result' => base64_encode($image)
+            ];
+            echo '[' . date('Y-m-d\TH:i:sP') . '] debug: outputImage ';
+            echo json_encode($json) . PHP_EOL;
+
+            // Output buffering is enabled; flush it and turn it off
+            ob_end_flush();
+        } elseif (isset($params['encoding']) && $params['encoding'] == 'base64') {
+            header('Content-type: text/plain');
+
+            echo sprintf('data:%s;base64,%s', $type, base64_encode($image));
         } else {
             header('Content-type: ' . $type);
 
