@@ -44,7 +44,7 @@ Thanks for your support!
 - The filter effect `&filt=`. Accepts `greyscale` or `sepia`.
 
 #### Input
-- With the magical help of [libvips](https://github.com/jcupitt/libvips) and the PHP binding [php-vips](https://github.com/jcupitt/php-vips), we "officially" support `PNG`, `JPG`, `WEBP`, `GIF` (not animated), `SVG`, `PDF` and `TIFF` as image input. "Unofficially" we're supporting all [libMagick image file types](https://www.imagemagick.org/script/formats.php). 
+- With the magical help of [libvips](https://github.com/jcupitt/libvips) and the PHP binding [php-vips](https://github.com/jcupitt/php-vips), we "officially" support `PNG`, `JPG`, `WEBP`, `GIF` (not animated), `SVG`, `PDF` and `TIFF` as image input. "Unofficially" we're supporting all [libMagick image file types](https://www.imagemagick.org/script/formats.php#supported). 
 
 #### Output
 - We've added `&output=webp` in an effort to support more image formats as output. See [#68](https://github.com/andrieslouw/imagesweserv/issues/68).

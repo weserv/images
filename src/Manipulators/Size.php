@@ -4,6 +4,7 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Color;
+use Jcupitt\Vips\Access;
 use Jcupitt\Vips\Extend;
 use Jcupitt\Vips\Image;
 use Jcupitt\Vips\Kernel;
@@ -22,6 +23,7 @@ use Jcupitt\Vips\Kernel;
  * @property string $tmpFileName
  * @property string $trim
  * @property array|null $cropCoordinates
+ * @property string $page
  */
 class Size extends BaseManipulator
 {
@@ -432,7 +434,11 @@ class Size extends BaseManipulator
                 $image = Image::webpload($this->tmpFileName, ['shrink' => $shrinkOnLoad]);
             } elseif ($loader == 'pdfload') {
                 // Reload PDF file
-                $image = Image::pdfload($this->tmpFileName, ['scale' => 1.0 / $shrinkOnLoad]);
+                // (don't forget to pass on the page that we want)
+                $image = Image::pdfload($this->tmpFileName, [
+                    'scale' => 1.0 / $shrinkOnLoad,
+                    'page' => !is_null($this->page) && is_numeric($this->page) ? (int)$this->page : 0
+                ]);
             } else {
                 // Reload SVG file
                 $image = Image::svgload($this->tmpFileName, ['scale' => 1.0 / $shrinkOnLoad]);
@@ -483,10 +489,15 @@ class Size extends BaseManipulator
 
         // Use affine increase or kernel reduce with the remaining float part
         if ($xResidual != 1.0 || $yResidual != 1.0) {
-            // Insert tile cache to prevent over-computation of previous operations
-            /*if ($this->accessMethod == Access::SEQUENTIAL) {
-                $image = Utils::tileCache($image, $yResidual);
-            }*/
+            // Insert line cache to prevent over-computation of previous operations
+            if ($this->accessMethod == Access::SEQUENTIAL) {
+                // TODO Figure out how many scanline(s) ('tile_height') it will need.
+                $image = $image->linecache([
+                    'tile_height' => 10,
+                    'access' => Access::SEQUENTIAL,
+                    'threaded' => true
+                ]);
+            }
 
             // Perform kernel-based reduction
             if ($yResidual < 1.0 || $xResidual < 1.0) {

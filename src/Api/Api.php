@@ -174,23 +174,34 @@ class Api implements ApiInterface
         // Things that won't work with sequential mode images:
         //  - Trim (will scan the whole image once to find the crop area).
         //  - A 90/270-degree rotate (will need to read a column of pixels for every output line it writes).
-        //  - Adjustments such blurring or sharpen. (TODO: Is maybe fixable with a tilecache)
         $isTrim = isset($params['trim']);
         $isOrientation = isset($params['or']) && in_array($params['or'], ['90', '270'], true);
-        $isBlur = isset($params['blur']);
-        $isSharp = isset($params['sharp']);
 
         // If any of the above adjustments; don't use sequential mode read.
-        $params['accessMethod'] = $isTrim || $isOrientation || $isBlur || $isSharp ?
-            Access::RANDOM :
-            Access::SEQUENTIAL;
+        $params['accessMethod'] = $isTrim || $isOrientation ? Access::RANDOM : Access::SEQUENTIAL;
 
         // Save our temporary file name
         $params['tmpFileName'] = $tmpFileName;
 
+        $loadOptions = [
+            'access' => $params['accessMethod']
+        ];
+
+        // Let the user decide which page he wants
+        // useful for PDFs, TIFFs and multi-size ICOs
+        /*
+         * TODO: `vips_foreign_find_load` is needed to ensure
+         * that the page option is only set correct loader.
+         * For example this will now fail if we set this option to
+         * an JPEG image: `jpegload: no property named `page'`
+         */
+        if (isset($params['page']) && is_numeric($params['page'])) {
+            $loadOptions['page'] = (int)$params['page'];
+        }
+
         try {
             // Create a new Image instance from our temporary file
-            $image = Image::newFromFile($tmpFileName, ['access' => $params['accessMethod']]);
+            $image = Image::newFromFile($tmpFileName, $loadOptions);
         } catch (VipsException $e) {
             // Keep throwing it (with a wrapper).
             throw new ImageNotReadableException('Image not readable. Is it a valid image?', 0, $e);
@@ -263,38 +274,38 @@ class Api implements ApiInterface
             }
         }
 
-        $options = [];
+        $toBufferOptions = [];
 
         switch ($extension) {
             case 'jpg':
                 // Strip all metadata (EXIF, XMP, IPTC)
-                $options['strip'] = true;
+                $toBufferOptions['strip'] = true;
                 // Set quality (default is 85)
-                $options['Q'] = $this->getQuality($params);
+                $toBufferOptions['Q'] = $this->getQuality($params);
                 // Use progressive (interlace) scan, if necessary
-                $options['interlace'] = array_key_exists('il', $params);
+                $toBufferOptions['interlace'] = array_key_exists('il', $params);
                 // Enable libjpeg's Huffman table optimiser
-                $options['optimize_coding'] = true;
+                $toBufferOptions['optimize_coding'] = true;
                 break;
             case 'png':
                 // Use progressive (interlace) scan, if necessary
-                $options['interlace'] = array_key_exists('il', $params);
+                $toBufferOptions['interlace'] = array_key_exists('il', $params);
                 // zlib compression level (default is 6)
-                $options['compression'] = $this->getCompressionLevel($params);
+                $toBufferOptions['compression'] = $this->getCompressionLevel($params);
                 // Use adaptive row filtering (default is none)
-                $options['filter'] = array_key_exists('filter', $params) ? 'all' : 'none';
+                $toBufferOptions['filter'] = array_key_exists('filter', $params) ? 'all' : 'none';
                 break;
             case 'webp':
                 // Strip all metadata (EXIF, XMP, IPTC)
-                $options['strip'] = true;
+                $toBufferOptions['strip'] = true;
                 // Set quality (default is 85)
-                $options['Q'] = $this->getQuality($params);
+                $toBufferOptions['Q'] = $this->getQuality($params);
                 // Set quality of alpha layer to 100
-                $options['alpha_q'] = 100;
+                $toBufferOptions['alpha_q'] = 100;
                 break;
         }
 
-        $buffer = $image->writeToBuffer('.' . $extension, $options);
+        $buffer = $image->writeToBuffer('.' . $extension, $toBufferOptions);
         $mimeType = $allowed[$extension];
 
         /*
@@ -321,7 +332,7 @@ class Api implements ApiInterface
             // If image is valid
             if ($gdImage !== false) {
                 // Enable interlacing if needed
-                if ($options['interlace']) {
+                if ($toBufferOptions['interlace']) {
                     imageinterlace($gdImage, true);
                 }
 

@@ -2,6 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
+use Jcupitt\Vips\Access;
 use Jcupitt\Vips\Image;
 use Jcupitt\Vips\Interpretation;
 
@@ -9,6 +10,7 @@ use Jcupitt\Vips\Interpretation;
  * @property string $sharp
  * @property bool $hasAlpha
  * @property bool $isPremultiplied
+ * @property string $accessMethod
  */
 class Sharpen extends BaseManipulator
 {
@@ -105,6 +107,15 @@ class Sharpen extends BaseManipulator
             $oldInterpretation = $image->interpretation;
             if ($oldInterpretation == Interpretation::RGB) {
                 $oldInterpretation = Interpretation::SRGB;
+            }
+
+            if ($this->accessMethod == Access::SEQUENTIAL) {
+                // TODO Figure out how many scanline(s) ('tile_height') it will need.
+                $image = $image->linecache([
+                    'tile_height' => 10,
+                    'access' => Access::SEQUENTIAL,
+                    'threaded' => true
+                ]);
             }
 
             return $image->sharpen(

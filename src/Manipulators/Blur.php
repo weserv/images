@@ -2,12 +2,14 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
+use Jcupitt\Vips\Access;
 use Jcupitt\Vips\Image;
 
 /**
  * @property string $blur
  * @property bool $hasAlpha
  * @property bool $isPremultiplied
+ * @property string $accessMethod
  */
 class Blur extends BaseManipulator
 {
@@ -46,6 +48,15 @@ class Blur extends BaseManipulator
             );
             $image = $image->conv($blur);
         } else {
+            if ($this->accessMethod == Access::SEQUENTIAL) {
+                // TODO Figure out how many scanline(s) ('tile_height') it will need.
+                $image = $image->linecache([
+                    'tile_height' => 10,
+                    'access' => Access::SEQUENTIAL,
+                    'threaded' => true
+                ]);
+            }
+
             $image = $image->gaussblur($blur);
         }
 
