@@ -14,7 +14,7 @@ if(isset($_GET['detail'])){
 	ini_set('display_errors',0);
 }
 
-$img_data = '';
+$img_data = [];
 
 function download_file($path,$fname){
 	$options = array(
