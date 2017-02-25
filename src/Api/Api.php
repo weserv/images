@@ -207,8 +207,11 @@ class Api implements ApiInterface
             throw new ImageNotReadableException('Image not readable. Is it a valid image?', 0, $e);
         }
 
+        // Get the current vips loader
+        $loader = $image->typeof('vips-loader') !== 0 ? $image->get('vips-loader') : 'unknown';
+
         // Determine image extension from the libvips loader
-        $extension = Utils::determineImageExtension($image->get('vips-loader'));
+        $extension = Utils::determineImageExtension($loader);
 
         // Get the allowed image types to convert to
         $allowed = $this->getAllowedImageTypes();

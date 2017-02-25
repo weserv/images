@@ -400,7 +400,7 @@ class Size extends BaseManipulator
         }
 
         // Get the current vips loader
-        $loader = $image->get('vips-loader');
+        $loader = $image->typeof('vips-loader') !== 0 ? $image->get('vips-loader') : 'unknown';
 
         // If integral x and y shrink are equal, try to use shrink-on-load for JPEG, WebP, PDF and SVG
         // but not when trimming or pre-resize crop
