@@ -860,8 +860,8 @@ if(!empty($_GET['url'])){
                     <a href="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle"><img src="//images.weserv.nl/?url=rbx.weserv.nl/lichtenstein.jpg&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle" alt=""/></a>
                     <h3 id="trim-trim">Trim <code>&amp;trim=</code></h3>
                     <p>Trim away blank image space on edges. Use values between <code>0</code> and <code>255</code> to define a tolerance level to trim away similar color values. You also can specify just &amp;trim, which defaults to a tolerance level of 10.</p><p>More info: <a href="https://imagesweserv.uservoice.com/forums/144259-images-weserv-nl-general/suggestions/3083264-able-to-remove-black-white-whitespace">#3083264 - Able to remove black/white whitespace</a></p>
-                    <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=ssl:upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png&amp;w=300&amp;trim"&gt;</code></pre>
-                    <a class="trimedges" href="//images.weserv.nl/?url=ssl:upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png&amp;w=300&amp;trim"><img src="//images.weserv.nl/?url=ssl:upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png&amp;w=300&amp;trim" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//images.weserv.nl/?url=rbx.weserv.nl/transparency_demo.png&amp;w=300&amp;trim"&gt;</code></pre>
+                    <a class="trimedges" href="//images.weserv.nl/?url=rbx.weserv.nl/transparency_demo.png&amp;w=300&amp;trim"><img src="//images.weserv.nl/?url=rbx.weserv.nl/transparency_demo.png&amp;w=300&amp;trim" alt=""/></a>
                 </section>
                 <section id="encoding" class="goto">
                 	<h1>Encoding</h1>
