@@ -361,7 +361,7 @@ if (!empty($_GET['url'])) {
 } else {
     $url = 'imagetest.weserv.nl';
     $exampleImage = 'rbx.weserv.nl/lichtenstein.jpg';
-    $exampleTransparentImage = 'ssl:upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png';
+    $exampleTransparentImage = 'rbx.weserv.nl/transparency_demo.png';
 
     $html = <<<HTML
 <!DOCTYPE html>
