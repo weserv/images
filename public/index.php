@@ -123,10 +123,14 @@ if (!empty($_GET['url'])) {
 
     // We need to add the extension to the temporary file.
     // This ensures that the image is correctly recognized.
-    $tmpFileName = $sysFileName . '.' . $extension;
+    if ($extension == 'svg' || $extension == 'ico') {
+        $tmpFileName = $sysFileName . '.' . $extension;
 
-    // Rename our unique file
-    rename($sysFileName, $tmpFileName);
+        // Rename our unique file
+        rename($sysFileName, $tmpFileName);
+    } else {
+        $tmpFileName = $sysFileName;
+    }
 
     // Create an PHP HTTP client
     $client = new AndriesLouw\imagesweserv\Client($tmpFileName, [
@@ -288,15 +292,18 @@ if (!empty($_GET['url'])) {
             header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
             header('Content-type: ' . $error['content-type']);
 
-            $errorMessage = $e->hasResponse() && $e->getResponse() != null ?
-                $e->getResponse()->getStatusCode() . ' ' . $e->getResponse()->getReasonPhrase()
-                : $e->getCode() . ' ' . $e->getMessage();
+            $errorMessage = $e->getCode() . ' ' . $e->getMessage();
+            if ($e->hasResponse() && $e->getResponse() != null) {
+                $statusCode = $e->getResponse()->getStatusCode();
+                $errorMessage = $e->getResponse()->getStatusCode() . ' ' . $e->getResponse()->getReasonPhrase();
+
+                // Only log relevant errors
+                if (!$isDnsError && in_array($statusCode, [400, 403, 404, 500, 502])) {
+                    trigger_error(sprintf($error['log'], $errorMessage, $uri->__toString()), E_USER_WARNING);
+                }
+            }
 
             $message = $isDnsError ? $error['message'] : sprintf($error['message'], $errorMessage);
-
-            if (!$isDnsError) {
-                trigger_error(sprintf($error['log'], $errorMessage, $uri->__toString()), E_USER_WARNING);
-            }
 
             echo $message;
         }
