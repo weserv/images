@@ -160,6 +160,10 @@ class Api implements ApiInterface
             }
         }
 
+        Config::cacheSetMax(0);
+        Config::cacheSetMaxFiles(0);
+        Config::cacheSetMaxMem(0)
+
         // If debugging is needed
         if (isset($params['debug']) && $params['debug'] == '1') {
             // Turn on output buffering
