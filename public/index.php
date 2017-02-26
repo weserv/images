@@ -27,8 +27,8 @@ use AndriesLouw\imagesweserv\Exception\RateExceededException;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use GuzzleHttp\Exception\RequestException;
 use Jcupitt\Vips\Exception as VipsException;
-use League\Uri\Schemes\Http as HttpUri;
 use League\Uri\Components\HierarchicalPath as Path;
+use League\Uri\Schemes\Http as HttpUri;
 
 $error_messages = [
     'invalid_url' => [
@@ -294,7 +294,9 @@ if (!empty($_GET['url'])) {
 
             $message = $isDnsError ? $error['message'] : sprintf($error['message'], $errorMessage);
 
-            trigger_error(sprintf($error['log'], $errorMessage, $uri->__toString()), E_USER_WARNING);
+            if (!$isDnsError) {
+                trigger_error(sprintf($error['log'], $errorMessage, $uri->__toString()), E_USER_WARNING);
+            }
 
             echo $message;
         }
