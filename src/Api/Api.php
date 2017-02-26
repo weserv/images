@@ -231,7 +231,7 @@ class Api implements ApiInterface
         // If our access method is sequential and our rotation is 90/270 degree;
         // Force the access method to random and reload our image.
         // TODO: Needs a better fix
-        if($params['accessMethod'] == Access::SEQUENTIAL && ($params['rotation'] == 90 || $params['rotation'] == 270)) {
+        if($params['accessMethod'] == Access::SEQUENTIAL && $params['rotation'] !== 0) {
             $params['accessMethod'] = Access::RANDOM;
             $loadOptions['access'] = Access::RANDOM;
             // Reload image
