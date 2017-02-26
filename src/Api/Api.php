@@ -228,6 +228,14 @@ class Api implements ApiInterface
         // Calculate angle of rotation
         list($params['rotation'], $params['flip'], $params['flop']) = Utils::calculateRotationAndFlip($params, $image);
 
+        // TODO: Needs a better fix
+        if($params['accessMethod'] == Access::SEQUENTIAL && ($params['rotation'] == 90 || $params['rotation'] == 270)) {
+            $params['accessMethod'] = Access::RANDOM;
+            $loadOptions['access'] = Access::RANDOM;
+            // Reload image
+            $image = Image::newFromFile($tmpFileName, $loadOptions);
+        }
+
         // Resolve crop coordinates
         $params['cropCoordinates'] = Utils::resolveCropCoordinates($params, $image);
 
