@@ -179,10 +179,9 @@ class Api implements ApiInterface
         //  - Trim (will scan the whole image once to find the crop area).
         //  - A 90/270-degree rotate (will need to read a column of pixels for every output line it writes).
         $isTrim = isset($params['trim']);
-        $isOrientation = isset($params['or']) && in_array($params['or'], ['90', '270'], true);
 
         // If any of the above adjustments; don't use sequential mode read.
-        $params['accessMethod'] = $isTrim || $isOrientation ? Access::RANDOM : Access::SEQUENTIAL;
+        $params['accessMethod'] = $isTrim ? Access::RANDOM : Access::SEQUENTIAL;
 
         // Save our temporary file name
         $params['tmpFileName'] = $tmpFileName;
@@ -228,6 +227,9 @@ class Api implements ApiInterface
         // Calculate angle of rotation
         list($params['rotation'], $params['flip'], $params['flop']) = Utils::calculateRotationAndFlip($params, $image);
 
+        // A 90/270-degree rotate doesn't work with sequential access.
+        // If our access method is sequential and our rotation is 90/270 degree;
+        // Force the access method to random and reload our image.
         // TODO: Needs a better fix
         if($params['accessMethod'] == Access::SEQUENTIAL && ($params['rotation'] == 90 || $params['rotation'] == 270)) {
             $params['accessMethod'] = Access::RANDOM;
@@ -437,7 +439,7 @@ class Api implements ApiInterface
             return $default;
         }
 
-        if ($params['q'] < 0 || $params['q'] > 100) {
+        if ($params['q'] < 1 || $params['q'] > 100) {
             return $default;
         }
 
