@@ -269,18 +269,16 @@ if (!empty($_GET['url'])) {
 
                 echo sprintf($error['message'], $supportedImages);
             } else {
-                if ($previousException instanceof ImageTooBigException) {
-                    $error = $error_messages['image_too_big'];
-                    $imageSize = $previousException->getMessage();
-                    $maxImageSize = Utils::formatSizeUnits($clientOptions['max_image_size']);
+                $error = $error_messages['image_too_big'];
+                $imageSize = $previousException->getMessage();
+                $maxImageSize = Utils::formatSizeUnits($clientOptions['max_image_size']);
 
-                    header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
-                    header('Content-type: ' . $error['content-type']);
+                header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
+                header('Content-type: ' . $error['content-type']);
 
-                    trigger_error(sprintf($error['log'], $uri->__toString()), E_USER_WARNING);
+                trigger_error(sprintf($error['log'], $uri->__toString()), E_USER_WARNING);
 
-                    echo sprintf($error['message'], $imageSize, $maxImageSize);
-                }
+                echo sprintf($error['message'], $imageSize, $maxImageSize);
             }
         } else {
             $curlHandler = $e->getHandlerContext();
@@ -310,16 +308,6 @@ if (!empty($_GET['url'])) {
         $error = $error_messages['image_not_readable'];
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
         header('Content-type: ' . $error['content-type']);
-
-        // Log if the image is not readable
-        trigger_error(
-            sprintf(
-                $error['log'],
-                $uri->__toString(),
-                $e->getPrevious()->getMessage()
-            ),
-            E_USER_WARNING
-        );
 
         echo $error['header'] . ' - ' . $e->getMessage();
     } catch (VipsException $e) {
