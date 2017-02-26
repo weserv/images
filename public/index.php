@@ -294,13 +294,7 @@ if (!empty($_GET['url'])) {
 
             $errorMessage = $e->getCode() . ' ' . $e->getMessage();
             if ($e->hasResponse() && $e->getResponse() != null) {
-                $statusCode = $e->getResponse()->getStatusCode();
                 $errorMessage = $e->getResponse()->getStatusCode() . ' ' . $e->getResponse()->getReasonPhrase();
-
-                // Only log relevant errors
-                if (!$isDnsError && in_array($statusCode, [400, 403, 404, 500, 502])) {
-                    trigger_error(sprintf($error['log'], $errorMessage, $uri->__toString()), E_USER_WARNING);
-                }
             }
 
             $message = $isDnsError ? $error['message'] : sprintf($error['message'], $errorMessage);
