@@ -520,10 +520,10 @@ class Size extends BaseManipulator
             // Perform affine enlargement
             if ($yResidual > 1.0 || $xResidual > 1.0) {
                 if ($yResidual > 1.0) {
-                    $image = $image->affine([1.0, 0.0, 0.0, $yResidual], ['interpolate' => 'bicubic']);
+                    $image = $image->affine([1.0, 0.0, 0.0, $yResidual]/*, ['interpolate' => 'bicubic']*/);
                 }
                 if ($xResidual > 1.0) {
-                    $image = $image->affine([$xResidual, 0.0, 0.0, 1.0], ['interpolate' => 'bicubic']);
+                    $image = $image->affine([$xResidual, 0.0, 0.0, 1.0]/*, ['interpolate' => 'bicubic']*/);
                 }
             }
         }
