@@ -4,6 +4,7 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Color;
+use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Access;
 use Jcupitt\Vips\Extend;
 use Jcupitt\Vips\Image;
@@ -182,7 +183,7 @@ class Size extends BaseManipulator
             $height = $width / ($image->width / $image->height);
         }
 
-        if ($this->maxImageSize !== null) {
+        if ($this->maxImageSize) {
             $imageSize = $width * $height;
 
             if ($imageSize > $this->maxImageSize) {
@@ -400,14 +401,14 @@ class Size extends BaseManipulator
         }
 
         // Get the current vips loader
-        $loader = $image->typeof('vips-loader') !== 0 ? $image->get('vips-loader') : 'unknown';
+        $loader = $image->typeof(Utils::VIPS_META_LOADER) !== 0 ? $image->get(Utils::VIPS_META_LOADER) : 'unknown';
 
         // If integral x and y shrink are equal, try to use shrink-on-load for JPEG, WebP, PDF and SVG
         // but not when trimming or pre-resize crop
         $shrinkOnLoad = 1;
         if ($xShrink == $yShrink && $xShrink >= 2 &&
             ($loader == 'jpegload' || $loader == 'webpload' || $loader == 'pdfload' || $loader == 'svgload') &&
-            $this->trim == null && $this->cropCoordinates == null
+            !$this->trim && !$this->cropCoordinates
         ) {
             if ($xShrink >= 8) {
                 $xFactor /= 8;
@@ -437,7 +438,7 @@ class Size extends BaseManipulator
                 // (don't forget to pass on the page that we want)
                 $image = Image::pdfload($this->tmpFileName, [
                     'scale' => 1.0 / $shrinkOnLoad,
-                    'page' => !is_null($this->page) && is_numeric($this->page) ? (int)$this->page : 0
+                    'page' => $this->page && is_numeric($this->page) ? (int)$this->page : 0
                 ]);
             } else {
                 // Reload SVG file
@@ -530,7 +531,7 @@ class Size extends BaseManipulator
 
         if ($image->width != $width || $image->height != $height) {
             if ($fit == 'letterbox') {
-                if ($this->bg !== null) {
+                if ($this->bg) {
                     $backgroundColor = (new Color($this->bg))->toRGBA();
                 } else {
                     $backgroundColor = [

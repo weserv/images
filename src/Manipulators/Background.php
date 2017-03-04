@@ -24,7 +24,7 @@ class Background extends BaseManipulator
      */
     public function run(Image $image): Image
     {
-        if ($this->bg === null || !$this->hasAlpha) {
+        if (!$this->bg || !$this->hasAlpha) {
             return $image;
         }
 

@@ -19,7 +19,7 @@ class Gamma extends BaseManipulator
      */
     public function run(Image $image): Image
     {
-        if ($this->gam === null) {
+        if (!$this->gam) {
             return $image;
         }
 

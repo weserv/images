@@ -21,7 +21,7 @@ class Crop extends BaseManipulator
     {
         $coordinates = $this->cropCoordinates;
 
-        if ($coordinates !== null) {
+        if ($coordinates) {
             $coordinates = $this->limitToImageBoundaries($image, $coordinates);
 
             $image = $image->crop(

@@ -303,6 +303,7 @@ if (!empty($_GET['url'])) {
         $error = $error_messages['rate_exceeded'];
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
         header('Content-type: ' . $error['content-type']);
+        /** @noinspection PhpUndefinedMethodInspection */
         echo $error['header'] . ' - ' . sprintf($error['message'], $throttler->availableIn($_SERVER['REMOTE_ADDR']));
     } catch (ImageNotReadableException $e) {
         $error = $error_messages['image_not_readable'];
@@ -705,4 +706,3 @@ if (!empty($_GET['url'])) {
 HTML;
     echo $html;
 }
-?>

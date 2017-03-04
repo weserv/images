@@ -24,7 +24,7 @@ class Shape extends BaseManipulator
     {
         $shape = $this->getShape();
 
-        if ($shape !== null) {
+        if ($shape) {
             $width = $image->width;
             $height = $image->height;
 
@@ -105,7 +105,7 @@ class Shape extends BaseManipulator
             return $this->shape;
         }
 
-        if ($this->circle !== null) {
+        if ($this->circle) {
             return 'circle';
         }
 

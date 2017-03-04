@@ -22,7 +22,7 @@ class Blur extends BaseManipulator
      */
     public function run(Image $image): Image
     {
-        if ($this->blur === null) {
+        if (!$this->blur) {
             return $image;
         }
 

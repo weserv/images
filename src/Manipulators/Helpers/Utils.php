@@ -7,7 +7,17 @@ use Jcupitt\Vips\Interpretation;
 
 class Utils
 {
+    /**
+     * The orientation tag for this image. An int from 1 - 8 using the standard
+     * exif/tiff meanings.
+     */
     const VIPS_META_ORIENTATION = 'orientation';
+
+    /**
+     * The name of the original loader. Handy for hinting file formats
+     * and for debugging.
+     */
+    const VIPS_META_LOADER = 'vips-loader';
 
     /**
      * Are pixel values in this image 16-bit integer?

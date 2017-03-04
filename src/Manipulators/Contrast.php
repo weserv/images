@@ -27,6 +27,7 @@ class Contrast extends BaseManipulator
             $contrast = Utils::mapToRange($contrast, -100, 100, -30, 30);
 
             $image = $this->sigRGB($image, $contrast > 0, 0.5, abs($contrast));
+            /*$image = $this->sigLAB($image, $contrast > 0, 0.5, abs($contrast));*/
         }
 
         return $image;

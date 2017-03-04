@@ -306,5 +306,6 @@ class Color
         if (isset($colors[$name])) {
             return $colors[$name];
         }
+        return null;
     }
 }

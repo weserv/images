@@ -150,7 +150,7 @@ class Api implements ApiInterface
     public function run(string $url, array $params): array
     {
         // Throttler can be null
-        if ($this->throttler !== null) {
+        if ($this->throttler) {
             // For PHPUnit check if REMOTE_ADDR is set
             $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
 
@@ -211,7 +211,7 @@ class Api implements ApiInterface
         }
 
         // Get the current vips loader
-        $loader = $image->typeof('vips-loader') !== 0 ? $image->get('vips-loader') : 'unknown';
+        $loader = $image->typeof(Utils::VIPS_META_LOADER) !== 0 ? $image->get(Utils::VIPS_META_LOADER) : 'unknown';
 
         // Determine image extension from the libvips loader
         $extension = Utils::determineImageExtension($loader);

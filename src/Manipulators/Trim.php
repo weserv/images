@@ -20,7 +20,7 @@ class Trim extends BaseManipulator
      */
     public function run(Image $image): Image
     {
-        if ($this->trim === null) {
+        if (!$this->trim) {
             return $image;
         }
 

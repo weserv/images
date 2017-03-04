@@ -23,7 +23,7 @@ class Sharpen extends BaseManipulator
      */
     public function run(Image $image): Image
     {
-        if ($this->sharp === null) {
+        if (!$this->sharp) {
             return $image;
         }
 
