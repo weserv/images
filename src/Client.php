@@ -21,13 +21,6 @@ class Client
     protected $fileName;
 
     /**
-     * Temp file
-     *
-     * @var resource
-     */
-    protected $handle;
-
-    /**
      * Options for this client
      *
      * @var array
@@ -46,7 +39,6 @@ class Client
     public function __construct(string $fileName, array $options)
     {
         $this->fileName = $fileName;
-        $this->handle = fopen($fileName, 'w');
         $this->setOptions($options);
         $this->initClient();
     }
@@ -58,7 +50,6 @@ class Client
     {
         $guzzleClient = new \GuzzleHttp\Client(
             [
-                //'debug' => $this->handle,
                 'connect_timeout' => $this->options['connect_timeout'],
                 'decode_content' => true,
                 'verify' => false,
@@ -78,7 +69,6 @@ class Client
                 'expect' => false, // Send an empty Expect header (avoids 100 responses)
                 'http_errors' => true,
                 'curl' => [
-                    CURLOPT_FILE => $this->handle,
                     //CURLOPT_SSL_VERIFYPEER => false,
                     //CURLOPT_SSL_VERIFYHOST => false
                 ],
@@ -160,6 +150,7 @@ class Client
     public function get(string $url): string
     {
         $requestOptions = [
+            'sink' => $this->fileName,
             'timeout' => $this->options['timeout'],
             'headers' => [
                 'Accept-Encoding' => 'gzip',
@@ -167,20 +158,10 @@ class Client
             ]
         ];
 
-        try {
-            /**
-             * @var ResponseInterface $response
-             */
-            $this->client->get($url, $requestOptions);
-        } catch (RequestException $e) {
-            // Make sure we've closed the open file (suppress any warnings)
-            @fclose($this->handle);
-
-            // Rethrow
-            throw $e;
-        }
-
-        fclose($this->handle);
+        /**
+         * @var ResponseInterface $response
+         */
+        $this->client->request('GET', $url, $requestOptions);
 
         return $this->fileName;
     }
