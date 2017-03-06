@@ -28,6 +28,7 @@ use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use GuzzleHttp\Exception\RequestException;
 use Jcupitt\Vips\Exception as VipsException;
 use League\Uri\Components\HierarchicalPath as Path;
+use League\Uri\Components\Query;
 use League\Uri\Schemes\Http as HttpUri;
 
 $error_messages = [
@@ -92,21 +93,59 @@ $error_messages = [
     ]
 ];
 
+/**
+ * Create a new HttpUri instance from a string.
+ * The string must comply with the following requirements:
+ *  - Starting without 'http:' or 'https:'
+ *  - HTTPS origin hosts must be prefixed with 'ssl:'
+ *  - Valid according RFC3986 and RFC3987
+ *
+ * @param string $url
+ *
+ * @throws InvalidArgumentException if the URI is invalid
+ * @throws League\Uri\Schemes\UriException if the URI is in an invalid state according to RFC3986
+ *
+ * @return HttpUri parsed URI
+ */
+$parseUrl = function (string $url) {
+    // Check for HTTPS origin hosts
+    if (substr($url, 0, 4) == 'ssl:') {
+        return HttpUri::createFromString('https://' . ltrim(substr($url, 4), '/'));
+    } else {
+        // Check if a valid URL is given. Therefore starting without 'http:' or 'https:'.
+        if (substr($url, 0, 5) != 'http:' && substr($url, 0, 6) != 'https:') {
+            return HttpUri::createFromString('http://' . ltrim($url, '/'));
+        } else {
+            // Not a valid URL; throw InvalidArgumentException
+            throw new InvalidArgumentException('Invalid URL');
+        }
+    }
+};
+
+/**
+ * Sanitize the 'errorredirect' GET variable after parsing.
+ * The HttpUri instance must comply with the following requirements:
+ *  - Must not include a 'errorredirect' querystring (if it does, it will be ignored)
+ *
+ * @param HttpUri $errorUrl
+ *
+ * @return string sanitized URI
+ */
+$sanitizeErrorRedirect = function (HttpUri $errorUrl) {
+    $queryStr = $errorUrl->getQuery();
+    if (!empty($queryStr)) {
+        $query = new Query($queryStr);
+        if ($query->hasPair('errorredirect')) {
+            $newQuery = $query->withoutPairs(['errorredirect']);
+            return $errorUrl->withQuery($newQuery->__toString())->__toString();
+        }
+    }
+    return $errorUrl->__toString();
+};
 
 if (!empty($_GET['url'])) {
     try {
-        // Check for HTTPS origin hosts
-        if (substr($_GET['url'], 0, 4) == 'ssl:') {
-            $uri = HttpUri::createFromString('https://' . ltrim(substr($_GET['url'], 4), '/'));
-        } else {
-            // Check if a valid URL is given. Therefore starting without 'http:' or 'https:'.
-            if (substr($_GET['url'], 0, 5) != 'http:' && substr($_GET['url'], 0, 6) != 'https:') {
-                $uri = HttpUri::createFromString('http://' . ltrim($_GET['url'], '/'));
-            } else {
-                // Not a valid URL; throw InvalidArgumentException
-                throw new InvalidArgumentException('Invalid URL');
-            }
-        }
+        $uri = $parseUrl($_GET['url']);
     } catch (Exception $e) {
         $error = $error_messages['invalid_url'];
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
@@ -290,14 +329,40 @@ if (!empty($_GET['url'])) {
             header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
             header('Content-type: ' . $error['content-type']);
 
-            $errorMessage = $e->getCode() . ' ' . $e->getMessage();
+            $statusCode = $e->getCode();
+            $reasonPhrase = $e->getMessage();
+
             if ($e->hasResponse() && $e->getResponse() != null) {
-                $errorMessage = $e->getResponse()->getStatusCode() . ' ' . $e->getResponse()->getReasonPhrase();
+                $statusCode = $e->getResponse()->getStatusCode();
+                $reasonPhrase = $e->getResponse()->getReasonPhrase();
             }
 
-            $message = $isDnsError ? $error['message'] : sprintf($error['message'], $errorMessage);
+            $errorMessage = $statusCode . ' ' . $reasonPhrase;
 
-            echo $message;
+            if (!$isDnsError && isset($_GET['errorredirect'])) {
+                $isSameHost = 'weserv.nl';
+
+                try {
+                    $uri = $parseUrl($_GET['errorredirect']);
+
+                    $append = '';
+                    if (substr($uri->getHost(), -strlen($isSameHost)) === $isSameHost) {
+                        $append = '&error=' . $statusCode;
+                    }
+
+                    $sanitizedUri = $sanitizeErrorRedirect($uri);
+
+                    header('Location: ' . $sanitizedUri . $append);
+                } catch (Exception $ignored) {
+                    $message = sprintf($error['message'], $errorMessage);
+
+                    echo $message;
+                }
+            } else {
+                $message = $isDnsError ? $error['message'] : sprintf($error['message'], $errorMessage);
+
+                echo $message;
+            }
         }
     } catch (RateExceededException $e) {
         $error = $error_messages['rate_exceeded'];

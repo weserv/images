@@ -385,10 +385,10 @@ class Size extends BaseManipulator
         $xResidual = (float)($xShrink / $xFactor);
         $yResidual = (float)($yShrink / $yFactor);
 
-        // Do not enlarge the output if the input width *or* height
+        // Do not enlarge the output if the input width *and* height
         // are already less than the required dimensions
         if ($this->withoutEnlargement($fit)) {
-            if ($inputWidth < $width || $inputHeight < $height) {
+            if ($inputWidth < $width && $inputHeight < $height) {
                 $xFactor = 1.0;
                 $yFactor = 1.0;
                 $xShrink = 1;
