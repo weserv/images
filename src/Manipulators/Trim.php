@@ -2,7 +2,6 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
-use Jcupitt\Vips\Exception as VipsException;
 use Jcupitt\Vips\Image;
 
 /**
@@ -57,8 +56,6 @@ class Trim extends BaseManipulator
      * @param  Image $image The source image.
      * @param  int $sensitivity Trim sensitivity
      *
-     * @throws VipsException for errors that occur during the processing of a Image
-     *
      * @return Image The manipulated image.
      */
     public function getTrimmedImage(Image $image, $sensitivity): Image
@@ -90,7 +87,8 @@ class Trim extends BaseManipulator
         $height = $bottom - $top;
 
         if ($width <= 0 || $height <= 0) {
-            throw new VipsException('Unexpected error while trimming. Try to lower the sensitivity.');
+            trigger_error(sprintf('Unexpected error while trimming. Sensitivity (%s) is too high.', $sensitivity), E_USER_WARNING);
+            return $image;
         }
 
         // and now crop the original image
