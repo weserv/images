@@ -322,7 +322,12 @@ class Api implements ApiInterface
                 break;
         }
 
+        // Write an image to a formatted string
         $buffer = $image->writeToBuffer('.' . $extension, $toBufferOptions);
+
+        // Free up memory
+        $image = null;
+
         $mimeType = $allowed[$extension];
 
         /*
