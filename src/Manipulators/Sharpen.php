@@ -50,9 +50,9 @@ class Sharpen extends BaseManipulator
     public function getSharpen(): array
     {
         $sharpPieces = explode(',', $this->sharp);
-        $sharpenFlat = 1.0;
-        $sharpenJagged = 2.0;
-        $sharpenSigma = -1;
+        $sharpenFlat = 1;
+        $sharpenJagged = 2;
+        $sharpenSigma = -1.0;
 
         if (isset($sharpPieces[0])) {
             $flat = intval($sharpPieces[0]);
@@ -90,7 +90,7 @@ class Sharpen extends BaseManipulator
      */
     public function sharpen($image, $sigma, $flat, $jagged): Image
     {
-        if ($sigma == -1.0) {
+        if ($sigma === -1.0) {
             // Fast, mild sharpen
             $matrix = Image::newFromArray(
                 [
@@ -105,11 +105,11 @@ class Sharpen extends BaseManipulator
         } else {
             // Slow, accurate sharpen in LAB colour space, with control over flat vs jagged areas
             $oldInterpretation = $image->interpretation;
-            if ($oldInterpretation == Interpretation::RGB) {
+            if ($oldInterpretation === Interpretation::RGB) {
                 $oldInterpretation = Interpretation::SRGB;
             }
 
-            if ($this->accessMethod == Access::SEQUENTIAL) {
+            if ($this->accessMethod === Access::SEQUENTIAL) {
                 // TODO Figure out how many scanline(s) ('tile_height') it will need.
                 $image = $image->linecache([
                     'tile_height' => 10,

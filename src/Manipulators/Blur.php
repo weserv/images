@@ -36,7 +36,7 @@ class Blur extends BaseManipulator
 
         $blur = $this->getBlur();
 
-        if ($blur == -1.0) {
+        if ($blur === -1.0) {
             // Fast, mild blur - averages neighbouring pixels
             $blur = Image::newFromArray(
                 [
@@ -48,7 +48,7 @@ class Blur extends BaseManipulator
             );
             $image = $image->conv($blur);
         } else {
-            if ($this->accessMethod == Access::SEQUENTIAL) {
+            if ($this->accessMethod === Access::SEQUENTIAL) {
                 // TODO Figure out how many scanline(s) ('tile_height') it will need.
                 $image = $image->linecache([
                     'tile_height' => 10,
@@ -70,7 +70,7 @@ class Blur extends BaseManipulator
      */
     public function getBlur(): float
     {
-        if (!preg_match('/^[0-9]\.*[0-9]*$/', $this->blur)) {
+        if (!is_numeric($this->blur)) {
             return -1.0;
         }
 

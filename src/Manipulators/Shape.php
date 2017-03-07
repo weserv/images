@@ -87,21 +87,19 @@ class Shape extends BaseManipulator
      */
     public function getShape()
     {
-        if (in_array(
-            $this->shape,
-            [
-                'circle',
-                'ellipse',
-                'hexagon',
-                'pentagon',
-                'pentagon-180',
-                'square',
-                'star',
-                'triangle',
-                'triangle-180',
-            ],
-            true
-        )) {
+        $validShapeArr = [
+            'circle' => 0,
+            'ellipse' => 1,
+            'hexagon' => 2,
+            'pentagon' => 3,
+            'pentagon-180' => 4,
+            'square' => 5,
+            'star' => 6,
+            'triangle' => 7,
+            'triangle-180' => 8
+        ];
+
+        if (isset($validShapeArr[$this->shape])) {
             return $this->shape;
         }
 
@@ -127,7 +125,7 @@ class Shape extends BaseManipulator
      */
     private function getMaskShape(int $width, int $height, string $shape): array
     {
-        $preserveAspectRatio = $shape == 'ellipse' ? 'none' : 'xMidYMid meet';
+        $preserveAspectRatio = $shape === 'ellipse' ? 'none' : 'xMidYMid meet';
 
         $svgTemplate = <<<SVG
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
@@ -295,13 +293,13 @@ SVG;
         for ($i = 0; $i <= $points; $i++) {
             $angle = $i * 2 * pi() / $points - pi() / 2 + $initialAngle;
             $radius = $i % 2 === 0 ? $outerRadius : $innerRadius;
-            if ($i == 0) {
+            if ($i === 0) {
                 $path = 'M';
                 // If an odd number of points, add an additional point at the top of the polygon
                 // -- this will shift the calculated center point of the shape so that the center point
                 // of the polygon is at x,y (otherwise the center is mis-located)
-                if ($points % 2 == 1) {
-                    $path .= '0 ' . $radius . ' M';
+                if ($points % 2 === 1) {
+                    $path .= "0 $radius M";
                 }
             } else {
                 $path .= ' L';
@@ -310,7 +308,7 @@ SVG;
             $y = round($midY + $radius * sin($angle));
             $X[] = $x;
             $Y[] = $y;
-            $path .= $x . ' ' . $y;
+            $path .= "$x $y";
         }
         $path .= ' Z';
         $xMin = min($X);

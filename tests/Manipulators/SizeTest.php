@@ -404,6 +404,24 @@ class SizeTest extends TestCase
         $this->assertSame('squaredown', $this->manipulator->setParams(['t' => 'squaredown'])->getFit());
         $this->assertSame('absolute', $this->manipulator->setParams(['t' => 'absolute'])->getFit());
         $this->assertSame('letterbox', $this->manipulator->setParams(['t' => 'letterbox'])->getFit());
+        $this->assertSame('crop', $this->manipulator->setParams(['t' => 'crop-top-left'])->getFit());
+        $this->assertSame('crop', $this->manipulator->setParams(['t' => 'crop-bottom-left'])->getFit());
+        $this->assertSame('crop', $this->manipulator->setParams(['t' => 'crop-left'])->getFit());
+        $this->assertSame('crop', $this->manipulator->setParams(['t' => 'crop-top-right'])->getFit());
+        $this->assertSame('crop', $this->manipulator->setParams(['t' => 'crop-bottom-right'])->getFit());
+        $this->assertSame('crop', $this->manipulator->setParams(['t' => 'crop-right'])->getFit());
+        $this->assertSame('crop', $this->manipulator->setParams(['t' => 'crop-top'])->getFit());
+        $this->assertSame('crop', $this->manipulator->setParams(['t' => 'crop-bottom'])->getFit());
+        $this->assertSame('crop', $this->manipulator->setParams(['t' => 'crop-center'])->getFit());
+        $this->assertSame('crop', $this->manipulator->setParams(['t' => 'crop-25-75'])->getFit());
+        $this->assertSame('crop', $this->manipulator->setParams(['t' => 'crop-0-100'])->getFit());
+        $this->assertSame('crop', $this->manipulator->setParams(['t' => 'crop-101-102'])->getFit());
+        $this->assertSame('fit', $this->manipulator->setParams(['t' => 'crop-center-left'])->getFit());
+        $this->assertSame('fit', $this->manipulator->setParams(['t' => 'crop-left-left'])->getFit());
+        $this->assertSame('fit', $this->manipulator->setParams(['t' => 'crop-right-left'])->getFit());
+        $this->assertSame('fit', $this->manipulator->setParams(['t' => 'crop-bottom-right-invalid'])->getFit());
+        $this->assertSame('fit', $this->manipulator->setParams(['t' => 'invalid'])->getFit());
+        $this->assertSame('fit', $this->manipulator->setParams(['t' => null])->getFit());
     }
 
     public function testGetCrop()
@@ -423,6 +441,7 @@ class SizeTest extends TestCase
         $this->assertSame([0, 100], $this->manipulator->setParams(['a' => 'crop-0-100'])->getCrop());
         $this->assertSame([50, 50], $this->manipulator->setParams(['a' => 'crop-101-102'])->getCrop());
         $this->assertSame([50, 50], $this->manipulator->setParams(['a' => 'invalid'])->getCrop());
+        $this->assertSame([50, 50], $this->manipulator->setParams(['a' => null])->getCrop());
     }
 
     public function testCheckImageSize()

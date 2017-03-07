@@ -152,7 +152,7 @@ class Server
         header('Expires: ' . date_create('+31 days')->format('D, d M Y H:i:s') . ' GMT'); //31 days
         header('Cache-Control: max-age=2678400'); //31 days
 
-        if (isset($params['debug']) && $params['debug'] == '1') {
+        if (isset($params['debug']) && $params['debug'] === '1') {
             header('Content-type: text/plain');
 
             $json = [
@@ -163,24 +163,24 @@ class Server
 
             // Output buffering is enabled; flush it and turn it off
             ob_end_flush();
-        } elseif (isset($params['encoding']) && $params['encoding'] == 'base64') {
+        } elseif (isset($params['encoding']) && $params['encoding'] === 'base64') {
             header('Content-type: text/plain');
 
             echo sprintf('data:%s;base64,%s', $type, base64_encode($image));
         } else {
-            header('Content-type: ' . $type);
+            header("Content-type: $type");
 
             /*
              * We could ouput the origin filename with this:
              * $friendlyName = pathinfo((new Path($uri->getPath()))->getBasename(), PATHINFO_FILENAME) . $extension;
              * but due to security reasons we've disabled that.
              */
-            $friendlyName = 'image.' . $extension;
+            $friendlyName = "image.$extension";
 
             if (array_key_exists('download', $params)) {
-                header('Content-Disposition: attachment; filename=' . $friendlyName);
+                header("Content-Disposition: attachment; filename=$friendlyName");
             } else {
-                header('Content-Disposition: inline; filename=' . $friendlyName);
+                header("Content-Disposition: inline; filename=$friendlyName");
             }
 
             ob_start();

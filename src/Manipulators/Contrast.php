@@ -21,6 +21,10 @@ class Contrast extends BaseManipulator
      */
     public function run(Image $image): Image
     {
+        if (!$this->con) {
+            return $image;
+        }
+
         $contrast = $this->getContrast();
 
         if ($contrast !== 0) {
@@ -61,7 +65,7 @@ class Contrast extends BaseManipulator
          * If "ushort" is TRUE, we make a 16-bit LUT, ie. 0 - 65535 values;
          * otherwise it's 8-bit (0 - 255)
          */
-        $lut = Image::identity(["ushort" => $ushort]);
+        $lut = Image::identity(['ushort' => $ushort]);
 
         // Rescale so each element is in [0, 1]
         $range = $lut->max();
@@ -119,7 +123,7 @@ class Contrast extends BaseManipulator
      */
     public function sigRGB(Image $image, bool $sharpen, float $midpoint, float $contrast): Image
     {
-        $lut = $this->sigmoid($sharpen, $midpoint, $contrast, $image->format == BandFormat::USHORT);
+        $lut = $this->sigmoid($sharpen, $midpoint, $contrast, $image->format === BandFormat::USHORT);
         return $image->maplut($lut);
     }
 
@@ -176,7 +180,7 @@ class Contrast extends BaseManipulator
      */
     public function getContrast(): int
     {
-        if (!preg_match('/^-*[0-9]+$/', $this->con)) {
+        if (!is_numeric($this->con)) {
             return 0;
         }
 

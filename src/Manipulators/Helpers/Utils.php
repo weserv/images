@@ -28,8 +28,8 @@ class Utils
      */
     public static function is16Bit(string $interpretation): bool
     {
-        return $interpretation == Interpretation::RGB16
-            || $interpretation == Interpretation::GREY16;
+        return $interpretation === Interpretation::RGB16
+            || $interpretation === Interpretation::GREY16;
     }
 
     /**
@@ -58,9 +58,9 @@ class Utils
         $bands = $image->bands;
         $interpretation = $image->interpretation;
 
-        return ($bands == 2 && $interpretation == Interpretation::B_W)
-            || ($bands == 4 && $interpretation != Interpretation::CMYK)
-            || ($bands == 5 && $interpretation == Interpretation::CMYK);
+        return ($bands === 2 && $interpretation === Interpretation::B_W)
+            || ($bands === 4 && $interpretation !== Interpretation::CMYK)
+            || ($bands === 5 && $interpretation === Interpretation::CMYK);
     }
 
     /**
@@ -143,7 +143,8 @@ class Utils
     public static function calculateRotationAndFlip(array $params, Image $image): array
     {
         $angle = 0;
-        if (isset($params['or']) && in_array($params['or'], ['90', '180', '270'], true)) {
+        $validOrientationArr = ['90' => 0, '180' => 1, '270' => 2];
+        if (isset($params['or']) && isset($validOrientationArr[$params['or']])) {
             $angle = (int)$params['or'];
         }
 
@@ -189,20 +190,20 @@ class Utils
         }
 
         // Add explicitly requested angle (supports 90, 180, 270) to the $rotate variable.
-        if ($angle == 90) {
+        if ($angle === 90) {
             $rotate += 90;
         } else {
-            if ($angle == 180) {
+            if ($angle === 180) {
                 $rotate += 180;
             } else {
-                if ($angle == 270) {
+                if ($angle === 270) {
                     $rotate += 270;
                 }
             }
         }
 
         // If the rotation is 360 degrees then add no rotation.
-        if ($rotate == 360) {
+        if ($rotate === 360) {
             $rotate = 0;
         }
 
@@ -290,7 +291,7 @@ class Utils
             $bytes = number_format($bytes / 1024, 2) . ' KB';
         } elseif ($bytes > 1) {
             $bytes = $bytes . ' bytes';
-        } elseif ($bytes == 1) {
+        } elseif ($bytes === 1) {
             $bytes = $bytes . ' byte';
         } else {
             $bytes = '0 bytes';

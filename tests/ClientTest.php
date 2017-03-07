@@ -67,11 +67,20 @@ class ClientTest extends TestCase
         $response = Mockery::mock('GuzzleHttp\Message\ResponseInterface');
 
         $client = Mockery::mock('GuzzleHttp\Client', function (MockInterface $mock) use ($response, $pixel) {
-            $mock->shouldReceive('get')->andReturnUsing(function () use ($response, $pixel) {
-                file_put_contents($this->tempFile, $pixel);
+            $mock->shouldReceive('request')
+                ->with('GET', '/', [
+                    'sink' => $this->tempFile,
+                    'timeout' => $this->options['timeout'],
+                    'headers' => [
+                        'Accept-Encoding' => 'gzip',
+                        'User-Agent' => $this->options['user_agent'],
+                    ]
+                ])
+                ->andReturnUsing(function () use ($response, $pixel) {
+                    file_put_contents($this->tempFile, $pixel);
 
-                return $response;
-            })->once();
+                    return $response;
+                })->once();
         });
 
         $this->client->setClient($client);

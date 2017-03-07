@@ -20,6 +20,10 @@ class Brightness extends BaseManipulator
      */
     public function run(Image $image): Image
     {
+        if (!$this->bri) {
+            return $image;
+        }
+
         $amount = $this->getBrightness();
 
         if ($amount !== 0) {
@@ -53,7 +57,7 @@ class Brightness extends BaseManipulator
      */
     public function getBrightness(): int
     {
-        if (!preg_match('/^-*[0-9]+$/', $this->bri)) {
+        if (!is_numeric($this->bri)) {
             return 0;
         }
 

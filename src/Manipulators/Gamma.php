@@ -47,7 +47,7 @@ class Gamma extends BaseManipulator
         // Default gamma correction of 2.2 (sRGB)
         $default = 2.2;
 
-        if (!preg_match('/^[0-9]\.*[0-9]*$/', $this->gam)) {
+        if (!is_numeric($this->gam)) {
             return $default;
         }
 

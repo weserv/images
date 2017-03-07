@@ -165,7 +165,7 @@ class Api implements ApiInterface
         Config::cacheSetMaxMem(0);
 
         // If debugging is needed
-        if (isset($params['debug']) && $params['debug'] == '1') {
+        if (isset($params['debug']) && $params['debug'] === '1') {
             // Turn on output buffering
             ob_start();
 
@@ -231,7 +231,7 @@ class Api implements ApiInterface
         // If our access method is sequential and our rotation is 90/270 degree;
         // Force the access method to random and reload our image.
         // TODO: Needs a better fix
-        if($params['accessMethod'] == Access::SEQUENTIAL && $params['rotation'] !== 0) {
+        if ($params['accessMethod'] === Access::SEQUENTIAL && $params['rotation'] !== 0) {
             $params['accessMethod'] = Access::RANDOM;
             $loadOptions['access'] = Access::RANDOM;
             // Reload image
@@ -274,8 +274,8 @@ class Api implements ApiInterface
             }
         }
 
-        $needsGif = (isset($params['output']) && $params['output'] == 'gif')
-            || (!isset($params['output']) && $extension == 'gif');
+        $needsGif = (isset($params['output']) && $params['output'] === 'gif')
+            || (!isset($params['output']) && $extension === 'gif');
 
         // Check if output is set and allowed
         if (isset($params['output']) && isset($allowed[$params['output']])) {
@@ -323,7 +323,7 @@ class Api implements ApiInterface
         }
 
         // Write an image to a formatted string
-        $buffer = $image->writeToBuffer('.' . $extension, $toBufferOptions);
+        $buffer = $image->writeToBuffer(".$extension", $toBufferOptions);
 
         // Free up memory
         $image = null;

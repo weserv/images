@@ -87,7 +87,8 @@ class Trim extends BaseManipulator
         $height = $bottom - $top;
 
         if ($width <= 0 || $height <= 0) {
-            trigger_error(sprintf('Unexpected error while trimming. Sensitivity (%s) is too high.', $sensitivity), E_USER_WARNING);
+            trigger_error(sprintf('Unexpected error while trimming. Sensitivity (%s) is too high.', $sensitivity),
+                E_USER_WARNING);
             return $image;
         }
 

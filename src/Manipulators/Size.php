@@ -132,7 +132,8 @@ class Size extends BaseManipulator
      */
     public function withoutEnlargement(string $fit): bool
     {
-        if (in_array($fit, ['fit', 'squaredown'], true)) {
+        $keys = ['fit' => 0, 'squaredown' => 1];
+        if (isset($keys[$fit])) {
             return true;
         }
 
@@ -147,14 +148,22 @@ class Size extends BaseManipulator
      */
     public function getFit(): string
     {
-        if (in_array($this->t, ['fit', 'fitup', 'square', 'squaredown', 'absolute', 'letterbox'], true)) {
+        $validFitArr = ['fit' => 0, 'fitup' => 1, 'square' => 2, 'squaredown' => 3, 'absolute' => 4, 'letterbox' => 5];
+        if (isset($validFitArr[$this->t])) {
             return $this->t;
         }
 
-        if (preg_match(
-            '/^(crop)(-top-left|-top|-top-right|-left|-center|-right|-bottom-left|-bottom|-bottom-right|-[\d]{1,3}-[\d]{1,3})*$/',
-            $this->t
-        )) {
+        $validIndividualCropArr = ['top' => 0, 'left' => 1, 'center' => 2, 'right' => 3, 'bottom' => 4];
+        $validCropArr = ['top' => 0, 'bottom' => 1];
+        $validPositionArr = ['left' => 0, 'right' => 1];
+        $splitFit = explode('-', $this->t);
+
+        if (isset($splitFit[0]) && $splitFit[0] === 'crop' && isset($splitFit[1]) && !isset($splitFit[3]) && (
+                (isset($validIndividualCropArr[$splitFit[1]]) && !isset($splitFit[2])) ||
+                (isset($splitFit[2]) && isset($validCropArr[$splitFit[1]]) && isset($validPositionArr[$splitFit[2]])) ||
+                (isset($splitFit[2]) && is_numeric($splitFit[1]) && is_numeric($splitFit[2]))
+            )
+        ) {
             return 'crop';
         }
 
@@ -275,7 +284,11 @@ class Size extends BaseManipulator
             return $cropMethods[$this->a];
         }
 
-        if (preg_match('/^crop-([\d]{1,3})-([\d]{1,3})*$/', $this->a, $matches)) {
+        $matches = explode('-', $this->a);
+
+        if (isset($matches[0]) && $matches[0] === 'crop' && isset($matches[1]) && isset($matches[2]) && !isset($matches[3])
+            && is_numeric($matches[1]) && is_numeric($matches[2])
+        ) {
             if ($matches[1] > 100 || $matches[2] > 100) {
                 return [50, 50];
             }
@@ -304,7 +317,7 @@ class Size extends BaseManipulator
         $inputWidth = $image->width;
         $inputHeight = $image->height;
         $rotation = $this->rotation;
-        if ($rotation == 90 || $rotation == 270) {
+        if ($rotation === 90 || $rotation === 270) {
             // Swap input output width and height when rotating by 90 or 270 degrees
             list($inputWidth, $inputHeight) = [$inputHeight, $inputWidth];
         }
@@ -342,7 +355,7 @@ class Size extends BaseManipulator
                     }
                     break;
                 case 'absolute':
-                    if ($rotation == 90 || $rotation == 270) {
+                    if ($rotation === 90 || $rotation === 270) {
                         list($xFactor, $yFactor) = [$yFactor, $xFactor];
                     }
                     break;
@@ -351,7 +364,7 @@ class Size extends BaseManipulator
             if ($width > 0) {
                 // Fixed width
                 $xFactor = (float)($inputWidth / $width);
-                if ($fit == 'absolute') {
+                if ($fit === 'absolute') {
                     $targetResizeHeight = $height = $inputHeight;
                 } else {
                     // Auto height
@@ -362,7 +375,7 @@ class Size extends BaseManipulator
                 if ($height > 0) {
                     // Fixed height
                     $yFactor = (float)($inputHeight / $height);
-                    if ($fit == 'absolute') {
+                    if ($fit === 'absolute') {
                         $targetResizeWidth = $width = $inputWidth;
                     } else {
                         // Auto width
@@ -406,8 +419,8 @@ class Size extends BaseManipulator
         // If integral x and y shrink are equal, try to use shrink-on-load for JPEG, WebP, PDF and SVG
         // but not when trimming or pre-resize crop
         $shrinkOnLoad = 1;
-        if ($xShrink == $yShrink && $xShrink >= 2 &&
-            ($loader == 'jpegload' || $loader == 'webpload' || $loader == 'pdfload' || $loader == 'svgload') &&
+        if ($xShrink === $yShrink && $xShrink >= 2 &&
+            ($loader === 'jpegload' || $loader === 'webpload' || $loader === 'pdfload' || $loader === 'svgload') &&
             !$this->trim && !$this->cropCoordinates
         ) {
             if ($xShrink >= 8) {
@@ -427,13 +440,13 @@ class Size extends BaseManipulator
 
         if ($shrinkOnLoad > 1) {
             // Reload input using shrink-on-load
-            if ($loader == 'jpegload') {
+            if ($loader === 'jpegload') {
                 // Reload JPEG file
                 $image = Image::jpegload($this->tmpFileName, ['shrink' => $shrinkOnLoad]);
-            } elseif ($loader == 'webpload') {
+            } elseif ($loader === 'webpload') {
                 // Reload WebP file
                 $image = Image::webpload($this->tmpFileName, ['shrink' => $shrinkOnLoad]);
-            } elseif ($loader == 'pdfload') {
+            } elseif ($loader === 'pdfload') {
                 // Reload PDF file
                 // (don't forget to pass on the page that we want)
                 $image = Image::pdfload($this->tmpFileName, [
@@ -447,7 +460,7 @@ class Size extends BaseManipulator
             // Recalculate integral shrink and float residual
             $shrunkOnLoadWidth = $image->width;
             $shrunkOnLoadHeight = $image->height;
-            if ($rotation == 90 || $rotation == 270) {
+            if ($rotation === 90 || $rotation === 270) {
                 // Swap input output width and height when rotating by 90 or 270 degrees
                 list($shrunkOnLoadWidth, $shrunkOnLoadHeight) = [$shrunkOnLoadHeight, $shrunkOnLoadWidth];
             }
@@ -457,7 +470,7 @@ class Size extends BaseManipulator
             $yShrink = max(1, (int)floor($yFactor));
             $xResidual = (float)($xShrink) / $xFactor;
             $yResidual = (float)($yShrink) / $yFactor;
-            if ($rotation == 90 || $rotation == 270) {
+            if ($rotation === 90 || $rotation === 270) {
                 list($xResidual, $yResidual) = [$yResidual, $xResidual];
             }
         }
@@ -491,7 +504,7 @@ class Size extends BaseManipulator
         // Use affine increase or kernel reduce with the remaining float part
         if ($xResidual != 1.0 || $yResidual != 1.0) {
             // Insert line cache to prevent over-computation of previous operations
-            if ($this->accessMethod == Access::SEQUENTIAL) {
+            if ($this->accessMethod === Access::SEQUENTIAL) {
                 // TODO Figure out how many scanline(s) ('tile_height') it will need.
                 $image = $image->linecache([
                     'tile_height' => 10,
@@ -530,7 +543,7 @@ class Size extends BaseManipulator
         }
 
         if ($image->width != $width || $image->height != $height) {
-            if ($fit == 'letterbox') {
+            if ($fit === 'letterbox') {
                 if ($this->bg) {
                     $backgroundColor = (new Color($this->bg))->toRGBA();
                 } else {
@@ -592,7 +605,8 @@ class Size extends BaseManipulator
                     ['extend' => Extend::BACKGROUND, 'background' => $background]
                 );
             } else {
-                if (in_array($fit, ['square', 'squaredown', 'crop'], true)) {
+                $cropArr = ['square' => 0, 'squaredown' => 1, 'crop' => 2];
+                if (isset($cropArr[$fit])) {
                     list($offsetX, $offsetY) = $this->resolveCropOffset($image, $width, $height);
                     $width = min($image->width, $width);
                     $height = min($image->height, $height);

@@ -337,7 +337,7 @@ if (!empty($_GET['url'])) {
                 $reasonPhrase = $e->getResponse()->getReasonPhrase();
             }
 
-            $errorMessage = $statusCode . ' ' . $reasonPhrase;
+            $errorMessage = "$statusCode $reasonPhrase";
 
             if (!$isDnsError && isset($_GET['errorredirect'])) {
                 $isSameHost = 'weserv.nl';
@@ -347,7 +347,7 @@ if (!empty($_GET['url'])) {
 
                     $append = '';
                     if (substr($uri->getHost(), -strlen($isSameHost)) === $isSameHost) {
-                        $append = '&error=' . $statusCode;
+                        $append = "&error=$statusCode";
                     }
 
                     $sanitizedUri = $sanitizeErrorRedirect($uri);

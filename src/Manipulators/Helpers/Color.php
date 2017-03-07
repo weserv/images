@@ -135,7 +135,7 @@ class Color
      */
     public function isTransparent(): bool
     {
-        return $this->alpha == 0;
+        return $this->alpha === 0;
     }
 
     /**
