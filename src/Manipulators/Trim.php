@@ -6,6 +6,8 @@ use Jcupitt\Vips\Image;
 
 /**
  * @property string $trim
+ * @property bool $hasAlpha
+ * @property bool $isPremultiplied
  * @property bool $is16Bit
  */
 class Trim extends BaseManipulator
@@ -19,8 +21,16 @@ class Trim extends BaseManipulator
      */
     public function run(Image $image): Image
     {
-        if (!$this->trim) {
+        if (!isset($this->trim)) {
             return $image;
+        }
+
+        if ($this->hasAlpha && !$this->isPremultiplied) {
+            // Premultiply image alpha channel before trim transformation to avoid
+            // dark fringing around bright pixels
+            // See: http://entropymine.com/imageworsener/resizealpha/
+            $image = $image->premultiply();
+            $this->isPremultiplied = true;
         }
 
         $trim = $this->getTrim();

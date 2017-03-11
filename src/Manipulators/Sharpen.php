@@ -23,13 +23,13 @@ class Sharpen extends BaseManipulator
      */
     public function run(Image $image): Image
     {
-        if (!$this->sharp) {
+        if (!isset($this->sharp)) {
             return $image;
         }
 
         if ($this->hasAlpha && !$this->isPremultiplied) {
-            // Ensures that the image alpha channel is premultiplied before doing any sharpen transformations
-            // to avoid dark fringing around bright pixels
+            // Premultiply image alpha channel before sharpen transformation to avoid
+            // dark fringing around bright pixels
             // See: http://entropymine.com/imageworsener/resizealpha/
             $image = $image->premultiply();
             $this->isPremultiplied = true;

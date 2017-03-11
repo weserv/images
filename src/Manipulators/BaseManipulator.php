@@ -39,6 +39,17 @@ abstract class BaseManipulator implements ManipulatorInterface
     }
 
     /**
+     * Whether or not an item exists by key
+     *
+     * @param   string $key
+     * @return  bool
+     */
+    public function __isset(string $key)
+    {
+        return isset($this->params[$key]) || array_key_exists($key, $this->params);
+    }
+
+    /**
      * Set any property on the manipulation params.
      *
      * @param string $name The property name.

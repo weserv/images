@@ -103,7 +103,7 @@ class Shape extends BaseManipulator
             return $this->shape;
         }
 
-        if ($this->circle) {
+        if (isset($this->circle)) {
             return 'circle';
         }
 

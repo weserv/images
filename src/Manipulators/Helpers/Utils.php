@@ -58,9 +58,7 @@ class Utils
         $bands = $image->bands;
         $interpretation = $image->interpretation;
 
-        return ($bands === 2 && $interpretation === Interpretation::B_W)
-            || ($bands === 4 && $interpretation !== Interpretation::CMYK)
-            || ($bands === 5 && $interpretation === Interpretation::CMYK);
+        return $bands === 2 || ($bands === 4 && $interpretation !== Interpretation::CMYK) || $bands > 4;
     }
 
     /**

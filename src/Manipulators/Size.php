@@ -480,7 +480,7 @@ class Size extends BaseManipulator
         $shouldPremultiplyAlpha = $this->hasAlpha && !$this->isPremultiplied && ($shouldReduce || $shouldShrink);
 
         if ($shouldPremultiplyAlpha) {
-            // Premultiply image alpha channel before all transformations to avoid
+            // Premultiply image alpha channel before shrink/reduce transformations to avoid
             // dark fringing around bright pixels
             // See: http://entropymine.com/imageworsener/resizealpha/
             $image = $image->premultiply();

@@ -8,11 +8,13 @@ use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Exception\RateExceededException;
 use AndriesLouw\imagesweserv\Manipulators\Background;
 use AndriesLouw\imagesweserv\Manipulators\Blur;
+use AndriesLouw\imagesweserv\Manipulators\Gamma;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface;
 use AndriesLouw\imagesweserv\Manipulators\Shape;
 use AndriesLouw\imagesweserv\Manipulators\Sharpen;
 use AndriesLouw\imagesweserv\Manipulators\Size;
+use AndriesLouw\imagesweserv\Manipulators\Trim;
 use AndriesLouw\imagesweserv\Throttler\ThrottlerInterface;
 use GuzzleHttp\Exception\RequestException;
 use InvalidArgumentException;
@@ -251,11 +253,13 @@ class Api implements ApiInterface
                 $params['hasAlpha'] = $manipulator->hasAlpha;
             }
 
-            // Size, sharpen, blur and background manipulators can override `isPremultiplied` parameter.
-            if ($manipulator instanceof Size
-                || $manipulator instanceof Sharpen
-                || $manipulator instanceof Blur
-                || $manipulator instanceof Background
+            // Trim, size, gamma, sharpen, blur and background manipulators can override `isPremultiplied` parameter.
+            if ($manipulator instanceof Trim ||
+                $manipulator instanceof Size ||
+                $manipulator instanceof Gamma ||
+                $manipulator instanceof Sharpen ||
+                $manipulator instanceof Blur ||
+                $manipulator instanceof Background
             ) {
                 $params['isPremultiplied'] = $manipulator->isPremultiplied;
             }

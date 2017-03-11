@@ -102,8 +102,8 @@ class Background extends BaseManipulator
             // Ensure overlay is premultiplied sRGB
             $backgroundImage = $backgroundImage->premultiply();
 
-            // Ensures that the image alpha channel is premultiplied before doing any background color
-            // transformations to avoid dark fringing around bright pixels
+            // Premultiply image alpha channel before background transformation to avoid
+            // dark fringing around bright pixels
             // See: http://entropymine.com/imageworsener/resizealpha/
             if (!$this->isPremultiplied) {
                 $image = $image->premultiply();
