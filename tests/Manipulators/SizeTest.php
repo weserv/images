@@ -7,7 +7,6 @@ use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Extend;
 use Jcupitt\Vips\Kernel;
 use Mockery;
-use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;
 
 class SizeTest extends TestCase
@@ -42,7 +41,7 @@ class SizeTest extends TestCase
 
     public function testFit()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function (MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
                 ->andReturn(1967, 1967, 1967, 245, 244)
@@ -102,7 +101,7 @@ class SizeTest extends TestCase
 
     public function testFitup()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function (MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
                 ->andReturn(1967, 1967, 1967, 2437)
@@ -141,7 +140,7 @@ class SizeTest extends TestCase
 
     public function testSquare()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function (MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
                 ->andReturn(1967, 1967, 1967, 327, 327, 327, 327, 327)
@@ -207,7 +206,7 @@ class SizeTest extends TestCase
 
     public function testSquareDown()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function (MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
                 ->andReturn(1967)
@@ -242,7 +241,7 @@ class SizeTest extends TestCase
 
     public function testAbsolute()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function (MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
                 ->andReturn(1967, 1967, 1967, 327, 300)
@@ -302,7 +301,7 @@ class SizeTest extends TestCase
 
     public function testLetterbox()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function (MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
                 ->andReturn(1967, 1967, 1967, 245, 244, 244)
@@ -448,7 +447,7 @@ class SizeTest extends TestCase
     {
         $this->manipulator->setMaxImageSize(500 * 500);
 
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function (MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
                 ->andReturn(1000)

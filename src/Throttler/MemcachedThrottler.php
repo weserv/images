@@ -14,6 +14,13 @@ class MemcachedThrottler implements ThrottlerInterface
     protected $memcached;
 
     /**
+     * Throttling policy.
+     *
+     * @var ThrottlingPolicy
+     */
+    protected $policy;
+
+    /**
      * A string that should be prepended to keys.
      *
      * @var string
@@ -31,11 +38,13 @@ class MemcachedThrottler implements ThrottlerInterface
      * Create a new Memcached throttler instance.
      *
      * @param Memcached $memcached
+     * @param ThrottlingPolicy $policy
      * @param array $config
      */
-    public function __construct(Memcached $memcached, array $config)
+    public function __construct(Memcached $memcached, ThrottlingPolicy $policy, array $config)
     {
         $this->memcached = $memcached;
+        $this->policy = $policy;
         $this->config = array_merge([
             'allowed_requests' => 700, // 700 allowed requests
             'minutes' => 3, // In 3 minutes
@@ -67,17 +76,26 @@ class MemcachedThrottler implements ThrottlerInterface
     }
 
     /**
-     * @inheritDoc
+     * Determine if any rate limits have been exceeded
+     *
+     * @param string $ip
+     *
+     * @return bool
      */
-    public function isExceeded($ip, \Closure $hasExceeded): bool
+    public function isExceeded($ip): bool
     {
         if (($cached = $this->memcached->get($this->prefix . $ip . ':lockout')) !== false) {
             return true;
         }
         if ($this->increment($ip, $this->config['minutes']) > $this->config['allowed_requests']) {
-            $banTime = time() + ($this->config['ban_time'] * 60);
-            $hasExceeded($ip, $banTime);
-            $this->memcached->add($this->prefix . $ip . ':lockout', $banTime, $banTime);
+            $expires = time() + ($this->policy->getBanTime() * 60);
+            // Is CloudFlare enabled?
+            if ($this->policy->isCloudFlareEnabled() && ($blockRuleId = $this->policy->banAtCloudFlare($ip)) !== false) {
+                // Never expire, we're removing the ban with a cronjob
+                $this->memcached->add($this->prefix . $ip . ':lockout', $expires . ',' . $blockRuleId);
+            } else {
+                $this->memcached->add($this->prefix . $ip . ':lockout', $expires, $expires);
+            }
             $this->resetAttempts($ip);
             return true;
         }
@@ -85,7 +103,11 @@ class MemcachedThrottler implements ThrottlerInterface
     }
 
     /**
-     * @inheritDoc
+     * Increment the counter for a given IP for a given decay time.
+     *
+     * @param  string $ip
+     * @param  float|int $decayMinutes
+     * @return int
      */
     public function increment($ip, $decayMinutes = 1): int
     {
@@ -93,7 +115,10 @@ class MemcachedThrottler implements ThrottlerInterface
     }
 
     /**
-     * @inheritDoc
+     * Get the number of attempts for the given IP.
+     *
+     * @param  string $ip
+     * @return mixed
      */
     public function attempts($ip): int
     {
@@ -101,7 +126,10 @@ class MemcachedThrottler implements ThrottlerInterface
     }
 
     /**
-     * @inheritDoc
+     * Reset the number of attempts for the given IP.
+     *
+     * @param  string $ip
+     * @return bool true on success or false on failure.
      */
     public function resetAttempts($ip): bool
     {
@@ -109,7 +137,11 @@ class MemcachedThrottler implements ThrottlerInterface
     }
 
     /**
-     * @inheritDoc
+     * Get the number of retries left for the given IP.
+     *
+     * @param  string $ip
+     * @param  int $maxAttempts
+     * @return int
      */
     public function retriesLeft($ip, $maxAttempts): int
     {
@@ -118,7 +150,10 @@ class MemcachedThrottler implements ThrottlerInterface
     }
 
     /**
-     * @inheritDoc
+     * Clear the hits and lockout for the given IP.
+     *
+     * @param  string $ip
+     * @return void
      */
     public function clear($ip)
     {
@@ -127,10 +162,19 @@ class MemcachedThrottler implements ThrottlerInterface
     }
 
     /**
-     * @inheritDoc
+     * Get the number of seconds until the "IP" is accessible again.
+     *
+     * @param  string $ip
+     * @return int
      */
     public function availableIn($ip): int
     {
-        return $this->memcached->get($this->prefix . $ip . ':lockout') - time();
+        if ($this->policy->isCloudFlareEnabled()) {
+            $value = $this->memcached->get($this->prefix . $ip . ':lockout');
+            list($expires, $blockRuleId) = explode(',', $value);
+            return (int)$expires - time();
+        } else {
+            return $this->memcached->get($this->prefix . $ip . ':lockout') - time();
+        }
     }
 }

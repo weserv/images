@@ -65,7 +65,7 @@ $error_messages = [
     'rate_exceeded' => [
         'header' => '429 Too Many Requests',
         'content-type' => 'text/plain',
-        'message' => 'There are an unusual number of requests coming from this IP address. More requests available in %d seconds.',
+        'message' => 'There are an unusual number of requests coming from this IP address.',
     ],
     'image_not_readable' => [
         'header' => '400 Bad Request',
@@ -196,6 +196,17 @@ if (!empty($_GET['url'])) {
         ]
     ]);
 
+    /*$throttlingPolicy = new AndriesLouw\imagesweserv\Throttler\ThrottlingPolicy([
+        'ban_time' => 60, // If exceed, ban for 60 minutes
+        'cloudflare' => [
+            'enabled' => true, // Is CloudFlare enabled?
+            'email' => '',
+            'auth_key' => '',
+            'zone_id' => '',
+            'mode' => 'block', // The action to apply if the IP get's banned
+        ],
+    ]);*/
+
     /*$memcached = new Memcached('mc');
 
     // When using persistent connections, it's important to not re-add servers.
@@ -209,10 +220,9 @@ if (!empty($_GET['url'])) {
     }
 
     // Create an new Memcached throttler instance
-    $throttler = new AndriesLouw\imagesweserv\Throttler\MemcachedThrottler($memcached, [
+    $throttler = new AndriesLouw\imagesweserv\Throttler\MemcachedThrottler($memcached, $throttlingPolicy, [
         'allowed_requests' => 700, // 700 allowed requests
         'minutes' => 3, // In 3 minutes
-        'ban_time' => 60, // If exceed, ban for 60 minutes
         'prefix' => 'c', // Cache key prefix
     ]);*/
 
@@ -223,10 +233,9 @@ if (!empty($_GET['url'])) {
     ]);
 
     // Create an new Redis throttler instance
-    $throttler = new AndriesLouw\imagesweserv\Throttler\RedisThrottler($redis, [
+    $throttler = new AndriesLouw\imagesweserv\Throttler\RedisThrottler($redis, $throttlingPolicy, [
         'allowed_requests' => 700, // 700 allowed requests
         'minutes'  => 3, // In 3 minutes
-        'ban_time'  => 60, // If exceed, ban for 60 minutes
         'prefix' => 'c', // Cache key prefix
     ]);*/
 
@@ -368,8 +377,7 @@ if (!empty($_GET['url'])) {
         $error = $error_messages['rate_exceeded'];
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
         header('Content-type: ' . $error['content-type']);
-        /** @noinspection PhpUndefinedMethodInspection */
-        echo $error['header'] . ' - ' . sprintf($error['message'], $throttler->availableIn($_SERVER['REMOTE_ADDR']));
+        echo $error['header'] . ' - ' . $error['message'];
     } catch (ImageNotReadableException $e) {
         $error = $error_messages['image_not_readable'];
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);

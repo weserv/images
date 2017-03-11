@@ -4,7 +4,6 @@ namespace AndriesLouw\imagesweserv\Manipulators\Helpers;
 
 use Jcupitt\Vips\Interpretation;
 use Mockery;
-use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;
 
 class UtilsTest extends TestCase
@@ -30,7 +29,7 @@ class UtilsTest extends TestCase
 
     public function testHasAlpha()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function (MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('interpretation')
                 ->andReturn(Interpretation::SRGB)
@@ -47,7 +46,7 @@ class UtilsTest extends TestCase
 
     public function testExifOrientation()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image', function (MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image', function ($mock) {
             $mock->shouldReceive('typeof')->with(Utils::VIPS_META_ORIENTATION)->andReturn(1, 0)->twice();
             $mock->shouldReceive('get')->with(Utils::VIPS_META_ORIENTATION)->andReturn(6)->once();
         });
@@ -61,7 +60,7 @@ class UtilsTest extends TestCase
 
     public function testCalculateRotationAndFlip()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image', function (MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image', function ($mock) {
             $mock->shouldReceive('typeof')->with(Utils::VIPS_META_ORIENTATION)->andReturn(1, 0)->twice();
             $mock->shouldReceive('get')->with(Utils::VIPS_META_ORIENTATION)->andReturn(6)->once();
             $mock->shouldReceive('remove')->with(Utils::VIPS_META_ORIENTATION)->once();
@@ -76,7 +75,7 @@ class UtilsTest extends TestCase
 
     public function testResolveCropCoordinates()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function (MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
                 ->andReturn(100);

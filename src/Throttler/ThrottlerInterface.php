@@ -8,6 +8,15 @@ namespace AndriesLouw\imagesweserv\Throttler;
 interface ThrottlerInterface
 {
     /**
+     * Determine if any rate limits have been exceeded
+     *
+     * @param string $ip
+     *
+     * @return bool
+     */
+    public function isExceeded($ip): bool;
+
+    /**
      * Increment the counter for a given IP for a given decay time.
      *
      * @param  string $ip
@@ -15,16 +24,6 @@ interface ThrottlerInterface
      * @return int
      */
     public function increment($ip, $decayMinutes = 1): int;
-
-    /**
-     * Determine if any rate limits have been exceeded
-     *
-     * @param $ip
-     * @param \Closure $hasExceeded
-     *
-     * @return bool
-     */
-    public function isExceeded($ip, \Closure $hasExceeded): bool;
 
     /**
      * Get the number of attempts for the given IP.

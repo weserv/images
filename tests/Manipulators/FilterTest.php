@@ -4,7 +4,6 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 
 use Jcupitt\Vips\Interpretation;
 use Mockery;
-use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;
 
 class FilterTest extends TestCase
@@ -28,7 +27,7 @@ class FilterTest extends TestCase
 
     public function testRunGreyscaleFilter()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image', function (MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image', function ($mock) {
             $mock->shouldReceive('colourspace')->with(Interpretation::B_W)->andReturnSelf()->once();
         });
 
@@ -40,7 +39,7 @@ class FilterTest extends TestCase
 
     public function testRunSepiaFilter()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image', function (MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image', function ($mock) {
             $mock->shouldReceive('recomb')->with(Mockery::any())->andReturnSelf()->once();
         });
 

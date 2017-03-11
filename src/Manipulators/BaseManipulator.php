@@ -14,7 +14,11 @@ abstract class BaseManipulator implements ManipulatorInterface
     public $params = [];
 
     /**
-     * {@inheritdoc}
+     * Set the manipulation params.
+     *
+     * @param array $params The manipulation params.
+     *
+     * @return self
      */
     public function setParams(array $params)
     {
@@ -61,7 +65,11 @@ abstract class BaseManipulator implements ManipulatorInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Perform the image manipulation.
+     *
+     * @param  Image $image The source image.
+     *
+     * @return Image The manipulated image.
      */
     abstract public function run(Image $image): Image;
 }

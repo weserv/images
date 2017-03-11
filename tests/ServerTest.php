@@ -5,7 +5,6 @@ namespace AndriesLouw\imagesweserv;
 use Jcupitt\Vips\Access;
 use League\Uri\Schemes\Http as HttpUri;
 use Mockery;
-use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;
 
 class ServerTest extends TestCase
@@ -112,25 +111,25 @@ class ServerTest extends TestCase
 
         $client = Mockery::mock(
             'AndriesLouw\imagesweserv\Client',
-            function (MockInterface $mock) use ($uri, $tempFile) {
+            function ($mock) use ($uri, $tempFile) {
                 $mock->shouldReceive('get')->with($uri->__toString())->andReturn($tempFile);
             }
         );
 
         $throttler = Mockery::mock(
             'AndriesLouw\imagesweserv\Throttler\ThrottlerInterface',
-            function (MockInterface $mock) {
-                $mock->shouldReceive('isExceeded')->with('127.0.0.1', Mockery::any());
+            function ($mock) {
+                $mock->shouldReceive('isExceeded')->with('127.0.0.1');
             }
         );
 
-        $image = Mockery::mock('Jcupitt\Vips\Image', function (MockInterface $mock) use ($pixel) {
+        $image = Mockery::mock('Jcupitt\Vips\Image', function ($mock) use ($pixel) {
             $mock->shouldReceive('writeToBuffer')->andReturn($pixel);
         });
 
         $manipulator = Mockery::mock(
             'AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface',
-            function (MockInterface $mock) use ($image, $tempFile) {
+            function ($mock) use ($image, $tempFile) {
                 $mock->shouldReceive('setParams')->with([
                     'accessMethod' => Access::SEQUENTIAL,
                     'tmpFileName' => $tempFile,
@@ -178,25 +177,25 @@ class ServerTest extends TestCase
 
         $client = Mockery::mock(
             'AndriesLouw\imagesweserv\Client',
-            function (MockInterface $mock) use ($uri, $tempFile) {
+            function ($mock) use ($uri, $tempFile) {
                 $mock->shouldReceive('get')->with($uri->__toString())->andReturn($tempFile);
             }
         );
 
         $throttler = Mockery::mock(
             'AndriesLouw\imagesweserv\Throttler\ThrottlerInterface',
-            function (MockInterface $mock) {
-                $mock->shouldReceive('isExceeded')->with('127.0.0.1', Mockery::any());
+            function ($mock) {
+                $mock->shouldReceive('isExceeded')->with('127.0.0.1');
             }
         );
 
-        $image = Mockery::mock('Jcupitt\Vips\Image', function (MockInterface $mock) use ($pixel) {
+        $image = Mockery::mock('Jcupitt\Vips\Image', function ($mock) use ($pixel) {
             $mock->shouldReceive('writeToBuffer')->andReturn($pixel);
         });
 
         $manipulator = Mockery::mock(
             'AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface',
-            function (MockInterface $mock) use ($image, $tempFile) {
+            function ($mock) use ($image, $tempFile) {
                 $mock->shouldReceive('setParams')->with([
                     'accessMethod' => Access::SEQUENTIAL,
                     'tmpFileName' => $tempFile,

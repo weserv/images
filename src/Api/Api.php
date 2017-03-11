@@ -139,7 +139,10 @@ class Api implements ApiInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Perform image manipulations.
+     *
+     * @param  string $url Source URL
+     * @param  array $params The manipulation params
      *
      * @throws RateExceededException if a user rate limit is exceeded
      * @throws ImageNotReadableException if the provided image is not readable.
@@ -148,6 +151,12 @@ class Api implements ApiInterface
      * @throws RequestException for errors that occur during a transfer or during
      *      the on_headers event
      * @throws VipsException for errors that occur during the processing of a Image
+     *
+     * @return array [
+     * @type string Manipulated image binary data,
+     * @type string The mimetype of the image,
+     * @type string The extension of the image
+     * ]
      */
     public function run(string $url, array $params): array
     {
@@ -157,7 +166,7 @@ class Api implements ApiInterface
             $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
 
             // Check if rate is exceeded for IP
-            if ($this->throttler->isExceeded($ip, $this->ban())) {
+            if ($this->throttler->isExceeded($ip)) {
                 throw new RateExceededException();
             }
         }
@@ -394,24 +403,6 @@ class Api implements ApiInterface
             $mimeType,
             $extension
         ];
-    }
-
-    /**
-     * Ban's the user if it's getting throttled.
-     *
-     * For example:
-     * This script can call CloudFlare directly through cURL
-     * or log the ban and invoke Fail2Ban on the server.
-     *
-     * Note: only getting called once.
-     */
-    public function ban(): \Closure
-    {
-        $log = 'User rate limit exceeded. IP: %s Expires: %d';
-        return function ($ip, $banTime) use ($log) {
-            // Ban script (just use your imagination)
-            trigger_error(sprintf($log, $ip, $banTime), E_USER_WARNING);
-        };
     }
 
     /**

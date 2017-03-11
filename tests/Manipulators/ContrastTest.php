@@ -4,7 +4,6 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 
 use Jcupitt\Vips\BandFormat;
 use Mockery;
-use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;
 
 class ContrastTest extends TestCase
@@ -28,7 +27,7 @@ class ContrastTest extends TestCase
 
     public function testRun()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function (MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('format')
                 ->andReturn(BandFormat::UCHAR)

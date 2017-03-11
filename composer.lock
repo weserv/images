@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "2f674473d270c6ee043877d4352f70e7",
+    "content-hash": "5bd634a5ef5bb89c07d112a0d68f4bfe",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -183,6 +183,47 @@
                 "url"
             ],
             "time": "2017-02-27T10:51:17+00:00"
+        },
+        {
+            "name": "jamesryanbell/cloudflare",
+            "version": "1.10.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jamesryanbell/cloudflare.git",
+                "reference": "fc0ad3f3f16ebd16956ee61fc4c03e5cfc51e9ce"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jamesryanbell/cloudflare/zipball/fc0ad3f3f16ebd16956ee61fc4c03e5cfc51e9ce",
+                "reference": "fc0ad3f3f16ebd16956ee61fc4c03e5cfc51e9ce",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "*",
+                "satooshi/php-coveralls": "dev-master"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Cloudflare\\": "src/CloudFlare"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "James Bell",
+                    "email": "james@james-bell.co.uk"
+                }
+            ],
+            "description": "CloudFlare API - PHP",
+            "keywords": [
+                "api",
+                "cloudflare"
+            ],
+            "time": "2017-02-27T21:21:23+00:00"
         },
         {
             "name": "jcupitt/vips",

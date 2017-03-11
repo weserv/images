@@ -3,7 +3,6 @@
 namespace AndriesLouw\imagesweserv;
 
 use Mockery;
-use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;
 
 class ClientTest extends TestCase
@@ -66,7 +65,7 @@ class ClientTest extends TestCase
 
         $response = Mockery::mock('GuzzleHttp\Message\ResponseInterface');
 
-        $client = Mockery::mock('GuzzleHttp\Client', function (MockInterface $mock) use ($response, $pixel) {
+        $client = Mockery::mock('GuzzleHttp\Client', function ($mock) use ($response, $pixel) {
             $mock->shouldReceive('request')
                 ->with('GET', '/', [
                     'sink' => $this->tempFile,

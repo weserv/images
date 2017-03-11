@@ -3,7 +3,6 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use Mockery;
-use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;
 
 class CropTest extends TestCase
@@ -14,7 +13,7 @@ class CropTest extends TestCase
     public function setUp()
     {
         $this->manipulator = new Crop();
-        $this->image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function (MockInterface $mock) {
+        $this->image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
                 ->andReturn(100);

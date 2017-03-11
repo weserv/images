@@ -4,7 +4,6 @@ namespace AndriesLouw\imagesweserv\Api;
 
 use Jcupitt\Vips\Access;
 use Mockery;
-use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;
 
 class ApiTest extends TestCase
@@ -89,24 +88,24 @@ class ApiTest extends TestCase
 
         file_put_contents($tempFile, $pixel);
 
-        $client = Mockery::mock('AndriesLouw\imagesweserv\Client', function (MockInterface $mock) use ($tempFile) {
+        $client = Mockery::mock('AndriesLouw\imagesweserv\Client', function ($mock) use ($tempFile) {
             $mock->shouldReceive('get')->andReturn($tempFile);
         });
 
         $throttler = Mockery::mock(
             'AndriesLouw\imagesweserv\Throttler\ThrottlerInterface',
-            function (MockInterface $mock) {
-                $mock->shouldReceive('isExceeded')->with('127.0.0.1', Mockery::any());
+            function ($mock) {
+                $mock->shouldReceive('isExceeded')->with('127.0.0.1');
             }
         );
 
-        $image = Mockery::mock('Jcupitt\Vips\Image', function (MockInterface $mock) use ($pixel) {
+        $image = Mockery::mock('Jcupitt\Vips\Image', function ($mock) use ($pixel) {
             $mock->shouldReceive('writeToBuffer')->andReturn($pixel);
         });
 
         $manipulator = Mockery::mock(
             'AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface',
-            function (MockInterface $mock) use ($image, $tempFile) {
+            function ($mock) use ($image, $tempFile) {
                 $mock->shouldReceive('setParams')->with([
                     'accessMethod' => Access::SEQUENTIAL,
                     'tmpFileName' => $tempFile,

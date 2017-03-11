@@ -3,7 +3,6 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use Mockery;
-use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;
 
 class BackgroundTest extends TestCase
@@ -27,7 +26,7 @@ class BackgroundTest extends TestCase
 
     public function testRun()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function (MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('bands')
                 ->andReturn(3)

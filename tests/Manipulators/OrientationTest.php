@@ -4,7 +4,6 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 
 use Jcupitt\Vips\Angle;
 use Mockery;
-use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;
 
 class OrientationTest extends TestCase
@@ -28,7 +27,7 @@ class OrientationTest extends TestCase
 
     public function testRun()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image', function (MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image', function ($mock) {
             $mock->shouldReceive('rot')->with(Angle::D90)->andReturnSelf()->once();
         });
 

@@ -3,7 +3,6 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use Mockery;
-use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;
 
 class BrightnessTest extends TestCase
@@ -27,7 +26,7 @@ class BrightnessTest extends TestCase
 
     public function testRun()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image', function (MockInterface $mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image', function ($mock) {
             $mock->shouldReceive('linear')->with([1, 1, 1], [127.5, 127.5, 127.5])->andReturnSelf()->once();
         });
 

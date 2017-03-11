@@ -14,6 +14,13 @@ class RedisThrottler implements ThrottlerInterface
     protected $redis;
 
     /**
+     * Throttling policy.
+     *
+     * @var ThrottlingPolicy
+     */
+    protected $policy;
+
+    /**
      * A string that should be prepended to keys.
      *
      * @var string
@@ -31,15 +38,16 @@ class RedisThrottler implements ThrottlerInterface
      * Create a new Redis throttler instance.
      *
      * @param ClientInterface $redis
+     * @param ThrottlingPolicy $policy
      * @param array $config
      */
-    public function __construct(ClientInterface $redis, array $config)
+    public function __construct(ClientInterface $redis, ThrottlingPolicy $policy, array $config)
     {
         $this->redis = $redis;
+        $this->policy = $policy;
         $this->config = array_merge([
             'allowed_requests' => 700, // 700 allowed requests
             'minutes' => 3, // In 3 minutes
-            'ban_time' => 60, // If exceed, ban for 60 minutes
             'prefix' => '', // Cache key prefix
         ], $config);
         $this->setPrefix($this->config['prefix']);
@@ -67,18 +75,27 @@ class RedisThrottler implements ThrottlerInterface
     }
 
     /**
-     * @inheritDoc
+     * Determine if any rate limits have been exceeded
+     *
+     * @param string $ip
+     *
+     * @return bool
      */
-    public function isExceeded($ip, \Closure $hasExceeded): bool
+    public function isExceeded($ip): bool
     {
         if ($this->redis->exists($this->prefix . $ip . ':lockout')) {
             return true;
         }
         if ($this->increment($ip, $this->config['minutes']) > $this->config['allowed_requests']) {
-            $ttl = $this->config['ban_time'] * 60;
-            $banTime = time() + $ttl;
-            $hasExceeded($ip, $banTime);
-            $this->redis->set($this->prefix . $ip . ':lockout', $banTime, 'ex', $ttl);
+            $ttl = $this->policy->getBanTime() * 60;
+            $expires = time() + $ttl;
+            // Is CloudFlare enabled?
+            if ($this->policy->isCloudFlareEnabled() && ($blockRuleId = $this->policy->banAtCloudFlare($ip)) !== false) {
+                // Never expire, we're removing the ban with a cronjob
+                $this->redis->set($this->prefix . $ip . ':lockout', $expires . ',' . $blockRuleId);
+            } else {
+                $this->redis->set($this->prefix . $ip . ':lockout', $expires, 'ex', $ttl);
+            }
             $this->resetAttempts($ip);
             return true;
         }
@@ -86,7 +103,11 @@ class RedisThrottler implements ThrottlerInterface
     }
 
     /**
-     * @inheritDoc
+     * Increment the counter for a given IP for a given decay time.
+     *
+     * @param  string $ip
+     * @param  float|int $decayMinutes
+     * @return int
      */
     public function increment($ip, $decayMinutes = 1): int
     {
@@ -99,7 +120,10 @@ class RedisThrottler implements ThrottlerInterface
     }
 
     /**
-     * @inheritDoc
+     * Get the number of attempts for the given IP.
+     *
+     * @param  string $ip
+     * @return mixed
      */
     public function attempts($ip): int
     {
@@ -107,7 +131,10 @@ class RedisThrottler implements ThrottlerInterface
     }
 
     /**
-     * @inheritDoc
+     * Reset the number of attempts for the given IP.
+     *
+     * @param  string $ip
+     * @return bool true on success or false on failure.
      */
     public function resetAttempts($ip): bool
     {
@@ -115,7 +142,11 @@ class RedisThrottler implements ThrottlerInterface
     }
 
     /**
-     * @inheritDoc
+     * Get the number of retries left for the given IP.
+     *
+     * @param  string $ip
+     * @param  int $maxAttempts
+     * @return int
      */
     public function retriesLeft($ip, $maxAttempts): int
     {
@@ -124,7 +155,10 @@ class RedisThrottler implements ThrottlerInterface
     }
 
     /**
-     * @inheritDoc
+     * Clear the hits and lockout for the given IP.
+     *
+     * @param  string $ip
+     * @return void
      */
     public function clear($ip)
     {
@@ -133,10 +167,19 @@ class RedisThrottler implements ThrottlerInterface
     }
 
     /**
-     * @inheritDoc
+     * Get the number of seconds until the "IP" is accessible again.
+     *
+     * @param  string $ip
+     * @return int
      */
     public function availableIn($ip): int
     {
-        return (int)$this->redis->get($this->prefix . $ip . ':lockout') - time();
+        if ($this->policy->isCloudFlareEnabled()) {
+            $value = $this->redis->get($this->prefix . $ip . ':lockout');
+            list($expires, $blockRuleId) = explode(',', $value);
+            return (int)$expires - time();
+        } else {
+            return (int)$this->redis->get($this->prefix . $ip . ':lockout') - time();
+        }
     }
 }
