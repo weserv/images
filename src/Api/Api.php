@@ -190,18 +190,6 @@ class Api implements ApiInterface
             'access' => $params['accessMethod']
         ];
 
-        // Let the user decide which page he wants
-        // useful for PDFs, TIFFs and multi-size ICOs
-        /*
-         * TODO: `vips_foreign_find_load` is needed to ensure
-         * that the page option is only set correct loader.
-         * For example this will now fail if we set this option to
-         * an JPEG image: `jpegload: no property named `page'`
-         */
-        if (isset($params['page']) && is_numeric($params['page'])) {
-            $loadOptions['page'] = (int)$params['page'];
-        }
-
         try {
             // Create a new Image instance from our temporary file
             $image = Image::newFromFile($tmpFileName, $loadOptions);
@@ -212,6 +200,17 @@ class Api implements ApiInterface
 
         // Get the current vips loader
         $loader = $image->typeof(Utils::VIPS_META_LOADER) !== 0 ? $image->get(Utils::VIPS_META_LOADER) : 'unknown';
+
+        // Let the user decide which page he wants
+        // useful for PDFs, TIFFs and multi-size ICOs
+        if (isset($params['page']) && is_numeric($params['page']) &&
+            ($loader === 'pdfload' || $loader === 'tiffload' || $loader === 'magickload')
+        ) {
+            $loadOptions['page'] = (int)$params['page'];
+
+            // Reload image with the page property
+            $image = Image::newFromFile($tmpFileName, $loadOptions);
+        }
 
         // Determine image extension from the libvips loader
         $extension = Utils::determineImageExtension($loader);

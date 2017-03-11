@@ -58,8 +58,10 @@ class Trim extends BaseManipulator
      *
      * @return Image The manipulated image.
      */
-    public function getTrimmedImage(Image $image, $sensitivity): Image
+    public function getTrimmedImage(Image $image, int $sensitivity): Image
     {
+        // find the value of the pixel at (0, 0) ... we will search for all pixels
+        // significantly different from this
         $background = $image->getpoint(0, 0);
 
         // Scale up 8-bit values to match 16-bit input image
