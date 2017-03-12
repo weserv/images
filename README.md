@@ -29,7 +29,7 @@ We track support tickets, issues and feature requests using the [GitHub issue tr
 
 ## License
 
-The BSD 3-Clause License. Please see [LICENSE.md](https://github.com/andrieslouw/imagesweserv/blob/master/LICENSE.md) for more information.
+The BSD 3-Clause License. Please see [LICENSE.md](https://github.com/andrieslouw/imagesweserv/blob/3.x/LICENSE.md) for more information.
 
 ## Last but not least
 This is made in Sneek with love and passion
