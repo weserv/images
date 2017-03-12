@@ -78,7 +78,12 @@ class ThrottlingPolicy
                 ], 'Banned until ' . date(DateTime::ISO8601, time() + ($this->config['ban_time'] * 60)));
 
             if ($response->success) {
-                return $response->result->id;
+                $blockRuleId = $response->result->id;
+
+                // Log it
+                trigger_error("Blocked: $ip rule id: $blockRuleId", E_USER_WARNING);
+
+                return $blockRuleId;
             }
         } catch (AuthenticationException $e) {
             trigger_error('AuthenticationException. Message: ' . $e->getMessage(), E_USER_WARNING);
@@ -103,6 +108,9 @@ class ThrottlingPolicy
 
             // Unban
             $response = $accessRule->delete_rule($this->config['cloudflare']['zone_id'], $blockRuleId);
+
+            // Log it
+            trigger_error("Removed rule id: $blockRuleId from CloudFlare", E_USER_WARNING);
 
             return $response->success;
         } catch (AuthenticationException $e) {
