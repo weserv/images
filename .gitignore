@@ -1,3 +1,4 @@
 vendor
 .idea
-cronjob.php
+/cronjob.php
+/config.php

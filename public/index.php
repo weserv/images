@@ -31,6 +31,9 @@ use League\Uri\Components\HierarchicalPath as Path;
 use League\Uri\Components\Query;
 use League\Uri\Schemes\Http as HttpUri;
 
+// See for an example: config.example.php
+$config = file_exists(__DIR__ . '/../config.php') ? include(__DIR__ . '/../config.php') : null;
+
 $error_messages = [
     'invalid_url' => [
         'header' => '404 Not Found',
@@ -192,50 +195,34 @@ if (!empty($_GET['url'])) {
         ]
     ]);
 
-    /*$throttlingPolicy = new AndriesLouw\imagesweserv\Throttler\ThrottlingPolicy([
-        'ban_time' => 60, // If exceed, ban for 60 minutes
-        'cloudflare' => [
-            'enabled' => true, // Is CloudFlare enabled?
-            'email' => '',
-            'auth_key' => '',
-            'zone_id' => '',
-            'mode' => 'block', // The action to apply if the IP get's banned
-        ],
-    ]);*/
+    // If config is not null, IP isn't on the throttler whitelist and Memcached is installed
+    if ($config !== null && !isset($config['throttler-whitelist'][$_SERVER['REMOTE_ADDR']]) && class_exists('Memcached')) {
+        $throttlingPolicy = new AndriesLouw\imagesweserv\Throttler\ThrottlingPolicy($config['throttling-policy']);
 
-    /*$memcached = new Memcached('mc');
+        // Memcached throttler
+        $memcached = new Memcached('mc');
 
-    // When using persistent connections, it's important to not re-add servers.
-    if (!count($memcached->getServerList())) {
-        $memcached->setOptions([
-            Memcached::OPT_BINARY_PROTOCOL => true,
-            Memcached::OPT_COMPRESSION => false
-        ]);
+        // When using persistent connections, it's important to not re-add servers.
+        if (!count($memcached->getServerList())) {
+            $memcached->setOptions([
+                Memcached::OPT_BINARY_PROTOCOL => true,
+                Memcached::OPT_COMPRESSION => false
+            ]);
 
-        $memcached->addServer('/var/run/memcached/memcached.sock', 11211, 0);
+            $memcached->addServer($config['memcached']['server'], $config['memcached']['port'], 0);
+        }
+
+        // Create an new Memcached throttler instance
+        $throttler = new AndriesLouw\imagesweserv\Throttler\MemcachedThrottler($memcached, $throttlingPolicy,
+            $config['throttler']);
+
+        // Uncomment this if you want to enable the Redis throttler
+        /*$redis = new Predis\Client($config['redis']);
+        // Create an new Redis throttler instance
+        $throttler = new AndriesLouw\imagesweserv\Throttler\RedisThrottler($redis, $throttlingPolicy, $config['throttler']);*/
+    } else {
+        $throttler = null;
     }
-
-    // Create an new Memcached throttler instance
-    $throttler = new AndriesLouw\imagesweserv\Throttler\MemcachedThrottler($memcached, $throttlingPolicy, [
-        'allowed_requests' => 700, // 700 allowed requests
-        'minutes' => 3, // In 3 minutes
-        'prefix' => 'c', // Cache key prefix
-    ]);*/
-
-    /*$redis = new Predis\Client([
-        'scheme' => 'tcp',
-        'host'   => '127.0.0.1',
-        'port'   => 6379,
-    ]);
-
-    // Create an new Redis throttler instance
-    $throttler = new AndriesLouw\imagesweserv\Throttler\RedisThrottler($redis, $throttlingPolicy, [
-        'allowed_requests' => 700, // 700 allowed requests
-        'minutes'  => 3, // In 3 minutes
-        'prefix' => 'c', // Cache key prefix
-    ]);*/
-
-    $throttler = null;
 
     // Set manipulators
     $manipulators = [
@@ -415,15 +402,13 @@ if (!empty($_GET['url'])) {
     // Still here? Unlink the temporary file.
     @unlink($tmpFileName);
 } else {
-    $config = [
-        'name' => 'API 3 - GitHub, DEMO',
-        'url' => 'images.weserv.nl',
-        'exampleImage' => 'rbx.weserv.nl/lichtenstein.jpg',
-        'exampleTransparentImage' => 'rbx.weserv.nl/transparency_demo.png'
-    ];
-
-    if (file_exists(__DIR__ . '/../config.php')) {
-        $config = include(__DIR__ . '/../config.php');
+    if ($config === null) {
+        $config = [
+            'name' => 'API 3 - GitHub, DEMO',
+            'url' => 'images.weserv.nl',
+            'exampleImage' => 'rbx.weserv.nl/lichtenstein.jpg',
+            'exampleTransparentImage' => 'rbx.weserv.nl/transparency_demo.png'
+        ];
     }
 
     $html = <<<HTML
