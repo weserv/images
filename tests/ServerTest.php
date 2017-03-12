@@ -105,7 +105,6 @@ class ServerTest extends TestCase
         $uri = HttpUri::createFromString('https://images.weserv.nl/pixel.' . $extension);
 
         $tempFile = tempnam(sys_get_temp_dir(), 'phpunit');
-        rename($tempFile, $tempFile .= '.' . $extension);
 
         file_put_contents($tempFile, $pixel);
 
@@ -171,7 +170,6 @@ class ServerTest extends TestCase
         $uri = HttpUri::createFromString('https://images.weserv.nl/pixel.' . $extension);
 
         $tempFile = tempnam(sys_get_temp_dir(), 'phpunit');
-        rename($tempFile, $tempFile .= '.' . $extension);
 
         file_put_contents($tempFile, $pixel);
 

@@ -475,7 +475,7 @@ class Size extends BaseManipulator
             }
         }
 
-        $shouldReduce = $xResidual != 1.0 || $yResidual != 1.0;
+        $shouldReduce = $xResidual !== 1.0 || $yResidual !== 1.0;
         $shouldShrink = $xShrink > 1 || $yShrink > 1;
         $shouldPremultiplyAlpha = $this->hasAlpha && !$this->isPremultiplied && ($shouldReduce || $shouldShrink);
 
@@ -502,7 +502,7 @@ class Size extends BaseManipulator
         }
 
         // Use affine increase or kernel reduce with the remaining float part
-        if ($xResidual != 1.0 || $yResidual != 1.0) {
+        if ($xResidual !== 1.0 || $yResidual !== 1.0) {
             // Insert line cache to prevent over-computation of previous operations
             if ($this->accessMethod === Access::SEQUENTIAL) {
                 // TODO Figure out how many scanline(s) ('tile_height') it will need.
@@ -542,7 +542,7 @@ class Size extends BaseManipulator
             }
         }
 
-        if ($image->width != $width || $image->height != $height) {
+        if ($image->width !== $width || $image->height !== $height) {
             if ($fit === 'letterbox') {
                 if ($this->bg) {
                     $backgroundColor = (new Color($this->bg))->toRGBA();

@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ## [Unreleased]
 ### Note
 With the feedback that you've provided we can successfully close the following issues/enhancements: 
-[#13](https://github.com/andrieslouw/imagesweserv/issues/13), [#15](https://github.com/andrieslouw/imagesweserv/issues/15), [#62](https://github.com/andrieslouw/imagesweserv/issues/62), [#68](https://github.com/andrieslouw/imagesweserv/issues/68), [#69](https://github.com/andrieslouw/imagesweserv/issues/69), [#70](https://github.com/andrieslouw/imagesweserv/issues/70), [#75](https://github.com/andrieslouw/imagesweserv/issues/75), [#76](https://github.com/andrieslouw/imagesweserv/issues/76), [#78](https://github.com/andrieslouw/imagesweserv/issues/78), [#80](https://github.com/andrieslouw/imagesweserv/issues/80) and [#81](https://github.com/andrieslouw/imagesweserv/issues/81). 
+[#13](https://github.com/andrieslouw/imagesweserv/issues/13), [#15](https://github.com/andrieslouw/imagesweserv/issues/15), [#37](https://github.com/andrieslouw/imagesweserv/issues/37), [#62](https://github.com/andrieslouw/imagesweserv/issues/62), [#68](https://github.com/andrieslouw/imagesweserv/issues/68), [#69](https://github.com/andrieslouw/imagesweserv/issues/69), [#70](https://github.com/andrieslouw/imagesweserv/issues/70), [#75](https://github.com/andrieslouw/imagesweserv/issues/75), [#76](https://github.com/andrieslouw/imagesweserv/issues/76), [#78](https://github.com/andrieslouw/imagesweserv/issues/78), [#80](https://github.com/andrieslouw/imagesweserv/issues/80) and [#81](https://github.com/andrieslouw/imagesweserv/issues/81). 
 Thanks for your support!
 
 ### Added

@@ -78,7 +78,7 @@ class Client
                     ) {
                         throw new ImageNotValidException();
                     }
-                    if ($this->options['max_image_size'] != 0
+                    if ($this->options['max_image_size'] !== 0
                         && $response->getHeaderLine('Content-Length') > $this->options['max_image_size']
                     ) {
                         $size = $response->getHeaderLine('Content-Length');

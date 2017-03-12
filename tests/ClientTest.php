@@ -16,7 +16,6 @@ class ClientTest extends TestCase
     public function setUp()
     {
         $this->tempFile = tempnam(sys_get_temp_dir(), 'phpunit');
-        rename($this->tempFile, $this->tempFile .= '.png');
 
         $this->options = [
             'user_agent' => 'Mozilla/5.0 (compatible; ImageFetcher/6.0; +http://images.weserv.nl/)',

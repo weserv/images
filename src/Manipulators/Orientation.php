@@ -21,7 +21,7 @@ class Orientation extends BaseManipulator
     public function run(Image $image): Image
     {
         // Rotate if required.
-        if ($this->rotation != 0) {
+        if ($this->rotation !== 0) {
             $image = $image->rot('d' . $this->rotation);
         }
 

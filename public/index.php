@@ -109,11 +109,11 @@ $error_messages = [
  */
 $parseUrl = function (string $url) {
     // Check for HTTPS origin hosts
-    if (substr($url, 0, 4) == 'ssl:') {
+    if (substr($url, 0, 4) === 'ssl:') {
         return HttpUri::createFromString('https://' . ltrim(substr($url, 4), '/'));
     } else {
         // Check if a valid URL is given. Therefore starting without 'http:' or 'https:'.
-        if (substr($url, 0, 5) != 'http:' && substr($url, 0, 6) != 'https:') {
+        if (substr($url, 0, 5) !== 'http:' && substr($url, 0, 6) !== 'https:') {
             return HttpUri::createFromString('http://' . ltrim($url, '/'));
         } else {
             // Not a valid URL; throw InvalidArgumentException
@@ -158,17 +158,13 @@ if (!empty($_GET['url'])) {
     $extension = (new Path($uri->getPath()))->getExtension() ?? 'png';
 
     // Create a unique file (starting with 'imo_') in our shared memory
-    $sysFileName = tempnam('/dev/shm', 'imo_');
+    $tmpFileName = tempnam('/dev/shm', 'imo_');
 
-    // We need to add the extension to the temporary file.
+    // We need to add the extension to the temporary file for certain image types.
     // This ensures that the image is correctly recognized.
-    if ($extension == 'svg' || $extension == 'ico') {
-        $tmpFileName = $sysFileName . '.' . $extension;
-
+    if ($extension === 'svg' || $extension === 'ico') {
         // Rename our unique file
-        rename($sysFileName, $tmpFileName);
-    } else {
-        $tmpFileName = $sysFileName;
+        rename($tmpFileName, $tmpFileName .= '.' . $extension);
     }
 
     // Create an PHP HTTP client
@@ -302,12 +298,10 @@ if (!empty($_GET['url'])) {
 
             if ($previousException instanceof ImageNotValidException) {
                 $error = $error_messages['invalid_image'];
-                $str = array_pop($clientOptions['allowed_mime_types']);
+                $supportedImages = array_pop($clientOptions['allowed_mime_types']);
 
                 if (count($clientOptions['allowed_mime_types']) > 1) {
-                    $supportedImages = implode(', ', $clientOptions['allowed_mime_types']) . ' and ' . $str;
-                } else {
-                    $supportedImages = $str;
+                    $supportedImages = implode(', ', $clientOptions['allowed_mime_types']) . ' and ' . $supportedImages;
                 }
 
                 header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
@@ -331,7 +325,7 @@ if (!empty($_GET['url'])) {
         } else {
             $curlHandler = $e->getHandlerContext();
 
-            $isDnsError = array_key_exists('errno', $curlHandler) && $curlHandler['errno'] == 6;
+            $isDnsError = isset($curlHandler['errno']) && $curlHandler['errno'] === 6;
 
             $error = $isDnsError ? $error_messages['dns_error'] : $error_messages['curl_error'];
 
@@ -341,7 +335,7 @@ if (!empty($_GET['url'])) {
             $statusCode = $e->getCode();
             $reasonPhrase = $e->getMessage();
 
-            if ($e->hasResponse() && $e->getResponse() != null) {
+            if ($e->hasResponse() && $e->getResponse() !== null) {
                 $statusCode = $e->getResponse()->getStatusCode();
                 $reasonPhrase = $e->getResponse()->getReasonPhrase();
             }
@@ -354,10 +348,7 @@ if (!empty($_GET['url'])) {
                 try {
                     $uri = $parseUrl($_GET['errorredirect']);
 
-                    $append = '';
-                    if (substr($uri->getHost(), -strlen($isSameHost)) === $isSameHost) {
-                        $append = "&error=$statusCode";
-                    }
+                    $append = substr($uri->getHost(), -strlen($isSameHost)) === $isSameHost ? "&error=$statusCode" : '';
 
                     $sanitizedUri = $sanitizeErrorRedirect($uri);
 

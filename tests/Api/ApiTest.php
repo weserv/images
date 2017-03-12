@@ -84,7 +84,6 @@ class ApiTest extends TestCase
         $type = 'image/png';
 
         $tempFile = tempnam(sys_get_temp_dir(), 'phpunit');
-        rename($tempFile, $tempFile .= '.' . $extension);
 
         file_put_contents($tempFile, $pixel);
 

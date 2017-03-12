@@ -57,7 +57,7 @@ class Shape extends BaseManipulator
                 // many ways of doing this, mult is the simplest
                 $mask = $mask->divide($maskMax)->multiply($imageAlpha->divide($imageMax))->multiply($imageMax);
             } else {
-                if ($imageMax != $maskMax) {
+                if ($imageMax !== $maskMax) {
                     // adjust the range of the mask to match the image
                     $mask = $mask->divide($maskMax)->multiply($imageMax);
                 }
