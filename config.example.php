@@ -8,7 +8,7 @@ return [
     // Default to Memcached
     'memcached' => [
         'host' => '/var/run/memcached/memcached.sock', // Memcached sock
-        'port' => 11211, // Memcached port
+        'port' => 0, // Memcached port
     ],
     // You'll also need to uncomment the Redis throttler in index.php
     // If you want to enable this

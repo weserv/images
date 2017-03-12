@@ -209,7 +209,7 @@ if (!empty($_GET['url'])) {
                 Memcached::OPT_COMPRESSION => false
             ]);
 
-            $memcached->addServer($config['memcached']['server'], $config['memcached']['port'], 0);
+            $memcached->addServer($config['memcached']['host'], $config['memcached']['port']);
         }
 
         // Create an new Memcached throttler instance
