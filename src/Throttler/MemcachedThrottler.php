@@ -90,12 +90,10 @@ class MemcachedThrottler implements ThrottlerInterface
         if ($this->increment($ip, $this->config['minutes']) > $this->config['allowed_requests']) {
             $expires = time() + ($this->policy->getBanTime() * 60);
             // Is CloudFlare enabled?
-            if ($this->policy->isCloudFlareEnabled() && ($blockRuleId = $this->policy->banAtCloudFlare($ip)) !== false) {
-                // Never expire, we're removing the ban with a cronjob
-                $this->memcached->add($this->prefix . $ip . ':lockout', $expires . ',' . $blockRuleId);
-            } else {
-                $this->memcached->add($this->prefix . $ip . ':lockout', $expires, $expires);
+            if ($this->policy->isCloudFlareEnabled()) {
+                $this->policy->banAtCloudFlare($ip);
             }
+            $this->memcached->add($this->prefix . $ip . ':lockout', $expires, $expires);
             $this->resetAttempts($ip);
             return true;
         }
@@ -169,12 +167,6 @@ class MemcachedThrottler implements ThrottlerInterface
      */
     public function availableIn($ip): int
     {
-        if ($this->policy->isCloudFlareEnabled()) {
-            $value = $this->memcached->get($this->prefix . $ip . ':lockout');
-            list($expires, $blockRuleId) = explode(',', $value);
-            return (int)$expires - time();
-        } else {
-            return $this->memcached->get($this->prefix . $ip . ':lockout') - time();
-        }
+        return $this->memcached->get($this->prefix . $ip . ':lockout') - time();
     }
 }

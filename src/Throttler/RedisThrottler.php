@@ -90,12 +90,10 @@ class RedisThrottler implements ThrottlerInterface
             $ttl = $this->policy->getBanTime() * 60;
             $expires = time() + $ttl;
             // Is CloudFlare enabled?
-            if ($this->policy->isCloudFlareEnabled() && ($blockRuleId = $this->policy->banAtCloudFlare($ip)) !== false) {
-                // Never expire, we're removing the ban with a cronjob
-                $this->redis->set($this->prefix . $ip . ':lockout', $expires . ',' . $blockRuleId);
-            } else {
-                $this->redis->set($this->prefix . $ip . ':lockout', $expires, 'ex', $ttl);
+            if ($this->policy->isCloudFlareEnabled()) {
+                $this->policy->banAtCloudFlare($ip);
             }
+            $this->redis->set($this->prefix . $ip . ':lockout', $expires, 'ex', $ttl);
             $this->resetAttempts($ip);
             return true;
         }
@@ -174,12 +172,6 @@ class RedisThrottler implements ThrottlerInterface
      */
     public function availableIn($ip): int
     {
-        if ($this->policy->isCloudFlareEnabled()) {
-            $value = $this->redis->get($this->prefix . $ip . ':lockout');
-            list($expires, $blockRuleId) = explode(',', $value);
-            return (int)$expires - time();
-        } else {
-            return (int)$this->redis->get($this->prefix . $ip . ':lockout') - time();
-        }
+        return (int)$this->redis->get($this->prefix . $ip . ':lockout') - time();
     }
 }
