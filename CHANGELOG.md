@@ -17,17 +17,20 @@ Thanks for your support!
 - Rotation `&or=`. Accepts `auto`, `0`, `90`, `180` or `270`. Default is `auto`. The `auto` option uses Exif data to automatically orient images correctly.
 
 #### Cropping
+- Smart crop `&a=entropy` or `&a=attention` (only works when `&t=square`). Crops the image down to specific dimensions by removing boring parts. Where:
+    - `entropy`: focus on the region with the highest [Shannon entropy](https://en.wikipedia.org/wiki/Entropy_%28information_theory%29).
+    - `attention`: focus on the region with the highest luminance frequency, colour saturation and presence of skin tones.
 - Focal point cropping `&a=crop-x%-y%` (only works when `&t=square`). Using two offset percentages, where `x%` is the horizontal offset and `y%` is the vertical offset.
 - Shape cropping `&shape=`. Accepts:
     - `circle`
     - `ellipse`
     - `triangle`
-    - `triangle-180` (Triangle tilted upside down)
+    - `triangle-180`: Triangle tilted upside down
     - `pentagon`
-    - `pentagon-180` (Pentagon tilted upside down)
+    - `pentagon-180`: Pentagon tilted upside down
     - `hexagon`
-    - `square` (Square tilted 45 degrees)
-    - `star` (5-point star)
+    - `square`: Square tilted 45 degrees
+    - `star`: 5-point star
 
 #### Adjustments
 - The brightness of an image `&bri=`. Use values between `-100` and `+100`, where `0` represents no change.
@@ -50,8 +53,10 @@ Thanks for your support!
 - We've added `&output=webp` in an effort to support more image formats as output. See [#68](https://github.com/andrieslouw/imagesweserv/issues/68).
 
 #### Improvements
-- Added image filename in HTTP header (`Content-Disposition: inline`). See [#78](https://github.com/andrieslouw/imagesweserv/issues/78).
-- Added support for Cyrillic and Arabic characters. See [#13](https://github.com/andrieslouw/imagesweserv/issues/13).
+- Image filename in HTTP header (`Content-Disposition: inline`). See [#78](https://github.com/andrieslouw/imagesweserv/issues/78).
+- Support for Cyrillic and Arabic characters. See [#13](https://github.com/andrieslouw/imagesweserv/issues/13).
+- The `&errorredirect=` parameter to redirect to a default image if the image URL is not found. The redirect URL must be formatted the same as the `?url=` parameter. See [#37](https://github.com/andrieslouw/imagesweserv/issues/37).
+- In order to load a given page (for an PDF, TIFF and multi-size ICO file) we've added the `&page=` parameter. The value is numbered from zero.
 
 ### Changed
 - Dropped [Intervention Image](http://image.intervention.io/) in favor of [php-vips](https://github.com/jcupitt/php-vips) because resizing an image with [libvips](https://github.com/jcupitt/libvips) is typically 4x-5x faster than using the quickest ImageMagick.
