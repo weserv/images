@@ -41,7 +41,7 @@ class SizeTest extends TestCase
 
     public function testFit()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
                 ->andReturn(1967, 1967, 1967, 245, 244)
@@ -51,11 +51,6 @@ class SizeTest extends TestCase
                 ->with('height')
                 ->andReturn(2421, 2421, 2421, 302)
                 ->times(4);
-
-            $mock->shouldReceive('typeof')
-                ->with(Utils::VIPS_META_LOADER)
-                ->andReturn(0)
-                ->once();
 
             $mock->shouldReceive('shrinkv')
                 ->with(8.0)
@@ -101,7 +96,7 @@ class SizeTest extends TestCase
 
     public function testFitup()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
                 ->andReturn(1967, 1967, 1967, 2437)
@@ -111,11 +106,6 @@ class SizeTest extends TestCase
                 ->with('height')
                 ->andReturn(2421)
                 ->times(3);
-
-            $mock->shouldReceive('typeof')
-                ->with(Utils::VIPS_META_LOADER)
-                ->andReturn(0)
-                ->once();
 
             $mock->shouldReceive('affine')
                 ->with(Mockery::any()/*, ['interpolate' => 'bicubic']*/)
@@ -140,7 +130,7 @@ class SizeTest extends TestCase
 
     public function testSquare()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
                 ->andReturn(1967, 1967, 1967, 327, 327, 327, 327, 327)
@@ -150,11 +140,6 @@ class SizeTest extends TestCase
                 ->with('height')
                 ->andReturn(2421, 2421, 2421, 403, 369, 369, 369)
                 ->times(7);
-
-            $mock->shouldReceive('typeof')
-                ->with(Utils::VIPS_META_LOADER)
-                ->andReturn(0)
-                ->once();
 
             $mock->shouldReceive('shrinkv')
                 ->with(6.0)
@@ -206,7 +191,7 @@ class SizeTest extends TestCase
 
     public function testSquareDown()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
                 ->andReturn(1967)
@@ -216,11 +201,6 @@ class SizeTest extends TestCase
                 ->with('height')
                 ->andReturn(2421)
                 ->times(4);
-
-            $mock->shouldReceive('typeof')
-                ->with(Utils::VIPS_META_LOADER)
-                ->andReturn(0)
-                ->once();
         });
 
         $params = [
@@ -241,7 +221,7 @@ class SizeTest extends TestCase
 
     public function testAbsolute()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
                 ->andReturn(1967, 1967, 1967, 327, 300)
@@ -251,11 +231,6 @@ class SizeTest extends TestCase
                 ->with('height')
                 ->andReturn(2421, 2421, 2421, 302, 300)
                 ->times(5);
-
-            $mock->shouldReceive('typeof')
-                ->with(Utils::VIPS_META_LOADER)
-                ->andReturn(0)
-                ->once();
 
             $mock->shouldReceive('shrinkv')
                 ->with(8.0)
@@ -301,7 +276,7 @@ class SizeTest extends TestCase
 
     public function testLetterbox()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
                 ->andReturn(1967, 1967, 1967, 245, 244, 244)
@@ -315,11 +290,6 @@ class SizeTest extends TestCase
             $mock->shouldReceive('__get')
                 ->with('bands')
                 ->andReturn(3)
-                ->once();
-
-            $mock->shouldReceive('typeof')
-                ->with(Utils::VIPS_META_LOADER)
-                ->andReturn(0)
                 ->once();
 
             $mock->shouldReceive('shrinkv')
@@ -415,10 +385,6 @@ class SizeTest extends TestCase
         $this->assertSame('crop', $this->manipulator->setParams(['t' => 'crop-25-75'])->getFit());
         $this->assertSame('crop', $this->manipulator->setParams(['t' => 'crop-0-100'])->getFit());
         $this->assertSame('crop', $this->manipulator->setParams(['t' => 'crop-101-102'])->getFit());
-        $this->assertSame('fit', $this->manipulator->setParams(['t' => 'crop-center-left'])->getFit());
-        $this->assertSame('fit', $this->manipulator->setParams(['t' => 'crop-left-left'])->getFit());
-        $this->assertSame('fit', $this->manipulator->setParams(['t' => 'crop-right-left'])->getFit());
-        $this->assertSame('fit', $this->manipulator->setParams(['t' => 'crop-bottom-right-invalid'])->getFit());
         $this->assertSame('fit', $this->manipulator->setParams(['t' => 'invalid'])->getFit());
         $this->assertSame('fit', $this->manipulator->setParams(['t' => null])->getFit());
     }

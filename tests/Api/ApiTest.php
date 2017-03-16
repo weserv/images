@@ -108,6 +108,7 @@ class ApiTest extends TestCase
                 $mock->shouldReceive('setParams')->with([
                     'accessMethod' => Access::SEQUENTIAL,
                     'tmpFileName' => $tempFile,
+                    'loader' => 'VipsForeignLoadPng',
                     'hasAlpha' => true,
                     'is16Bit' => false,
                     'isPremultiplied' => false,

@@ -5,6 +5,7 @@ return [
     'url' => 'images.weserv.nl',
     'exampleImage' => 'rbx.weserv.nl/lichtenstein.jpg',
     'exampleTransparentImage' => 'rbx.weserv.nl/transparency_demo.png',
+    'exampleSmartcropImage' => 'ssl:upload.wikimedia.org/wikipedia/commons/4/45/Equus_quagga_burchellii_-_Etosha%2C_2014.jpg',
     // Default to Memcached
     'memcached' => [
         'host' => '/var/run/memcached/memcached.sock', // Memcached sock

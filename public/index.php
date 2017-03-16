@@ -665,6 +665,16 @@ if (!empty($_GET['url'])) {
                     <p>Crops the image to specific dimensions prior to any other resize operations. Required format: <code>width,height,x,y</code>.</p>
                     <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleImage']}&amp;crop=300,300,680,500"&gt;</code></pre>
                     <a href="//{$config['url']}/?url={$config['exampleImage']}&amp;crop=300,300,680,500"><img src="//{$config['url']}/?url={$config['exampleImage']}&amp;crop=300,300,680,500" alt=""/></a>
+                    <!-- TODO: Enable this if we're on libvips 8.5 -->
+                    <!-- <h3 id="crop-smartcrop">Smart crop <code>&amp;a=entropy</code> or <code>&amp;a=attention</code> <span class="new">New!</span></h3>
+                    <p>Crops the image down to specific dimensions by removing boring parts. Only works when <code>t=square</code>.</p>
+                    <h4 id="smartcrop-accepts">Accepts:</h4>
+                    <ul>
+                        <li><code>entropy</code>: focus on the region with the highest <a href="https://en.wikipedia.org/wiki/Entropy_%28information_theory%29">Shannon entropy</a>.</li>
+                        <li><code>attention</code>: focus on the region with the highest luminance frequency, colour saturation and presence of skin tones.</li>
+                    </ul>
+                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleSmartcropImage']}&amp;w=300&amp;h=300&amp;t=square&amp;a=attention"&gt;</code></pre>
+                    <a href="//{$config['url']}/?url={$config['exampleSmartcropImage']}&amp;w=300&amp;h=300&amp;t=square&amp;a=attention"><img src="//{$config['url']}/?url={$config['exampleSmartcropImage']}&amp;w=300&amp;h=300&amp;t=square&amp;a=attention" alt=""/></a> -->
                 </section>
                 <section id="shape" class="goto">
                     <h1>Shape</h1>

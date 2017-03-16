@@ -4,7 +4,6 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Color;
-use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Access;
 use Jcupitt\Vips\Extend;
 use Jcupitt\Vips\Image;
@@ -22,6 +21,7 @@ use Jcupitt\Vips\Kernel;
  * @property int $rotation
  * @property string $accessMethod
  * @property string $tmpFileName
+ * @property string $loader
  * @property string $trim
  * @property array|null $cropCoordinates
  * @property string $page
@@ -153,17 +153,7 @@ class Size extends BaseManipulator
             return $this->t;
         }
 
-        $validIndividualCropArr = ['top' => 0, 'left' => 1, 'center' => 2, 'right' => 3, 'bottom' => 4];
-        $validCropArr = ['top' => 0, 'bottom' => 1];
-        $validPositionArr = ['left' => 0, 'right' => 1];
-        $splitFit = explode('-', $this->t);
-
-        if (isset($splitFit[0]) && $splitFit[0] === 'crop' && isset($splitFit[1]) && !isset($splitFit[3]) && (
-                (isset($validIndividualCropArr[$splitFit[1]]) && !isset($splitFit[2])) ||
-                (isset($splitFit[2]) && isset($validCropArr[$splitFit[1]]) && isset($validPositionArr[$splitFit[2]])) ||
-                (isset($splitFit[2]) && is_numeric($splitFit[1]) && is_numeric($splitFit[2]))
-            )
-        ) {
+        if (substr($this->t, 0, 4) === 'crop') {
             return 'crop';
         }
 
@@ -414,13 +404,16 @@ class Size extends BaseManipulator
         }
 
         // Get the current vips loader
-        $loader = $image->typeof(Utils::VIPS_META_LOADER) !== 0 ? $image->get(Utils::VIPS_META_LOADER) : 'unknown';
+        $loader = $this->loader;
 
         // If integral x and y shrink are equal, try to use shrink-on-load for JPEG, WebP, PDF and SVG
         // but not when trimming or pre-resize crop
         $shrinkOnLoad = 1;
         if ($xShrink === $yShrink && $xShrink >= 2 &&
-            ($loader === 'jpegload' || $loader === 'webpload' || $loader === 'pdfload' || $loader === 'svgload') &&
+            ($loader === 'VipsForeignLoadJpegFile' ||
+                $loader === 'VipsForeignLoadWebpFile' ||
+                $loader === 'VipsForeignLoadPdfFile' ||
+                $loader === 'VipsForeignLoadSvgFile') &&
             !$this->trim && !$this->cropCoordinates
         ) {
             if ($xShrink >= 8) {
@@ -440,18 +433,18 @@ class Size extends BaseManipulator
 
         if ($shrinkOnLoad > 1) {
             // Reload input using shrink-on-load
-            if ($loader === 'jpegload') {
+            if ($loader === 'VipsForeignLoadJpegFile') {
                 // Reload JPEG file
                 $image = Image::jpegload($this->tmpFileName, ['shrink' => $shrinkOnLoad]);
-            } elseif ($loader === 'webpload') {
+            } elseif ($loader === 'VipsForeignLoadWebpFile') {
                 // Reload WebP file
                 $image = Image::webpload($this->tmpFileName, ['shrink' => $shrinkOnLoad]);
-            } elseif ($loader === 'pdfload') {
+            } elseif ($loader === 'VipsForeignLoadPdfFile') {
                 // Reload PDF file
                 // (don't forget to pass on the page that we want)
                 $image = Image::pdfload($this->tmpFileName, [
                     'scale' => 1.0 / $shrinkOnLoad,
-                    'page' => $this->page && is_numeric($this->page) ? (int)$this->page : 0
+                    'page' => $this->page && is_numeric($this->page) && $this->page >= 0 && $this->page <= 100000 ? (int)$this->page : 0
                 ]);
             } else {
                 // Reload SVG file
@@ -607,11 +600,15 @@ class Size extends BaseManipulator
             } else {
                 $cropArr = ['square' => 0, 'squaredown' => 1, 'crop' => 2];
                 if (isset($cropArr[$fit])) {
-                    list($offsetX, $offsetY) = $this->resolveCropOffset($image, $width, $height);
-                    $width = min($image->width, $width);
-                    $height = min($image->height, $height);
-
-                    $image = $image->extract_area($offsetX, $offsetY, $width, $height);
+                    $minWidth = min($image->width, $width);
+                    $minHeight = min($image->height, $height);
+                    if ($this->a === 'entropy' || $this->a === 'attention') {
+                        // TODO: Enable this if we're on libvips 8.5
+                        //$image = $image->smartcrop($minWidth, $minHeight, ['interesting' => $this->a]);
+                    } else {
+                        list($offsetX, $offsetY) = $this->resolveCropOffset($image, $width, $height);
+                        $image = $image->extract_area($offsetX, $offsetY, $minWidth, $minHeight);
+                    }
                 }
             }
         }

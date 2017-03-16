@@ -171,6 +171,7 @@ class Api implements ApiInterface
             }
         }
 
+        // libvips caching is not needed
         Config::cacheSetMax(0);
         Config::cacheSetMaxFiles(0);
         Config::cacheSetMaxMem(0);
@@ -188,11 +189,13 @@ class Api implements ApiInterface
 
         // Things that won't work with sequential mode images:
         //  - Trim (will scan the whole image once to find the crop area).
-        //  - A 90/270-degree rotate (will need to read a column of pixels for every output line it writes).
-        $isTrim = isset($params['trim']);
+        //  - A 90/180/270-degree rotate (will need to read a column of pixels for every output line it writes).
+        //  - Smart crop
+        $isTrim = isset($params['trim']) || array_key_exists('trim', $params);
+        $isSmartCrop = isset($params['a']) && ($params['a'] === 'entropy' || $params['a'] === 'attention');
 
         // If any of the above adjustments; don't use sequential mode read.
-        $params['accessMethod'] = $isTrim ? Access::RANDOM : Access::SEQUENTIAL;
+        $params['accessMethod'] = $isTrim || $isSmartCrop ? Access::RANDOM : Access::SEQUENTIAL;
 
         // Save our temporary file name
         $params['tmpFileName'] = $tmpFileName;
@@ -200,6 +203,20 @@ class Api implements ApiInterface
         $loadOptions = [
             'access' => $params['accessMethod']
         ];
+
+        // Find the name of the load operation vips will use to load a file
+        $params['loader'] = Image::findLoad($tmpFileName);
+
+        // In order to pass the page property to the correct loader
+        // we check if the loader permits a page property.
+        if (isset($params['page']) && is_numeric($params['page']) &&
+            $params['page'] >= 0 && $params['page'] <= 100000 &&
+            ($params['loader'] === 'VipsForeignLoadPdfFile' ||
+                $params['loader'] === 'VipsForeignLoadTiffFile' ||
+                $params['loader'] === 'VipsForeignLoadMagickFile')
+        ) {
+            $loadOptions['page'] = (int)$params['page'];
+        }
 
         try {
             // Create a new Image instance from our temporary file
@@ -209,38 +226,23 @@ class Api implements ApiInterface
             throw new ImageNotReadableException('Image not readable. Is it a valid image?', 0, $e);
         }
 
-        // Get the current vips loader
-        $loader = $image->typeof(Utils::VIPS_META_LOADER) !== 0 ? $image->get(Utils::VIPS_META_LOADER) : 'unknown';
-
-        // Let the user decide which page he wants
-        // useful for PDFs, TIFFs and multi-size ICOs
-        if (isset($params['page']) && is_numeric($params['page']) &&
-            ($loader === 'pdfload' || $loader === 'tiffload' || $loader === 'magickload')
-        ) {
-            $loadOptions['page'] = (int)$params['page'];
-
-            // Reload image with the page property
-            $image = Image::newFromFile($tmpFileName, $loadOptions);
-        }
-
         // Determine image extension from the libvips loader
-        $extension = Utils::determineImageExtension($loader);
+        $extension = Utils::determineImageExtension($params['loader']);
 
         // Get the allowed image types to convert to
         $allowed = $this->getAllowedImageTypes();
 
         // Put common variables in the parameters
-        $params['hasAlpha'] = Utils::hasAlpha($image);
+        $params['hasAlpha'] = $image->hasAlpha();
         $params['is16Bit'] = Utils::is16Bit($image->interpretation);
         $params['isPremultiplied'] = false;
 
         // Calculate angle of rotation
         list($params['rotation'], $params['flip'], $params['flop']) = Utils::calculateRotationAndFlip($params, $image);
 
-        // A 90/270-degree rotate doesn't work with sequential access.
-        // If our access method is sequential and our rotation is 90/270 degree;
+        // A 90/180/270-degree rotate doesn't work with sequential access.
+        // If our access method is sequential and rotation is needed;
         // Force the access method to random and reload our image.
-        // TODO: Needs a better fix
         if ($params['accessMethod'] === Access::SEQUENTIAL && $params['rotation'] !== 0) {
             $params['accessMethod'] = Access::RANDOM;
             $loadOptions['access'] = Access::RANDOM;
@@ -410,6 +412,7 @@ class Api implements ApiInterface
      *
      * Note: It's currently not possible to save gif through libvips
      * See: https://github.com/jcupitt/libvips/issues/235
+     * and: https://github.com/jcupitt/libvips/issues/620
      *
      * @return array
      */

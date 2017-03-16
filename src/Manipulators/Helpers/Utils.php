@@ -14,12 +14,6 @@ class Utils
     const VIPS_META_ORIENTATION = 'orientation';
 
     /**
-     * The name of the original loader. Handy for hinting file formats
-     * and for debugging.
-     */
-    const VIPS_META_LOADER = 'vips-loader';
-
-    /**
      * Are pixel values in this image 16-bit integer?
      *
      * @param  string $interpretation The VipsInterpretation
@@ -43,22 +37,6 @@ class Utils
     public static function maximumImageAlpha(string $interpretation): int
     {
         return self::is16Bit($interpretation) ? 65535 : 255;
-    }
-
-    /**
-     * Does this image have an alpha channel?
-     * Uses colour space interpretation with number of channels to guess this.
-     *
-     * @param  Image $image The source image.
-     *
-     * @return bool indicating if this image has an alpha channel.
-     */
-    public static function hasAlpha(Image $image): bool
-    {
-        $bands = $image->bands;
-        $interpretation = $image->interpretation;
-
-        return $bands === 2 || ($bands === 4 && $interpretation !== Interpretation::CMYK) || $bands > 4;
     }
 
     /**
@@ -230,43 +208,52 @@ class Utils
     }
 
     /**
-     * Determine image extension from the libvips loader
+     * Determine image extension from the name of the load operation
      *
-     * @param string $loader The libvips loader
+     * @param string $loader The name of the load operation
      *
      * @return string image type
      */
     public static function determineImageExtension(string $loader)
     {
         switch ($loader) {
-            case 'jpegload':
+            case 'VipsForeignLoadJpegFile':
                 return 'jpg';
-            case 'pngload':
+            case 'VipsForeignLoadPng':
                 return 'png';
-            case 'webpload':
+            case 'VipsForeignLoadWebpFile':
                 return 'webp';
-            case 'tiffload':
+            case 'VipsForeignLoadTiffFile':
                 return 'tiff';
-            case 'gifload':
+            case 'VipsForeignLoadGifFile':
                 return 'gif';
-            case 'svgload':
+            case 'VipsForeignLoadSvgFile':
                 return 'svg';
-            case 'pdfload':
+            case 'VipsForeignLoadPdfFile':
                 return 'pdf';
-            case 'ppmload':
-                return 'ppm';
-            case 'fitsload':
-                return 'fits';
-            case 'vipsload':
-                return 'v';
-            case 'rawload':
+            case 'VipsForeignLoadRaw':
                 return 'raw';
-            case 'magickload':
+            case 'VipsForeignLoadMagickFile':
                 // Not a extension
                 return 'magick';
-            case 'openslideload':
-                // Not a extension
-                return 'openslide';
+            case 'VipsForeignLoadOpenexr':
+                return 'exr';
+            case 'VipsForeignLoadMat':
+                return 'mat';
+            case 'VipsForeignLoadRad':
+                return 'hdr';
+            case 'VipsForeignLoadPpm':
+                return 'ppm';
+            case 'VipsForeignLoadFits':
+                return 'fits';
+            case 'VipsForeignLoadVips':
+                return 'v';
+            case 'VipsForeignLoadAnalyze':
+                return 'img';
+            case 'VipsForeignLoadCsv':
+                return 'csv';
+            case 'VipsForeignLoadMatrix':
+                return 'txt';
             default:
                 return 'unknown';
         }

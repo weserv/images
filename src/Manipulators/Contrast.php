@@ -60,9 +60,9 @@ class Contrast extends BaseManipulator
          * same image back again.
          *
          * LUTs in libvips are just images with either the width or height set
-         * to 1, and the "interpretation" tag set to HISTOGRAM.
+         * to 1, and the 'interpretation' tag set to HISTOGRAM.
          *
-         * If "ushort" is TRUE, we make a 16-bit LUT, ie. 0 - 65535 values;
+         * If 'ushort' is TRUE, we make a 16-bit LUT, ie. 0 - 65535 values;
          * otherwise it's 8-bit (0 - 255)
          */
         $lut = Image::identity(['ushort' => $ushort]);

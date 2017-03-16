@@ -30,7 +30,7 @@ class Shape extends BaseManipulator
 
             list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getMaskShape($width, $height, $shape);
 
-            $maskHasAlpha = Utils::hasAlpha($mask);
+            $maskHasAlpha = $mask->hasAlpha();
 
             $imageHasAlpha = $this->hasAlpha;
 
