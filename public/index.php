@@ -32,7 +32,8 @@ use League\Uri\Components\Query;
 use League\Uri\Schemes\Http as HttpUri;
 
 // See for an example: config.example.php
-$config = file_exists(__DIR__ . '/../config.php') ? include(__DIR__ . '/../config.php') : null;
+/** @noinspection PhpIncludeInspection */
+$config = @include(__DIR__ . '/../config.php') ?: [];
 
 $error_messages = [
     'invalid_url' => [
@@ -195,8 +196,8 @@ if (!empty($_GET['url'])) {
         ]
     ]);
 
-    // If config is not null, IP isn't on the throttler whitelist and Memcached is installed
-    if ($config !== null && !isset($config['throttler-whitelist'][$_SERVER['REMOTE_ADDR']]) && class_exists('Memcached')) {
+    // If config throttler is set, IP isn't on the throttler whitelist and Memcached is installed
+    if (isset($config['throttler']) && !isset($config['throttler-whitelist'][$_SERVER['REMOTE_ADDR']]) && class_exists('Memcached')) {
         $throttlingPolicy = new AndriesLouw\imagesweserv\Throttler\ThrottlingPolicy($config['throttling-policy']);
 
         // Memcached throttler
@@ -402,14 +403,12 @@ if (!empty($_GET['url'])) {
     // Still here? Unlink the temporary file.
     @unlink($tmpFileName);
 } else {
-    if ($config === null) {
-        $config = [
-            'name' => 'API 3 - GitHub, DEMO',
-            'url' => 'images.weserv.nl',
-            'exampleImage' => 'rbx.weserv.nl/lichtenstein.jpg',
-            'exampleTransparentImage' => 'rbx.weserv.nl/transparency_demo.png'
-        ];
-    }
+    $name = $config['name'] ?? 'API 3 - GitHub, DEMO';
+    $url = $config['url'] ?? 'images.weserv.nl';
+
+    $exampleImage = $config['exampleImage'] ?? 'rbx.weserv.nl/lichtenstein.jpg';
+    $exampleTransparentImage = $config['exampleTransparentImage'] ?? 'rbx.weserv.nl/transparency_demo.png';
+    $exampleSmartcropImage = $config['exampleSmartcropImage'] ?? 'ssl:upload.wikimedia.org/wikipedia/commons/4/45/Equus_quagga_burchellii_-_Etosha%2C_2014.jpg';
 
     $html = <<<HTML
 <!DOCTYPE html>
@@ -432,7 +431,7 @@ if (!empty($_GET['url'])) {
     <nav id="sidebar">
         <div id="header-wrapper">
             <div id="header">
-                <a id="logo" href="//{$config['url']}/">
+                <a id="logo" href="//$url/">
                     <div id="weserv-logo">Images.<strong>weserv</strong>.nl</div>
                     <span>Image cache &amp; resize proxy</span>
                 </a>
@@ -441,7 +440,7 @@ if (!empty($_GET['url'])) {
         <div class="scrollbar-inner">
             <div class="scrollspy">
                 <ul id="nav" class="nav topics" data-spy="affix">
-                    <li class="dd-item active"><a href="#image-api" class="cen"><span>{$config['name']}</span></a>
+                    <li class="dd-item active"><a href="#image-api" class="cen"><span>$name</span></a>
                         <ul class="nav inner">
                             <li class="dd-item"><a href="#quick-reference"><span>Quick reference</span></a></li>
                             <li class="dd-item"><a href="#size"><span>Size</span></a></li>
@@ -469,8 +468,8 @@ if (!empty($_GET['url'])) {
                     <p>Images.<b>weserv</b>.nl is an image <b>cache</b> &amp; <b>resize</b> proxy. Our servers resize your image, cache it worldwide, and display it. <a class="github-fork-ribbon right-top" href="https://github.com/andrieslouw/imagesweserv/issues" title="Feedback? Github!">Feedback? GitHub!</a></p>
                     <ul>
                         <li>We don't support animated images (yet), but we do support GIF, JPEG, PNG, BMP, XBM, WebP and other filetypes, even transparent images.</li>
-                        <li>We do support IPv6, <a href="http://ipv6-test.com/validate.php?url={$config['url']}" rel="nofollow">serving dual stack</a>, and supporting <a href="https://{$config['url']}/?url=ipv6.google.com/logos/logo.gif">IPv6-only origin hosts</a>.</li>
-                        <li>For secure connections over TLS/SSL, you can use <a href="https://{$config['url']}/"><b>https</b>://{$config['url']}/</a>. <br /><small class="sslnote">This can be very useful for embedding HTTP images on HTTPS websites. HTTPS origin hosts can be used by <a href="https://github.com/andrieslouw/imagesweserv/issues/33">prefixing the hostname with ssl:</a></small></li>
+                        <li>We do support IPv6, <a href="http://ipv6-test.com/validate.php?url=$url" rel="nofollow">serving dual stack</a>, and supporting <a href="https://$url/?url=ipv6.google.com/logos/logo.gif">IPv6-only origin hosts</a>.</li>
+                        <li>For secure connections over TLS/SSL, you can use <a href="https://$url/"><b>https</b>://$url/</a>. <br /><small class="sslnote">This can be very useful for embedding HTTP images on HTTPS websites. HTTPS origin hosts can be used by <a href="https://github.com/andrieslouw/imagesweserv/issues/33">prefixing the hostname with ssl:</a></small></li>
                         <li>We're part of the <a href="https://www.cloudflare.com/">Cloudflare</a> community. Images are being cached and delivered straight from <a href="https://www.cloudflare.com/network-map">100+ global datacenters</a>. This ensures the fastest load times and best performance.</li>
                         <li>On average, we resize 1 million (10<sup>6</sup>) images per hour, which generates around 25TB of outbound traffic per month.</li>
                     </ul>
@@ -612,59 +611,59 @@ if (!empty($_GET['url'])) {
                     <h1>Size</h1>
                     <h3 id="width-w">Width <code>&amp;w=</code></h3>
                     <p>Sets the width of the image, in pixels.</p>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300"&gt;</code></pre>
-                    <a href="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300"><img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300"&gt;</code></pre>
+                    <a href="//$url/?url=$exampleImage&amp;w=300"><img src="//$url/?url=$exampleImage&amp;w=300" alt=""/></a>
                     <h3 id="height-h">Height <code>&amp;h=</code></h3>
                     <p>Sets the height of the image, in pixels.</p>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleImage']}&amp;h=300"&gt;</code></pre>
-                    <a href="//{$config['url']}/?url={$config['exampleImage']}&amp;h=300"><img src="//{$config['url']}/?url={$config['exampleImage']}&amp;h=300" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;h=300"&gt;</code></pre>
+                    <a href="//$url/?url=$exampleImage&amp;h=300"><img src="//$url/?url=$exampleImage&amp;h=300" alt=""/></a>
                 </section>
                 <section id="orientation" class="goto">
                     <h1>Orientation</h1>
                     <h3 id="orientation-or">Orientation <code>&amp;or=</code> <span class="new">New!</span></h3>
                     <p>Rotates the image. Accepts <code>auto</code>, <code>0</code>, <code>90</code>, <code>180</code> or <code>270</code>. Default is <code>auto</code>. The <code>auto</code> option uses Exif data to automatically orient images correctly.</p>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleImage']}&amp;h=300&amp;or=90"&gt;</code></pre>
-                    <a href="//{$config['url']}/?url={$config['exampleImage']}&amp;h=300&amp;or=90"><img src="//{$config['url']}/?url={$config['exampleImage']}&amp;h=300&amp;or=90" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;h=300&amp;or=90"&gt;</code></pre>
+                    <a href="//$url/?url=$exampleImage&amp;h=300&amp;or=90"><img src="//$url/?url=$exampleImage&amp;h=300&amp;or=90" alt=""/></a>
                 </section>
                 <section id="trans" class="goto">
                     <h1>Transformation <code>&amp;t=</code></h1>
                     <p>Sets how the image is fitted to its target dimensions. Below are a couple of examples.</p>
                     <h3 id="trans-fit">Fit <code>&amp;t=fit</code></h3>
                     <p>Default. Resizes the image to fit within the width and height boundaries without cropping, distorting or altering the aspect ratio. <b>Will not</b> oversample the image if the requested size is larger than that of the original.</p>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;h=300&amp;t=fit"&gt;</code></pre>
-                    <a href="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;h=300&amp;t=fit"><img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;h=300&amp;t=fit" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=fit"&gt;</code></pre>
+                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=fit"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=fit" alt=""/></a>
                     <h3 id="trans-fitup">Fitup <code>&amp;t=fitup</code></h3>
                     <p>Resizes the image to fit within the width and height boundaries without cropping, distorting or altering the aspect ratio. <b>Will</b> increase the size of the image if it is smaller than the output size.</p>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;h=300&amp;t=fitup"&gt;</code></pre>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=fitup"&gt;</code></pre>
                     <h3 id="trans-square">Square <code>&amp;t=square</code></h3>
                     <p>Resizes the image to fill the width and height boundaries and crops any excess image data. The resulting image will match the width and height constraints without distorting the image. <b>Will</b> increase the size of the image if it is smaller than the output size.</p>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;h=300&amp;t=square"&gt;</code></pre>
-                    <a href="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;h=300&amp;t=square"><img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;h=300&amp;t=square" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square"&gt;</code></pre>
+                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square" alt=""/></a>
                      <h3 id="trans-squaredown">Squaredown <code>&amp;t=squaredown</code></h3>
                     <p>Resizes the image to fill the width and height boundaries and crops any excess image data. The resulting image will match the width and height constraints without distorting the image. <b>Will not</b> oversample the image if the requested size is larger than that of the original.</p>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;h=300&amp;t=squaredown"&gt;</code></pre>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=squaredown"&gt;</code></pre>
                     <h3 id="trans-absolute">Absolute <code>&amp;t=absolute</code></h3>
                     <p>Stretches the image to fit the constraining dimensions exactly. The resulting image will fill the dimensions, and will not maintain the aspect ratio of the input image.</p>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;h=300&amp;t=absolute"&gt;</code></pre>
-                    <a href="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;h=300&amp;t=absolute"><img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;h=300&amp;t=absolute" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=absolute"&gt;</code></pre>
+                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=absolute"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=absolute" alt=""/></a>
                     <h3 id="trans-letterbox">Letterbox <code>&amp;t=letterbox</code> <span class="new">New!</span></h3>
                     <p>Resizes the image to fit within the width and height boundaries without cropping or distorting the image, and the remaining space is filled with the background color. The resulting image will match the constraining dimensions.</p><p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/80">Issue #80 - letterbox images that need to fit</a>.</p>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black"&gt;</code></pre>
-                    <a href="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black"><img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black"&gt;</code></pre>
+                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black" alt=""/></a>
                 </section>
                 <section id="crop" class="goto">
                     <h1 id="crop-position">Crop position <code>&amp;a=</code></h1>
                     <p>You can also set where the image is cropped by adding a crop position. Only works when <code>t=square</code>. Accepts <code>top</code>, <code>left</code>, <code>center</code>, <code>right</code> or <code>bottom</code>. Default is <code>center</code>. For more information, please see the suggestion on our GitHub issue tracker: <a href="https://github.com/andrieslouw/imagesweserv/issues/24">Issue #24 - Aligning</a>.</p>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;h=300&amp;t=square&amp;a=top"&gt;</code></pre>
-                    <a href="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;h=300&amp;t=square&amp;a=top"><img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;h=300&amp;t=square&amp;a=top" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=top"&gt;</code></pre>
+                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=top"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=top" alt=""/></a>
                     <h3 id="crop-focal-point">Crop Focal Point <span class="new">New!</span></h3>
                     <p>In addition to the crop position, you can be more specific about the exact crop position using a focal point. Only works when <code>t=square</code>. This is defined using two offset percentages: <code>crop-x%-y%</code>.</p>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-25-45"&gt;</code></pre>
-                    <a href="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-25-45"><img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-25-45" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-25-45"&gt;</code></pre>
+                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-25-45"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-25-45" alt=""/></a>
                     <h3 id="crop-crop">Manual crop <code>&amp;crop=</code></h3>
                     <p>Crops the image to specific dimensions prior to any other resize operations. Required format: <code>width,height,x,y</code>.</p>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleImage']}&amp;crop=300,300,680,500"&gt;</code></pre>
-                    <a href="//{$config['url']}/?url={$config['exampleImage']}&amp;crop=300,300,680,500"><img src="//{$config['url']}/?url={$config['exampleImage']}&amp;crop=300,300,680,500" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;crop=300,300,680,500"&gt;</code></pre>
+                    <a href="//$url/?url=$exampleImage&amp;crop=300,300,680,500"><img src="//$url/?url=$exampleImage&amp;crop=300,300,680,500" alt=""/></a>
                     <!-- TODO: Enable this if we're on libvips 8.5 -->
                     <!-- <h3 id="crop-smartcrop">Smart crop <code>&amp;a=entropy</code> or <code>&amp;a=attention</code> <span class="new">New!</span></h3>
                     <p>Crops the image down to specific dimensions by removing boring parts. Only works when <code>t=square</code>.</p>
@@ -673,8 +672,8 @@ if (!empty($_GET['url'])) {
                         <li><code>entropy</code>: focus on the region with the highest <a href="https://en.wikipedia.org/wiki/Entropy_%28information_theory%29">Shannon entropy</a>.</li>
                         <li><code>attention</code>: focus on the region with the highest luminance frequency, colour saturation and presence of skin tones.</li>
                     </ul>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleSmartcropImage']}&amp;w=300&amp;h=300&amp;t=square&amp;a=attention"&gt;</code></pre>
-                    <a href="//{$config['url']}/?url={$config['exampleSmartcropImage']}&amp;w=300&amp;h=300&amp;t=square&amp;a=attention"><img src="//{$config['url']}/?url={$config['exampleSmartcropImage']}&amp;w=300&amp;h=300&amp;t=square&amp;a=attention" alt=""/></a> -->
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleSmartcropImage&amp;w=300&amp;h=300&amp;t=square&amp;a=attention"&gt;</code></pre>
+                    <a href="//$url/?url=$exampleSmartcropImage&amp;w=300&amp;h=300&amp;t=square&amp;a=attention"><img src="//$url/?url=$exampleSmartcropImage&amp;w=300&amp;h=300&amp;t=square&amp;a=attention" alt=""/></a> -->
                 </section>
                 <section id="shape" class="goto">
                     <h1>Shape</h1>
@@ -692,23 +691,23 @@ if (!empty($_GET['url'])) {
                         <li><code>square</code>: Square tilted 45 degrees</li>
                         <li><code>star</code>: 5-point star</li>
                     </ul>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle"&gt;</code></pre>
-                    <a href="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle"><img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle"&gt;</code></pre>
+                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle" alt=""/></a>
                 </section>
                 <section id="adjustments" class="goto">
                     <h1>Adjustments</h1>
                     <h3 id="brightness-bri">Brightness <code>&amp;bri=</code> <span class="new">New!</span></h3>
                     <p>Adjusts the image brightness. Use values between <code>-100</code> and <code>+100</code>, where <code>0</code> represents no change.</p>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;bri=-25"&gt;</code></pre>
-                    <a href="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;bri=-25"><img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;bri=-25" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;bri=-25"&gt;</code></pre>
+                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;bri=-25"><img src="//$url/?url=$exampleImage&amp;w=300&amp;bri=-25" alt=""/></a>
                     <h3 id="contrast-con">Contrast <code>&amp;con=</code> <span class="new">New!</span></h3>
                     <p>Adjusts the image contrast. Use values between <code>-100</code> and <code>+100</code>, where <code>0</code> represents no change.</p>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;con=25"&gt;</code></pre>
-                    <a href="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;con=25"><img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;con=25" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;con=25"&gt;</code></pre>
+                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;con=25"><img src="//$url/?url=$exampleImage&amp;w=300&amp;con=25" alt=""/></a>
                     <h3 id="gamma-gam">Gamma <code>&amp;gam=</code> <span class="new">New!</span></h3>
                     <p>Adjusts the image gamma. Use values between <code>1</code> and <code>3</code>. The default value is <code>2.2</code>, a suitable approximation for sRGB images.</p>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;gam=3"&gt;</code></pre>
-                    <a href="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;gam=3"><img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;gam=3" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;gam=3"&gt;</code></pre>
+                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;gam=3"><img src="//$url/?url=$exampleImage&amp;w=300&amp;gam=3" alt=""/></a>
                     <h3 id="sharpen-sharp">Sharpen <code>&amp;sharp=</code> <span class="new">New!</span></h3>
                     <p>Sharpen the image. Required format: <code>f,j,r</code></p>
                     <h4 id="sharpen-arguments">Arguments:</h4>
@@ -717,14 +716,14 @@ if (!empty($_GET['url'])) {
                         <li>Jagged <code>j</code> - Sharpening to apply to jagged areas. (Default: 2.0)</li>
                         <li>Radius <code>r</code> - Sharpening mask to apply in pixels, but comes at a performance cost. (optional)</li>
                     </ul>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;sharp=5,5,3"&gt;</code></pre>
-                    <a href="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;sharp=5,5,3"><img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;sharp=5,5,3" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;sharp=5,5,3"&gt;</code></pre>
+                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;sharp=5,5,3"><img src="//$url/?url=$exampleImage&amp;w=300&amp;sharp=5,5,3" alt=""/></a>
                     <h3 id="trim-trim">Trim <code>&amp;trim=</code></h3>
                     <p>Trim "boring" pixels from all edges that contain values within a similarity of the top-left pixel. Trimming occurs before any resize operation. Use values between <code>0</code> and <code>255</code> to define a tolerance level to trim away similar color values. You also can specify just &trim, which defaults to a tolerance level of 10.</p><p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/39">Issue #39 - able to remove black/white whitespace</a>.</p>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleTransparentImage']}&amp;w=300&amp;trim=10"&gt;</code></pre>
-                    <a class="trimedges" href="//{$config['url']}/?url={$config['exampleTransparentImage']}&amp;w=300&amp;trim=10"><img src="//{$config['url']}/?url={$config['exampleTransparentImage']}&amp;w=300&amp;trim=10" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleTransparentImage&amp;w=300&amp;trim=10"&gt;</code></pre>
+                    <a class="trimedges" href="//$url/?url=$exampleTransparentImage&amp;w=300&amp;trim=10"><img src="//$url/?url=$exampleTransparentImage&amp;w=300&amp;trim=10" alt=""/></a>
                     <h3 id="background-bg">Background <code>&amp;bg=</code> <span class="new">New!</span></h3>
-                    <p>Sets the background color of the image. Supports a variety of color formats. In addition to the 140 color names supported by all modern browsers (listed <a href="//{$config['url']}/colors.html">here</a>), it also accepts hexadecimal RGB and RBG alpha formats.</p>
+                    <p>Sets the background color of the image. Supports a variety of color formats. In addition to the 140 color names supported by all modern browsers (listed <a href="//$url/colors.html">here</a>), it also accepts hexadecimal RGB and RBG alpha formats.</p>
                     <h4 id="hexadecimal">Hexadecimal</h4>
                     <ul>
                         <li>3 digit RGB: <code>CCC</code></li>
@@ -732,37 +731,37 @@ if (!empty($_GET['url'])) {
                         <li>6 digit RGB: <code>CCCCCC</code></li>
                         <li>8 digit ARGB (alpha): <code>55CCCCCC</code></li>
                     </ul>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleTransparentImage']}&amp;w=400&amp;bg=black"&gt;</code></pre>
-                    <a href="//{$config['url']}/?url={$config['exampleTransparentImage']}&amp;w=400&amp;bg=black"><img src="//{$config['url']}/?url={$config['exampleTransparentImage']}&amp;w=400&amp;bg=black" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleTransparentImage&amp;w=400&amp;bg=black"&gt;</code></pre>
+                    <a href="//$url/?url=$exampleTransparentImage&amp;w=400&amp;bg=black"><img src="//$url/?url=$exampleTransparentImage&amp;w=400&amp;bg=black" alt=""/></a>
                 </section>
                 <section id="effects" class="goto">
                     <h1>Effects</h1>
                     <h3 id="blur-blur">Blur <code>&amp;blur=</code> <span class="new">New!</span></h3>
                     <p>Adds a blur effect to the image. Use values between <code>0</code> and <code>100</code>.</p>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;blur=5"&gt;</code></pre>
-                    <a href="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;blur=5"><img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;blur=5" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;blur=5"&gt;</code></pre>
+                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;blur=5"><img src="//$url/?url=$exampleImage&amp;w=300&amp;blur=5" alt=""/></a>
                     <h3 id="filter-filt">Filter <code>&amp;filt=</code> <span class="new">New!</span></h3>
                     <p>Applies a filter effect to the image. Accepts <code>greyscale</code> or <code>sepia</code>.</p>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;filt=greyscale"&gt;</code></pre>
-                    <a href="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;filt=greyscale"><img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;filt=greyscale" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;filt=greyscale"&gt;</code></pre>
+                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;filt=greyscale"><img src="//$url/?url=$exampleImage&amp;w=300&amp;filt=greyscale" alt=""/></a>
                 </section>
                 <section id="encoding" class="goto">
                     <h1>Encoding</h1>
                     <h3 id="quality-q">Quality <code>&amp;q=</code></h3>
                     <p>Defines the quality of the image. Use values between <code>0</code> and <code>100</code>. Defaults to <code>85</code>. Only relevant if the format is set to <code>jpg</code>.</p>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;q=20"&gt;</code></pre>
-                    <a href="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;q=20"><img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;q=20" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;q=20"&gt;</code></pre>
+                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;q=20"><img src="//$url/?url=$exampleImage&amp;w=300&amp;q=20" alt=""/></a>
                     <h3 id="output-output">Output <code>&amp;output=</code></h3>
                     <p>Encodes the image to a specific format. Accepts <code>jpg</code>, <code>png</code>, <code>gif</code> or <code>webp</code>. If none is given, it will honor the origin image format.</p><p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/62">Issue #62 - Format conversion</a>.</p>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;output=webp"&gt;</code></pre>
-                    <a href="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;output=webp"><img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;output=webp" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;output=webp"&gt;</code></pre>
+                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;output=webp"><img src="//$url/?url=$exampleImage&amp;w=300&amp;output=webp" alt=""/></a>
                     <h3 id="interlace-progressive-il">Interlace / progressive <code>&amp;il</code></h3>
                     <p>Adds interlacing to GIF and PNG. JPEG's become progressive.</p><p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/50">Issue #50 - Add parameter to use progressive JPEGs</a>.</p>
-                    <pre><code class="language-html">&lt;img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;il"&gt;</code></pre>
-                    <a href="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;il"><img src="//{$config['url']}/?url={$config['exampleImage']}&amp;w=300&amp;il" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;il"&gt;</code></pre>
+                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;il"><img src="//$url/?url=$exampleImage&amp;w=300&amp;il" alt=""/></a>
                     <h3 id="base64-encoding">Base64 (data URL) <code>&amp;encoding=base64</code></h3>
-                    <p>Encodes the image to be used directly in the src= of the <code>&lt;img&gt;</code>-tag. <a href="//{$config['url']}/?url={$config['exampleImage']}&amp;crop=100,100,680,500&amp;encoding=base64">Use this link to see the output result</a>.</p><p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/59">Issue #59 - Return image base64 encoded</a>.</p>
-                    <pre><code>//{$config['url']}/?url={$config['exampleImage']}&amp;crop=100,100,680,500&amp;encoding=base64</code></pre>
+                    <p>Encodes the image to be used directly in the src= of the <code>&lt;img&gt;</code>-tag. <a href="//$url/?url=$exampleImage&amp;crop=100,100,680,500&amp;encoding=base64">Use this link to see the output result</a>.</p><p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/59">Issue #59 - Return image base64 encoded</a>.</p>
+                    <pre><code>//$url/?url=$exampleImage&amp;crop=100,100,680,500&amp;encoding=base64</code></pre>
                 </section>
             </div>
         </div>
