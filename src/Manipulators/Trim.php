@@ -53,7 +53,7 @@ class Trim extends BaseManipulator
             return $default;
         }
 
-        if ($this->trim < 0 || $this->trim > 255) {
+        if ($this->trim < 1 || $this->trim > 254) {
             return $default;
         }
 
