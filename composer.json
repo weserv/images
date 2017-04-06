@@ -23,26 +23,12 @@
             "email": "info@kleisauke.nl"
         }
     ],
-    "repositories": [
-        {
-            "type": "package",
-            "package": {
-                "name": "kleisauke/vips",
-                "version": "1.0",
-                "source": {
-                    "url": "https://github.com/kleisauke/php-vips.git",
-                    "type": "git",
-                    "reference": "master"
-                }
-            }
-        }
-    ],
     "require": {
         "php": ">=7.0.11",
         "ext-curl": "*",
         "guzzlehttp/guzzle": "^6.2",
         "jamesryanbell/cloudflare": "^1.10",
-        "kleisauke/vips": "1.0",
+        "jcupitt/vips": "1.0.x-dev",
         "league/uri": "^5.0"
     },
     "require-dev": {
