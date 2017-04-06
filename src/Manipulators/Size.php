@@ -480,6 +480,7 @@ class Size extends BaseManipulator
             $this->isPremultiplied = true;
         }
 
+        // Fast, integral box-shrink
         if ($shouldShrink) {
             if ($yShrink > 1) {
                 $image = $image->shrinkv($yShrink);
@@ -490,8 +491,15 @@ class Size extends BaseManipulator
             // Recalculate residual float based on dimensions of required vs shrunk images
             $shrunkWidth = $image->width;
             $shrunkHeight = $image->height;
+            if ($rotation === 90 || $rotation === 270) {
+                // Swap input output width and height when rotating by 90 or 270 degrees
+                list($shrunkWidth, $shrunkHeight) = [$shrunkHeight, $shrunkWidth];
+            }
             $xResidual = (float)($targetResizeWidth / $shrunkWidth);
             $yResidual = (float)($targetResizeHeight / $shrunkHeight);
+            if ($rotation === 90 || $rotation === 270) {
+                list($xResidual, $yResidual) = [$yResidual, $xResidual];
+            }
         }
 
         // Use affine increase or kernel reduce with the remaining float part
