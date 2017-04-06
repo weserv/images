@@ -210,11 +210,11 @@ class Utils
     /**
      * Determine image extension from the name of the load operation
      *
-     * @param string $loader The name of the load operation
+     * @param string|null $loader The name of the load operation
      *
      * @return string image type
      */
-    public static function determineImageExtension(string $loader)
+    public static function determineImageExtension($loader)
     {
         switch ($loader) {
             case 'VipsForeignLoadJpegFile':
