@@ -3,7 +3,6 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
-use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Extend;
 use Jcupitt\Vips\Kernel;
 use Mockery;

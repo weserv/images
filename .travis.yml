@@ -1,6 +1,7 @@
+sudo: false
+
 language: php
 
-sudo: required
 dist: trusty
 
 php:
@@ -8,12 +9,21 @@ php:
   - 7.1
 
 env:
-  - LIBVIPS=8.4.5
+  global:
+    - VIPS_VERSION_MAJOR=8
+    - VIPS_VERSION_MINOR=5
+    - VIPS_VERSION_MICRO=2
+    - PATH=$HOME/vips/bin:$PATH
+    - LD_LIBRARY_PATH=$HOME/vips/lib:$LD_LIBRARY_PATH
+    - PKG_CONFIG_PATH=$HOME/vips/lib/pkgconfig:$PKG_CONFIG_PATH
+    - PYTHONPATH=$HOME/vips/lib/python2.7/site-packages:$PYTHONPATH
+    - GI_TYPELIB_PATH=$HOME/vips/lib/girepository-1.0:$GI_TYPELIB_PATH
 
 cache:
   apt: true
   directories:
     - $HOME/.composer/cache
+    - $HOME/vips
 
 addons:
   apt:
@@ -31,28 +41,17 @@ addons:
       - libpoppler-glib-dev
       - libwebp-dev
 
-# VIPS 8.3.3 requires Poppler 0.30 which is not released on Trusty.
 before_install:
-  - wget http://www.vips.ecs.soton.ac.uk/supported/current/vips-$LIBVIPS.tar.gz
-  - tar -xvzf vips-$LIBVIPS.tar.gz
-  - cd vips-$LIBVIPS
-  - >
-    CXXFLAGS=-D_GLIBCXX_USE_CXX11_ABI=0
-    ./configure
-    --disable-debug
-    --disable-dependency-tracking
-    --disable-introspection
-    --disable-static
-    --enable-gtk-doc-html=no
-    --enable-gtk-doc=no
-    --enable-pyvips8=no
-    --without-orc
+  - bash install-vips.sh 
+    --disable-debug 
+    --disable-dependency-tracking 
+    --disable-introspection 
+    --disable-static 
+    --enable-gtk-doc-html=no 
+    --enable-gtk-doc=no 
+    --enable-pyvips8=no 
+    --without-orc 
     --without-python
-    $1
-  - make
-  - sudo make install
-  - sudo ldconfig
-  - cd ..
   - yes '' | pecl install vips
 
 install: composer install --prefer-dist

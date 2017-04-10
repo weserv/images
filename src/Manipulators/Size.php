@@ -611,8 +611,7 @@ class Size extends BaseManipulator
                     $minWidth = min($image->width, $width);
                     $minHeight = min($image->height, $height);
                     if ($this->a === 'entropy' || $this->a === 'attention') {
-                        // TODO: Enable this if we're on libvips 8.5
-                        //$image = $image->smartcrop($minWidth, $minHeight, ['interesting' => $this->a]);
+                        $image = $image->smartcrop($minWidth, $minHeight, ['interesting' => $this->a]);
                     } else {
                         list($offsetX, $offsetY) = $this->resolveCropOffset($image, $width, $height);
                         $image = $image->extract_area($offsetX, $offsetY, $minWidth, $minHeight);

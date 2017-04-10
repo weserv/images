@@ -27,23 +27,6 @@ class UtilsTest extends TestCase
         $this->assertSame(255, Utils::maximumImageAlpha(Interpretation::SRGB));
     }
 
-    public function testHasAlpha()
-    {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
-            $mock->shouldReceive('__get')
-                ->with('interpretation')
-                ->andReturn(Interpretation::SRGB)
-                ->once();
-
-            $mock->shouldReceive('__get')
-                ->with('bands')
-                ->andReturn(4)
-                ->once();
-        });
-
-        $this->assertSame(true, Utils::hasAlpha($image));
-    }
-
     public function testExifOrientation()
     {
         $image = Mockery::mock('Jcupitt\Vips\Image', function ($mock) {
