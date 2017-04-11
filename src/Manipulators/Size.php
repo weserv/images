@@ -3,23 +3,16 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
-use AndriesLouw\imagesweserv\Manipulators\Helpers\Color;
-use Jcupitt\Vips\Access;
-use Jcupitt\Vips\Extend;
 use Jcupitt\Vips\Image;
 use Jcupitt\Vips\Kernel;
 
 /**
  * @property string $t
- * @property string $a
  * @property string $h
  * @property string $w
- * @property string $bg
  * @property bool $hasAlpha
- * @property bool $is16Bit
  * @property bool $isPremultiplied
  * @property int $rotation
- * @property string $accessMethod
  * @property string $tmpFileName
  * @property string $loader
  * @property string $trim
@@ -74,8 +67,8 @@ class Size extends BaseManipulator
      */
     public function run(Image $image): Image
     {
-        $width = $this->getWidth();
-        $height = $this->getHeight();
+        $width = $this->w;
+        $height = $this->h;
         $fit = $this->getFit();
 
         // Check if image size is greater then the maximum allowed image size after dimension is resolved
@@ -84,42 +77,6 @@ class Size extends BaseManipulator
         $image = $this->doResize($image, $fit, $width, $height);
 
         return $image;
-    }
-
-    /**
-     * Resolve width.
-     *
-     * @return int The resolved width.
-     */
-    public function getWidth(): int
-    {
-        if (!is_numeric($this->w)) {
-            return 0;
-        }
-
-        if ($this->w <= 0) {
-            return 0;
-        }
-
-        return (int)$this->w;
-    }
-
-    /**
-     * Resolve height.
-     *
-     * @return int The resolved height.
-     */
-    public function getHeight(): int
-    {
-        if (!is_numeric($this->h)) {
-            return 0;
-        }
-
-        if ($this->h <= 0) {
-            return 0;
-        }
-
-        return (int)$this->h;
     }
 
     /**
@@ -189,107 +146,6 @@ class Size extends BaseManipulator
                 throw new ImageTooLargeException();
             }
         }
-    }
-
-    /**
-     * Resolve the crop resize dimensions.
-     *
-     * @param  Image $image The source image.
-     * @param  int $width The width.
-     * @param  int $height The height.
-     *
-     * @return array   The resize dimensions.
-     */
-    public function resolveCropResizeDimensions(Image $image, int $width, int $height): array
-    {
-        if ($height > $width * ($image->height / $image->width)) {
-            return [$height * ($image->width / $image->height), $height];
-        }
-
-        return [$width, $width * ($image->height / $image->width)];
-    }
-
-    /**
-     * Resolve the crop offset.
-     *
-     * @param  Image $image The source image.
-     * @param  int $width The width.
-     * @param  int $height The height.
-     *
-     * @return array The crop offset.
-     */
-    public function resolveCropOffset(Image $image, int $width, int $height): array
-    {
-        list($offsetPercentageX, $offsetPercentageY) = $this->getCrop();
-
-        $offsetX = (int)(($image->width * $offsetPercentageX / 100) - ($width / 2));
-        $offsetY = (int)(($image->height * $offsetPercentageY / 100) - ($height / 2));
-
-        $maxOffsetX = $image->width - $width;
-        $maxOffsetY = $image->height - $height;
-
-        if ($offsetX < 0) {
-            $offsetX = 0;
-        }
-
-        if ($offsetY < 0) {
-            $offsetY = 0;
-        }
-
-        if ($offsetX > $maxOffsetX) {
-            $offsetX = $maxOffsetX;
-        }
-
-        if ($offsetY > $maxOffsetY) {
-            $offsetY = $maxOffsetY;
-        }
-
-        return [$offsetX, $offsetY];
-    }
-
-    /**
-     * Resolve crop.
-     *
-     * @return array The resolved crop.
-     */
-    public function getCrop(): array
-    {
-        $cropMethods = [
-            'top-left' => [0, 0],
-            't' => [50, 0], // Deprecated use top instead
-            'top' => [50, 0],
-            'top-right' => [100, 0],
-            'l' => [0, 50], // Deprecated use left instead
-            'left' => [0, 50],
-            'center' => [50, 50],
-            'r' => [0, 50], // Deprecated use right instead
-            'right' => [100, 50],
-            'bottom-left' => [0, 100],
-            'b' => [50, 100], // Deprecated use bottom instead
-            'bottom' => [50, 100],
-            'bottom-right' => [100, 100],
-        ];
-
-        if (isset($cropMethods[$this->a])) {
-            return $cropMethods[$this->a];
-        }
-
-        $matches = explode('-', $this->a);
-
-        if (isset($matches[0]) && $matches[0] === 'crop' && isset($matches[1]) && isset($matches[2]) && !isset($matches[3])
-            && is_numeric($matches[1]) && is_numeric($matches[2])
-        ) {
-            if ($matches[1] > 100 || $matches[2] > 100) {
-                return [50, 50];
-            }
-
-            return [
-                (int)$matches[1],
-                (int)$matches[2],
-            ];
-        }
-
-        return [50, 50];
     }
 
     /**
@@ -529,83 +385,6 @@ class Size extends BaseManipulator
                 }
                 if ($xResidual > 1.0) {
                     $image = $image->affine([$xResidual, 0.0, 0.0, 1.0]/*, ['interpolate' => 'bicubic']*/);
-                }
-            }
-        }
-
-        if ($image->width !== $width || $image->height !== $height) {
-            if ($fit === 'letterbox') {
-                if ($this->bg) {
-                    $backgroundColor = (new Color($this->bg))->toRGBA();
-                } else {
-                    $backgroundColor = [
-                        0,
-                        0,
-                        0,
-                        0
-                    ];
-                }
-
-                // Scale up 8-bit values to match 16-bit input image
-                $multiplier = $this->is16Bit ? 256 : 1;
-
-                // Create background colour
-                if ($image->bands > 2) {
-                    $background = [
-                        $multiplier * $backgroundColor[0],
-                        $multiplier * $backgroundColor[1],
-                        $multiplier * $backgroundColor[2]
-                    ];
-                } else {
-                    // Convert sRGB to greyscale
-                    $background = [
-                        $multiplier * (
-                            (0.2126 * $backgroundColor[0]) +
-                            (0.7152 * $backgroundColor[1]) +
-                            (0.0722 * $backgroundColor[2])
-                        )
-                    ];
-                }
-
-                $hasAlpha = $this->hasAlpha;
-
-                // Add alpha channel to background colour
-                if ($backgroundColor[3] < 255 || $hasAlpha) {
-                    array_push($background, $backgroundColor[3] * $multiplier);
-                }
-
-                // Add non-transparent alpha channel, if required
-                if ($backgroundColor[3] < 255 && !$hasAlpha) {
-                    $pixel = Image::black(1, 1)->add(255 * $multiplier)->cast($image->format);
-                    $result = $pixel->embed(0, 0, $image->width, $image->height, ['extend' => Extend::COPY]);
-                    $result->interpretation = $image->interpretation;
-
-                    $image = $image->bandjoin($result);
-
-                    // Image has now a alpha channel. Useful for the next manipulators.
-                    $this->hasAlpha = true;
-                }
-
-                $left = (int)round(($width - $image->width) / 2);
-                $top = (int)round(($height - $image->height) / 2);
-                $image = $image->embed(
-                    $left,
-                    $top,
-                    $width,
-                    $height,
-                    ['extend' => Extend::BACKGROUND, 'background' => $background]
-                );
-            } else {
-                $cropArr = ['square' => 0, 'squaredown' => 1, 'crop' => 2];
-                if (isset($cropArr[$fit])) {
-                    $minWidth = min($image->width, $width);
-                    $minHeight = min($image->height, $height);
-                    if ($this->a === 'entropy' || $this->a === 'attention') {
-                        $image = $image->smartcrop($minWidth, $minHeight, ['interesting' => $this->a]);
-                    } else {
-                        list($offsetX, $offsetY) = $this->resolveCropOffset($image, $width, $height);
-                        $image = $image->extract_area($offsetX, $offsetY, $minWidth, $minHeight);
-                    }
                 }
             }
         }

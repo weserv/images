@@ -10,6 +10,7 @@ use AndriesLouw\imagesweserv\Manipulators\Background;
 use AndriesLouw\imagesweserv\Manipulators\Blur;
 use AndriesLouw\imagesweserv\Manipulators\Gamma;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
+use AndriesLouw\imagesweserv\Manipulators\Letterbox;
 use AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface;
 use AndriesLouw\imagesweserv\Manipulators\Shape;
 use AndriesLouw\imagesweserv\Manipulators\Sharpen;
@@ -253,14 +254,28 @@ class Api implements ApiInterface
         // Resolve crop coordinates
         $params['cropCoordinates'] = Utils::resolveCropCoordinates($params, $image);
 
+        // Set width and height to zero if it's invalid
+        // Otherwise cast it to a integer
+        if (!isset($params['w']) || !is_numeric($params['w']) || $params['w'] <= 0) {
+            $params['w'] = 0;
+        } else {
+            $params['w'] = (int)$params['w'];
+        }
+
+        if (!isset($params['h']) || !is_numeric($params['h']) || $params['h'] <= 0) {
+            $params['h'] = 0;
+        } else {
+            $params['h'] = (int)$params['h'];
+        }
+
         // Do our image manipulations
         foreach ($this->manipulators as $manipulator) {
             $manipulator->setParams($params);
 
             $image = $manipulator->run($image);
 
-            // Size and shape manipulators can override `hasAlpha` parameter.
-            if ($manipulator instanceof Size || $manipulator instanceof Shape) {
+            // Letterbox and shape manipulators can override `hasAlpha` parameter.
+            if ($manipulator instanceof Letterbox || $manipulator instanceof Shape) {
                 $params['hasAlpha'] = $manipulator->hasAlpha;
             }
 

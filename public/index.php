@@ -227,10 +227,11 @@ if (!empty($_GET['url'])) {
 
     // Set manipulators
     $manipulators = [
-        new AndriesLouw\imagesweserv\Manipulators\Crop(),
         new AndriesLouw\imagesweserv\Manipulators\Trim(),
         new AndriesLouw\imagesweserv\Manipulators\Size(71000000),
         new AndriesLouw\imagesweserv\Manipulators\Orientation(),
+        new AndriesLouw\imagesweserv\Manipulators\Crop(),
+        new AndriesLouw\imagesweserv\Manipulators\Letterbox(),
         new AndriesLouw\imagesweserv\Manipulators\Shape,
         new AndriesLouw\imagesweserv\Manipulators\Brightness(),
         new AndriesLouw\imagesweserv\Manipulators\Contrast(),
@@ -661,7 +662,7 @@ if (!empty($_GET['url'])) {
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-25-45"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-25-45"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-25-45" alt=""/></a>
                     <h3 id="crop-crop">Manual crop <code>&amp;crop=</code></h3>
-                    <p>Crops the image to specific dimensions prior to any other resize operations. Required format: <code>width,height,x,y</code>.</p>
+                    <p>Crops the image to specific dimensions after any other resize operations. Required format: <code>width,height,x,y</code>.</p>
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;crop=300,300,680,500"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;crop=300,300,680,500"><img src="//$url/?url=$exampleImage&amp;crop=300,300,680,500" alt=""/></a>
                     <h3 id="crop-smartcrop">Smart crop <code>&amp;a=entropy</code> or <code>&amp;a=attention</code> <span class="new">New!</span></h3>

@@ -115,7 +115,9 @@ class ApiTest extends TestCase
                     'rotation' => 0,
                     'flip' => false,
                     'flop' => false,
-                    'cropCoordinates' => null
+                    'cropCoordinates' => null,
+                    'w' => 0,
+                    'h' => 0,
                 ]);
                 $mock->shouldReceive('run')->andReturn($image);
             }

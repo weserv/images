@@ -3,7 +3,6 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
-use Jcupitt\Vips\Extend;
 use Jcupitt\Vips\Kernel;
 use Mockery;
 use PHPUnit\Framework\TestCase;
@@ -43,8 +42,8 @@ class SizeTest extends TestCase
         $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
-                ->andReturn(1967, 1967, 1967, 245, 244)
-                ->times(5);
+                ->andReturn(1967, 1967, 1967, 245)
+                ->times(4);
 
             $mock->shouldReceive('__get')
                 ->with('height')
@@ -98,8 +97,8 @@ class SizeTest extends TestCase
         $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
-                ->andReturn(1967, 1967, 1967, 2437)
-                ->times(4);
+                ->andReturn(1967, 1967, 1967)
+                ->times(3);
 
             $mock->shouldReceive('__get')
                 ->with('height')
@@ -132,13 +131,13 @@ class SizeTest extends TestCase
         $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
-                ->andReturn(1967, 1967, 1967, 327, 327, 327, 327, 327)
-                ->times(8);
+                ->andReturn(1967, 1967, 1967, 327)
+                ->times(4);
 
             $mock->shouldReceive('__get')
                 ->with('height')
-                ->andReturn(2421, 2421, 2421, 403, 369, 369, 369)
-                ->times(7);
+                ->andReturn(2421, 2421, 2421, 403)
+                ->times(4);
 
             $mock->shouldReceive('shrinkv')
                 ->with(6.0)
@@ -165,11 +164,6 @@ class SizeTest extends TestCase
                 ])
                 ->andReturnSelf()
                 ->once();
-
-            $mock->shouldReceive('extract_area')
-                ->with(0, 0, 300, 300)
-                ->andReturnSelf()
-                ->once();
         });
 
         $params = [
@@ -194,12 +188,12 @@ class SizeTest extends TestCase
             $mock->shouldReceive('__get')
                 ->with('width')
                 ->andReturn(1967)
-                ->times(4);
+                ->times(3);
 
             $mock->shouldReceive('__get')
                 ->with('height')
                 ->andReturn(2421)
-                ->times(4);
+                ->times(3);
         });
 
         $params = [
@@ -223,13 +217,13 @@ class SizeTest extends TestCase
         $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
-                ->andReturn(1967, 1967, 1967, 327, 300)
-                ->times(5);
+                ->andReturn(1967, 1967, 1967, 327)
+                ->times(4);
 
             $mock->shouldReceive('__get')
                 ->with('height')
-                ->andReturn(2421, 2421, 2421, 302, 300)
-                ->times(5);
+                ->andReturn(2421, 2421, 2421, 302)
+                ->times(4);
 
             $mock->shouldReceive('shrinkv')
                 ->with(8.0)
@@ -278,18 +272,13 @@ class SizeTest extends TestCase
         $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
-                ->andReturn(1967, 1967, 1967, 245, 244, 244)
-                ->times(6);
+                ->andReturn(1967, 1967, 1967, 245)
+                ->times(4);
 
             $mock->shouldReceive('__get')
                 ->with('height')
-                ->andReturn(2421, 2421, 2421, 302, 300)
-                ->times(5);
-
-            $mock->shouldReceive('__get')
-                ->with('bands')
-                ->andReturn(3)
-                ->once();
+                ->andReturn(2421, 2421, 2421, 302)
+                ->times(4);
 
             $mock->shouldReceive('shrinkv')
                 ->with(8.0)
@@ -316,17 +305,6 @@ class SizeTest extends TestCase
                 ])
                 ->andReturnSelf()
                 ->once();
-
-            $mock->shouldReceive('embed')
-                ->with(
-                    (300 - 244) / 2,
-                    0,
-                    300,
-                    300,
-                    ['extend' => Extend::BACKGROUND, 'background' => [0, 0, 0]]
-                )
-                ->andReturnSelf()
-                ->once();
         });
 
         $params = [
@@ -343,25 +321,6 @@ class SizeTest extends TestCase
             'Jcupitt\Vips\Image',
             $this->manipulator->setParams($params)->run($image)
         );
-    }
-
-
-    public function testGetWidth()
-    {
-        $this->assertSame(100, $this->manipulator->setParams(['w' => 100])->getWidth());
-        $this->assertSame(100, $this->manipulator->setParams(['w' => 100.1])->getWidth());
-        $this->assertSame(0, $this->manipulator->setParams(['w' => null])->getWidth());
-        $this->assertSame(0, $this->manipulator->setParams(['w' => 'a'])->getWidth());
-        $this->assertSame(0, $this->manipulator->setParams(['w' => '-100'])->getWidth());
-    }
-
-    public function testGetHeight()
-    {
-        $this->assertSame(100, $this->manipulator->setParams(['h' => 100])->getHeight());
-        $this->assertSame(100, $this->manipulator->setParams(['h' => 100.1])->getHeight());
-        $this->assertSame(0, $this->manipulator->setParams(['h' => null])->getHeight());
-        $this->assertSame(0, $this->manipulator->setParams(['h' => 'a'])->getHeight());
-        $this->assertSame(0, $this->manipulator->setParams(['h' => '-100'])->getHeight());
     }
 
     public function testGetFit()
@@ -386,26 +345,6 @@ class SizeTest extends TestCase
         $this->assertSame('crop', $this->manipulator->setParams(['t' => 'crop-101-102'])->getFit());
         $this->assertSame('fit', $this->manipulator->setParams(['t' => 'invalid'])->getFit());
         $this->assertSame('fit', $this->manipulator->setParams(['t' => null])->getFit());
-    }
-
-    public function testGetCrop()
-    {
-        $this->assertSame([0, 0], $this->manipulator->setParams(['a' => 'top-left'])->getCrop());
-        $this->assertSame([0, 100], $this->manipulator->setParams(['a' => 'bottom-left'])->getCrop());
-        $this->assertSame([0, 50], $this->manipulator->setParams(['a' => 'left'])->getCrop());
-        $this->assertSame([100, 0], $this->manipulator->setParams(['a' => 'top-right'])->getCrop());
-        $this->assertSame([100, 100], $this->manipulator->setParams(['a' => 'bottom-right'])->getCrop());
-        $this->assertSame([100, 50], $this->manipulator->setParams(['a' => 'right'])->getCrop());
-        $this->assertSame([50, 0], $this->manipulator->setParams(['a' => 'top'])->getCrop());
-        $this->assertSame([50, 100], $this->manipulator->setParams(['a' => 'bottom'])->getCrop());
-        $this->assertSame([50, 50], $this->manipulator->setParams(['a' => 'center'])->getCrop());
-        $this->assertSame([50, 50], $this->manipulator->setParams(['a' => 'crop'])->getCrop());
-        $this->assertSame([50, 50], $this->manipulator->setParams(['a' => 'center'])->getCrop());
-        $this->assertSame([25, 75], $this->manipulator->setParams(['a' => 'crop-25-75'])->getCrop());
-        $this->assertSame([0, 100], $this->manipulator->setParams(['a' => 'crop-0-100'])->getCrop());
-        $this->assertSame([50, 50], $this->manipulator->setParams(['a' => 'crop-101-102'])->getCrop());
-        $this->assertSame([50, 50], $this->manipulator->setParams(['a' => 'invalid'])->getCrop());
-        $this->assertSame([50, 50], $this->manipulator->setParams(['a' => null])->getCrop());
     }
 
     public function testCheckImageSize()
