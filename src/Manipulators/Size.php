@@ -504,16 +504,6 @@ class Size extends BaseManipulator
 
         // Use affine increase or kernel reduce with the remaining float part
         if ($xResidual !== 1.0 || $yResidual !== 1.0) {
-            // Insert line cache to prevent over-computation of previous operations
-            if ($this->accessMethod === Access::SEQUENTIAL) {
-                // TODO Figure out how many scanline(s) ('tile_height') it will need.
-                $image = $image->linecache([
-                    'tile_height' => 10,
-                    'access' => Access::SEQUENTIAL,
-                    'threaded' => true
-                ]);
-            }
-
             // Perform kernel-based reduction
             if ($yResidual < 1.0 || $xResidual < 1.0) {
                 // Use *magick centre sampling convention instead of corner sampling
