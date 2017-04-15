@@ -110,11 +110,9 @@ class ApiTest extends TestCase
             'hasAlpha' => true,
             'is16Bit' => false,
             'isPremultiplied' => false,
-            'rotation' => 0,
-            'flip' => false,
-            'flop' => false,
             'w' => 0,
-            'h' => 0
+            'h' => 0,
+            'trimCoordinates' => false
         ];
 
         $manipulator = Mockery::mock(ManipulatorInterface::class, function ($mock) use ($image, $params) {

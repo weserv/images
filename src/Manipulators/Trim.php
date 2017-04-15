@@ -8,7 +8,10 @@ use Jcupitt\Vips\Image;
  * @property string $trim
  * @property bool $hasAlpha
  * @property bool $isPremultiplied
+ * @property string $w
+ * @property string $h
  * @property bool $is16Bit
+ * @property array|bool $trimCoordinates
  */
 class Trim extends BaseManipulator
 {
@@ -31,7 +34,8 @@ class Trim extends BaseManipulator
             // dark fringing around bright pixels
             // See: http://entropymine.com/imageworsener/resizealpha/
             $image = $image->premultiply();
-            $this->isPremultiplied = true;
+            // No need to set the `isPremultiplied` boolean to true because
+            // the image will be reloaded at the thumbnail operator.
         }
 
         $trim = $this->getTrim();
@@ -105,7 +109,11 @@ class Trim extends BaseManipulator
             return $image;
         }
 
-        // and now crop the original image
-        return $image->crop($left, $top, $width, $height);
+        // Don't trim yet, we must first resize the image.
+        // Save the trim crop for later use.
+        $this->trimCoordinates = [$left, $top, $width, $height];
+
+        // Return the original image
+        return $image;
     }
 }

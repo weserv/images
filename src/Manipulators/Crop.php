@@ -10,6 +10,7 @@ use Jcupitt\Vips\Image;
  * @property string $h
  * @property string $a
  * @property string $crop
+ * @property array|bool $trimCoordinates
  */
 class Crop extends BaseManipulator
 {
@@ -26,6 +27,8 @@ class Crop extends BaseManipulator
         $height = $this->h;
         $imageWidth = $image->width;
         $imageHeight = $image->height;
+
+        $trimCoordinates = $this->trimCoordinates;
         $coordinates = $this->resolveCropCoordinates($imageWidth, $imageHeight);
         $cropArr = ['square' => 0, 'squaredown' => 1, 'crop' => 2];
 
@@ -38,27 +41,77 @@ class Crop extends BaseManipulator
                 $coordinates[0],
                 $coordinates[1]
             );
-        } elseif (($imageWidth !== $width || $imageHeight !== $height) &&
+        } elseif ($this->a !== 'entropy' && $this->a !== 'attention' &&
+            ($imageWidth !== $width || $imageHeight !== $height) &&
             (isset($cropArr[$this->t]) || strpos($this->t, 'crop') === 0)
         ) {
             $minWidth = min($imageWidth, $width);
             $minHeight = min($imageHeight, $height);
 
-            if ($this->a === 'entropy' || $this->a === 'attention') {
-                $image = $image->smartcrop($minWidth, $minHeight, ['interesting' => $this->a]);
-            } else {
-                list($offsetPercentageX, $offsetPercentageY) = $this->getCrop();
-                $offsetX = (int)(($imageWidth - $width) * ($offsetPercentageX / 100));
-                $offsetY = (int)(($imageHeight - $height) * ($offsetPercentageY / 100));
+            list($offsetPercentageX, $offsetPercentageY) = $this->getCrop();
+            $offsetX = (int)(($imageWidth - $width) * ($offsetPercentageX / 100));
+            $offsetY = (int)(($imageHeight - $height) * ($offsetPercentageY / 100));
 
-                list($left, $top) = $this->calculateCrop($imageWidth, $imageHeight, $width, $height,
-                    $offsetX, $offsetY);
+            if ($trimCoordinates) {
+                list($leftTrim, $topTrim, $imageTargetWidth, $imageTargetHeight) = $trimCoordinates;
 
-                $image = $image->crop($left, $top, $minWidth, $minHeight);
+                $offsetX = (int)(($imageTargetWidth - $width) * ($offsetPercentageX / 100)) + $leftTrim;
+                $offsetY = (int)(($imageTargetHeight - $height) * ($offsetPercentageY / 100)) + $topTrim;
             }
+
+            list($left, $top) = $this->calculateCrop($imageWidth, $imageHeight, $width, $height,
+                $offsetX, $offsetY);
+
+            $image = $image->crop($left, $top, $minWidth, $minHeight);
+        } elseif ($trimCoordinates) {
+            $image = $image->crop(
+                $trimCoordinates[0],
+                $trimCoordinates[1],
+                $trimCoordinates[2],
+                $trimCoordinates[3]
+            );
         }
 
         return $image;
+    }
+
+    /**
+     * Resolve crop coordinates.
+     *
+     * @param $imageWidth
+     * @param $imageHeight
+     *
+     * @return array|null The resolved coordinates.
+     */
+    public function resolveCropCoordinates($imageWidth, $imageHeight)
+    {
+        if (!isset($this->crop)) {
+            return null;
+        }
+
+        $coordinates = explode(',', $this->crop);
+
+        if (count($coordinates) !== 4
+            || (!is_numeric($coordinates[0]))
+            || (!is_numeric($coordinates[1]))
+            || (!is_numeric($coordinates[2]))
+            || (!is_numeric($coordinates[3]))
+            || ($coordinates[0] <= 0)
+            || ($coordinates[1] <= 0)
+            || ($coordinates[2] < 0)
+            || ($coordinates[3] < 0)
+            || ($coordinates[2] >= $imageWidth)
+            || ($coordinates[3] >= $imageHeight)
+        ) {
+            return null;
+        }
+
+        return [
+            (int)$coordinates[0],
+            (int)$coordinates[1],
+            (int)$coordinates[2],
+            (int)$coordinates[3]
+        ];
     }
 
     /**
@@ -104,45 +157,6 @@ class Crop extends BaseManipulator
         }
 
         return [50, 50];
-    }
-
-    /**
-     * Resolve crop coordinates.
-     *
-     * @param $imageWidth
-     * @param $imageHeight
-     *
-     * @return array|null The resolved coordinates.
-     */
-    public function resolveCropCoordinates($imageWidth, $imageHeight)
-    {
-        if (!isset($this->crop)) {
-            return null;
-        }
-
-        $coordinates = explode(',', $this->crop);
-
-        if (count($coordinates) !== 4
-            || (!is_numeric($coordinates[0]))
-            || (!is_numeric($coordinates[1]))
-            || (!is_numeric($coordinates[2]))
-            || (!is_numeric($coordinates[3]))
-            || ($coordinates[0] <= 0)
-            || ($coordinates[1] <= 0)
-            || ($coordinates[2] < 0)
-            || ($coordinates[3] < 0)
-            || ($coordinates[2] >= $imageWidth)
-            || ($coordinates[3] >= $imageHeight)
-        ) {
-            return null;
-        }
-
-        return [
-            (int)$coordinates[0],
-            (int)$coordinates[1],
-            (int)$coordinates[2],
-            (int)$coordinates[3]
-        ];
     }
 
     /**
