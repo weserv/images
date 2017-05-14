@@ -10,8 +10,17 @@ interface ManipulatorInterface
      * Set the manipulation params.
      *
      * @param array $params The manipulation params.
+     *
+     * @return self
      */
     public function setParams(array $params);
+
+    /**
+     * Get the manipulation params.
+     *
+     * @return array The manipulation params.
+     */
+    public function getParams(): array;
 
     /**
      * Perform the image manipulation.

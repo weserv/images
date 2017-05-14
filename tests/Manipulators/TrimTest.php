@@ -35,12 +35,12 @@ class TrimTest extends TestCase
             $mock->shouldReceive('__get')
                 ->with('width')
                 ->andReturn(100)
-                ->once();
+                ->twice();
 
             $mock->shouldReceive('__get')
                 ->with('height')
                 ->andReturn(100)
-                ->once();
+                ->twice();
 
             $mock->shouldReceive('getpoint')
                 ->with(0, 0)

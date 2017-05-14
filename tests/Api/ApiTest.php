@@ -102,23 +102,30 @@ class ApiTest extends TestCase
             $mock->shouldReceive('writeToBuffer')->andReturn($pixel);
         });
 
+        $params = [
+            'accessMethod' => Access::SEQUENTIAL,
+            'tmpFileName' => $tempFile,
+            'loader' => 'VipsForeignLoadPng',
+            'hasAlpha' => true,
+            'is16Bit' => false,
+            'isPremultiplied' => false,
+            'rotation' => 0,
+            'flip' => false,
+            'flop' => false,
+            'w' => 0,
+            'h' => 0
+        ];
+
         $manipulator = Mockery::mock(
             'AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface',
-            function ($mock) use ($image, $tempFile) {
-                $mock->shouldReceive('setParams')->with([
-                    'accessMethod' => Access::SEQUENTIAL,
-                    'tmpFileName' => $tempFile,
-                    'loader' => 'VipsForeignLoadPng',
-                    'hasAlpha' => true,
-                    'is16Bit' => false,
-                    'isPremultiplied' => false,
-                    'rotation' => 0,
-                    'flip' => false,
-                    'flop' => false,
-                    'cropCoordinates' => null,
-                    'w' => 0,
-                    'h' => 0,
-                ]);
+            function ($mock) use ($image, $params) {
+                $mock->shouldReceive('setParams')
+                    ->with($params)
+                    ->andReturnSelf();
+
+                $mock->shouldReceive('getParams')
+                    ->andReturn($params);
+
                 $mock->shouldReceive('run')->andReturn($image);
             }
         );

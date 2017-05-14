@@ -56,42 +56,6 @@ class UtilsTest extends TestCase
         $this->assertSame([90, false, false], Utils::calculateRotationAndFlip(['or' => '90'], $image));
     }
 
-    public function testResolveCropCoordinates()
-    {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
-            $mock->shouldReceive('__get')
-                ->with('width')
-                ->andReturn(100);
-            $mock->shouldReceive('__get')
-                ->with('height')
-                ->andReturn(100);
-        });
-
-
-        $this->assertSame(
-            [100, 100, 0, 0],
-            Utils::resolveCropCoordinates(['crop' => '100,100,0,0'], $image)
-        );
-        $this->assertSame(
-            [101, 1, 1, 1],
-            Utils::resolveCropCoordinates(['crop' => '101,1,1,1'], $image)
-        );
-        $this->assertSame(
-            [1, 101, 1, 1],
-            Utils::resolveCropCoordinates(['crop' => '1,101,1,1'], $image)
-        );
-        $this->assertSame(null, Utils::resolveCropCoordinates(['crop' => null], $image));
-        $this->assertSame(null, Utils::resolveCropCoordinates(['crop' => '1,1,1,'], $image));
-        $this->assertSame(null, Utils::resolveCropCoordinates(['crop' => '1,1,,1'], $image));
-        $this->assertSame(null, Utils::resolveCropCoordinates(['crop' => '1,,1,1'], $image));
-        $this->assertSame(null, Utils::resolveCropCoordinates(['crop' => ',1,1,1'], $image));
-        $this->assertSame(null, Utils::resolveCropCoordinates(['crop' => '-1,1,1,1'], $image));
-        $this->assertSame(null, Utils::resolveCropCoordinates(['crop' => '1,1,101,1'], $image));
-        $this->assertSame(null, Utils::resolveCropCoordinates(['crop' => '1,1,1,101'], $image));
-        $this->assertSame(null, Utils::resolveCropCoordinates(['crop' => 'a'], $image));
-        $this->assertSame(null, Utils::resolveCropCoordinates(['crop' => ''], $image));
-    }
-
     public function testMapToRange()
     {
         $this->assertSame(127.5, Utils::mapToRange(50, 0, 100, 0, 255));

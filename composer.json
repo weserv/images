@@ -28,7 +28,7 @@
         "ext-curl": "*",
         "guzzlehttp/guzzle": "^6.2",
         "jamesryanbell/cloudflare": "^1.10",
-        "jcupitt/vips": "1.0.x-dev",
+        "jcupitt/vips": "^1.0",
         "league/uri": "^5.0"
     },
     "require-dev": {

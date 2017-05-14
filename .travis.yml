@@ -12,7 +12,7 @@ env:
   global:
     - VIPS_VERSION_MAJOR=8
     - VIPS_VERSION_MINOR=5
-    - VIPS_VERSION_MICRO=2
+    - VIPS_VERSION_MICRO=4
     - PATH=$HOME/vips/bin:$PATH
     - LD_LIBRARY_PATH=$HOME/vips/lib:$LD_LIBRARY_PATH
     - PKG_CONFIG_PATH=$HOME/vips/lib/pkgconfig:$PKG_CONFIG_PATH

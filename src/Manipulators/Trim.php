@@ -21,7 +21,8 @@ class Trim extends BaseManipulator
      */
     public function run(Image $image): Image
     {
-        if (!isset($this->trim)) {
+        // Make sure that trimming is required
+        if (!isset($this->trim) || $image->width < 3 || $image->height < 3) {
             return $image;
         }
 

@@ -6,16 +6,8 @@ use AndriesLouw\imagesweserv\Client;
 use AndriesLouw\imagesweserv\Exception\ImageNotReadableException;
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Exception\RateExceededException;
-use AndriesLouw\imagesweserv\Manipulators\Background;
-use AndriesLouw\imagesweserv\Manipulators\Blur;
-use AndriesLouw\imagesweserv\Manipulators\Gamma;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
-use AndriesLouw\imagesweserv\Manipulators\Letterbox;
 use AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface;
-use AndriesLouw\imagesweserv\Manipulators\Shape;
-use AndriesLouw\imagesweserv\Manipulators\Sharpen;
-use AndriesLouw\imagesweserv\Manipulators\Size;
-use AndriesLouw\imagesweserv\Manipulators\Trim;
 use AndriesLouw\imagesweserv\Throttler\ThrottlerInterface;
 use GuzzleHttp\Exception\RequestException;
 use InvalidArgumentException;
@@ -251,9 +243,6 @@ class Api implements ApiInterface
             $image = Image::newFromFile($tmpFileName, $loadOptions);
         }
 
-        // Resolve crop coordinates
-        $params['cropCoordinates'] = Utils::resolveCropCoordinates($params, $image);
-
         // Set width and height to zero if it's invalid
         // Otherwise cast it to a integer
         if (!isset($params['w']) || !is_numeric($params['w']) || $params['w'] <= 0) {
@@ -274,21 +263,8 @@ class Api implements ApiInterface
 
             $image = $manipulator->run($image);
 
-            // Letterbox and shape manipulators can override `hasAlpha` parameter.
-            if ($manipulator instanceof Letterbox || $manipulator instanceof Shape) {
-                $params['hasAlpha'] = $manipulator->hasAlpha;
-            }
-
-            // Trim, size, gamma, sharpen, blur and background manipulators can override `isPremultiplied` parameter.
-            if ($manipulator instanceof Trim ||
-                $manipulator instanceof Size ||
-                $manipulator instanceof Gamma ||
-                $manipulator instanceof Sharpen ||
-                $manipulator instanceof Blur ||
-                $manipulator instanceof Background
-            ) {
-                $params['isPremultiplied'] = $manipulator->isPremultiplied;
-            }
+            // A manipulator can override the given parameters
+            $params = $manipulator->getParams();
         }
 
         // Reverse premultiplication after all transformations:
@@ -437,7 +413,7 @@ class Api implements ApiInterface
             //'gif' => 'image/gif',
             'jpg' => 'image/jpeg',
             'png' => 'image/png',
-            'webp' => 'image/webp',
+            'webp' => 'image/webp'
         ];
     }
 

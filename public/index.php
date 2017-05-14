@@ -33,13 +33,18 @@ use League\Uri\Schemes\Http as HttpUri;
 
 // See for an example: config.example.php
 /** @noinspection PhpIncludeInspection */
-$config = @include(__DIR__ . '/../config.php') ?: [];
+$config = @include (__DIR__ . '/../config.php') ?: [];
 
 $error_messages = [
     'invalid_url' => [
         'header' => '404 Not Found',
         'content-type' => 'text/plain',
         'message' => 'Error 404: Server couldn\'t parse the ?url= that you were looking for, because it isn\'t a valid url.',
+    ],
+    'invalid_redirect_url' => [
+        'header' => '404 Not Found',
+        'content-type' => 'text/plain',
+        'message' => 'Error 404: Unable to parse the redirection URL.',
     ],
     'invalid_image' => [
         'header' => '400 Bad Request',
@@ -111,7 +116,7 @@ $error_messages = [
  *
  * @return HttpUri parsed URI
  */
-$parseUrl = function (string $url) {
+function parseUrl(string $url) {
     // Check for HTTPS origin hosts
     if (substr($url, 0, 4) === 'ssl:') {
         return HttpUri::createFromString('https://' . ltrim(substr($url, 4), '/'));
@@ -124,7 +129,7 @@ $parseUrl = function (string $url) {
             throw new InvalidArgumentException('Invalid URL');
         }
     }
-};
+}
 
 /**
  * Sanitize the 'errorredirect' GET variable after parsing.
@@ -135,7 +140,7 @@ $parseUrl = function (string $url) {
  *
  * @return string sanitized URI
  */
-$sanitizeErrorRedirect = function (HttpUri $errorUrl) {
+function sanitizeErrorRedirect(HttpUri $errorUrl) {
     $queryStr = $errorUrl->getQuery();
     if (!empty($queryStr)) {
         $query = new Query($queryStr);
@@ -145,11 +150,11 @@ $sanitizeErrorRedirect = function (HttpUri $errorUrl) {
         }
     }
     return $errorUrl->__toString();
-};
+}
 
 if (!empty($_GET['url'])) {
     try {
-        $uri = $parseUrl($_GET['url']);
+        $uri = parseUrl($_GET['url']);
     } catch (Exception $e) {
         $error = $error_messages['invalid_url'];
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
@@ -311,6 +316,11 @@ if (!empty($_GET['url'])) {
 
                 echo sprintf($error['message'], $imageSize, $maxImageSize);
             }
+        } elseif ($previousException instanceof InvalidArgumentException) {
+            $error = $error_messages['invalid_redirect_url'];
+            header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
+            header('Content-type: ' . $error['content-type']);
+            echo $error['message'];
         } else {
             $curlHandler = $e->getHandlerContext();
 
@@ -335,11 +345,11 @@ if (!empty($_GET['url'])) {
                 $isSameHost = 'weserv.nl';
 
                 try {
-                    $uri = $parseUrl($_GET['errorredirect']);
+                    $uri = parseUrl($_GET['errorredirect']);
 
                     $append = substr($uri->getHost(), -strlen($isSameHost)) === $isSameHost ? "&error=$statusCode" : '';
 
-                    $sanitizedUri = $sanitizeErrorRedirect($uri);
+                    $sanitizedUri = sanitizeErrorRedirect($uri);
 
                     header('Location: ' . $sanitizedUri . $append);
                 } catch (Exception $ignored) {
@@ -659,14 +669,14 @@ if (!empty($_GET['url'])) {
                     <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=top"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=top" alt=""/></a>
                     <h3 id="crop-focal-point">Crop Focal Point <span class="new">New!</span></h3>
                     <p>In addition to the crop position, you can be more specific about the exact crop position using a focal point. Only works when <code>t=square</code>. This is defined using two offset percentages: <code>crop-x%-y%</code>.</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-25-45"&gt;</code></pre>
-                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-25-45"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-25-45" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-0-20"&gt;</code></pre>
+                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-0-20"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-0-20" alt=""/></a>
                     <h3 id="crop-crop">Manual crop <code>&amp;crop=</code></h3>
                     <p>Crops the image to specific dimensions after any other resize operations. Required format: <code>width,height,x,y</code>.</p>
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;crop=300,300,680,500"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;crop=300,300,680,500"><img src="//$url/?url=$exampleImage&amp;crop=300,300,680,500" alt=""/></a>
                     <h3 id="crop-smartcrop">Smart crop <code>&amp;a=entropy</code> or <code>&amp;a=attention</code> <span class="new">New!</span></h3>
-                    <p>Crops the image down to specific dimensions by removing boring parts. Only works when <code>t=square</code>.</p>
+                    <p>Crops the image down to specific dimensions by removing boring parts. Only works when <code>t=square</code>. More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/90">Issue #90 - Add support for smart crop</a>.</p>
                     <h4 id="smartcrop-accepts">Accepts:</h4>
                     <ul>
                         <li><code>entropy</code>: focus on the region with the highest <a href="https://en.wikipedia.org/wiki/Entropy_%28information_theory%29">Shannon entropy</a>.</li>
@@ -723,7 +733,7 @@ if (!empty($_GET['url'])) {
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleTransparentImage&amp;w=300&amp;trim=10"&gt;</code></pre>
                     <a class="trimedges" href="//$url/?url=$exampleTransparentImage&amp;w=300&amp;trim=10"><img src="//$url/?url=$exampleTransparentImage&amp;w=300&amp;trim=10" alt=""/></a>
                     <h3 id="background-bg">Background <code>&amp;bg=</code> <span class="new">New!</span></h3>
-                    <p>Sets the background color of the image. Supports a variety of color formats. In addition to the 140 color names supported by all modern browsers (listed <a href="//$url/colors.html">here</a>), it also accepts hexadecimal RGB and RBG alpha formats.</p>
+                    <p>Sets the background color of the image. Supports a variety of color formats. In addition to the 140 color names supported by all modern browsers (listed <a href="//$url/colors.html">here</a>), it also accepts hexadecimal RGB and RBG alpha formats. More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/81">Issue #81 - Background setting</a>.</p>
                     <h4 id="hexadecimal">Hexadecimal</h4>
                     <ul>
                         <li>3 digit RGB: <code>CCC</code></li>
@@ -737,7 +747,7 @@ if (!empty($_GET['url'])) {
                 <section id="effects" class="goto">
                     <h1>Effects</h1>
                     <h3 id="blur-blur">Blur <code>&amp;blur=</code> <span class="new">New!</span></h3>
-                    <p>Adds a blur effect to the image. Use values between <code>0</code> and <code>100</code>.</p>
+                    <p>Adds a blur effect to the image. Use values between <code>0</code> and <code>100</code>.</p><p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/69">Issue #69 - Allow blur transformation (with radius parameter)</a>.</p>
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;blur=5"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;w=300&amp;blur=5"><img src="//$url/?url=$exampleImage&amp;w=300&amp;blur=5" alt=""/></a>
                     <h3 id="filter-filt">Filter <code>&amp;filt=</code> <span class="new">New!</span></h3>

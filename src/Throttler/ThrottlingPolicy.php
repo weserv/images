@@ -30,8 +30,8 @@ class ThrottlingPolicy
                 'email' => '',
                 'auth_key' => '',
                 'zone_id' => '',
-                'mode' => 'block', // The action to apply if the IP get's banned
-            ],
+                'mode' => 'block' // The action to apply if the IP get's banned
+            ]
         ], $config);
     }
 

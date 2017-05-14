@@ -8,8 +8,8 @@ use Jcupitt\Vips\Image;
 
 /**
  * @property string $t
- * @property string $h
  * @property string $w
+ * @property string $h
  * @property string $a
  * @property string $bg
  * @property bool $hasAlpha
@@ -71,10 +71,7 @@ class Letterbox extends BaseManipulator
 
             // Add non-transparent alpha channel, if required
             if ($backgroundColor[3] < 255 && !$hasAlpha) {
-                $pixel = Image::black(1, 1)->add(255 * $multiplier)->cast($image->format);
-                $result = $pixel->embed(0, 0, $image->width, $image->height, ['extend' => Extend::COPY]);
-                $result->interpretation = $image->interpretation;
-
+                $result = $image->newFromImage(255 * $multiplier);
                 $image = $image->bandjoin($result);
 
                 // Image has now a alpha channel. Useful for the next manipulators.

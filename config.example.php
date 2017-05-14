@@ -9,14 +9,14 @@ return [
     // Default to Memcached
     'memcached' => [
         'host' => '/var/run/memcached/memcached.sock', // Memcached sock
-        'port' => 0, // Memcached port
+        'port' => 0 // Memcached port
     ],
     // You'll also need to uncomment the Redis throttler in index.php
     // If you want to enable this
     'redis' => [
         'scheme' => 'tcp',
-        'host'   => '127.0.0.1',
-        'port'   => 6379,
+        'host' => '127.0.0.1',
+        'port' => 6379
     ],
     // Throttler config
     'throttler' => [
@@ -27,7 +27,7 @@ return [
     // Throttler whitelist
     'throttler-whitelist' => [
         '1.2.3.4' => 0, // Local IP
-        '127.0.0.1' => 0, // Local IP
+        '127.0.0.1' => 0 // Local IP
     ],
     // Throttling policy
     'throttling-policy' => [
@@ -37,7 +37,7 @@ return [
             'email' => '',
             'auth_key' => '',
             'zone_id' => '',
-            'mode' => 'block', // The action to apply if the IP get's banned
+            'mode' => 'block' // The action to apply if the IP get's banned
         ]
     ]
 ];

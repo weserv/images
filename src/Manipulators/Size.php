@@ -3,7 +3,11 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
+use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
+use Jcupitt\Vips\Exception as VipsException;
 use Jcupitt\Vips\Image;
+use Jcupitt\Vips\Intent;
+use Jcupitt\Vips\Interpretation;
 use Jcupitt\Vips\Kernel;
 
 /**
@@ -16,7 +20,6 @@ use Jcupitt\Vips\Kernel;
  * @property string $tmpFileName
  * @property string $loader
  * @property string $trim
- * @property array|null $cropCoordinates
  * @property string $page
  */
 class Size extends BaseManipulator
@@ -206,34 +209,30 @@ class Size extends BaseManipulator
                     }
                     break;
             }
-        } else {
-            if ($width > 0) {
-                // Fixed width
-                $xFactor = (float)($inputWidth / $width);
-                if ($fit === 'absolute') {
-                    $targetResizeHeight = $height = $inputHeight;
-                } else {
-                    // Auto height
-                    $yFactor = $xFactor;
-                    $targetResizeHeight = $height = (int)round((float)($inputHeight / $yFactor));
-                }
+        } elseif ($width > 0) {
+            // Fixed width
+            $xFactor = (float)($inputWidth / $width);
+            if ($fit === 'absolute') {
+                $targetResizeHeight = $height = $inputHeight;
             } else {
-                if ($height > 0) {
-                    // Fixed height
-                    $yFactor = (float)($inputHeight / $height);
-                    if ($fit === 'absolute') {
-                        $targetResizeWidth = $width = $inputWidth;
-                    } else {
-                        // Auto width
-                        $xFactor = $yFactor;
-                        $targetResizeWidth = $width = (int)round((float)($inputWidth / $xFactor));
-                    }
-                } else {
-                    // Identity transform
-                    $width = $inputWidth;
-                    $height = $inputHeight;
-                }
+                // Auto height
+                $yFactor = $xFactor;
+                $targetResizeHeight = $height = (int)round((float)($inputHeight / $yFactor));
             }
+        } elseif ($height > 0) {
+            // Fixed height
+            $yFactor = (float)($inputHeight / $height);
+            if ($fit === 'absolute') {
+                $targetResizeWidth = $width = $inputWidth;
+            } else {
+                // Auto width
+                $xFactor = $yFactor;
+                $targetResizeWidth = $width = (int)round((float)($inputWidth / $xFactor));
+            }
+        } else {
+            // Identity transform
+            $width = $inputWidth;
+            $height = $inputHeight;
         }
 
         // Calculate integral box shrink
@@ -270,7 +269,7 @@ class Size extends BaseManipulator
                 $loader === 'VipsForeignLoadWebpFile' ||
                 $loader === 'VipsForeignLoadPdfFile' ||
                 $loader === 'VipsForeignLoadSvgFile') &&
-            !$this->trim && !$this->cropCoordinates
+            !$this->trim
         ) {
             if ($xShrink >= 8) {
                 $xFactor /= 8;
@@ -286,7 +285,12 @@ class Size extends BaseManipulator
                 $shrinkOnLoad = 2;
             }
         }
-
+        // Help ensure a final kernel-based reduction to prevent shrink aliasing
+        if ($shrinkOnLoad > 1 && ($xResidual == 1.0 || $yResidual == 1.0)) {
+            $shrinkOnLoad = $shrinkOnLoad / 2;
+            $xFactor = $xFactor * 2;
+            $yFactor = $yFactor * 2;
+        }
         if ($shrinkOnLoad > 1) {
             // Reload input using shrink-on-load
             if ($loader === 'VipsForeignLoadJpegFile') {
@@ -322,6 +326,32 @@ class Size extends BaseManipulator
             if ($rotation === 90 || $rotation === 270) {
                 list($xResidual, $yResidual) = [$yResidual, $xResidual];
             }
+        }
+        // Help ensure a final kernel-based reduction to prevent shrink aliasing
+        if (($xShrink > 1 || $yShrink > 1) && ($xResidual == 1.0 || $yResidual == 1.0)) {
+            $xShrink = $xShrink / 2;
+            $yShrink = $yShrink / 2;
+            $xResidual = $xResidual / 2.0;
+            $yResidual = $yResidual / 2.0;
+        }
+
+        // Ensure we're using a device-independent colour space
+        if (Utils::hasProfile($image)) {
+            // Convert to sRGB using embedded profile from https://packages.debian.org/sid/all/icc-profiles-free/filelist
+            try {
+                $image = $image->icc_transform(__DIR__ . '/../ICC/sRGB.icc', [
+                    'embedded' => true,
+                    'intent' => Intent::PERCEPTUAL
+                ]);
+            } catch (VipsException $ignored) {
+                // Ignore failure of embedded profile
+            }
+        } elseif ($image->interpretation === Interpretation::CMYK) {
+            // Convert to sRGB using default CMYK profile from http://www.argyllcms.com/cmyk.icm
+            $image = $image->icc_transform(__DIR__ . '/../ICC/sRGB.icc', [
+                'input_profile' => __DIR__ . '/../ICC/cmyk.icm',
+                'intent' => Intent::PERCEPTUAL
+            ]);
         }
 
         $shouldReduce = $xResidual !== 1.0 || $yResidual !== 1.0;

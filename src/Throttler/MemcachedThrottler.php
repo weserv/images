@@ -49,7 +49,7 @@ class MemcachedThrottler implements ThrottlerInterface
             'allowed_requests' => 700, // 700 allowed requests
             'minutes' => 3, // In 3 minutes
             'ban_time' => 60, // If exceed, ban for 60 minutes
-            'prefix' => '', // Cache key prefix
+            'prefix' => '' // Cache key prefix
         ], $config);
         $this->setPrefix($this->config['prefix']);
     }

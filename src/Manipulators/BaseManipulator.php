@@ -28,6 +28,16 @@ abstract class BaseManipulator implements ManipulatorInterface
     }
 
     /**
+     * Get the manipulation params.
+     *
+     * @return array The manipulation params.
+     */
+    public function getParams(): array
+    {
+        return $this->params;
+    }
+
+    /**
      * Get a specific manipulation param.
      *
      * @param  string $name The manipulation name.
