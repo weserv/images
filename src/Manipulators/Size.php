@@ -335,14 +335,8 @@ class Size extends BaseManipulator
             $yResidual = $yResidual / 2.0;
         }
 
-        /*
-         * We've temporary disable the `icc_transform` operations,
-         * in order to check if we were affected by a file descriptor leak.
-         *
-         * See: https://github.com/mm2/Little-CMS/pull/121
-         */
         // Ensure we're using a device-independent colour space
-        /*if (Utils::hasProfile($image)) {
+        if (Utils::hasProfile($image)) {
             // Convert to sRGB using embedded profile from https://packages.debian.org/sid/all/icc-profiles-free/filelist
             try {
                 $image = $image->icc_transform(__DIR__ . '/../ICC/sRGB.icc', [
@@ -358,7 +352,7 @@ class Size extends BaseManipulator
                 'input_profile' => __DIR__ . '/../ICC/cmyk.icm',
                 'intent' => Intent::PERCEPTUAL
             ]);
-        }*/
+        }
 
         $shouldReduce = $xResidual !== 1.0 || $yResidual !== 1.0;
         $shouldShrink = $xShrink > 1 || $yShrink > 1;
