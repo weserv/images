@@ -231,8 +231,8 @@ class Size extends BaseManipulator
             }
         } else {
             // Identity transform
-            $width = $inputWidth;
-            $height = $inputHeight;
+            $width = $this->w = $inputWidth;
+            $height = $this->h = $inputHeight;
         }
 
         // Calculate integral box shrink
