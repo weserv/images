@@ -213,21 +213,21 @@ class Size extends BaseManipulator
             // Fixed width
             $xFactor = (float)($inputWidth / $width);
             if ($fit === 'absolute') {
-                $targetResizeHeight = $height = $inputHeight;
+                $targetResizeHeight = $height = $this->h = $inputHeight;
             } else {
                 // Auto height
                 $yFactor = $xFactor;
-                $targetResizeHeight = $height = (int)round((float)($inputHeight / $yFactor));
+                $targetResizeHeight = $height = $this->h = (int)round((float)($inputHeight / $yFactor));
             }
         } elseif ($height > 0) {
             // Fixed height
             $yFactor = (float)($inputHeight / $height);
             if ($fit === 'absolute') {
-                $targetResizeWidth = $width = $inputWidth;
+                $targetResizeWidth = $width = $this->w = $inputWidth;
             } else {
                 // Auto width
                 $xFactor = $yFactor;
-                $targetResizeWidth = $width = (int)round((float)($inputWidth / $xFactor));
+                $targetResizeWidth = $width = $this->w = (int)round((float)($inputWidth / $xFactor));
             }
         } else {
             // Identity transform
