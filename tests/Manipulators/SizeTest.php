@@ -3,8 +3,8 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
-use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
-use Jcupitt\Vips\Interpretation;
+/*use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
+use Jcupitt\Vips\Interpretation;*/
 use Jcupitt\Vips\Kernel;
 use Mockery;
 use PHPUnit\Framework\TestCase;
@@ -52,7 +52,7 @@ class SizeTest extends TestCase
                 ->andReturn(2421, 2421, 2421, 302)
                 ->times(4);
 
-            $mock->shouldReceive('__get')
+            /*$mock->shouldReceive('__get')
                 ->with('interpretation')
                 ->andReturn(Interpretation::SRGB)
                 ->once();
@@ -60,7 +60,7 @@ class SizeTest extends TestCase
             $mock->shouldReceive('typeof')
                 ->with(Utils::VIPS_META_ICC_NAME)
                 ->andReturn(0)
-                ->once();
+                ->once();*/
 
             $mock->shouldReceive('shrinkv')
                 ->with(8.0)
@@ -117,7 +117,7 @@ class SizeTest extends TestCase
                 ->andReturn(2421)
                 ->times(3);
 
-            $mock->shouldReceive('__get')
+            /*$mock->shouldReceive('__get')
                 ->with('interpretation')
                 ->andReturn(Interpretation::SRGB)
                 ->once();
@@ -125,7 +125,7 @@ class SizeTest extends TestCase
             $mock->shouldReceive('typeof')
                 ->with(Utils::VIPS_META_ICC_NAME)
                 ->andReturn(0)
-                ->once();
+                ->once();*/
 
             $mock->shouldReceive('affine')
                 ->with(Mockery::any()/*, ['interpolate' => 'bicubic']*/)
@@ -161,7 +161,7 @@ class SizeTest extends TestCase
                 ->andReturn(2421, 2421, 2421, 403)
                 ->times(4);
 
-            $mock->shouldReceive('__get')
+            /*$mock->shouldReceive('__get')
                 ->with('interpretation')
                 ->andReturn(Interpretation::SRGB)
                 ->once();
@@ -169,7 +169,7 @@ class SizeTest extends TestCase
             $mock->shouldReceive('typeof')
                 ->with(Utils::VIPS_META_ICC_NAME)
                 ->andReturn(0)
-                ->once();
+                ->once();*/
 
             $mock->shouldReceive('shrinkv')
                 ->with(6.0)
@@ -227,7 +227,7 @@ class SizeTest extends TestCase
                 ->andReturn(2421)
                 ->times(3);
 
-            $mock->shouldReceive('__get')
+            /*$mock->shouldReceive('__get')
                 ->with('interpretation')
                 ->andReturn(Interpretation::SRGB)
                 ->once();
@@ -235,7 +235,7 @@ class SizeTest extends TestCase
             $mock->shouldReceive('typeof')
                 ->with(Utils::VIPS_META_ICC_NAME)
                 ->andReturn(0)
-                ->once();
+                ->once();*/
         });
 
         $params = [
@@ -267,7 +267,7 @@ class SizeTest extends TestCase
                 ->andReturn(2421, 2421, 2421, 302)
                 ->times(4);
 
-            $mock->shouldReceive('__get')
+            /*$mock->shouldReceive('__get')
                 ->with('interpretation')
                 ->andReturn(Interpretation::SRGB)
                 ->once();
@@ -275,7 +275,7 @@ class SizeTest extends TestCase
             $mock->shouldReceive('typeof')
                 ->with(Utils::VIPS_META_ICC_NAME)
                 ->andReturn(0)
-                ->once();
+                ->once();*/
 
             $mock->shouldReceive('shrinkv')
                 ->with(8.0)
@@ -332,7 +332,7 @@ class SizeTest extends TestCase
                 ->andReturn(2421, 2421, 2421, 302)
                 ->times(4);
 
-            $mock->shouldReceive('__get')
+            /*$mock->shouldReceive('__get')
                 ->with('interpretation')
                 ->andReturn(Interpretation::SRGB)
                 ->once();
@@ -340,7 +340,7 @@ class SizeTest extends TestCase
             $mock->shouldReceive('typeof')
                 ->with(Utils::VIPS_META_ICC_NAME)
                 ->andReturn(0)
-                ->once();
+                ->once();*/
 
             $mock->shouldReceive('shrinkv')
                 ->with(8.0)
