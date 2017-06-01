@@ -328,11 +328,11 @@ class Size extends BaseManipulator
             }
         }
         // Help ensure a final kernel-based reduction to prevent shrink aliasing
-        if (($xShrink > 1 || $yShrink > 1) && ($xResidual == 1.0 || $yResidual == 1.0)) {
+        if ($xShrink > 1 && $yShrink > 1 && ($xResidual == 1.0 || $yResidual == 1.0)) {
             $xShrink = $xShrink / 2;
             $yShrink = $yShrink / 2;
-            $xResidual = $xResidual / 2.0;
-            $yResidual = $yResidual / 2.0;
+            $xResidual = (float)($xShrink) / $xFactor;
+            $yResidual = (float)($yShrink) / $yFactor;
         }
 
         // Ensure we're using a device-independent colour space

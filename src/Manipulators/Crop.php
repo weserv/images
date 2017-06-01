@@ -90,7 +90,7 @@ class Crop extends BaseManipulator
 
         $matches = explode('-', $this->a);
 
-        if (isset($matches[0]) && $matches[0] === 'crop' && isset($matches[1]) && isset($matches[2]) && !isset($matches[3])
+        if (isset($matches[0], $matches[1], $matches[2]) && $matches[0] === 'crop' && !isset($matches[3])
             && is_numeric($matches[1]) && is_numeric($matches[2])
         ) {
             if ($matches[1] > 100 || $matches[2] > 100) {

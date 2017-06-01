@@ -42,13 +42,6 @@ class Api implements ApiInterface
     protected $throttler;
 
     /**
-     * The current mime type
-     *
-     * @var Client
-     */
-    protected $mimeType;
-
-    /**
      * Create API instance.
      *
      * @param Client $client The Guzzle
@@ -283,7 +276,7 @@ class Api implements ApiInterface
             || (!isset($params['output']) && $extension === 'gif');
 
         // Check if output is set and allowed
-        if (isset($params['output']) && isset($allowed[$params['output']])) {
+        if (isset($params['output'], $allowed[$params['output']])) {
             $extension = $params['output'];
         } else {
             $supportsAlpha = ['png', 'webp'];

@@ -101,7 +101,7 @@ class Utils
     {
         $angle = 0;
         $validOrientationArr = ['90' => 0, '180' => 1, '270' => 2];
-        if (isset($params['or']) && isset($validOrientationArr[$params['or']])) {
+        if (isset($params['or'], $validOrientationArr[$params['or']])) {
             $angle = (int)$params['or'];
         }
 

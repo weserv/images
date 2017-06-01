@@ -462,6 +462,7 @@ if (!empty($_GET['url'])) {
                             <li class="dd-item"><a href="#adjustments"><span>Adjustments</span></a></li>
                             <li class="dd-item"><a href="#effects"><span>Effects</span></a></li>
                             <li class="dd-item"><a href="#encoding"><span>Encoding</span></a></li>
+                            <li class="dd-item"><a href="#misc"><span>Miscellaneous</span></a></li>
                         </ul>
                     </li>
                 </ul>
@@ -615,6 +616,18 @@ if (!empty($_GET['url'])) {
                                 <td>Encodes the image to be used directly in the src= of the &lt;img&gt;-tag.</td>
                                 <td><a href="#base64-encoding">info</a></td>
                             </tr>
+                            <tr>
+                                <td>Default image</td>
+                                <td><code>errorredirect</code></td>
+                                <td>Redirects to a default image when there is a problem loading an image.</td>
+                                <td><a href="#default">info</a></td>
+                            </tr>
+                            <tr>
+                                <td>Page</td>
+                                <td><code>page</code></td>
+                                <td>To load a given page.</td>
+                                <td><a href="#page">info</a></td>
+                            </tr>
                         </tbody>
                     </table>
                 </section>
@@ -658,7 +671,8 @@ if (!empty($_GET['url'])) {
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=absolute"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=absolute"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=absolute" alt=""/></a>
                     <h3 id="trans-letterbox">Letterbox <code>&amp;t=letterbox</code> <span class="new">New!</span></h3>
-                    <p>Resizes the image to fit within the width and height boundaries without cropping or distorting the image, and the remaining space is filled with the background color. The resulting image will match the constraining dimensions.</p><p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/80">Issue #80 - letterbox images that need to fit</a>.</p>
+                    <p>Resizes the image to fit within the width and height boundaries without cropping or distorting the image, and the remaining space is filled with the background color. The resulting image will match the constraining dimensions.</p>
+                    <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/80">Issue #80 - letterbox images that need to fit</a>.</p>
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black" alt=""/></a>
                 </section>
@@ -729,7 +743,8 @@ if (!empty($_GET['url'])) {
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;sharp=5,5,3"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;w=300&amp;sharp=5,5,3"><img src="//$url/?url=$exampleImage&amp;w=300&amp;sharp=5,5,3" alt=""/></a>
                     <h3 id="trim-trim">Trim <code>&amp;trim=</code></h3>
-                    <p>Trim "boring" pixels from all edges that contain values within a similarity of the top-left pixel. Trimming occurs before any resize operation. Use values between <code>1</code> and <code>254</code> to define a tolerance level to trim away similar color values. You also can specify just &trim, which defaults to a tolerance level of 10.</p><p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/39">Issue #39 - able to remove black/white whitespace</a>.</p>
+                    <p>Trim "boring" pixels from all edges that contain values within a similarity of the top-left pixel. Trimming occurs before any resize operation. Use values between <code>1</code> and <code>254</code> to define a tolerance level to trim away similar color values. You also can specify just &trim, which defaults to a tolerance level of 10.</p>
+                    <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/39">Issue #39 - able to remove black/white whitespace</a>.</p>
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleTransparentImage&amp;w=300&amp;trim=10"&gt;</code></pre>
                     <a class="trimedges" href="//$url/?url=$exampleTransparentImage&amp;w=300&amp;trim=10"><img src="//$url/?url=$exampleTransparentImage&amp;w=300&amp;trim=10" alt=""/></a>
                     <h3 id="background-bg">Background <code>&amp;bg=</code> <span class="new">New!</span></h3>
@@ -747,7 +762,8 @@ if (!empty($_GET['url'])) {
                 <section id="effects" class="goto">
                     <h1>Effects</h1>
                     <h3 id="blur-blur">Blur <code>&amp;blur=</code> <span class="new">New!</span></h3>
-                    <p>Adds a blur effect to the image. Use values between <code>0</code> and <code>100</code>.</p><p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/69">Issue #69 - Allow blur transformation (with radius parameter)</a>.</p>
+                    <p>Adds a blur effect to the image. Use values between <code>0</code> and <code>100</code>.</p>
+                    <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/69">Issue #69 - Allow blur transformation (with radius parameter)</a>.</p>
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;blur=5"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;w=300&amp;blur=5"><img src="//$url/?url=$exampleImage&amp;w=300&amp;blur=5" alt=""/></a>
                     <h3 id="filter-filt">Filter <code>&amp;filt=</code> <span class="new">New!</span></h3>
@@ -762,16 +778,30 @@ if (!empty($_GET['url'])) {
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;q=20"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;w=300&amp;q=20"><img src="//$url/?url=$exampleImage&amp;w=300&amp;q=20" alt=""/></a>
                     <h3 id="output-output">Output <code>&amp;output=</code></h3>
-                    <p>Encodes the image to a specific format. Accepts <code>jpg</code>, <code>png</code>, <code>gif</code> or <code>webp</code>. If none is given, it will honor the origin image format.</p><p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/62">Issue #62 - Format conversion</a>.</p>
+                    <p>Encodes the image to a specific format. Accepts <code>jpg</code>, <code>png</code>, <code>gif</code> or <code>webp</code>. If none is given, it will honor the origin image format.</p>
+                    <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/62">Issue #62 - Format conversion</a>.</p>
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;output=webp"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;w=300&amp;output=webp"><img src="//$url/?url=$exampleImage&amp;w=300&amp;output=webp" alt=""/></a>
                     <h3 id="interlace-progressive-il">Interlace / progressive <code>&amp;il</code></h3>
-                    <p>Adds interlacing to GIF and PNG. JPEG's become progressive.</p><p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/50">Issue #50 - Add parameter to use progressive JPEGs</a>.</p>
+                    <p>Adds interlacing to GIF and PNG. JPEG's become progressive.</p>
+                    <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/50">Issue #50 - Add parameter to use progressive JPEGs</a>.</p>
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;il"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;w=300&amp;il"><img src="//$url/?url=$exampleImage&amp;w=300&amp;il" alt=""/></a>
                     <h3 id="base64-encoding">Base64 (data URL) <code>&amp;encoding=base64</code></h3>
-                    <p>Encodes the image to be used directly in the src= of the <code>&lt;img&gt;</code>-tag. <a href="//$url/?url=$exampleImage&amp;crop=100,100,680,500&amp;encoding=base64">Use this link to see the output result</a>.</p><p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/59">Issue #59 - Return image base64 encoded</a>.</p>
+                    <p>Encodes the image to be used directly in the src= of the <code>&lt;img&gt;</code>-tag. <a href="//$url/?url=$exampleImage&amp;crop=100,100,680,500&amp;encoding=base64">Use this link to see the output result</a>.</p>
+                    <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/59">Issue #59 - Return image base64 encoded</a>.</p>
                     <pre><code>//$url/?url=$exampleImage&amp;crop=100,100,680,500&amp;encoding=base64</code></pre>
+                </section>
+                <section id="misc" class="goto">
+                    <h1>Miscellaneous</h1>
+                    <h3 id="default">Default image <code>&amp;errorredirect=</code> <span class="new">New!</span></h3>
+                    <p>If there is a problem loading an image, then a error is shown. However, there might be a need where instead of giving a broken image to the user, you want a default image to be delivered.</p>
+                    <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/37">Issue #37 - Return default image if the image's URL not found</a>.</p>
+                    <p>The URL must not include a <code>errorredirect</code> querystring (if it does, it will be ignored).</p>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=example.org/noimage.jpg&amp;errorredirect=ssl:$url%2F%3Furl%3D$exampleImage%26w%3D300"&gt;</code></pre>
+                    <a href="//$url/?url=example.org/noimage.jpg&amp;errorredirect=ssl:$url%2F%3Furl%3D$exampleImage%26w%3D300"><img src="//$url/?url=example.org/noimage.jpg&amp;errorredirect=ssl:$url%2F%3Furl%3D$exampleImage%26w%3D300" alt=""/></a>
+                    <h3 id="page">Page <code>&amp;page=</code> <span class="new">New!</span></h3>
+                    <p>To load a given page (for an PDF, TIFF and multi-size ICO file). The value is numbered from zero.</p>
                 </section>
             </div>
         </div>
