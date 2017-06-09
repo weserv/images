@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "5bd634a5ef5bb89c07d112a0d68f4bfe",
+    "content-hash": "49dfe8f23ee3e8359b1e21a547f68b9c",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -227,16 +227,16 @@
         },
         {
             "name": "jcupitt/vips",
-            "version": "v1.0.2",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jcupitt/php-vips.git",
-                "reference": "456cbad0b428a7cef52fcf23eec804a975923ab3"
+                "reference": "dbd21ccbe76446b61730629f14dd4dbe12c33d7d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jcupitt/php-vips/zipball/456cbad0b428a7cef52fcf23eec804a975923ab3",
-                "reference": "456cbad0b428a7cef52fcf23eec804a975923ab3",
+                "url": "https://api.github.com/repos/jcupitt/php-vips/zipball/dbd21ccbe76446b61730629f14dd4dbe12c33d7d",
+                "reference": "dbd21ccbe76446b61730629f14dd4dbe12c33d7d",
                 "shasum": ""
             },
             "require": {
@@ -279,7 +279,7 @@
                 "libvips",
                 "processing"
             ],
-            "time": "2017-04-30T15:40:43+00:00"
+            "time": "2017-06-06T15:07:31+00:00"
         },
         {
             "name": "jeremykendall/php-domain-parser",
@@ -969,12 +969,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/mockery/mockery.git",
-                "reference": "8e0ea898cf987e22ebfdbc7c13c18593b53c0334"
+                "reference": "e0fd9ceb9a191f892983a848291d2c6a91cd09d7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mockery/mockery/zipball/8e0ea898cf987e22ebfdbc7c13c18593b53c0334",
-                "reference": "8e0ea898cf987e22ebfdbc7c13c18593b53c0334",
+                "url": "https://api.github.com/repos/mockery/mockery/zipball/e0fd9ceb9a191f892983a848291d2c6a91cd09d7",
+                "reference": "e0fd9ceb9a191f892983a848291d2c6a91cd09d7",
                 "shasum": ""
             },
             "require": {
@@ -983,7 +983,7 @@
                 "php": ">=5.6.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~5.7"
+                "phpunit/phpunit": "~5.7|~6.1"
             },
             "type": "library",
             "extra": {
@@ -1026,7 +1026,7 @@
                 "test double",
                 "testing"
             ],
-            "time": "2017-04-27T05:35:56+00:00"
+            "time": "2017-06-05T13:23:09+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -1633,16 +1633,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "6.1.3",
+            "version": "6.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "824d02024916525a36b2db21847a5ef91db9e4a8"
+                "reference": "16999a1e9a8a25d68f0ab8cc8ab818b043ad5374"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/824d02024916525a36b2db21847a5ef91db9e4a8",
-                "reference": "824d02024916525a36b2db21847a5ef91db9e4a8",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/16999a1e9a8a25d68f0ab8cc8ab818b043ad5374",
+                "reference": "16999a1e9a8a25d68f0ab8cc8ab818b043ad5374",
                 "shasum": ""
             },
             "require": {
@@ -1662,8 +1662,8 @@
                 "phpunit/php-timer": "^1.0.6",
                 "phpunit/phpunit-mock-objects": "^4.0",
                 "sebastian/comparator": "^2.0",
-                "sebastian/diff": "^1.2",
-                "sebastian/environment": "^3.0.1",
+                "sebastian/diff": "^1.4.3 || ^2.0",
+                "sebastian/environment": "^3.0.2",
                 "sebastian/exporter": "^3.1",
                 "sebastian/global-state": "^1.1 || ^2.0",
                 "sebastian/object-enumerator": "^3.0.2",
@@ -1687,7 +1687,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "6.1.x-dev"
+                    "dev-master": "6.2.x-dev"
                 }
             },
             "autoload": {
@@ -1713,7 +1713,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2017-04-29T10:40:17+00:00"
+            "time": "2017-06-02T12:24:37+00:00"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -1935,23 +1935,23 @@
         },
         {
             "name": "sebastian/diff",
-            "version": "1.4.1",
+            "version": "1.4.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/diff.git",
-                "reference": "13edfd8706462032c2f52b4b862974dd46b71c9e"
+                "reference": "7f066a26a962dbe58ddea9f72a4e82874a3975a4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/diff/zipball/13edfd8706462032c2f52b4b862974dd46b71c9e",
-                "reference": "13edfd8706462032c2f52b4b862974dd46b71c9e",
+                "url": "https://api.github.com/repos/sebastianbergmann/diff/zipball/7f066a26a962dbe58ddea9f72a4e82874a3975a4",
+                "reference": "7f066a26a962dbe58ddea9f72a4e82874a3975a4",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.3"
+                "php": "^5.3.3 || ^7.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.8"
+                "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.0"
             },
             "type": "library",
             "extra": {
@@ -1983,20 +1983,20 @@
             "keywords": [
                 "diff"
             ],
-            "time": "2015-12-08T07:14:41+00:00"
+            "time": "2017-05-22T07:24:03+00:00"
         },
         {
             "name": "sebastian/environment",
-            "version": "3.0.2",
+            "version": "3.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/environment.git",
-                "reference": "11e7710b7724d42c62249b0e9d3030240398949d"
+                "reference": "02b6b2c7aefe2cdb1185b8dbf8718b0bcedf3ab3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/environment/zipball/11e7710b7724d42c62249b0e9d3030240398949d",
-                "reference": "11e7710b7724d42c62249b0e9d3030240398949d",
+                "url": "https://api.github.com/repos/sebastianbergmann/environment/zipball/02b6b2c7aefe2cdb1185b8dbf8718b0bcedf3ab3",
+                "reference": "02b6b2c7aefe2cdb1185b8dbf8718b0bcedf3ab3",
                 "shasum": ""
             },
             "require": {
@@ -2033,7 +2033,7 @@
                 "environment",
                 "hhvm"
             ],
-            "time": "2017-04-21T14:40:32+00:00"
+            "time": "2017-05-18T10:10:00+00:00"
         },
         {
             "name": "sebastian/exporter",
@@ -2477,6 +2477,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "jcupitt/vips": 20,
         "mockery/mockery": 20
     },
     "prefer-stable": false,
