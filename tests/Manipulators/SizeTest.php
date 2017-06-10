@@ -128,9 +128,9 @@ class SizeTest extends TestCase
                 ->once();
 
             $mock->shouldReceive('affine')
-                ->with(Mockery::any()/*, ['interpolate' => 'bicubic']*/)
+                ->with(Mockery::any(), Mockery::any())
                 ->andReturnSelf()
-                ->twice();
+                ->once();
         });
 
         $params = [
