@@ -10,11 +10,13 @@ server {
     expires 2678400;
 
     location / {
+        add_header 'Access-Control-Allow-Origin' '*';
         index index.html index.htm index.php;
         try_files $uri $uri/ /index.php$uri?$args;
     }
 
     location ~ "^(.+\.php)($|/)" {
+        add_header 'Access-Control-Allow-Origin' '*';
         include /etc/nginx/fastcgi_params;
         fastcgi_split_path_info ^(.+\.php)(.*)$;
         fastcgi_cache images;
