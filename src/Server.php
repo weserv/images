@@ -85,7 +85,7 @@ class Server
      *
      * @return array Preset image manipulations.
      */
-    public function getPresets()
+    public function getPresets(): array
     {
         return $this->presets;
     }
@@ -112,11 +112,14 @@ class Server
         $all = $this->defaults;
 
         if (isset($params['p'])) {
+            $presets = [];
             foreach (explode(',', $params['p']) as $preset) {
                 if (isset($this->presets[$preset])) {
-                    $all = array_merge($all, $this->presets[$preset]);
+                    $presets[] = $this->presets[$preset];
                 }
             }
+
+            $all = array_merge($all, ...$presets);
         }
 
         return array_merge($all, $params);

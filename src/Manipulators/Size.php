@@ -66,6 +66,8 @@ class Size extends BaseManipulator
      *
      * @param  Image $image The source image.
      *
+     * @throws ImageTooLargeException if the provided image is too large for processing.
+     *
      * @return Image The manipulated image.
      */
     public function run(Image $image): Image
@@ -113,7 +115,7 @@ class Size extends BaseManipulator
             return $this->t;
         }
 
-        if (substr($this->t, 0, 4) === 'crop') {
+        if (strpos($this->t, 'crop') === 0) {
             return 'crop';
         }
 
@@ -136,10 +138,10 @@ class Size extends BaseManipulator
             $height = $image->height;
         }
         if ($width !== 0) {
-            $width = $height * ($image->width / $image->height);
+            $width = (int)($height * ($image->width / $image->height));
         }
         if ($height !== 0) {
-            $height = $width / ($image->width / $image->height);
+            $height = (int)($width / ($image->width / $image->height));
         }
 
         if ($this->maxImageSize) {
@@ -245,17 +247,15 @@ class Size extends BaseManipulator
 
         // Do not enlarge the output if the input width *and* height
         // are already less than the required dimensions
-        if ($this->withoutEnlargement($fit)) {
-            if ($inputWidth < $width && $inputHeight < $height) {
-                $xFactor = 1.0;
-                $yFactor = 1.0;
-                $xShrink = 1;
-                $yShrink = 1;
-                $xResidual = 1.0;
-                $yResidual = 1.0;
-                $this->w = $inputWidth;
-                $this->h = $inputHeight;
-            }
+        if ($inputWidth < $width && $inputHeight < $height && $this->withoutEnlargement($fit)) {
+            $xFactor = 1.0;
+            $yFactor = 1.0;
+            $xShrink = 1;
+            $yShrink = 1;
+            $xResidual = 1.0;
+            $yResidual = 1.0;
+            $this->w = $inputWidth;
+            $this->h = $inputHeight;
         }
 
         // Get the current vips loader
@@ -279,17 +279,17 @@ class Size extends BaseManipulator
                 $xFactor /= 4;
                 $yFactor /= 4;
                 $shrinkOnLoad = 4;
-            } elseif ($xShrink >= 2) {
+            } else {
                 $xFactor /= 2;
                 $yFactor /= 2;
                 $shrinkOnLoad = 2;
             }
         }
         // Help ensure a final kernel-based reduction to prevent shrink aliasing
-        if ($shrinkOnLoad > 1 && ($xResidual == 1.0 || $yResidual == 1.0)) {
-            $shrinkOnLoad = $shrinkOnLoad / 2;
-            $xFactor = $xFactor * 2;
-            $yFactor = $yFactor * 2;
+        if ($shrinkOnLoad > 1 && ($xResidual === 1.0 || $yResidual === 1.0)) {
+            $shrinkOnLoad /= 2;
+            $xFactor *= 2;
+            $yFactor *= 2;
         }
         if ($shrinkOnLoad > 1) {
             // Reload input using shrink-on-load
@@ -317,22 +317,22 @@ class Size extends BaseManipulator
                 // Swap input output width and height when rotating by 90 or 270 degrees
                 list($shrunkOnLoadWidth, $shrunkOnLoadHeight) = [$shrunkOnLoadHeight, $shrunkOnLoadWidth];
             }
-            $xFactor = (float)($shrunkOnLoadWidth) / (float)($targetResizeWidth);
-            $yFactor = (float)($shrunkOnLoadHeight) / (float)($targetResizeHeight);
+            $xFactor = (float)$shrunkOnLoadWidth / (float)$targetResizeWidth;
+            $yFactor = (float)$shrunkOnLoadHeight / (float)$targetResizeHeight;
             $xShrink = max(1, (int)floor($xFactor));
             $yShrink = max(1, (int)floor($yFactor));
-            $xResidual = (float)($xShrink) / $xFactor;
-            $yResidual = (float)($yShrink) / $yFactor;
+            $xResidual = (float)$xShrink / $xFactor;
+            $yResidual = (float)$yShrink / $yFactor;
             if ($rotation === 90 || $rotation === 270) {
                 list($xResidual, $yResidual) = [$yResidual, $xResidual];
             }
         }
         // Help ensure a final kernel-based reduction to prevent shrink aliasing
-        if ($xShrink > 1 && $yShrink > 1 && ($xResidual == 1.0 || $yResidual == 1.0)) {
-            $xShrink = $xShrink / 2;
-            $yShrink = $yShrink / 2;
-            $xResidual = (float)($xShrink) / $xFactor;
-            $yResidual = (float)($yShrink) / $yFactor;
+        if ($xShrink > 1 && $yShrink > 1 && ($xResidual === 1.0 || $yResidual === 1.0)) {
+            $xShrink /= 2;
+            $yShrink /= 2;
+            $xResidual = (float)$xShrink / $xFactor;
+            $yResidual = (float)$yShrink / $yFactor;
         }
 
         // Ensure we're using a device-independent colour space
@@ -391,33 +391,27 @@ class Size extends BaseManipulator
         // Use affine increase or kernel reduce with the remaining float part
         if ($xResidual !== 1.0 || $yResidual !== 1.0) {
             // Perform kernel-based reduction
-            if ($yResidual < 1.0 || $xResidual < 1.0) {
-                // Use *magick centre sampling convention instead of corner sampling
-                $centreSampling = true;
-
-                if ($yResidual < 1.0) {
-                    $image = $image->reducev(1.0 / $yResidual, [
-                        'kernel' => Kernel::LANCZOS3,
-                        'centre' => $centreSampling
-                    ]);
-                }
-                if ($xResidual < 1.0) {
-                    $image = $image->reduceh(1.0 / $xResidual, [
-                        'kernel' => Kernel::LANCZOS3,
-                        'centre' => $centreSampling
-                    ]);
-                }
+            if ($yResidual < 1.0) {
+                $image = $image->reducev(1.0 / $yResidual, [
+                    'kernel' => Kernel::LANCZOS3,
+                    'centre' => true
+                ]);
             }
+            if ($xResidual < 1.0) {
+                $image = $image->reduceh(1.0 / $xResidual, [
+                    'kernel' => Kernel::LANCZOS3,
+                    'centre' => true
+                ]);
+            }
+
             // Perform affine enlargement
-            if ($yResidual > 1.0 || $xResidual > 1.0) {
-                $interpolator = Image::newInterpolator('bicubic');
-                if ($yResidual > 1.0 && $xResidual > 1.0) {
-                    $image = $image->affine([$xResidual, 0.0, 0.0, $yResidual], ['interpolate' => $interpolator]);
-                } elseif ($yResidual > 1.0) {
-                    $image = $image->affine([1.0, 0.0, 0.0, $yResidual], ['interpolate' => $interpolator]);
-                } elseif ($xResidual > 1.0) {
-                    $image = $image->affine([$xResidual, 0.0, 0.0, 1.0], ['interpolate' => $interpolator]);
-                }
+            $interpolator = Image::newInterpolator('bicubic');
+            if ($yResidual > 1.0 && $xResidual > 1.0) {
+                $image = $image->affine([$xResidual, 0.0, 0.0, $yResidual], ['interpolate' => $interpolator]);
+            } elseif ($yResidual > 1.0) {
+                $image = $image->affine([1.0, 0.0, 0.0, $yResidual], ['interpolate' => $interpolator]);
+            } elseif ($xResidual > 1.0) {
+                $image = $image->affine([$xResidual, 0.0, 0.0, 1.0], ['interpolate' => $interpolator]);
             }
         }
 

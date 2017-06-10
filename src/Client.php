@@ -145,7 +145,12 @@ class Client
     /**
      * @param string $url
      *
-     * @throws RequestException for errors that occur during a transfer or during the on_headers event
+     * @throws ImageNotValidException if the requested image is not a valid
+     *      image.
+     * @throws ImageTooBigException if the requested image is too big to be
+     *      downloaded.
+     * @throws RequestException for errors that occur during a transfer
+     *      or during the on_headers event
      *
      * @return string File name
      */

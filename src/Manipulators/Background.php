@@ -40,43 +40,7 @@ class Background extends BaseManipulator
         // Scale up 8-bit values to match 16-bit input image
         $multiplier = $is16Bit ? 256 : 1;
 
-        if ($image->bands < 3 || !$background->hasAlphaChannel()) {
-            // If it's a 8bit-alpha channel image or the requested background color hasn't an alpha channel;
-            // then flatten the alpha out of an image, replacing it with a constant background color.
-
-            if ($image->bands < 3) {
-                // Convert sRGB to greyscale
-                $backgroundColor = $multiplier * (
-                        (0.2126 * $backgroundRGBA[0]) +
-                        (0.7152 * $backgroundRGBA[1]) +
-                        (0.0722 * $backgroundRGBA[2]));
-            } else {
-                $backgroundColor = [
-                    $multiplier * $backgroundRGBA[0],
-                    $multiplier * $backgroundRGBA[1],
-                    $multiplier * $backgroundRGBA[2]
-                ];
-            }
-
-            // Flatten on premultiplied images causes weird results
-            // so unpremultiply if we have a premultiplied image.
-            if ($this->isPremultiplied) {
-                $image = $image->unpremultiply();
-
-                // Cast pixel values to integer
-                if ($is16Bit) {
-                    $image = $image->cast(BandFormat::USHORT);
-                } else {
-                    $image = $image->cast(BandFormat::UCHAR);
-                }
-
-                $this->isPremultiplied = false;
-            }
-
-            $image = $image->flatten([
-                'background' => $backgroundColor
-            ]);
-        } else {
+        if ($image->bands > 2 && $background->hasAlphaChannel()) {
             // If the image has more than two bands and the requested background color has an alpha channel;
             // alpha compositing.
 
@@ -104,6 +68,41 @@ class Background extends BaseManipulator
             }
 
             $image = $this->composite($image, $backgroundImage);
+        } else {
+            // If it's a 8bit-alpha channel image or the requested background color hasn't an alpha channel;
+            // then flatten the alpha out of an image, replacing it with a constant background color.
+            $backgroundColor = [
+                $multiplier * $backgroundRGBA[0],
+                $multiplier * $backgroundRGBA[1],
+                $multiplier * $backgroundRGBA[2]
+            ];
+
+            if ($image->bands < 3) {
+                // Convert sRGB to greyscale
+                $backgroundColor = $multiplier * (
+                        (0.2126 * $backgroundRGBA[0]) +
+                        (0.7152 * $backgroundRGBA[1]) +
+                        (0.0722 * $backgroundRGBA[2]));
+            }
+
+            // Flatten on premultiplied images causes weird results
+            // so unpremultiply if we have a premultiplied image.
+            if ($this->isPremultiplied) {
+                $image = $image->unpremultiply();
+
+                // Cast pixel values to integer
+                if ($is16Bit) {
+                    $image = $image->cast(BandFormat::USHORT);
+                } else {
+                    $image = $image->cast(BandFormat::UCHAR);
+                }
+
+                $this->isPremultiplied = false;
+            }
+
+            $image = $image->flatten([
+                'background' => $backgroundColor
+            ]);
         }
 
 

@@ -116,19 +116,20 @@ $error_messages = [
  *
  * @return HttpUri parsed URI
  */
-function parseUrl(string $url) {
+function parseUrl(string $url)
+{
     // Check for HTTPS origin hosts
-    if (substr($url, 0, 4) === 'ssl:') {
+    if (strpos($url, 'ssl:') === 0) {
         return HttpUri::createFromString('https://' . ltrim(substr($url, 4), '/'));
-    } else {
-        // Check if a valid URL is given. Therefore starting without 'http:' or 'https:'.
-        if (substr($url, 0, 5) !== 'http:' && substr($url, 0, 6) !== 'https:') {
-            return HttpUri::createFromString('http://' . ltrim($url, '/'));
-        } else {
-            // Not a valid URL; throw InvalidArgumentException
-            throw new InvalidArgumentException('Invalid URL');
-        }
     }
+
+    // Check if a valid URL is given. Therefore starting without 'http:' or 'https:'.
+    if (strpos($url, 'http:') !== 0 && strpos($url, 'https:') !== 0) {
+        return HttpUri::createFromString('http://' . ltrim($url, '/'));
+    }
+
+    // Not a valid URL; throw InvalidArgumentException
+    throw new InvalidArgumentException('Invalid URL');
 }
 
 /**
@@ -140,7 +141,8 @@ function parseUrl(string $url) {
  *
  * @return string sanitized URI
  */
-function sanitizeErrorRedirect(HttpUri $errorUrl) {
+function sanitizeErrorRedirect(HttpUri $errorUrl)
+{
     $queryStr = $errorUrl->getQuery();
     if (!empty($queryStr)) {
         $query = new Query($queryStr);
@@ -257,14 +259,14 @@ if (!empty($_GET['url'])) {
 
     /*$server->setDefaults([
         'output' => 'png'
-    ]);
-    $server->setPresets([
-        'small' = [
+    ]);*/
+    /*$server->setPresets([
+        'small' => [
             'w' => 200,
             'h' => 200,
             'fit' => 'crop',
         ],
-        'medium' = [
+        'medium' => [
             'w' => 600,
             'h' => 400,
             'fit' => 'crop',
@@ -283,39 +285,34 @@ if (!empty($_GET['url'])) {
         echo $error['message'];
     } catch (RequestException $e) {
         $previousException = $e->getPrevious();
+        $clientOptions = $client->getOptions();
 
         // Check if there is a previous exception
-        if ($previousException instanceof ImageNotValidException
-            || $previousException instanceof ImageTooBigException
-        ) {
-            $clientOptions = $client->getOptions();
+        if ($previousException instanceof ImageNotValidException) {
+            $error = $error_messages['invalid_image'];
+            $supportedImages = array_pop($clientOptions['allowed_mime_types']);
 
-            if ($previousException instanceof ImageNotValidException) {
-                $error = $error_messages['invalid_image'];
-                $supportedImages = array_pop($clientOptions['allowed_mime_types']);
-
-                if (count($clientOptions['allowed_mime_types']) > 1) {
-                    $supportedImages = implode(', ', $clientOptions['allowed_mime_types']) . ' and ' . $supportedImages;
-                }
-
-                header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
-                header('Content-type: ' . $error['content-type']);
-
-                trigger_error(sprintf($error['log'], $uri->__toString()), E_USER_WARNING);
-
-                echo sprintf($error['message'], $supportedImages);
-            } else {
-                $error = $error_messages['image_too_big'];
-                $imageSize = $previousException->getMessage();
-                $maxImageSize = Utils::formatSizeUnits($clientOptions['max_image_size']);
-
-                header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
-                header('Content-type: ' . $error['content-type']);
-
-                trigger_error(sprintf($error['log'], $uri->__toString()), E_USER_WARNING);
-
-                echo sprintf($error['message'], $imageSize, $maxImageSize);
+            if (count($clientOptions['allowed_mime_types']) > 1) {
+                $supportedImages = implode(', ', $clientOptions['allowed_mime_types']) . ' and ' . $supportedImages;
             }
+
+            header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
+            header('Content-type: ' . $error['content-type']);
+
+            trigger_error(sprintf($error['log'], $uri->__toString()), E_USER_WARNING);
+
+            echo sprintf($error['message'], $supportedImages);
+        } elseif ($previousException instanceof ImageTooBigException) {
+            $error = $error_messages['image_too_big'];
+            $imageSize = $previousException->getMessage();
+            $maxImageSize = Utils::formatSizeUnits($clientOptions['max_image_size']);
+
+            header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
+            header('Content-type: ' . $error['content-type']);
+
+            trigger_error(sprintf($error['log'], $uri->__toString()), E_USER_WARNING);
+
+            echo sprintf($error['message'], $imageSize, $maxImageSize);
         } elseif ($previousException instanceof InvalidArgumentException) {
             $error = $error_messages['invalid_redirect_url'];
             header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
@@ -333,10 +330,11 @@ if (!empty($_GET['url'])) {
 
             $statusCode = $e->getCode();
             $reasonPhrase = $e->getMessage();
+            $response = $e->getResponse();
 
-            if ($e->hasResponse() && $e->getResponse() !== null) {
-                $statusCode = $e->getResponse()->getStatusCode();
-                $reasonPhrase = $e->getResponse()->getReasonPhrase();
+            if ($response !== null && $e->hasResponse()) {
+                $statusCode = $response->getStatusCode();
+                $reasonPhrase = $response->getReasonPhrase();
             }
 
             $errorMessage = "$statusCode $reasonPhrase";

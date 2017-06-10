@@ -39,7 +39,7 @@ class Crop extends BaseManipulator
                 $coordinates[1]
             );
         } elseif (($imageWidth !== $width || $imageHeight !== $height) &&
-            (isset($cropArr[$this->t]) || substr($this->t, 0, 4) === 'crop')
+            (isset($cropArr[$this->t]) || strpos($this->t, 'crop') === 0)
         ) {
             $minWidth = min($imageWidth, $width);
             $minHeight = min($imageHeight, $height);

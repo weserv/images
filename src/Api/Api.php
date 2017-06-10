@@ -4,6 +4,8 @@ namespace AndriesLouw\imagesweserv\Api;
 
 use AndriesLouw\imagesweserv\Client;
 use AndriesLouw\imagesweserv\Exception\ImageNotReadableException;
+use AndriesLouw\imagesweserv\Exception\ImageNotValidException;
+use AndriesLouw\imagesweserv\Exception\ImageTooBigException;
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Exception\RateExceededException;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
@@ -47,6 +49,8 @@ class Api implements ApiInterface
      * @param Client $client The Guzzle
      * @param ThrottlerInterface|null $throttler Throttler
      * @param array $manipulators Collection of manipulators.
+     * @throws \InvalidArgumentException if there's a manipulator which not extends
+     *      ManipulatorInterface
      */
     public function __construct(Client $client, $throttler, array $manipulators)
     {
@@ -60,7 +64,7 @@ class Api implements ApiInterface
      *
      * @return Client The Guzzle client
      */
-    public function getClient()
+    public function getClient(): Client
     {
         return $this->client;
     }
@@ -131,6 +135,10 @@ class Api implements ApiInterface
      * @param  array $params The manipulation params
      *
      * @throws RateExceededException if a user rate limit is exceeded
+     * @throws ImageNotValidException if the requested image is not a valid
+     *      image.
+     * @throws ImageTooBigException if the requested image is too big to be
+     *      downloaded.
      * @throws ImageNotReadableException if the provided image is not readable.
      * @throws ImageTooLargeException if the provided image is too large for
      *      processing.
@@ -149,7 +157,7 @@ class Api implements ApiInterface
         // Throttler can be null
         if ($this->throttler) {
             // For PHPUnit check if REMOTE_ADDR is set
-            $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
+            $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
 
             // Check if rate is exceeded for IP
             if ($this->throttler->isExceeded($ip)) {
@@ -280,7 +288,7 @@ class Api implements ApiInterface
             $extension = $params['output'];
         } else {
             $supportsAlpha = ['png', 'webp'];
-            if (($params['hasAlpha'] && !isset($supportsAlpha[$extension])) || !isset($allowed[$extension])) {
+            if (!isset($allowed[$extension]) || ($params['hasAlpha'] && !isset($supportsAlpha[$extension]))) {
                 // We force the extension to PNG if:
                 //  - The image has alpha and doesn't have the right extension to output alpha.
                 //    (useful for shape masking and letterboxing)

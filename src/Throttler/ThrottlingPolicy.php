@@ -75,7 +75,7 @@ class ThrottlingPolicy
                 [
                     'target' => 'ip',
                     'value' => $ip
-                ], 'Banned until ' . date(DateTime::ISO8601, time() + ($this->config['ban_time'] * 60)));
+                ], 'Banned until ' . date(DateTime::ATOM, time() + ($this->config['ban_time'] * 60)));
 
             if ($response->success) {
                 $blockRuleId = $response->result->id;

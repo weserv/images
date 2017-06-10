@@ -69,8 +69,7 @@ class Utils
     public static function exifOrientation(Image $image): int
     {
         if ($image->typeof(self::VIPS_META_ORIENTATION) !== 0) {
-            $exif = $image->get(self::VIPS_META_ORIENTATION);
-            return $exif;
+            return $image->get(self::VIPS_META_ORIENTATION);
         }
         return 0;
     }
@@ -100,8 +99,11 @@ class Utils
     public static function calculateRotationAndFlip(array $params, Image $image): array
     {
         $angle = 0;
-        $validOrientationArr = ['90' => 0, '180' => 1, '270' => 2];
-        if (isset($params['or'], $validOrientationArr[$params['or']])) {
+        if (isset($params['or']) && (
+                $params['or'] === '90' ||
+                $params['or'] === '180' ||
+                $params['or'] === '270')
+        ) {
             $angle = (int)$params['or'];
         }
 
@@ -250,19 +252,21 @@ class Utils
     public static function formatSizeUnits(int $bytes): string
     {
         if ($bytes >= 1073741824) {
-            $bytes = number_format($bytes / 1073741824, 2) . ' GB';
-        } elseif ($bytes >= 1048576) {
-            $bytes = number_format($bytes / 1048576, 2) . ' MB';
-        } elseif ($bytes >= 1024) {
-            $bytes = number_format($bytes / 1024, 2) . ' KB';
-        } elseif ($bytes > 1) {
-            $bytes = $bytes . ' bytes';
-        } elseif ($bytes === 1) {
-            $bytes = $bytes . ' byte';
-        } else {
-            $bytes = '0 bytes';
+            return number_format($bytes / 1073741824, 2) . ' GB';
+        }
+        if ($bytes >= 1048576) {
+            return number_format($bytes / 1048576, 2) . ' MB';
+        }
+        if ($bytes >= 1024) {
+            return number_format($bytes / 1024, 2) . ' KB';
+        }
+        if ($bytes > 1) {
+            return $bytes . ' bytes';
+        }
+        if ($bytes === 1) {
+            return '1 byte';
         }
 
-        return $bytes;
+        return '0 bytes';
     }
 }

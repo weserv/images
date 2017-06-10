@@ -55,21 +55,21 @@ class Sharpen extends BaseManipulator
         $sharpenSigma = -1.0;
 
         if (isset($sharpPieces[0])) {
-            $flat = intval($sharpPieces[0]);
+            $flat = (int)$sharpPieces[0];
             if ($flat > 0 && $flat <= 10000) {
                 $sharpenFlat = $flat;
             }
         }
 
         if (isset($sharpPieces[1])) {
-            $jagged = intval($sharpPieces[1]);
+            $jagged = (int)$sharpPieces[1];
             if ($jagged > 0 && $jagged <= 10000) {
                 $sharpenJagged = $jagged;
             }
         }
 
         if (isset($sharpPieces[2])) {
-            $sigma = floatval($sharpPieces[2]);
+            $sigma = (float)$sharpPieces[2];
             if ($sigma >= 0.01 && $sigma <= 10000) {
                 $sharpenSigma = $sigma;
             }
@@ -102,29 +102,29 @@ class Sharpen extends BaseManipulator
             );
 
             return $image->conv($matrix);
-        } else {
-            // Slow, accurate sharpen in LAB colour space, with control over flat vs jagged areas
-            $oldInterpretation = $image->interpretation;
-            if ($oldInterpretation === Interpretation::RGB) {
-                $oldInterpretation = Interpretation::SRGB;
-            }
-
-            if ($this->accessMethod === Access::SEQUENTIAL) {
-                // TODO Figure out how many scanline(s) ('tile_height') it will need.
-                $image = $image->linecache([
-                    'tile_height' => 10,
-                    'access' => Access::SEQUENTIAL,
-                    'threaded' => true
-                ]);
-            }
-
-            return $image->sharpen(
-                [
-                    'sigma' => $sigma,
-                    'm1' => $flat,
-                    'm2' => $jagged
-                ]
-            )->colourspace($oldInterpretation);
         }
+
+        // Slow, accurate sharpen in LAB colour space, with control over flat vs jagged areas
+        $oldInterpretation = $image->interpretation;
+        if ($oldInterpretation === Interpretation::RGB) {
+            $oldInterpretation = Interpretation::SRGB;
+        }
+
+        if ($this->accessMethod === Access::SEQUENTIAL) {
+            // TODO Figure out how many scanline(s) ('tile_height') it will need.
+            $image = $image->linecache([
+                'tile_height' => 10,
+                'access' => Access::SEQUENTIAL,
+                'threaded' => true
+            ]);
+        }
+
+        return $image->sharpen(
+            [
+                'sigma' => $sigma,
+                'm1' => $flat,
+                'm2' => $jagged
+            ]
+        )->colourspace($oldInterpretation);
     }
 }

@@ -187,7 +187,7 @@ SVG;
                     5,
                     $outerRadius,
                     $outerRadius,
-                    pi()
+                    M_PI
                 );
                 break;
             case 'square':
@@ -232,7 +232,7 @@ SVG;
                     3,
                     $outerRadius,
                     $outerRadius,
-                    pi()
+                    M_PI
                 );
                 break;
             case 'circle':
@@ -291,7 +291,7 @@ SVG;
             $points *= 2;
         }
         for ($i = 0; $i <= $points; $i++) {
-            $angle = $i * 2 * pi() / $points - pi() / 2 + $initialAngle;
+            $angle = $i * 2 * M_PI / $points - M_PI / 2 + $initialAngle;
             $radius = $i % 2 === 0 ? $outerRadius : $innerRadius;
             if ($i === 0) {
                 $path = 'M';

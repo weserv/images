@@ -12,7 +12,7 @@ class Color
     /**
      * 4 digit color code expression.
      */
-    const SHORT_ARGB = '/^[0-9]{1}[0-9a-f]{3}$/i';
+    const SHORT_ARGB = '/^\d{1}[0-9a-f]{3}$/i';
 
     /**
      * 6 digit color code expression.
@@ -22,7 +22,7 @@ class Color
     /**
      * 8 digit color code expression.
      */
-    const LONG_ARGB = '/^[0-9]{2}[0-9a-f]{6}$/i';
+    const LONG_ARGB = '/^\d{2}[0-9a-f]{6}$/i';
 
     /**
      * The red value.
@@ -74,7 +74,7 @@ class Color
 
             if (preg_match(self::SHORT_ARGB, $value)) {
                 $rgb = $this->parseHex(substr($value, 1) . substr($value, 1));
-                $alpha = (substr($value, 0, 1) / 10) * 255;
+                $alpha = ($value[0] / 10) * 255;
                 break;
             }
 
