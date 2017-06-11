@@ -2,6 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
+use Jcupitt\Vips\Image;
 use Mockery;
 use PHPUnit\Framework\TestCase;
 
@@ -21,7 +22,7 @@ class TrimTest extends TestCase
 
     public function testCreateInstance()
     {
-        $this->assertInstanceOf('AndriesLouw\imagesweserv\Manipulators\Trim', $this->manipulator);
+        $this->assertInstanceOf(Trim::class, $this->manipulator);
     }
 
     public function testRun()
@@ -98,10 +99,7 @@ class TrimTest extends TestCase
             'isPremultiplied' => false,
         ];
 
-        $this->assertInstanceOf(
-            'Jcupitt\Vips\Image',
-            $this->manipulator->setParams($params)->run($image)
-        );
+        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
     }
 
     public function testGetTrim()

@@ -2,6 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
+use Jcupitt\Vips\Image;
 use Jcupitt\Vips\Interpretation;
 use Mockery;
 use PHPUnit\Framework\TestCase;
@@ -22,30 +23,24 @@ class FilterTest extends TestCase
 
     public function testCreateInstance()
     {
-        $this->assertInstanceOf('AndriesLouw\imagesweserv\Manipulators\Filter', $this->manipulator);
+        $this->assertInstanceOf(Filter::class, $this->manipulator);
     }
 
     public function testRunGreyscaleFilter()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image', function ($mock) {
+        $image = Mockery::mock(Image::class, function ($mock) {
             $mock->shouldReceive('colourspace')->with(Interpretation::B_W)->andReturnSelf()->once();
         });
 
-        $this->assertInstanceOf(
-            'Jcupitt\Vips\Image',
-            $this->manipulator->runGreyscaleFilter($image)
-        );
+        $this->assertInstanceOf(Image::class, $this->manipulator->runGreyscaleFilter($image));
     }
 
     public function testRunSepiaFilter()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image', function ($mock) {
+        $image = Mockery::mock(Image::class, function ($mock) {
             $mock->shouldReceive('recomb')->with(Mockery::any())->andReturnSelf()->once();
         });
 
-        $this->assertInstanceOf(
-            'Jcupitt\Vips\Image',
-            $this->manipulator->runSepiaFilter($image)
-        );
+        $this->assertInstanceOf(Image::class, $this->manipulator->runSepiaFilter($image));
     }
 }

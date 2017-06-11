@@ -4,6 +4,7 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 
 use Jcupitt\Vips\Access;
 use Jcupitt\Vips\BandFormat;
+use Jcupitt\Vips\Image;
 use Jcupitt\Vips\Interpretation;
 use Mockery;
 use PHPUnit\Framework\TestCase;
@@ -24,7 +25,7 @@ class ShapeTest extends TestCase
 
     public function testCreateInstance()
     {
-        $this->assertInstanceOf('AndriesLouw\imagesweserv\Manipulators\Shape', $this->manipulator);
+        $this->assertInstanceOf(Shape::class, $this->manipulator);
     }
 
     public function testRun()
@@ -79,10 +80,7 @@ class ShapeTest extends TestCase
             'isPremultiplied' => false,
         ];
 
-        $this->assertInstanceOf(
-            'Jcupitt\Vips\Image',
-            $this->manipulator->setParams($params)->run($image)
-        );
+        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
     }
 
     public function testGetShape()
@@ -97,9 +95,9 @@ class ShapeTest extends TestCase
         $this->assertSame('triangle', $this->manipulator->setParams(['shape' => 'triangle'])->getShape());
         $this->assertSame('triangle-180', $this->manipulator->setParams(['shape' => 'triangle-180'])->getShape());
         $this->assertSame('circle', $this->manipulator->setParams(['circle' => true])->getShape());
-        $this->assertSame(null, $this->manipulator->setParams(['shape' => null])->getShape());
-        $this->assertSame(null, $this->manipulator->setParams(['shape' => 'a'])->getShape());
-        $this->assertSame(null, $this->manipulator->setParams(['shape' => '-1'])->getShape());
-        $this->assertSame(null, $this->manipulator->setParams(['shape' => '100'])->getShape());
+        $this->assertNull($this->manipulator->setParams(['shape' => null])->getShape());
+        $this->assertNull($this->manipulator->setParams(['shape' => 'a'])->getShape());
+        $this->assertNull($this->manipulator->setParams(['shape' => '-1'])->getShape());
+        $this->assertNull($this->manipulator->setParams(['shape' => '100'])->getShape());
     }
 }

@@ -3,6 +3,7 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use Jcupitt\Vips\Angle;
+use Jcupitt\Vips\Image;
 use Mockery;
 use PHPUnit\Framework\TestCase;
 
@@ -22,31 +23,25 @@ class OrientationTest extends TestCase
 
     public function testCreateInstance()
     {
-        $this->assertInstanceOf('AndriesLouw\imagesweserv\Manipulators\Orientation', $this->manipulator);
+        $this->assertInstanceOf(Orientation::class, $this->manipulator);
     }
 
     public function testRun()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image', function ($mock) {
+        $image = Mockery::mock(Image::class, function ($mock) {
             $mock->shouldReceive('rot')->with(Angle::D90)->andReturnSelf()->once();
         });
 
-        $this->assertInstanceOf(
-            'Jcupitt\Vips\Image',
-            $this->manipulator->setParams([
-                'rotation' => 0,
-                'flip' => false,
-                'flop' => false
-            ])->run($image)
-        );
+        $this->assertInstanceOf(Image::class, $this->manipulator->setParams([
+            'rotation' => 0,
+            'flip' => false,
+            'flop' => false
+        ])->run($image));
 
-        $this->assertInstanceOf(
-            'Jcupitt\Vips\Image',
-            $this->manipulator->setParams([
-                'rotation' => 90,
-                'flip' => false,
-                'flop' => false
-            ])->run($image)
-        );
+        $this->assertInstanceOf(Image::class, $this->manipulator->setParams([
+            'rotation' => 90,
+            'flip' => false,
+            'flop' => false
+        ])->run($image));
     }
 }

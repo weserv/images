@@ -2,6 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
+use Jcupitt\Vips\Image;
 use Mockery;
 use PHPUnit\Framework\TestCase;
 
@@ -21,17 +22,17 @@ class BlurTest extends TestCase
 
     public function testCreateInstance()
     {
-        $this->assertInstanceOf('AndriesLouw\imagesweserv\Manipulators\Blur', $this->manipulator);
+        $this->assertInstanceOf(Blur::class, $this->manipulator);
     }
 
     public function testRun()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image', function ($mock) {
+        $image = Mockery::mock(Image::class, function ($mock) {
             $mock->shouldReceive('gaussblur')->with('10')->andReturnSelf()->once();
         });
 
         $this->assertNotNull($image);
-        $this->assertInstanceOf('Jcupitt\Vips\Image', $this->manipulator->setParams(['blur' => 10])->run($image));
+        $this->assertInstanceOf(Image::class, $this->manipulator->setParams(['blur' => 10])->run($image));
     }
 
     public function testGetBlur()

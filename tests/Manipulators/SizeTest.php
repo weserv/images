@@ -4,6 +4,7 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
+use Jcupitt\Vips\Image;
 use Jcupitt\Vips\Interpretation;
 use Jcupitt\Vips\Kernel;
 use Mockery;
@@ -25,7 +26,7 @@ class SizeTest extends TestCase
 
     public function testCreateInstance()
     {
-        $this->assertInstanceOf('AndriesLouw\imagesweserv\Manipulators\Size', $this->manipulator);
+        $this->assertInstanceOf(Size::class, $this->manipulator);
     }
 
     public function testSetMaxImageSize()
@@ -98,10 +99,7 @@ class SizeTest extends TestCase
             'isPremultiplied' => false,
         ];
 
-        $this->assertInstanceOf(
-            'Jcupitt\Vips\Image',
-            $this->manipulator->setParams($params)->run($image)
-        );
+        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
     }
 
     public function testFitup()
@@ -142,10 +140,7 @@ class SizeTest extends TestCase
             'isPremultiplied' => false,
         ];
 
-        $this->assertInstanceOf(
-            'Jcupitt\Vips\Image',
-            $this->manipulator->setParams($params)->run($image)
-        );
+        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
     }
 
     public function testSquare()
@@ -208,10 +203,7 @@ class SizeTest extends TestCase
             'isPremultiplied' => false,
         ];
 
-        $this->assertInstanceOf(
-            'Jcupitt\Vips\Image',
-            $this->manipulator->setParams($params)->run($image)
-        );
+        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
     }
 
     public function testSquareDown()
@@ -247,10 +239,7 @@ class SizeTest extends TestCase
             'isPremultiplied' => false,
         ];
 
-        $this->assertInstanceOf(
-            'Jcupitt\Vips\Image',
-            $this->manipulator->setParams($params)->run($image)
-        );
+        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
     }
 
 
@@ -313,10 +302,7 @@ class SizeTest extends TestCase
             'isPremultiplied' => false,
         ];
 
-        $this->assertInstanceOf(
-            'Jcupitt\Vips\Image',
-            $this->manipulator->setParams($params)->run($image)
-        );
+        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
     }
 
     public function testLetterbox()
@@ -379,10 +365,7 @@ class SizeTest extends TestCase
             'isPremultiplied' => false,
         ];
 
-        $this->assertInstanceOf(
-            'Jcupitt\Vips\Image',
-            $this->manipulator->setParams($params)->run($image)
-        );
+        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
     }
 
     public function testGetFit()

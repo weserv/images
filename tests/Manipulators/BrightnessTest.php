@@ -2,6 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
+use Jcupitt\Vips\Image;
 use Mockery;
 use PHPUnit\Framework\TestCase;
 
@@ -21,19 +22,16 @@ class BrightnessTest extends TestCase
 
     public function testCreateInstance()
     {
-        $this->assertInstanceOf('AndriesLouw\imagesweserv\Manipulators\Brightness', $this->manipulator);
+        $this->assertInstanceOf(Brightness::class, $this->manipulator);
     }
 
     public function testRun()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image', function ($mock) {
+        $image = Mockery::mock(Image::class, function ($mock) {
             $mock->shouldReceive('linear')->with([1, 1, 1], [127.5, 127.5, 127.5])->andReturnSelf()->once();
         });
 
-        $this->assertInstanceOf(
-            'Jcupitt\Vips\Image',
-            $this->manipulator->setParams(['bri' => 50])->run($image)
-        );
+        $this->assertInstanceOf(Image::class, $this->manipulator->setParams(['bri' => 50])->run($image));
     }
 
     public function testGetBrightness()

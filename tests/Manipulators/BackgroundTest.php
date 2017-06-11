@@ -2,6 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
+use Jcupitt\Vips\Image;
 use Mockery;
 use PHPUnit\Framework\TestCase;
 
@@ -21,7 +22,7 @@ class BackgroundTest extends TestCase
 
     public function testCreateInstance()
     {
-        $this->assertInstanceOf('AndriesLouw\imagesweserv\Manipulators\Background', $this->manipulator);
+        $this->assertInstanceOf(Background::class, $this->manipulator);
     }
 
     public function testRun()
@@ -53,6 +54,6 @@ class BackgroundTest extends TestCase
             'isPremultiplied' => false,
         ];
 
-        $this->assertInstanceOf('Jcupitt\Vips\Image', $this->manipulator->setParams($params)->run($image));
+        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
     }
 }

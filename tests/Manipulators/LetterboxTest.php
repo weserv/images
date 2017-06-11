@@ -3,6 +3,7 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use Jcupitt\Vips\Extend;
+use Jcupitt\Vips\Image;
 use Mockery;
 use PHPUnit\Framework\TestCase;
 
@@ -31,7 +32,7 @@ class LetterboxTest extends TestCase
 
     public function testCreateInstance()
     {
-        $this->assertInstanceOf('AndriesLouw\imagesweserv\Manipulators\Letterbox', $this->manipulator);
+        $this->assertInstanceOf(Letterbox::class, $this->manipulator);
     }
 
     public function testRun()
@@ -74,9 +75,6 @@ class LetterboxTest extends TestCase
             'isPremultiplied' => false,
         ];
 
-        $this->assertInstanceOf(
-            'Jcupitt\Vips\Image',
-            $this->manipulator->setParams($params)->run($image)
-        );
+        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
     }
 }

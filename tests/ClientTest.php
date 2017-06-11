@@ -2,8 +2,10 @@
 
 namespace AndriesLouw\imagesweserv;
 
+use GuzzleHttp\ClientInterface;
 use Mockery;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
 
 class ClientTest extends TestCase
 {
@@ -36,19 +38,19 @@ class ClientTest extends TestCase
 
     public function testCreateInstance()
     {
-        $this->assertInstanceOf('AndriesLouw\imagesweserv\Client', $this->client);
+        $this->assertInstanceOf(Client::class, $this->client);
     }
 
     public function testSetClient()
     {
-        $client = Mockery::mock('GuzzleHttp\ClientInterface');
+        $client = Mockery::mock(ClientInterface::class);
         $this->client->setClient($client);
-        $this->assertInstanceOf('GuzzleHttp\ClientInterface', $this->client->getClient());
+        $this->assertInstanceOf(ClientInterface::class, $this->client->getClient());
     }
 
     public function testGetClient()
     {
-        $this->assertInstanceOf('GuzzleHttp\ClientInterface', $this->client->getClient());
+        $this->assertInstanceOf(ClientInterface::class, $this->client->getClient());
     }
 
     public function testGetOptions()
@@ -62,9 +64,9 @@ class ClientTest extends TestCase
         $base64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
         $pixel = base64_decode($base64);
 
-        $response = Mockery::mock('GuzzleHttp\Message\ResponseInterface');
+        $response = Mockery::mock(ResponseInterface::class);
 
-        $client = Mockery::mock('GuzzleHttp\Client', function ($mock) use ($response, $pixel) {
+        $client = Mockery::mock(\GuzzleHttp\Client::class, function ($mock) use ($response, $pixel) {
             $mock->shouldReceive('request')
                 ->with('GET', '/', [
                     'sink' => $this->tempFile,
@@ -85,7 +87,7 @@ class ClientTest extends TestCase
 
         $this->assertSame($this->tempFile, $this->client->get('/'));
 
-        $this->assertSame($pixel, file_get_contents($this->tempFile));
+        $this->assertStringEqualsFile($this->tempFile, $pixel);
 
         unlink($this->tempFile);
     }

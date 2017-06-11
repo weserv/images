@@ -3,6 +3,7 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use Jcupitt\Vips\BandFormat;
+use Jcupitt\Vips\Image;
 use Mockery;
 use PHPUnit\Framework\TestCase;
 
@@ -22,7 +23,7 @@ class ContrastTest extends TestCase
 
     public function testCreateInstance()
     {
-        $this->assertInstanceOf('AndriesLouw\imagesweserv\Manipulators\Contrast', $this->manipulator);
+        $this->assertInstanceOf(Contrast::class, $this->manipulator);
     }
 
     public function testRun()
@@ -39,10 +40,7 @@ class ContrastTest extends TestCase
                 ->once();
         });
 
-        $this->assertInstanceOf(
-            'Jcupitt\Vips\Image',
-            $this->manipulator->setParams(['con' => 50])->run($image)
-        );
+        $this->assertInstanceOf(Image::class, $this->manipulator->setParams(['con' => 50])->run($image));
     }
 
     public function testGetContrast()

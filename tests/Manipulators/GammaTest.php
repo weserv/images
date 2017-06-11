@@ -2,6 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
+use Jcupitt\Vips\Image;
 use Mockery;
 use PHPUnit\Framework\TestCase;
 
@@ -21,17 +22,17 @@ class GammaTest extends TestCase
 
     public function testCreateInstance()
     {
-        $this->assertInstanceOf('AndriesLouw\imagesweserv\Manipulators\Gamma', $this->manipulator);
+        $this->assertInstanceOf(Gamma::class, $this->manipulator);
     }
 
     public function testRun()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image', function ($mock) {
+        $image = Mockery::mock(Image::class, function ($mock) {
             $mock->shouldReceive('gamma')->with(['exponent' => 1.5])->andReturnSelf()->once();
         });
 
         $this->assertInstanceOf(
-            'Jcupitt\Vips\Image',
+            Image::class,
             $this->manipulator->setParams(['hasAlpha' => false, 'gam' => '1.5'])->run($image)
         );
     }

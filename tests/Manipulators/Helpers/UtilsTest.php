@@ -2,6 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators\Helpers;
 
+use Jcupitt\Vips\Image;
 use Jcupitt\Vips\Interpretation;
 use Mockery;
 use PHPUnit\Framework\TestCase;
@@ -15,9 +16,9 @@ class UtilsTest extends TestCase
 
     public function testIs16Bit()
     {
-        $this->assertSame(true, Utils::is16Bit(Interpretation::RGB16));
-        $this->assertSame(true, Utils::is16Bit(Interpretation::GREY16));
-        $this->assertSame(false, Utils::is16Bit(Interpretation::SRGB));
+        $this->assertTrue(Utils::is16Bit(Interpretation::RGB16));
+        $this->assertTrue(Utils::is16Bit(Interpretation::GREY16));
+        $this->assertFalse(Utils::is16Bit(Interpretation::SRGB));
     }
 
     public function testMaximumImageAlpha()
@@ -29,7 +30,7 @@ class UtilsTest extends TestCase
 
     public function testExifOrientation()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image', function ($mock) {
+        $image = Mockery::mock(Image::class, function ($mock) {
             $mock->shouldReceive('typeof')->with(Utils::VIPS_META_ORIENTATION)->andReturn(1, 0)->twice();
             $mock->shouldReceive('get')->with(Utils::VIPS_META_ORIENTATION)->andReturn(6)->once();
         });
@@ -43,7 +44,7 @@ class UtilsTest extends TestCase
 
     public function testCalculateRotationAndFlip()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image', function ($mock) {
+        $image = Mockery::mock(Image::class, function ($mock) {
             $mock->shouldReceive('typeof')->with(Utils::VIPS_META_ORIENTATION)->andReturn(1, 0)->twice();
             $mock->shouldReceive('get')->with(Utils::VIPS_META_ORIENTATION)->andReturn(6)->once();
             $mock->shouldReceive('remove')->with(Utils::VIPS_META_ORIENTATION)->once();
