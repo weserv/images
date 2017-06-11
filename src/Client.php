@@ -35,61 +35,60 @@ class Client
     private $client;
 
     /**
-     * @param string $fileName
-     * @param array $options
+     * @param string $fileName Temp file name to download to
+     * @param array $options Client options
+     * @param array $guzzleOptions Specific Guzzle options
      */
-    public function __construct(string $fileName, array $options)
+    public function __construct(string $fileName, array $options, array $guzzleOptions = [])
     {
         $this->fileName = $fileName;
         $this->setOptions($options);
-        $this->initClient();
+        $this->initClient($guzzleOptions);
     }
 
     /**
      * Initialize the client
+     * @param array $guzzleOptions Specific Guzzle options
      */
-    private function initClient()
+    private function initClient(array $guzzleOptions)
     {
-        $guzzleClient = new \GuzzleHttp\Client(
-            [
-                'connect_timeout' => $this->options['connect_timeout'],
-                'decode_content' => true,
-                'verify' => false,
-                'allow_redirects' => [
-                    'max' => $this->options['max_redirects'], // allow at most 10 redirects.
-                    'strict' => false,      // use "strict" RFC compliant redirects.
-                    'referer' => true,      // add a Referer header
-                    'on_redirect' => function (
-                        RequestInterface $request,
-                        ResponseInterface $response,
-                        UriInterface $uri
-                    ) {
-                        //trigger_error('Internal redirecting  ' . $request->getUri() . ' to ' . $uri, E_USER_NOTICE);
-                    },
-                    'track_redirects' => false
-                ],
-                'expect' => false, // Send an empty Expect header (avoids 100 responses)
-                'http_errors' => true,
-                'curl' => [
-                    //CURLOPT_SSL_VERIFYPEER => false,
-                    //CURLOPT_SSL_VERIFYHOST => false
-                ],
-                'on_headers' => function (ResponseInterface $response) {
-                    if (!empty($this->options['allowed_mime_types']) &&
-                        !isset($this->options['allowed_mime_types'][$response->getHeaderLine('Content-Type')])
-                    ) {
-                        throw new ImageNotValidException();
-                    }
-                    if ($this->options['max_image_size'] !== 0
-                        && $response->getHeaderLine('Content-Length') > $this->options['max_image_size']
-                    ) {
-                        $size = $response->getHeaderLine('Content-Length');
-                        $imageSize = Utils::formatSizeUnits($size);
-                        throw new ImageTooBigException($imageSize);
-                    }
+        $defaultConfig = [
+            'connect_timeout' => $this->options['connect_timeout'],
+            'decode_content' => true,
+            'verify' => false,
+            'allow_redirects' => [
+                'max' => $this->options['max_redirects'], // allow at most 10 redirects.
+                'strict' => false,      // use "strict" RFC compliant redirects.
+                'referer' => true,      // add a Referer header
+                'on_redirect' => function (
+                    RequestInterface $request,
+                    ResponseInterface $response,
+                    UriInterface $uri
+                ) {
+                    //trigger_error('Internal redirecting  ' . $request->getUri() . ' to ' . $uri, E_USER_NOTICE);
+                },
+                'track_redirects' => false
+            ],
+            'expect' => false, // Send an empty Expect header (avoids 100 responses)
+            'http_errors' => true,
+            'on_headers' => function (ResponseInterface $response) {
+                if (!empty($this->options['allowed_mime_types']) &&
+                    !isset($this->options['allowed_mime_types'][$response->getHeaderLine('Content-Type')])
+                ) {
+                    throw new ImageNotValidException();
                 }
-            ]
-        );
+                if ($this->options['max_image_size'] !== 0
+                    && $response->getHeaderLine('Content-Length') > $this->options['max_image_size']
+                ) {
+                    $size = $response->getHeaderLine('Content-Length');
+                    $imageSize = Utils::formatSizeUnits($size);
+                    throw new ImageTooBigException($imageSize);
+                }
+            }
+        ];
+
+        $guzzleConfig = array_merge($defaultConfig, $guzzleOptions);
+        $guzzleClient = new \GuzzleHttp\Client($guzzleConfig);
 
         $this->setClient($guzzleClient);
     }

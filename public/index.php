@@ -178,8 +178,7 @@ if (!empty($_GET['url'])) {
         rename($tmpFileName, $tmpFileName .= '.' . $extension);
     }
 
-    // Create an PHP HTTP client
-    $client = new AndriesLouw\imagesweserv\Client($tmpFileName, [
+    $defaultClientConfig = [
         // User agent for this client
         'user_agent' => 'Mozilla/5.0 (compatible; ImageFetcher/7.0; +http://images.weserv.nl/)',
         // Float describing the number of seconds to wait while trying to connect to a server.
@@ -201,7 +200,15 @@ if (!empty($_GET['url'])) {
             'image/x-icon' => 'ico',
             'image/vnd.microsoft.icon' => 'ico',*/
         ]
-    ]);
+    ];
+
+    $clientConfig = isset($config['client']) ?
+        array_merge($defaultClientConfig, $config['client']) :
+        $defaultClientConfig;
+    $guzzleConfig = $config['guzzle'] ?? [];
+
+    // Create an PHP HTTP client
+    $client = new AndriesLouw\imagesweserv\Client($tmpFileName, $clientConfig, $guzzleConfig);
 
     // If config throttler is set, IP isn't on the throttler whitelist and Memcached is installed
     if (isset($config['throttler']) && !isset($config['throttler-whitelist'][$_SERVER['REMOTE_ADDR']]) && class_exists('Memcached')) {

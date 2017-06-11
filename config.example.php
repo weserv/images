@@ -11,6 +11,42 @@ return [
         'host' => '/var/run/memcached/memcached.sock', // Memcached sock
         'port' => 0 // Memcached port
     ],
+    // Client options
+    'client' => [
+        // User agent for this client
+        'user_agent' => 'Mozilla/5.0 (compatible; ImageFetcher/7.0; +http://images.weserv.nl/)',
+        // Float describing the number of seconds to wait while trying to connect to a server.
+        // Use 0 to wait indefinitely.
+        'connect_timeout' => 5,
+        // Float describing the timeout of the request in seconds. Use 0 to wait indefinitely.
+        'timeout' => 10,
+        // Integer describing the max image size to receive (in bytes). Use 0 for no limits.
+        'max_image_size' => 0,
+        // Integer describing the maximum number of allowed redirects.
+        'max_redirects' => 10,
+        // Allowed mime types. Use empty array to allow all mime types
+        'allowed_mime_types' => [
+            /*'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/gif' => 'gif',
+            'image/bmp' => 'bmp',
+            'image/tiff' => 'tiff',
+            'image/x-icon' => 'ico',
+            'image/vnd.microsoft.icon' => 'ico',*/
+        ]
+    ],
+    // Specific Guzzle options
+    'guzzle' => [
+        'proxy' => [
+            'http' => null,
+            'https' => null,
+            'no' => [],
+        ],
+        'curl' => [
+            //CURLOPT_SSL_VERIFYPEER => false,
+            //CURLOPT_SSL_VERIFYHOST => false
+        ]
+    ],
     // You'll also need to uncomment the Redis throttler in index.php
     // If you want to enable this
     'redis' => [
