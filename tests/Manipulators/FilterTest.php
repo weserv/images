@@ -43,4 +43,13 @@ class FilterTest extends TestCase
 
         $this->assertInstanceOf(Image::class, $this->manipulator->runSepiaFilter($image));
     }
+
+    public function testRunNegateFilter()
+    {
+        $image = Mockery::mock(Image::class, function ($mock) {
+            $mock->shouldReceive('invert')->andReturnSelf()->once();
+        });
+
+        $this->assertInstanceOf(Image::class, $this->manipulator->runNegateFilter($image));
+    }
 }

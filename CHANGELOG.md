@@ -44,7 +44,7 @@ Thanks for your support!
 
 #### Effects
 - The blur effect `&blur=`. Use values between `0` and `100`. See [#69](https://github.com/andrieslouw/imagesweserv/issues/69).
-- The filter effect `&filt=`. Accepts `greyscale` or `sepia`.
+- The filter effect `&filt=`. Accepts `greyscale`, `sepia` or `negate`.
 
 #### Input
 - With the magical help of [libvips](https://github.com/jcupitt/libvips) and the PHP binding [php-vips](https://github.com/jcupitt/php-vips), we "officially" support `PNG`, `JPG`, `WEBP`, `GIF` (not animated), `SVG`, `PDF` and `TIFF` as image input. "Unofficially" we're supporting all [libMagick image file types](https://www.imagemagick.org/script/formats.php#supported). 

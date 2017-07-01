@@ -28,6 +28,10 @@ class Filter extends BaseManipulator
             $image = $this->runSepiaFilter($image);
         }
 
+        if ($this->filt === 'negate') {
+            $image = $this->runNegateFilter($image);
+        }
+
         return $image;
     }
 
@@ -68,5 +72,17 @@ class Filter extends BaseManipulator
         }
 
         return $image->recomb($sepia);
+    }
+
+    /**
+     * Perform negate manipulation.
+     *
+     * @param  Image $image The source image.
+     *
+     * @return Image The manipulated image.
+     */
+    public function runNegateFilter(Image $image): Image
+    {
+        return $image->invert();
     }
 }
