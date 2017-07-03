@@ -26,6 +26,7 @@
     "require": {
         "php": ">=7.0.11",
         "ext-curl": "*",
+        "ext-vips": ">=1.0.7",
         "guzzlehttp/guzzle": "^6.2",
         "jamesryanbell/cloudflare": "^1.10",
         "jcupitt/vips": "1.0.x-dev",
