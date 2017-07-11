@@ -27,7 +27,7 @@
         "php": ">=7.0.11",
         "ext-curl": "*",
         "ext-vips": ">=1.0.7",
-        "guzzlehttp/guzzle": "^6.2",
+        "guzzlehttp/guzzle": "^6.3",
         "jamesryanbell/cloudflare": "^1.10",
         "jcupitt/vips": "1.0.x-dev",
         "league/uri": "^5.0"
@@ -35,7 +35,7 @@
     "require-dev": {
         "jakub-onderka/php-parallel-lint": "^0.9.2",
         "mockery/mockery": "1.0.x-dev",
-        "phpunit/phpunit": "^6.0",
+        "phpunit/phpunit": "^6.2",
         "predis/predis": "^1.1"
     },
     "autoload": {

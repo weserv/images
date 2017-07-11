@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "49dfe8f23ee3e8359b1e21a547f68b9c",
+    "content-hash": "6d1814097f69ac4e353f3c93b61dffd5",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
-            "version": "6.2.3",
+            "version": "6.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "8d6c6cc55186db87b7dc5009827429ba4e9dc006"
+                "reference": "f4db5a78a5ea468d4831de7f0bf9d9415e348699"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/8d6c6cc55186db87b7dc5009827429ba4e9dc006",
-                "reference": "8d6c6cc55186db87b7dc5009827429ba4e9dc006",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/f4db5a78a5ea468d4831de7f0bf9d9415e348699",
+                "reference": "f4db5a78a5ea468d4831de7f0bf9d9415e348699",
                 "shasum": ""
             },
             "require": {
@@ -27,8 +27,11 @@
             },
             "require-dev": {
                 "ext-curl": "*",
-                "phpunit/phpunit": "^4.0",
+                "phpunit/phpunit": "^4.0 || ^5.0",
                 "psr/log": "^1.0"
+            },
+            "suggest": {
+                "psr/log": "Required for using the Log middleware"
             },
             "type": "library",
             "extra": {
@@ -66,7 +69,7 @@
                 "rest",
                 "web service"
             ],
-            "time": "2017-02-28T22:50:30+00:00"
+            "time": "2017-06-22T18:50:49+00:00"
         },
         {
             "name": "guzzlehttp/promises",
@@ -231,12 +234,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/jcupitt/php-vips.git",
-                "reference": "dbd21ccbe76446b61730629f14dd4dbe12c33d7d"
+                "reference": "e83bd56653910035135080744c53ff0d3846c8ce"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jcupitt/php-vips/zipball/dbd21ccbe76446b61730629f14dd4dbe12c33d7d",
-                "reference": "dbd21ccbe76446b61730629f14dd4dbe12c33d7d",
+                "url": "https://api.github.com/repos/jcupitt/php-vips/zipball/e83bd56653910035135080744c53ff0d3846c8ce",
+                "reference": "e83bd56653910035135080744c53ff0d3846c8ce",
                 "shasum": ""
             },
             "require": {
@@ -279,7 +282,7 @@
                 "libvips",
                 "processing"
             ],
-            "time": "2017-06-06T15:07:31+00:00"
+            "time": "2017-07-08T11:05:26+00:00"
         },
         {
             "name": "jeremykendall/php-domain-parser",
@@ -650,16 +653,16 @@
         },
         {
             "name": "league/uri-schemes",
-            "version": "1.0.4",
+            "version": "1.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/uri-schemes.git",
-                "reference": "8aff19a2ea687e94869616349af43deb910ebfd3"
+                "reference": "964d24dcd9dbd2be0c00004344220cff51948f6d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/uri-schemes/zipball/8aff19a2ea687e94869616349af43deb910ebfd3",
-                "reference": "8aff19a2ea687e94869616349af43deb910ebfd3",
+                "url": "https://api.github.com/repos/thephpleague/uri-schemes/zipball/964d24dcd9dbd2be0c00004344220cff51948f6d",
+                "reference": "964d24dcd9dbd2be0c00004344220cff51948f6d",
                 "shasum": ""
             },
             "require": {
@@ -672,8 +675,11 @@
                 "psr/http-message": "^1.0"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^1.0",
+                "friendsofphp/php-cs-fixer": "^2.0",
                 "phpunit/phpunit": "^6.0"
+            },
+            "suggest": {
+                "league/uri-manipulations": "Needed to easily manipulate URI objects"
             },
             "type": "library",
             "extra": {
@@ -713,7 +719,7 @@
                 "ws",
                 "wss"
             ],
-            "time": "2017-04-19T08:51:53+00:00"
+            "time": "2017-06-12T07:03:49+00:00"
         },
         {
             "name": "psr/http-message",
@@ -969,12 +975,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/mockery/mockery.git",
-                "reference": "e0fd9ceb9a191f892983a848291d2c6a91cd09d7"
+                "reference": "c90a17247147543081e4d00f46911e422b49e583"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mockery/mockery/zipball/e0fd9ceb9a191f892983a848291d2c6a91cd09d7",
-                "reference": "e0fd9ceb9a191f892983a848291d2c6a91cd09d7",
+                "url": "https://api.github.com/repos/mockery/mockery/zipball/c90a17247147543081e4d00f46911e422b49e583",
+                "reference": "c90a17247147543081e4d00f46911e422b49e583",
                 "shasum": ""
             },
             "require": {
@@ -1026,7 +1032,7 @@
                 "test double",
                 "testing"
             ],
-            "time": "2017-06-05T13:23:09+00:00"
+            "time": "2017-06-22T13:56:23+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -1633,16 +1639,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "6.2.1",
+            "version": "6.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "16999a1e9a8a25d68f0ab8cc8ab818b043ad5374"
+                "reference": "fa5711d0559fc4b64deba0702be52d41434cbcb7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/16999a1e9a8a25d68f0ab8cc8ab818b043ad5374",
-                "reference": "16999a1e9a8a25d68f0ab8cc8ab818b043ad5374",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/fa5711d0559fc4b64deba0702be52d41434cbcb7",
+                "reference": "fa5711d0559fc4b64deba0702be52d41434cbcb7",
                 "shasum": ""
             },
             "require": {
@@ -1713,20 +1719,20 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2017-06-02T12:24:37+00:00"
+            "time": "2017-07-03T15:54:24+00:00"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
-            "version": "4.0.1",
+            "version": "4.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit-mock-objects.git",
-                "reference": "eabce450df194817a7d7e27e19013569a903a2bf"
+                "reference": "d8833b396dce9162bb2eb5d59aee5a3ab3cfa5b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit-mock-objects/zipball/eabce450df194817a7d7e27e19013569a903a2bf",
-                "reference": "eabce450df194817a7d7e27e19013569a903a2bf",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit-mock-objects/zipball/d8833b396dce9162bb2eb5d59aee5a3ab3cfa5b4",
+                "reference": "d8833b396dce9162bb2eb5d59aee5a3ab3cfa5b4",
                 "shasum": ""
             },
             "require": {
@@ -1772,7 +1778,7 @@
                 "mock",
                 "xunit"
             ],
-            "time": "2017-03-03T06:30:20+00:00"
+            "time": "2017-06-30T08:15:21+00:00"
         },
         {
             "name": "predis/predis",
@@ -1987,16 +1993,16 @@
         },
         {
             "name": "sebastian/environment",
-            "version": "3.0.3",
+            "version": "3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/environment.git",
-                "reference": "02b6b2c7aefe2cdb1185b8dbf8718b0bcedf3ab3"
+                "reference": "cd0871b3975fb7fc44d11314fd1ee20925fce4f5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/environment/zipball/02b6b2c7aefe2cdb1185b8dbf8718b0bcedf3ab3",
-                "reference": "02b6b2c7aefe2cdb1185b8dbf8718b0bcedf3ab3",
+                "url": "https://api.github.com/repos/sebastianbergmann/environment/zipball/cd0871b3975fb7fc44d11314fd1ee20925fce4f5",
+                "reference": "cd0871b3975fb7fc44d11314fd1ee20925fce4f5",
                 "shasum": ""
             },
             "require": {
@@ -2008,7 +2014,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.0.x-dev"
+                    "dev-master": "3.1.x-dev"
                 }
             },
             "autoload": {
@@ -2033,7 +2039,7 @@
                 "environment",
                 "hhvm"
             ],
-            "time": "2017-05-18T10:10:00+00:00"
+            "time": "2017-07-01T08:51:00+00:00"
         },
         {
             "name": "sebastian/exporter",
@@ -2484,7 +2490,8 @@
     "prefer-lowest": false,
     "platform": {
         "php": ">=7.0.11",
-        "ext-curl": "*"
+        "ext-curl": "*",
+        "ext-vips": ">=1.0.7"
     },
     "platform-dev": []
 }

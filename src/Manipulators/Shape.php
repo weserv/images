@@ -56,11 +56,9 @@ class Shape extends BaseManipulator
                 // combine the new mask and the existing alpha ... there are
                 // many ways of doing this, mult is the simplest
                 $mask = $mask->divide($maskMax)->multiply($imageAlpha->divide($imageMax))->multiply($imageMax);
-            } else {
-                if ($imageMax !== $maskMax) {
-                    // adjust the range of the mask to match the image
-                    $mask = $mask->divide($maskMax)->multiply($imageMax);
-                }
+            } elseif ($imageMax !== $maskMax) {
+                // adjust the range of the mask to match the image
+                $mask = $mask->divide($maskMax)->multiply($imageMax);
             }
 
             // append the mask to the image data ... the mask might be float now,
@@ -103,6 +101,7 @@ class Shape extends BaseManipulator
             return $this->shape;
         }
 
+        // Deprecated use shape=circle instead
         if (isset($this->circle)) {
             return 'circle';
         }

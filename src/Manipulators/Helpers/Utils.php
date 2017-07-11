@@ -149,16 +149,8 @@ class Utils
         }
 
         // Add explicitly requested angle (supports 90, 180, 270) to the $rotate variable.
-        if ($angle === 90) {
-            $rotate += 90;
-        } else {
-            if ($angle === 180) {
-                $rotate += 180;
-            } else {
-                if ($angle === 270) {
-                    $rotate += 270;
-                }
-            }
+        if ($angle === 90 || $angle === 180 || $angle === 270) {
+            $rotate += $angle;
         }
 
         // If the rotation is 360 degrees then add no rotation.
