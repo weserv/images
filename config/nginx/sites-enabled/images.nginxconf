@@ -1,11 +1,17 @@
+upstream fastcgi_backend {
+   server   php:9000;
+}
+
 server {
     listen 80;
     listen [::]:80;
-    server_name images.weserv.nl;
+    server_name images.weserv.dev;
 
-    access_log off;
-    error_log crit;
-    root /var/www/html/imagesweserv/public;
+    # access_log off;
+    access_log /var/log/nginx/access.log;
+    error_log  /var/log/nginx/error.log;
+
+    root /var/www/imagesweserv/public;
 
     expires 2678400;
 
@@ -17,7 +23,7 @@ server {
 
     location ~ "^(.+\.php)($|/)" {
         add_header 'Access-Control-Allow-Origin' '*';
-        include /etc/nginx/fastcgi_params;
+        include fastcgi_params;
         fastcgi_split_path_info ^(.+\.php)(.*)$;
         fastcgi_cache images;
         fastcgi_cache_key "$request_method|images.weserv.nl|$request_uri";
@@ -26,7 +32,7 @@ server {
         fastcgi_cache_valid 200 301 410 7d;
         fastcgi_cache_valid any 15m;
         fastcgi_cache_use_stale error timeout updating;
-        fastcgi_pass  unix:/var/run/php-fpm/php-fpm.sock;
+        fastcgi_pass  fastcgi_backend;
         fastcgi_index index.php;
         fastcgi_param HTTP_PROXY "";
         fastcgi_param HTTP_X_REQUEST_START "t=${msec}000";

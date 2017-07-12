@@ -19,6 +19,10 @@ Source code of images.weserv.nl, to be used on your own server(s). Images.weserv
 
 See our [wiki documentation](https://github.com/andrieslouw/imagesweserv/wiki) or [API reference](https://images.weserv.nl/) for information on using images.weserv.nl.
 
+## Docker deployment
+
+For information on Docker deployment, please read the [Docker installation instructions](DOCKER.md).
+
 ## Submitting Bugs and Suggestions
 
 We track support tickets, issues and feature requests using the [GitHub issue tracker](https://github.com/andrieslouw/imagesweserv/issues).

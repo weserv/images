@@ -19,6 +19,7 @@ use Jcupitt\Vips\Config;
 use Jcupitt\Vips\DebugLogger;
 use Jcupitt\Vips\Exception as VipsException;
 use Jcupitt\Vips\Image;
+use Predis\Connection\ConnectionException;
 
 class Api implements ApiInterface
 {
@@ -160,8 +161,13 @@ class Api implements ApiInterface
             $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
 
             // Check if rate is exceeded for IP
-            if ($this->throttler->isExceeded($ip)) {
-                throw new RateExceededException();
+            try {
+                if ($this->throttler->isExceeded($ip)) {
+                    throw new RateExceededException();
+                }
+            } catch (ConnectionException $e) {
+                // Log redis exceptions
+                trigger_error('RedisException. Message: ' . $e->getMessage(), E_USER_WARNING);
             }
         }
 
