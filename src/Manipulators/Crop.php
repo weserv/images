@@ -10,7 +10,6 @@ use Jcupitt\Vips\Image;
  * @property string $h
  * @property string $a
  * @property string $crop
- * @property array|bool $trimCoordinates
  */
 class Crop extends BaseManipulator
 {
@@ -28,9 +27,11 @@ class Crop extends BaseManipulator
         $imageWidth = $image->width;
         $imageHeight = $image->height;
 
-        $trimCoordinates = $this->trimCoordinates;
         $coordinates = $this->resolveCropCoordinates($imageWidth, $imageHeight);
-        $cropArr = ['square' => 0, 'squaredown' => 1, 'crop' => 2];
+
+        // Smart crop is handled in Thumbnail
+        $isSmartCrop = $this->a === 'entropy' || $this->a === 'attention';
+        $isCropNeeded = $this->t === 'square' || $this->t ===  'squaredown' || strpos($this->t, 'crop') === 0;
 
         if ($coordinates) {
             $coordinates = $this->limitToImageBoundaries($image, $coordinates);
@@ -41,10 +42,7 @@ class Crop extends BaseManipulator
                 $coordinates[0],
                 $coordinates[1]
             );
-        } elseif ($this->a !== 'entropy' && $this->a !== 'attention' &&
-            ($imageWidth !== $width || $imageHeight !== $height) &&
-            (isset($cropArr[$this->t]) || strpos($this->t, 'crop') === 0)
-        ) {
+        } elseif (!$isSmartCrop && ($imageWidth !== $width || $imageHeight !== $height) && $isCropNeeded) {
             $minWidth = min($imageWidth, $width);
             $minHeight = min($imageHeight, $height);
 
@@ -52,24 +50,10 @@ class Crop extends BaseManipulator
             $offsetX = (int)(($imageWidth - $width) * ($offsetPercentageX / 100));
             $offsetY = (int)(($imageHeight - $height) * ($offsetPercentageY / 100));
 
-            if ($trimCoordinates) {
-                list($leftTrim, $topTrim, $imageTargetWidth, $imageTargetHeight) = $trimCoordinates;
-
-                $offsetX = (int)(($imageTargetWidth - $width) * ($offsetPercentageX / 100)) + $leftTrim;
-                $offsetY = (int)(($imageTargetHeight - $height) * ($offsetPercentageY / 100)) + $topTrim;
-            }
-
             list($left, $top) = $this->calculateCrop($imageWidth, $imageHeight, $width, $height,
                 $offsetX, $offsetY);
 
             $image = $image->crop($left, $top, $minWidth, $minHeight);
-        } elseif ($trimCoordinates) {
-            $image = $image->crop(
-                $trimCoordinates[0],
-                $trimCoordinates[1],
-                $trimCoordinates[2],
-                $trimCoordinates[3]
-            );
         }
 
         return $image;

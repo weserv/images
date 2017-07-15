@@ -163,7 +163,7 @@ class Api implements ApiInterface
             // Check if rate is exceeded for IP
             try {
                 if ($this->throttler->isExceeded($ip)) {
-                    throw new RateExceededException();
+                    throw new RateExceededException('There are an unusual number of requests coming from this IP address.');
                 }
             } catch (ConnectionException $e) {
                 // Log redis exceptions
@@ -238,22 +238,6 @@ class Api implements ApiInterface
         $params['is16Bit'] = Utils::is16Bit($image->interpretation);
         $params['isPremultiplied'] = false;
 
-        // Set width and height to zero if it's invalid
-        // Otherwise cast it to a integer
-        if (!isset($params['w']) || !is_numeric($params['w']) || $params['w'] <= 0) {
-            $params['w'] = 0;
-        } else {
-            $params['w'] = (int)$params['w'];
-        }
-
-        if (!isset($params['h']) || !is_numeric($params['h']) || $params['h'] <= 0) {
-            $params['h'] = 0;
-        } else {
-            $params['h'] = (int)$params['h'];
-        }
-
-        $params['trimCoordinates'] = false;
-
         // Do our image manipulations
         foreach ($this->manipulators as $manipulator) {
             $manipulator->setParams($params);
@@ -282,15 +266,12 @@ class Api implements ApiInterface
         // Check if output is set and allowed
         if (isset($params['output'], $allowed[$params['output']])) {
             $extension = $params['output'];
-        } else {
-            $supportsAlpha = ['png', 'webp'];
-            if (!isset($allowed[$extension]) || ($params['hasAlpha'] && !isset($supportsAlpha[$extension]))) {
-                // We force the extension to PNG if:
-                //  - The image has alpha and doesn't have the right extension to output alpha.
-                //    (useful for shape masking and letterboxing)
-                //  - The input extension is not allowed for output.
-                $extension = 'png';
-            }
+        } elseif (!isset($allowed[$extension]) || ($params['hasAlpha'] && ($extension !== 'png' || $extension !== 'webp'))) {
+            // We force the extension to PNG if:
+            //  - The image has alpha and doesn't have the right extension to output alpha.
+            //    (useful for shape masking and letterboxing)
+            //  - The input extension is not allowed for output.
+            $extension = 'png';
         }
 
         $toBufferOptions = [];

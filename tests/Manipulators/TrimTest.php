@@ -89,7 +89,8 @@ class TrimTest extends TestCase
 
             $mock->shouldReceive('crop')
                 ->with(0, 0, 100, 100)
-                ->andReturnSelf();
+                ->andReturnSelf()
+                ->once();
         });
 
         $params = [

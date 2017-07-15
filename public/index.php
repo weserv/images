@@ -49,7 +49,6 @@ $error_messages = [
     'invalid_image' => [
         'header' => '400 Bad Request',
         'content-type' => 'text/plain',
-        'message' => 'The request image is not a valid (supported) image. Supported images are: %s',
         'log' => 'Non-supported image. URL: %s',
     ],
     'image_too_big' => [
@@ -74,7 +73,6 @@ $error_messages = [
     'rate_exceeded' => [
         'header' => '429 Too Many Requests',
         'content-type' => 'text/plain',
-        'message' => 'There are an unusual number of requests coming from this IP address.',
     ],
     'image_not_readable' => [
         'header' => '400 Bad Request',
@@ -84,7 +82,6 @@ $error_messages = [
     'image_too_large' => [
         'header' => '400 Bad Request',
         'content-type' => 'text/plain',
-        'message' => 'Image is too large for processing. Width x Height should be less than 70 megapixels.',
         'log' => 'Image too large. URL: %s',
     ],
     'libvips_error' => [
@@ -297,7 +294,7 @@ if (!empty($_GET['url'])) {
         $error = $error_messages['image_too_large'];
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
         header('Content-type: ' . $error['content-type']);
-        echo $error['message'];
+        echo $error['header'] . ' - ' . $e->getMessage();
     } catch (RequestException $e) {
         $previousException = $e->getPrevious();
         $clientOptions = $client->getOptions();
@@ -305,18 +302,13 @@ if (!empty($_GET['url'])) {
         // Check if there is a previous exception
         if ($previousException instanceof ImageNotValidException) {
             $error = $error_messages['invalid_image'];
-            $supportedImages = array_pop($clientOptions['allowed_mime_types']);
-
-            if (count($clientOptions['allowed_mime_types']) > 1) {
-                $supportedImages = implode(', ', $clientOptions['allowed_mime_types']) . ' and ' . $supportedImages;
-            }
 
             header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
             header('Content-type: ' . $error['content-type']);
 
             trigger_error(sprintf($error['log'], $uri->__toString()), E_USER_WARNING);
 
-            echo sprintf($error['message'], $supportedImages);
+            echo $previousException->getMessage();
         } elseif ($previousException instanceof ImageTooBigException) {
             $error = $error_messages['image_too_big'];
             $imageSize = $previousException->getMessage();
@@ -380,7 +372,7 @@ if (!empty($_GET['url'])) {
         $error = $error_messages['rate_exceeded'];
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
         header('Content-type: ' . $error['content-type']);
-        echo $error['header'] . ' - ' . $error['message'];
+        echo $error['header'] . ' - ' . $e->getMessage();
     } catch (ImageNotReadableException $e) {
         $error = $error_messages['image_not_readable'];
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);

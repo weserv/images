@@ -109,10 +109,7 @@ class ApiTest extends TestCase
             'loader' => 'VipsForeignLoadPng',
             'hasAlpha' => true,
             'is16Bit' => false,
-            'isPremultiplied' => false,
-            'w' => 0,
-            'h' => 0,
-            'trimCoordinates' => false
+            'isPremultiplied' => false
         ];
 
         $manipulator = Mockery::mock(ManipulatorInterface::class, function ($mock) use ($image, $params) {
