@@ -1,6 +1,6 @@
 # Docker
 
-This document describes how to use images.weserv.nl with Docker and [docker-compose (1.7 or higher)](https://docs.docker.com/compose/).
+This document describes how to use images.weserv.nl with Docker.
 
 ## Installation
 
@@ -13,8 +13,15 @@ This document describes how to use images.weserv.nl with Docker and [docker-comp
 2. Build/run containers with (with and without detached mode)
 
     ```bash
-    $ docker-compose build
-    $ docker-compose up -d
+    $ docker build . -t imagesweserv
+    $ docker run \
+        -v $(pwd):/var/www/imagesweserv \
+        -v $(pwd)/logs/supervisor:/var/log/supervisor \
+        -v /dev/shm:/dev/shm \
+        -p 80:80 \
+        -d \
+        --name=imagesweserv \
+        imagesweserv
     ```
 
 3. Update your system host file (add images.weserv.dev)
@@ -32,53 +39,44 @@ This document describes how to use images.weserv.nl with Docker and [docker-comp
 4. Install images.weserv.nl
 
     ```bash
-    $ docker-compose exec php bash
-    $ composer install
+    $ docker exec imagesweserv composer install
     ```
 
 5. Enjoy :-)
 
 ## Usage
 
-Just run `docker-compose up -d`, then visit [images.weserv.dev](http://images.weserv.dev)  
-
-## Components
-
-The dockerized images.weserv.nl consists of the following components:
-
-- docker images
-  1. a [PHP / libvips](docker/Dockerfile) image 
-  2. a standard [nginx](https://hub.docker.com/_/nginx/) server image
-  3. a standard [Redis](https://hub.docker.com/_/redis/) docker image
-- a [composer-file](composer.json) for managing the images.weserv.nl dependencies
-- and the [docker-compose.yml](docker-compose.yml)-file which connects all components
-
-This results in the following running containers:
-
+Just run:
 ```bash
-$ docker-compose ps
-        Name                      Command               State                    Ports
---------------------------------------------------------------------------------------------------------
-imagesweserv_nginx_1   nginx -g daemon off;             Up      0.0.0.0:443->443/tcp, 0.0.0.0:80->80/tcp
-imagesweserv_php_1     docker-php-entrypoint php-fpm    Up      9000/tcp
-imagesweserv_redis_1   docker-entrypoint.sh redis ...   Up      6379/tcp
-`````
+$ docker run \
+    -v $(pwd):/var/www/imagesweserv \
+    -v $(pwd)/logs/supervisor:/var/log/supervisor \
+    -v /dev/shm:/dev/shm \
+    -p 80:80 \
+    -d \
+    --name=imagesweserv \
+    imagesweserv
+```
+then visit [images.weserv.dev](http://images.weserv.dev)  
 
 ## Useful commands
 
 ```bash
 # bash commands
-$ docker-compose exec php bash
+$ docker exec -it imagesweserv bash
 
 # Composer (e.g. composer update)
-$ docker-compose exec php composer update
+$ docker exec imagesweserv composer update
 
-# Retrieve an IP Address (here for the nginx container)
-$ docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -f name=nginx -q)
-$ docker inspect $(docker ps -f name=nginx -q) | grep IPAddress
+# Retrieve an IP Address
+$ docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -f name=imagesweserv -q)
+$ docker inspect $(docker ps -f name=imagesweserv -q) | grep IPAddress
 
 # Access to redis-cli
-$ docker-compose exec redis redis-cli
+$ docker exec -it imagesweserv redis-cli
+
+# Access to logs
+$ docker logs imagesweserv
 
 # Check CPU consumption
 $ docker stats

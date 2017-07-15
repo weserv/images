@@ -50,7 +50,7 @@ return [
     // Redis throttler
     'redis' => [
         'scheme' => 'tcp',
-        'host' => 'redis',
+        'host' => '127.0.0.1',
         'port' => 6379
     ],
     // Throttler config
