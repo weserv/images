@@ -6,11 +6,6 @@ return [
     'exampleImage' => 'rbx.weserv.nl/lichtenstein.jpg',
     'exampleTransparentImage' => 'rbx.weserv.nl/transparency_demo.png',
     'exampleSmartcropImage' => 'ssl:upload.wikimedia.org/wikipedia/commons/4/45/Equus_quagga_burchellii_-_Etosha%2C_2014.jpg',
-    // Default to Memcached
-    'memcached' => [
-        'host' => '/var/run/memcached/memcached.sock', // Memcached sock
-        'port' => 0 // Memcached port
-    ],
     // Client options
     'client' => [
         // User agent for this client
@@ -47,8 +42,12 @@ return [
             //CURLOPT_SSL_VERIFYHOST => false
         ]
     ],
-    // You'll also need to uncomment the Redis throttler in index.php
-    // If you want to enable this
+    // Memcached throttler
+    'memcached' => [
+        'host' => '/var/run/memcached/memcached.sock', // Memcached sock
+        'port' => 0 // Memcached port
+    ],
+    // Redis throttler
     'redis' => [
         'scheme' => 'tcp',
         'host' => '127.0.0.1',
@@ -58,7 +57,8 @@ return [
     'throttler' => [
         'allowed_requests' => 700, // 700 allowed requests
         'minutes' => 3, // In 3 minutes
-        'prefix' => 'c' // Cache key prefix
+        'prefix' => 'c', // Cache key prefix,
+        'driver' => 'redis' // Throttler driver; defaulting to redis
     ],
     // Throttler whitelist
     'throttler-whitelist' => [

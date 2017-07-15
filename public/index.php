@@ -211,32 +211,40 @@ if (!empty($_GET['url'])) {
     $client = new AndriesLouw\imagesweserv\Client($tmpFileName, $clientConfig, $guzzleConfig);
 
     // If config throttler is set, IP isn't on the throttler whitelist and Memcached is installed
-    if (isset($config['throttler']) && !isset($config['throttler-whitelist'][$_SERVER['REMOTE_ADDR']]) && class_exists('Memcached')) {
+    if (isset($config['throttler']) && !isset($config['throttler-whitelist'][$_SERVER['REMOTE_ADDR']])) {
         $throttlingPolicy = new AndriesLouw\imagesweserv\Throttler\ThrottlingPolicy($config['throttling-policy']);
 
-        // Memcached throttler
-        $memcached = new Memcached('mc');
+        // Defaulting to Redis
+        $driver = $config['throttler']['driver'] ?? 'redis';
 
-        // When using persistent connections, it's important to not re-add servers.
-        if (!count($memcached->getServerList())) {
-            $memcached->setOptions([
-                Memcached::OPT_BINARY_PROTOCOL => true,
-                Memcached::OPT_COMPRESSION => false
-            ]);
+        if ($driver === 'memcached') {
+            // Memcached throttler
+            $memcached = new Memcached('mc');
 
-            $memcached->addServer($config['memcached']['host'], $config['memcached']['port']);
+            // When using persistent connections, it's important to not re-add servers.
+            if (!count($memcached->getServerList())) {
+                $memcached->setOptions([
+                    Memcached::OPT_BINARY_PROTOCOL => true,
+                    Memcached::OPT_COMPRESSION => false
+                ]);
+
+                $memcached->addServer($config['memcached']['host'], $config['memcached']['port']);
+            }
+
+            //if ($memcached->getVersion() === false) {
+            //trigger_error('MemcachedException. Message: Could not establish Memcached connection', E_USER_WARNING);
+            //}
+
+            // Create an new Memcached throttler instance
+            $throttler = new AndriesLouw\imagesweserv\Throttler\MemcachedThrottler($memcached, $throttlingPolicy,
+                $config['throttler']);
+        } elseif ($driver === 'redis') {
+            $redis = new Predis\Client($config['redis']);
+
+            // Create an new Redis throttler instance
+            $throttler = new AndriesLouw\imagesweserv\Throttler\RedisThrottler($redis, $throttlingPolicy,
+                $config['throttler']);
         }
-
-        // Create an new Memcached throttler instance
-        $throttler = new AndriesLouw\imagesweserv\Throttler\MemcachedThrottler($memcached, $throttlingPolicy,
-            $config['throttler']);
-
-        // Uncomment this if you want to enable the Redis throttler
-        /*$redis = new Predis\Client($config['redis']);
-        // Create an new Redis throttler instance
-        $throttler = new AndriesLouw\imagesweserv\Throttler\RedisThrottler($redis, $throttlingPolicy, $config['throttler']);*/
-    } else {
-        $throttler = null;
     }
 
     // Set manipulators
@@ -257,7 +265,7 @@ if (!empty($_GET['url'])) {
     ];
 
     // Set API
-    $api = new AndriesLouw\imagesweserv\Api\Api($client, $throttler, $manipulators);
+    $api = new AndriesLouw\imagesweserv\Api\Api($client, $throttler ?? null, $manipulators);
 
     // Setup server
     $server = new AndriesLouw\imagesweserv\Server(
@@ -803,8 +811,8 @@ if (!empty($_GET['url'])) {
                     <p>If there is a problem loading an image, then a error is shown. However, there might be a need where instead of giving a broken image to the user, you want a default image to be delivered.</p>
                     <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/37">Issue #37 - Return default image if the image's URL not found</a>.</p>
                     <p>The URL must not include a <code>errorredirect</code> querystring (if it does, it will be ignored).</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=example.org/noimage.jpg&amp;errorredirect=ssl:$url%2F%3Furl%3D$exampleImage%26w%3D300"&gt;</code></pre>
-                    <a href="//$url/?url=example.org/noimage.jpg&amp;errorredirect=ssl:$url%2F%3Furl%3D$exampleImage%26w%3D300"><img src="//$url/?url=example.org/noimage.jpg&amp;errorredirect=ssl:$url%2F%3Furl%3D$exampleImage%26w%3D300" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=example.org/noimage.jpg&amp;errorredirect=$url%2F%3Furl%3D$exampleImage%26w%3D300"&gt;</code></pre>
+                    <a href="//$url/?url=example.org/noimage.jpg&amp;errorredirect=$url%2F%3Furl%3D$exampleImage%26w%3D300"><img src="//$url/?url=example.org/noimage.jpg&amp;errorredirect=$url%2F%3Furl%3D$exampleImage%26w%3D300" alt=""/></a>
                     <h3 id="page">Page <code>&amp;page=</code> <span class="new">New!</span></h3>
                     <p>To load a given page (for an PDF, TIFF and multi-size ICO file). The value is numbered from zero.</p>
                 </section>

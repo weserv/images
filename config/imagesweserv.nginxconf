@@ -1,11 +1,13 @@
 server {
     listen 80;
     listen [::]:80;
-    server_name images.weserv.nl;
+    server_name images.weserv.dev;
 
-    access_log off;
-    error_log crit;
-    root /var/www/html/imagesweserv/public;
+    root /var/www/imagesweserv/public;
+
+    # Add logging
+    error_log /dev/stderr;
+    access_log /dev/stdout;
 
     expires 2678400;
 
@@ -17,7 +19,7 @@ server {
 
     location ~ "^(.+\.php)($|/)" {
         add_header 'Access-Control-Allow-Origin' '*';
-        include /etc/nginx/fastcgi_params;
+        include fastcgi_params;
         fastcgi_split_path_info ^(.+\.php)(.*)$;
         fastcgi_cache images;
         fastcgi_cache_key "$request_method|images.weserv.nl|$request_uri";
