@@ -136,8 +136,6 @@ class Thumbnail extends BaseManipulator
      */
     public function checkImageSize(Image $image, int $width, int $height)
     {
-        // Set width and height to zero if it's invalid
-        // Otherwise cast it to a integer
         if ($width === 0 && $height === 0) {
             $width = $image->width;
             $height = $image->height;
