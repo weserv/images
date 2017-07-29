@@ -57,6 +57,7 @@ Thanks for your support!
 - Support for Cyrillic and Arabic characters. See [#13](https://github.com/andrieslouw/imagesweserv/issues/13).
 - The `&errorredirect=` parameter to redirect to a default image if the image URL is not found. The redirect URL must be formatted the same as the `?url=` parameter. See [#37](https://github.com/andrieslouw/imagesweserv/issues/37).
 - In order to load a given page (for an PDF, TIFF and multi-size ICO file) we've added the `&page=` parameter. The value is numbered from zero.
+- Add support for Docker deployment. See the [Docker installation instructions](DOCKER.md).
 
 ### Changed
 - Dropped [Intervention Image](http://image.intervention.io/) in favor of [php-vips](https://github.com/jcupitt/php-vips) because resizing an image with [libvips](https://github.com/jcupitt/libvips) is typically 4x-5x faster than using the quickest ImageMagick.
