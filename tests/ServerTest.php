@@ -1,25 +1,24 @@
 <?php
 
-namespace AndriesLouw\imagesweserv;
+namespace AndriesLouw\imagesweserv\Test;
 
+use AndriesLouw\imagesweserv\Api\Api;
+use AndriesLouw\imagesweserv\Api\ApiInterface;
+use AndriesLouw\imagesweserv\Client;
+use AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface;
+use AndriesLouw\imagesweserv\Server;
+use AndriesLouw\imagesweserv\Throttler\ThrottlerInterface;
 use Jcupitt\Vips\Access;
 use Jcupitt\Vips\Image;
 use League\Uri\Schemes\Http as HttpUri;
-use Mockery;
-use PHPUnit\Framework\TestCase;
 
-class ServerTest extends TestCase
+class ServerTest extends ImagesweservTestCase
 {
     private $server;
 
     public function setUp()
     {
-        $this->server = new Server(Mockery::mock(Api\ApiInterface::class));
-    }
-
-    public function tearDown()
-    {
-        Mockery::close();
+        $this->server = new Server($this->getMockery(ApiInterface::class));
     }
 
     public function testCreateInstance()
@@ -29,14 +28,14 @@ class ServerTest extends TestCase
 
     public function testSetApi()
     {
-        $api = Mockery::mock(Api\ApiInterface::class);
+        $api = $this->getMockery(ApiInterface::class);
         $this->server->setApi($api);
-        $this->assertInstanceOf(Api\ApiInterface::class, $this->server->getApi());
+        $this->assertInstanceOf(ApiInterface::class, $this->server->getApi());
     }
 
     public function testGetApi()
     {
-        $this->assertInstanceOf(Api\ApiInterface::class, $this->server->getApi());
+        $this->assertInstanceOf(ApiInterface::class, $this->server->getApi());
     }
 
     public function testSetDefaults()
@@ -109,15 +108,15 @@ class ServerTest extends TestCase
 
         file_put_contents($tempFile, $pixel);
 
-        $client = Mockery::mock(Client::class, function ($mock) use ($uri, $tempFile) {
+        $client = $this->getMockery(Client::class, function ($mock) use ($uri, $tempFile) {
             $mock->shouldReceive('get')->with($uri->__toString())->andReturn($tempFile);
         });
 
-        $throttler = Mockery::mock(Throttler\ThrottlerInterface::class, function ($mock) {
+        $throttler = $this->getMockery(ThrottlerInterface::class, function ($mock) {
             $mock->shouldReceive('isExceeded')->with('127.0.0.1');
         });
 
-        $image = Mockery::mock(Image::class, function ($mock) use ($pixel) {
+        $image = $this->getMockery(Image::class, function ($mock) use ($pixel) {
             $mock->shouldReceive('writeToBuffer')->andReturn($pixel);
         });
 
@@ -130,18 +129,19 @@ class ServerTest extends TestCase
             'isPremultiplied' => false
         ];
 
-        $manipulator = Mockery::mock(Manipulators\ManipulatorInterface::class, function ($mock) use ($image, $params) {
-            $mock->shouldReceive('setParams')
-                ->with($params)
-                ->andReturnSelf();
+        $manipulator = $this->getMockery(ManipulatorInterface::class,
+            function ($mock) use ($image, $params) {
+                $mock->shouldReceive('setParams')
+                    ->with($params)
+                    ->andReturnSelf();
 
-            $mock->shouldReceive('getParams')
-                ->andReturn($params);
+                $mock->shouldReceive('getParams')
+                    ->andReturn($params);
 
-            $mock->shouldReceive('run')->andReturn($image);
-        });
+                $mock->shouldReceive('run')->andReturn($image);
+            });
 
-        $api = new Api\Api($client, $throttler, [$manipulator]);
+        $api = new Api($client, $throttler, [$manipulator]);
 
         $this->server->setApi($api);
         ob_start();
@@ -170,21 +170,21 @@ class ServerTest extends TestCase
 
         file_put_contents($tempFile, $pixel);
 
-        $client = Mockery::mock(
+        $client = $this->getMockery(
             Client::class,
             function ($mock) use ($uri, $tempFile) {
                 $mock->shouldReceive('get')->with($uri->__toString())->andReturn($tempFile);
             }
         );
 
-        $throttler = Mockery::mock(
-            Throttler\ThrottlerInterface::class,
+        $throttler = $this->getMockery(
+            ThrottlerInterface::class,
             function ($mock) {
                 $mock->shouldReceive('isExceeded')->with('127.0.0.1');
             }
         );
 
-        $image = Mockery::mock(Image::class, function ($mock) use ($pixel) {
+        $image = $this->getMockery(Image::class, function ($mock) use ($pixel) {
             $mock->shouldReceive('writeToBuffer')->andReturn($pixel);
         });
 
@@ -198,18 +198,19 @@ class ServerTest extends TestCase
             'encoding' => 'base64'
         ];
 
-        $manipulator = Mockery::mock(Manipulators\ManipulatorInterface::class, function ($mock) use ($image, $params) {
-            $mock->shouldReceive('setParams')
-                ->with($params)
-                ->andReturnSelf();
+        $manipulator = $this->getMockery(ManipulatorInterface::class,
+            function ($mock) use ($image, $params) {
+                $mock->shouldReceive('setParams')
+                    ->with($params)
+                    ->andReturnSelf();
 
-            $mock->shouldReceive('getParams')
-                ->andReturn($params);
+                $mock->shouldReceive('getParams')
+                    ->andReturn($params);
 
-            $mock->shouldReceive('run')->andReturn($image);
-        });
+                $mock->shouldReceive('run')->andReturn($image);
+            });
 
-        $api = new Api\Api($client, $throttler, [$manipulator]);
+        $api = new Api($client, $throttler, [$manipulator]);
 
         $this->server->setApi($api);
         ob_start();

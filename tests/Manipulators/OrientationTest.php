@@ -1,24 +1,19 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Manipulators;
+namespace AndriesLouw\imagesweserv\Test\Manipulators;
 
+use AndriesLouw\imagesweserv\Manipulators\Orientation;
+use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
 use Jcupitt\Vips\Angle;
 use Jcupitt\Vips\Image;
-use Mockery;
-use PHPUnit\Framework\TestCase;
 
-class OrientationTest extends TestCase
+class OrientationTest extends ImagesweservTestCase
 {
     private $manipulator;
 
     public function setUp()
     {
         $this->manipulator = new Orientation();
-    }
-
-    public function tearDown()
-    {
-        Mockery::close();
     }
 
     public function testCreateInstance()
@@ -28,7 +23,7 @@ class OrientationTest extends TestCase
 
     public function testRun()
     {
-        $image = Mockery::mock(Image::class, function ($mock) {
+        $image = $this->getMockery(Image::class, function ($mock) {
             $mock->shouldReceive('copyMemory')->andReturnSelf()->once();
             $mock->shouldReceive('rot')->with(Angle::D90)->andReturnSelf()->once();
         });

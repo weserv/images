@@ -1,26 +1,21 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Manipulators;
+namespace AndriesLouw\imagesweserv\Test\Manipulators;
 
+use AndriesLouw\imagesweserv\Manipulators\Shape;
+use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
 use Jcupitt\Vips\Access;
 use Jcupitt\Vips\BandFormat;
 use Jcupitt\Vips\Image;
 use Jcupitt\Vips\Interpretation;
-use Mockery;
-use PHPUnit\Framework\TestCase;
 
-class ShapeTest extends TestCase
+class ShapeTest extends ImagesweservTestCase
 {
     private $manipulator;
 
     public function setUp()
     {
         $this->manipulator = new Shape();
-    }
-
-    public function tearDown()
-    {
-        Mockery::close();
     }
 
     public function testCreateInstance()
@@ -30,7 +25,7 @@ class ShapeTest extends TestCase
 
     public function testRun()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[bandjoin, __get]', [''], function ($mock) {
+        $image = $this->getMockery('Jcupitt\Vips\Image[bandjoin, __get]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('bands')
                 ->andReturn(3)
@@ -57,17 +52,17 @@ class ShapeTest extends TestCase
                 ->once();
 
             $mock->shouldReceive('extract_band')
-                ->with(Mockery::any(), Mockery::any())
+                ->with(\Mockery::any(), \Mockery::any())
                 ->andReturnSelf()
                 ->twice();
 
             $mock->shouldReceive('linear')
-                ->with(Mockery::any(), 0, Mockery::any())
+                ->with(\Mockery::any(), 0, \Mockery::any())
                 ->andReturnSelf()
                 ->once();
 
             $mock->shouldReceive('bandjoin')
-                ->with(Mockery::any())
+                ->with(\Mockery::any())
                 ->andReturnSelf()
                 ->once();
         });

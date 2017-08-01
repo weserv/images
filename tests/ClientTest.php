@@ -1,13 +1,12 @@
 <?php
 
-namespace AndriesLouw\imagesweserv;
+namespace AndriesLouw\imagesweserv\Test;
 
+use AndriesLouw\imagesweserv\Client;
 use GuzzleHttp\ClientInterface;
-use Mockery;
-use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 
-class ClientTest extends TestCase
+class ClientTest extends ImagesweservTestCase
 {
     private $client;
 
@@ -31,11 +30,6 @@ class ClientTest extends TestCase
         $this->client = new Client($this->tempFile, $this->options);
     }
 
-    public function tearDown()
-    {
-        Mockery::close();
-    }
-
     public function testCreateInstance()
     {
         $this->assertInstanceOf(Client::class, $this->client);
@@ -43,7 +37,7 @@ class ClientTest extends TestCase
 
     public function testSetClient()
     {
-        $client = Mockery::mock(ClientInterface::class);
+        $client = $this->getMockery(ClientInterface::class);
         $this->client->setClient($client);
         $this->assertInstanceOf(ClientInterface::class, $this->client->getClient());
     }
@@ -64,9 +58,9 @@ class ClientTest extends TestCase
         $base64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
         $pixel = base64_decode($base64);
 
-        $response = Mockery::mock(ResponseInterface::class);
+        $response = $this->getMockery(ResponseInterface::class);
 
-        $client = Mockery::mock(\GuzzleHttp\Client::class, function ($mock) use ($response, $pixel) {
+        $client = $this->getMockery(\GuzzleHttp\Client::class, function ($mock) use ($response, $pixel) {
             $mock->shouldReceive('request')
                 ->with('GET', '/', [
                     'sink' => $this->tempFile,

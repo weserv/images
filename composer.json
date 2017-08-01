@@ -43,6 +43,11 @@
             "AndriesLouw\\imagesweserv\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "AndriesLouw\\imagesweserv\\Test\\": "tests/"
+        }
+    },
     "scripts": {
         "test": [
             "parallel-lint . --exclude vendor",

@@ -1,23 +1,18 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Manipulators;
+namespace AndriesLouw\imagesweserv\Test\Manipulators;
 
+use AndriesLouw\imagesweserv\Manipulators\Brightness;
+use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
 use Jcupitt\Vips\Image;
-use Mockery;
-use PHPUnit\Framework\TestCase;
 
-class BrightnessTest extends TestCase
+class BrightnessTest extends ImagesweservTestCase
 {
     private $manipulator;
 
     public function setUp()
     {
         $this->manipulator = new Brightness();
-    }
-
-    public function tearDown()
-    {
-        Mockery::close();
     }
 
     public function testCreateInstance()
@@ -27,7 +22,7 @@ class BrightnessTest extends TestCase
 
     public function testRun()
     {
-        $image = Mockery::mock(Image::class, function ($mock) {
+        $image = $this->getMockery(Image::class, function ($mock) {
             $mock->shouldReceive('linear')->with([1, 1, 1], [127.5, 127.5, 127.5])->andReturnSelf()->once();
         });
 

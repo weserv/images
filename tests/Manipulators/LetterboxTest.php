@@ -1,33 +1,26 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Manipulators;
+namespace AndriesLouw\imagesweserv\Test\Manipulators;
 
+use AndriesLouw\imagesweserv\Api\Api;
+use AndriesLouw\imagesweserv\Client;
+use AndriesLouw\imagesweserv\Manipulators\Letterbox;
+use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
 use Jcupitt\Vips\Extend;
 use Jcupitt\Vips\Image;
-use Mockery;
-use PHPUnit\Framework\TestCase;
 
-class LetterboxTest extends TestCase
+class LetterboxTest extends ImagesweservTestCase
 {
+    private $client;
+    private $api;
+
     private $manipulator;
-    private $image;
 
     public function setUp()
     {
+        $this->client = $this->getMockery(Client::class);
+        $this->api = new Api($this->client, null, $this->getManipulators());
         $this->manipulator = new Letterbox();
-        $this->image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
-            $mock->shouldReceive('__get')
-                ->with('width')
-                ->andReturn(100);
-            $mock->shouldReceive('__get')
-                ->with('height')
-                ->andReturn(100);
-        });
-    }
-
-    public function tearDown()
-    {
-        Mockery::close();
     }
 
     public function testCreateInstance()
@@ -35,46 +28,28 @@ class LetterboxTest extends TestCase
         $this->assertInstanceOf(Letterbox::class, $this->manipulator);
     }
 
-    public function testRun()
+    /*
+     * TIFF letterbox known to cause rounding errors
+     */
+    public function testTiffEmbed()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
-            $mock->shouldReceive('__get')
-                ->with('width')
-                ->andReturn(244)
-                ->times(2);
-
-            $mock->shouldReceive('__get')
-                ->with('height')
-                ->andReturn(300)
-                ->times(1);
-
-            $mock->shouldReceive('__get')
-                ->with('bands')
-                ->andReturn(3)
-                ->once();
-
-            $mock->shouldReceive('embed')
-                ->with(
-                    (300 - 244) / 2,
-                    0,
-                    300,
-                    300,
-                    ['extend' => Extend::BACKGROUND, 'background' => [0, 0, 0]]
-                )
-                ->andReturnSelf()
-                ->once();
-        });
-
+        $testImage = $this->inputTiff;
         $params = [
-            'w' => 300,
-            'h' => 300,
+            'w' => '240',
+            'h' => '320',
             't' => 'letterbox',
-            'bg' => 'black',
-            'hasAlpha' => false,
-            'is16Bit' => false,
-            'isPremultiplied' => false,
+            'bg' => 'white'
         ];
 
-        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('tiff', $extension);
+        $this->assertEquals(240, $image->width);
+        $this->assertEquals(320, $image->height);
+        $this->assertFalse($hasAlpha);
     }
 }

@@ -1,23 +1,18 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Manipulators;
+namespace AndriesLouw\imagesweserv\Test\Manipulators;
 
+use AndriesLouw\imagesweserv\Manipulators\Background;
+use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
 use Jcupitt\Vips\Image;
-use Mockery;
-use PHPUnit\Framework\TestCase;
 
-class BackgroundTest extends TestCase
+class BackgroundTest extends ImagesweservTestCase
 {
     private $manipulator;
 
     public function setUp()
     {
         $this->manipulator = new Background();
-    }
-
-    public function tearDown()
-    {
-        Mockery::close();
     }
 
     public function testCreateInstance()
@@ -27,7 +22,7 @@ class BackgroundTest extends TestCase
 
     public function testRun()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
+        $image = $this->getMockery('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('bands')
                 ->andReturn(3)

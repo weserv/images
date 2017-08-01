@@ -1,24 +1,19 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Manipulators;
+namespace AndriesLouw\imagesweserv\Test\Manipulators;
 
+use AndriesLouw\imagesweserv\Manipulators\Contrast;
+use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
 use Jcupitt\Vips\BandFormat;
 use Jcupitt\Vips\Image;
-use Mockery;
-use PHPUnit\Framework\TestCase;
 
-class ContrastTest extends TestCase
+class ContrastTest extends ImagesweservTestCase
 {
     private $manipulator;
 
     public function setUp()
     {
         $this->manipulator = new Contrast();
-    }
-
-    public function tearDown()
-    {
-        Mockery::close();
     }
 
     public function testCreateInstance()
@@ -28,14 +23,14 @@ class ContrastTest extends TestCase
 
     public function testRun()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
+        $image = $this->getMockery('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('format')
                 ->andReturn(BandFormat::UCHAR)
                 ->once();
 
             $mock->shouldReceive('maplut')
-                ->with(Mockery::any())
+                ->with(\Mockery::any())
                 ->andReturnSelf()
                 ->once();
         });

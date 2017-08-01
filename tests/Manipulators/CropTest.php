@@ -1,12 +1,12 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Manipulators;
+namespace AndriesLouw\imagesweserv\Test\Manipulators;
 
+use AndriesLouw\imagesweserv\Manipulators\Crop;
+use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
 use Jcupitt\Vips\Image;
-use Mockery;
-use PHPUnit\Framework\TestCase;
 
-class CropTest extends TestCase
+class CropTest extends ImagesweservTestCase
 {
     private $manipulator;
     private $image;
@@ -14,7 +14,7 @@ class CropTest extends TestCase
     public function setUp()
     {
         $this->manipulator = new Crop();
-        $this->image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
+        $this->image = $this->getMockery('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
                 ->andReturn(100);
@@ -22,11 +22,6 @@ class CropTest extends TestCase
                 ->with('height')
                 ->andReturn(100);
         });
-    }
-
-    public function tearDown()
-    {
-        Mockery::close();
     }
 
     public function testCreateInstance()
@@ -46,7 +41,7 @@ class CropTest extends TestCase
 
     public function testSquareCrop()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
+        $image = $this->getMockery('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
                 ->andReturn(327)

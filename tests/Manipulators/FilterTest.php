@@ -1,24 +1,19 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Manipulators;
+namespace AndriesLouw\imagesweserv\Test\Manipulators;
 
+use AndriesLouw\imagesweserv\Manipulators\Filter;
+use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
 use Jcupitt\Vips\Image;
 use Jcupitt\Vips\Interpretation;
-use Mockery;
-use PHPUnit\Framework\TestCase;
 
-class FilterTest extends TestCase
+class FilterTest extends ImagesweservTestCase
 {
     private $manipulator;
 
     public function setUp()
     {
         $this->manipulator = new Filter();
-    }
-
-    public function tearDown()
-    {
-        Mockery::close();
     }
 
     public function testCreateInstance()
@@ -28,7 +23,7 @@ class FilterTest extends TestCase
 
     public function testRunGreyscaleFilter()
     {
-        $image = Mockery::mock(Image::class, function ($mock) {
+        $image = $this->getMockery(Image::class, function ($mock) {
             $mock->shouldReceive('colourspace')->with(Interpretation::B_W)->andReturnSelf()->once();
         });
 
@@ -37,8 +32,8 @@ class FilterTest extends TestCase
 
     public function testRunSepiaFilter()
     {
-        $image = Mockery::mock(Image::class, function ($mock) {
-            $mock->shouldReceive('recomb')->with(Mockery::any())->andReturnSelf()->once();
+        $image = $this->getMockery(Image::class, function ($mock) {
+            $mock->shouldReceive('recomb')->with(\Mockery::any())->andReturnSelf()->once();
         });
 
         $this->assertInstanceOf(Image::class, $this->manipulator->runSepiaFilter($image));
@@ -46,7 +41,7 @@ class FilterTest extends TestCase
 
     public function testRunNegateFilter()
     {
-        $image = Mockery::mock(Image::class, function ($mock) {
+        $image = $this->getMockery(Image::class, function ($mock) {
             $mock->shouldReceive('invert')->andReturnSelf()->once();
         });
 

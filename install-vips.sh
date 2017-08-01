@@ -1,7 +1,8 @@
 #!/bin/bash 
 
 version_full=$VIPS_VERSION_MAJOR.$VIPS_VERSION_MINOR.$VIPS_VERSION_MICRO
-vips_tarball=https://github.com/jcupitt/libvips/releases/download/v$version_full/vips-$version_full.tar.gz
+version_suffix=$VIPS_VERSION_SUFFIX
+vips_tarball=https://github.com/jcupitt/libvips/releases/download/v$version_full${version_suffix:+-$version_suffix}/vips-$version_full.tar.gz
 
 set -e
 

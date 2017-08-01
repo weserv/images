@@ -1,28 +1,25 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Manipulators;
+namespace AndriesLouw\imagesweserv\Test\Manipulators;
 
+use AndriesLouw\imagesweserv\Api\Api;
+use AndriesLouw\imagesweserv\Client;
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
-use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
-use Jcupitt\Vips\Image;
-use Jcupitt\Vips\Interesting;
-use Jcupitt\Vips\Interpretation;
-use Jcupitt\Vips\Size;
-use Mockery;
-use PHPUnit\Framework\TestCase;
+use AndriesLouw\imagesweserv\Manipulators\Thumbnail;
+use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
 
-class ThumbnailTest extends TestCase
+class ThumbnailTest extends ImagesweservTestCase
 {
+    private $client;
+    private $api;
+
     private $manipulator;
 
     public function setUp()
     {
+        $this->client = $this->getMockery(Client::class);
+        $this->api = new Api($this->client, null, $this->getManipulators());
         $this->manipulator = new Thumbnail();
-    }
-
-    public function tearDown()
-    {
-        Mockery::close();
     }
 
     public function testCreateInstance()
@@ -43,426 +40,581 @@ class ThumbnailTest extends TestCase
 
     public function testFit()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
-            $mock->shouldReceive('__get')
-                ->with('width')
-                ->andReturn(1967)
-                ->times(3);
-
-            $mock->shouldReceive('__get')
-                ->with('height')
-                ->andReturn(2421)
-                ->times(3);
-
-            $mock->shouldReceive('__get')
-                ->with('interpretation')
-                ->andReturn(Interpretation::SRGB)
-                ->once();
-
-            $mock->shouldReceive('typeof')
-                ->with(Utils::VIPS_META_ORIENTATION)
-                ->andReturn(0)
-                ->once();
-
-            $mock->shouldReceive('typeof')
-                ->with(Utils::VIPS_META_ICC_NAME)
-                ->andReturn(0)
-                ->once();
-
-            $mock->shouldReceive('thumbnail')
-                ->with('lichtenstein.jpg', 244, [
-                    'height' => 300,
-                    'auto_rotate' => true,
-                    'linear' => false,
-                    'size' => Size::DOWN
-                ])
-                ->andReturnSelf()
-                ->once();
-        });
-
+        $testImage = $this->inputJpg;
         $params = [
-            'w' => 300,
-            'h' => 300,
-            't' => 'fit',
-            'tmpFileName' => 'lichtenstein.jpg',
-            'hasAlpha' => false,
-            'is16Bit' => false,
-            'isPremultiplied' => false,
+            'w' => '320',
+            'h' => '240',
         ];
 
-        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpg', $extension);
+        $this->assertEquals(294, $image->width);
+        $this->assertEquals(240, $image->height);
+        $this->assertFalse($hasAlpha);
+    }
+
+    /*
+     * Provide only one dimension, should default to fit
+     */
+    public function testFixedWidth()
+    {
+        $testImage = $this->inputJpg;
+        $params = [
+            'w' => '320'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpg', $extension);
+        $this->assertEquals(320, $image->width);
+        $this->assertEquals(261, $image->height);
+        $this->assertFalse($hasAlpha);
+    }
+
+    /*
+     * Provide only one dimension, should default to fit
+     */
+    public function testFixedHeight()
+    {
+        $testImage = $this->inputJpg;
+        $params = [
+            'h' => '320'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpg', $extension);
+        $this->assertEquals(392, $image->width);
+        $this->assertEquals(320, $image->height);
+        $this->assertFalse($hasAlpha);
+    }
+
+    public function testIdentityTransform()
+    {
+        $testImage = $this->inputJpg;
+        $params = [];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpg', $extension);
+        $this->assertEquals(2725, $image->width);
+        $this->assertEquals(2225, $image->height);
+        $this->assertFalse($hasAlpha);
     }
 
     public function testFitup()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
-            $mock->shouldReceive('__get')
-                ->with('width')
-                ->andReturn(1967)
-                ->times(3);
-
-            $mock->shouldReceive('__get')
-                ->with('height')
-                ->andReturn(2421)
-                ->times(3);
-
-            $mock->shouldReceive('__get')
-                ->with('interpretation')
-                ->andReturn(Interpretation::SRGB)
-                ->once();
-
-            $mock->shouldReceive('typeof')
-                ->with(Utils::VIPS_META_ORIENTATION)
-                ->andReturn(0)
-                ->once();
-
-            $mock->shouldReceive('typeof')
-                ->with(Utils::VIPS_META_ICC_NAME)
-                ->andReturn(0)
-                ->once();
-
-            $mock->shouldReceive('thumbnail')
-                ->with('lichtenstein.jpg', 2437, [
-                    'height' => 3000,
-                    'auto_rotate' => true,
-                    'linear' => false,
-                    'size' => Size::BOTH
-                ])
-                ->andReturnSelf()
-                ->once();
-        });
-
+        $testImage = $this->inputJpg;
         $params = [
-            'w' => 3000,
-            'h' => 3000,
-            't' => 'fitup',
-            'tmpFileName' => 'lichtenstein.jpg',
-            'hasAlpha' => false,
-            'is16Bit' => false,
-            'isPremultiplied' => false,
+            'w' => '3000',
+            't' => 'fitup'
         ];
 
-        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpg', $extension);
+        $this->assertEquals(3000, $image->width);
+        $this->assertEquals(2450, $image->height);
+        $this->assertFalse($hasAlpha);
+    }
+
+    public function testTooLarge()
+    {
+        $testImage = $this->inputJpg;
+        $params = [
+            'w' => '35500000',
+            'h' => '35500000'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        $this->expectException(ImageTooLargeException::class);
+
+        $this->api->run($uri, $params);
     }
 
     public function testSquare()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
-            $mock->shouldReceive('__get')
-                ->with('width')
-                ->andReturn(1967)
-                ->times(3);
-
-            $mock->shouldReceive('__get')
-                ->with('height')
-                ->andReturn(2421)
-                ->times(3);
-
-            $mock->shouldReceive('__get')
-                ->with('interpretation')
-                ->andReturn(Interpretation::SRGB)
-                ->once();
-
-            $mock->shouldReceive('typeof')
-                ->with(Utils::VIPS_META_ORIENTATION)
-                ->andReturn(0)
-                ->once();
-
-            $mock->shouldReceive('typeof')
-                ->with(Utils::VIPS_META_ICC_NAME)
-                ->andReturn(0)
-                ->once();
-
-            $mock->shouldReceive('thumbnail')
-                ->with('lichtenstein.jpg', 300, [
-                    'height' => 369,
-                    'auto_rotate' => true,
-                    'linear' => false,
-                    'size' => Size::BOTH
-                ])
-                ->andReturnSelf()
-                ->once();
-        });
-
+        $testImage = $this->inputJpg;
         $params = [
-            'w' => 300,
-            'h' => 300,
+            'w' => '320',
+            'h' => '240',
+            't' => 'square'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpg', $extension);
+        $this->assertEquals(320, $image->width);
+        $this->assertEquals(240, $image->height);
+        $this->assertFalse($hasAlpha);
+    }
+
+    public function testSquareUpscale()
+    {
+        $testImage = $this->inputJpg;
+        $params = [
+            'w' => '3000',
+            't' => 'square'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpg', $extension);
+        $this->assertEquals(3000, $image->width);
+        $this->assertEquals(2450, $image->height);
+        $this->assertFalse($hasAlpha);
+    }
+
+    /*
+     * Do not enlarge when input width is already less than output width
+     */
+    public function testSquareDownWidth()
+    {
+        $testImage = $this->inputJpg;
+        $params = [
+            'w' => '2800',
+            't' => 'squaredown'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpg', $extension);
+        $this->assertEquals(2725, $image->width);
+        $this->assertEquals(2225, $image->height);
+        $this->assertFalse($hasAlpha);
+    }
+
+    /*
+     * Do not enlarge when input height is already less than output height
+     */
+    public function testSquareDownHeight()
+    {
+        $testImage = $this->inputJpg;
+        $params = [
+            'h' => '2300',
+            't' => 'squaredown'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpg', $extension);
+        $this->assertEquals(2725, $image->width);
+        $this->assertEquals(2225, $image->height);
+        $this->assertFalse($hasAlpha);
+    }
+
+    public function testTiff()
+    {
+        $testImage = $this->inputTiff;
+        $params = [
+            'w' => '240',
+            'h' => '320',
+            't' => 'square'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('tiff', $extension);
+        $this->assertEquals(240, $image->width);
+        $this->assertEquals(320, $image->height);
+        $this->assertFalse($hasAlpha);
+    }
+
+    /*
+     * Width or height considering ratio (portrait)
+     */
+    public function testTiffRatioPortrait()
+    {
+        $testImage = $this->inputTiff;
+        $params = [
+            'w' => '320',
+            'h' => '320'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('tiff', $extension);
+        $this->assertEquals(243, $image->width);
+        $this->assertEquals(320, $image->height);
+        $this->assertFalse($hasAlpha);
+    }
+
+    /*
+     * Width or height considering ratio (landscape)
+     */
+    public function testJpgRatioLandscape()
+    {
+        $testImage = $this->inputJpg;
+        $params = [
+            'w' => '320',
+            'h' => '320'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpg', $extension);
+        $this->assertEquals(320, $image->width);
+        $this->assertEquals(261, $image->height);
+        $this->assertFalse($hasAlpha);
+    }
+
+    /*
+     * Downscale width and height, ignoring aspect ratio
+     */
+    public function testAbsoluteDownscale()
+    {
+        $testImage = $this->inputJpg;
+        $params = [
+            'w' => '320',
+            'h' => '320',
+            't' => 'absolute'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpg', $extension);
+        $this->assertEquals(320, $image->width);
+        $this->assertEquals(320, $image->height);
+        $this->assertFalse($hasAlpha);
+    }
+
+    /*
+     * Downscale width, ignoring aspect ratio
+     */
+    public function testAbsoluteDownscaleWidth()
+    {
+        $testImage = $this->inputJpg;
+        $params = [
+            'w' => '320',
+            't' => 'absolute'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpg', $extension);
+        $this->assertEquals(320, $image->width);
+        $this->assertEquals(2225, $image->height);
+        $this->assertFalse($hasAlpha);
+    }
+
+    /*
+     * Downscale width, ignoring aspect ratio
+     */
+    public function testAbsoluteDownscaleHeight()
+    {
+        $testImage = $this->inputJpg;
+        $params = [
+            'h' => '320',
+            't' => 'absolute'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpg', $extension);
+        $this->assertEquals(2725, $image->width);
+        $this->assertEquals(320, $image->height);
+        $this->assertFalse($hasAlpha);
+    }
+
+    /*
+     * Upscale width and height, ignoring aspect ratio
+     */
+    public function testAbsoluteUpscale()
+    {
+        $testImage = $this->inputJpg;
+        $params = [
+            'w' => '3000',
+            'h' => '3000',
+            't' => 'absolute'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpg', $extension);
+        $this->assertEquals(3000, $image->width);
+        $this->assertEquals(3000, $image->height);
+        $this->assertFalse($hasAlpha);
+    }
+
+    /*
+     * Upscale width and height, ignoring aspect ratio
+     */
+    public function testAbsoluteUpscaleWidth()
+    {
+        $testImage = $this->inputJpg;
+        $params = [
+            'w' => '3000',
+            't' => 'absolute'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpg', $extension);
+        $this->assertEquals(3000, $image->width);
+        $this->assertEquals(2225, $image->height);
+        $this->assertFalse($hasAlpha);
+    }
+
+    /*
+     * Upscale width and height, ignoring aspect ratio
+     */
+    public function testAbsoluteUpscaleHeight()
+    {
+        $testImage = $this->inputJpg;
+        $params = [
+            'h' => '3000',
+            't' => 'absolute'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpg', $extension);
+        $this->assertEquals(2725, $image->width);
+        $this->assertEquals(3000, $image->height);
+        $this->assertFalse($hasAlpha);
+    }
+
+    /*
+     * Downscale width, upscale height, ignoring aspect ratio
+     */
+    public function testAbsoluteDownscaleWidthUpscaleHeight()
+    {
+        $testImage = $this->inputJpg;
+        $params = [
+            'w' => '320',
+            'h' => '3000',
+            't' => 'absolute'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpg', $extension);
+        $this->assertEquals(320, $image->width);
+        $this->assertEquals(3000, $image->height);
+        $this->assertFalse($hasAlpha);
+    }
+
+    /*
+     * Upscale width, downscale height, ignoring aspect ratio
+     */
+    public function testAbsoluteUpscaleWidthDownscaleHeight()
+    {
+        $testImage = $this->inputJpg;
+        $params = [
+            'w' => '3000',
+            'h' => '320',
+            't' => 'absolute'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpg', $extension);
+        $this->assertEquals(3000, $image->width);
+        $this->assertEquals(320, $image->height);
+        $this->assertFalse($hasAlpha);
+    }
+
+    public function testAbsoluteIdentityTransform()
+    {
+        $testImage = $this->inputJpg;
+        $params = [
+            't' => 'absolute'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpg', $extension);
+        $this->assertEquals(2725, $image->width);
+        $this->assertEquals(2225, $image->height);
+        $this->assertFalse($hasAlpha);
+    }
+
+    public function testEntropyCropJpeg()
+    {
+        $testImage = $this->inputJpg;
+        $expectedImage = $this->expectedDir . '/crop-strategy-entropy.jpg';
+        $params = [
+            'w' => '80',
+            'h' => '320',
             't' => 'square',
-            'a' => 'top-left',
-            'tmpFileName' => 'lichtenstein.jpg',
-            'hasAlpha' => false,
-            'is16Bit' => false,
-            'isPremultiplied' => false,
+            'a' => 'entropy'
         ];
 
-        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpg', $extension);
+        $this->assertEquals(3, $image->bands);
+        $this->assertEquals(80, $image->width);
+        $this->assertEquals(320, $image->height);
+        $this->assertFalse($hasAlpha);
+        $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testSquareDown()
+    public function testEntropyCropPng()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
-            $mock->shouldReceive('__get')
-                ->with('width')
-                ->andReturn(1967)
-                ->times(3);
-
-            $mock->shouldReceive('__get')
-                ->with('height')
-                ->andReturn(2421)
-                ->times(3);
-
-            $mock->shouldReceive('__get')
-                ->with('interpretation')
-                ->andReturn(Interpretation::SRGB)
-                ->once();
-
-            $mock->shouldReceive('typeof')
-                ->with(Utils::VIPS_META_ORIENTATION)
-                ->andReturn(0)
-                ->once();
-
-            $mock->shouldReceive('typeof')
-                ->with(Utils::VIPS_META_ICC_NAME)
-                ->andReturn(0)
-                ->once();
-
-            $mock->shouldReceive('thumbnail')
-                ->with('lichtenstein.jpg', 3000, [
-                    'height' => 3692,
-                    'auto_rotate' => true,
-                    'linear' => false,
-                    'size' => Size::DOWN
-                ])
-                ->andReturnSelf()
-                ->once();
-        });
-
+        $testImage = $this->inputPngWithTransparency;
+        $expectedImage = $this->expectedDir . '/crop-strategy.png';
         $params = [
-            'w' => 3000,
-            'h' => 3000,
-            't' => 'squaredown',
-            'tmpFileName' => 'lichtenstein.jpg',
-            'hasAlpha' => false,
-            'is16Bit' => false,
-            'isPremultiplied' => false,
-        ];
-
-        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
-    }
-
-
-    public function testAbsolute()
-    {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
-            $mock->shouldReceive('__get')
-                ->with('width')
-                ->andReturn(1967)
-                ->times(3);
-
-            $mock->shouldReceive('__get')
-                ->with('height')
-                ->andReturn(2421)
-                ->times(3);
-
-            $mock->shouldReceive('__get')
-                ->with('interpretation')
-                ->andReturn(Interpretation::SRGB)
-                ->once();
-
-            $mock->shouldReceive('typeof')
-                ->with(Utils::VIPS_META_ORIENTATION)
-                ->andReturn(0)
-                ->once();
-
-            $mock->shouldReceive('typeof')
-                ->with(Utils::VIPS_META_ICC_NAME)
-                ->andReturn(0)
-                ->once();
-
-            $mock->shouldReceive('thumbnail')
-                ->with('lichtenstein.jpg', 300, [
-                    'height' => 300,
-                    'auto_rotate' => true,
-                    'linear' => false,
-                    'size' => 'force'
-                ])
-                ->andReturnSelf()
-                ->once();
-        });
-
-        $params = [
-            'w' => 300,
-            'h' => 300,
-            't' => 'absolute',
-            'tmpFileName' => 'lichtenstein.jpg',
-            'hasAlpha' => false,
-            'is16Bit' => false,
-            'isPremultiplied' => false,
-        ];
-
-        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
-    }
-
-    public function testLetterbox()
-    {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
-            $mock->shouldReceive('__get')
-                ->with('width')
-                ->andReturn(1967)
-                ->times(3);
-
-            $mock->shouldReceive('__get')
-                ->with('height')
-                ->andReturn(2421)
-                ->times(3);
-
-            $mock->shouldReceive('__get')
-                ->with('interpretation')
-                ->andReturn(Interpretation::SRGB)
-                ->once();
-
-            $mock->shouldReceive('typeof')
-                ->with(Utils::VIPS_META_ORIENTATION)
-                ->andReturn(0)
-                ->once();
-
-            $mock->shouldReceive('typeof')
-                ->with(Utils::VIPS_META_ICC_NAME)
-                ->andReturn(0)
-                ->once();
-
-            $mock->shouldReceive('thumbnail')
-                ->with('lichtenstein.jpg', 244, [
-                    'height' => 300,
-                    'auto_rotate' => true,
-                    'linear' => false,
-                    'size' => Size::BOTH
-                ])
-                ->andReturnSelf()
-                ->once();
-        });
-
-        $params = [
-            'w' => 300,
-            'h' => 300,
-            't' => 'letterbox',
-            'bg' => 'black',
-            'tmpFileName' => 'lichtenstein.jpg',
-            'hasAlpha' => false,
-            'is16Bit' => false,
-            'isPremultiplied' => false,
-        ];
-
-        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
-    }
-
-
-    public function testEntropyCrop()
-    {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
-            $mock->shouldReceive('__get')
-                ->with('width')
-                ->andReturn(1967)
-                ->times(3);
-
-            $mock->shouldReceive('__get')
-                ->with('height')
-                ->andReturn(2421)
-                ->times(3);
-
-            $mock->shouldReceive('__get')
-                ->with('interpretation')
-                ->andReturn(Interpretation::SRGB)
-                ->once();
-
-            $mock->shouldReceive('typeof')
-                ->with(Utils::VIPS_META_ORIENTATION)
-                ->andReturn(0)
-                ->once();
-
-            $mock->shouldReceive('typeof')
-                ->with(Utils::VIPS_META_ICC_NAME)
-                ->andReturn(0)
-                ->once();
-
-            $mock->shouldReceive('thumbnail')
-                ->with('lichtenstein.jpg', 300, [
-                    'height' => 300,
-                    'auto_rotate' => true,
-                    'linear' => false,
-                    'size' => Size::BOTH,
-                    'crop' => Interesting::ENTROPY,
-                ])
-                ->andReturnSelf()
-                ->once();
-        });
-
-        $params = [
-            'w' => 300,
-            'h' => 300,
+            'w' => '320',
+            'h' => '80',
             't' => 'square',
-            'a' => 'entropy',
-            'tmpFileName' => 'lichtenstein.jpg',
-            'hasAlpha' => false,
-            'is16Bit' => false,
-            'isPremultiplied' => false,
+            'a' => 'entropy'
         ];
 
-        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('png', $extension);
+        $this->assertEquals(4, $image->bands);
+        $this->assertEquals(320, $image->width);
+        $this->assertEquals(80, $image->height);
+        $this->assertTrue($hasAlpha);
+        $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testAttentionCrop()
+    public function testAttentionCropJpg()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
-            $mock->shouldReceive('__get')
-                ->with('width')
-                ->andReturn(1967)
-                ->times(3);
-
-            $mock->shouldReceive('__get')
-                ->with('height')
-                ->andReturn(2421)
-                ->times(3);
-
-            $mock->shouldReceive('__get')
-                ->with('interpretation')
-                ->andReturn(Interpretation::SRGB)
-                ->once();
-
-            $mock->shouldReceive('typeof')
-                ->with(Utils::VIPS_META_ORIENTATION)
-                ->andReturn(0)
-                ->once();
-
-            $mock->shouldReceive('typeof')
-                ->with(Utils::VIPS_META_ICC_NAME)
-                ->andReturn(0)
-                ->once();
-
-            $mock->shouldReceive('thumbnail')
-                ->with('lichtenstein.jpg', 300, [
-                    'height' => 300,
-                    'auto_rotate' => true,
-                    'linear' => false,
-                    'size' => Size::BOTH,
-                    'crop' => Interesting::ATTENTION,
-                ])
-                ->andReturnSelf()
-                ->once();
-        });
-
+        $testImage = $this->inputJpg;
+        $expectedImage = $this->expectedDir . '/crop-strategy-attention.jpg';
         $params = [
-            'w' => 300,
-            'h' => 300,
+            'w' => '80',
+            'h' => '320',
             't' => 'square',
-            'a' => 'attention',
-            'tmpFileName' => 'lichtenstein.jpg',
-            'hasAlpha' => false,
-            'is16Bit' => false,
-            'isPremultiplied' => false,
+            'a' => 'attention'
         ];
 
-        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpg', $extension);
+        $this->assertEquals(3, $image->bands);
+        $this->assertEquals(80, $image->width);
+        $this->assertEquals(320, $image->height);
+        $this->assertFalse($hasAlpha);
+        $this->assertSimilarImage($expectedImage, $image);
+    }
+
+    public function testAttentionCropPng()
+    {
+        $testImage = $this->inputPngWithTransparency;
+        $expectedImage = $this->expectedDir . '/crop-strategy.png';
+        $params = [
+            'w' => '320',
+            'h' => '80',
+            't' => 'square',
+            'a' => 'attention'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+
+        $this->assertEquals('png', $extension);
+        $this->assertEquals(4, $image->bands);
+        $this->assertEquals(320, $image->width);
+        $this->assertEquals(80, $image->height);
+        $this->assertTrue($hasAlpha);
+        $this->assertSimilarImage($expectedImage, $image);
     }
 
     public function testGetFit()
@@ -487,26 +639,5 @@ class ThumbnailTest extends TestCase
         $this->assertSame('crop', $this->manipulator->setParams(['t' => 'crop-101-102'])->getFit());
         $this->assertSame('fit', $this->manipulator->setParams(['t' => 'invalid'])->getFit());
         $this->assertSame('fit', $this->manipulator->setParams(['t' => null])->getFit());
-    }
-
-    public function testCheckImageSize()
-    {
-        $this->manipulator->setMaxImageSize(500 * 500);
-
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get]', [''], function ($mock) {
-            $mock->shouldReceive('__get')
-                ->with('width')
-                ->andReturn(1000)
-                ->twice();
-
-            $mock->shouldReceive('__get')
-                ->with('height')
-                ->andReturn(1000)
-                ->twice();
-        });
-
-        $this->expectException(ImageTooLargeException::class);
-
-        $this->manipulator->checkImageSize($image, 2000, 2000);
     }
 }

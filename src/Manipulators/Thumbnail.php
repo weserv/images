@@ -277,9 +277,8 @@ class Thumbnail extends BaseManipulator
             $thumbnailOptions['size'] = $this->withoutEnlargement($fit) ? Size::DOWN : Size::BOTH;
         }
 
-        // Note: Mocking on static methods isn't possible, so we don't use `Image::`.
         return $this->trim ?
             $image->thumbnail_image($targetResizeWidth, $thumbnailOptions) :
-            $image->thumbnail($this->tmpFileName, $targetResizeWidth, $thumbnailOptions);
+            Image::thumbnail($this->tmpFileName, $targetResizeWidth, $thumbnailOptions);
     }
 }

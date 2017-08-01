@@ -148,9 +148,9 @@ class Api implements ApiInterface
      * @throws VipsException for errors that occur during the processing of a Image
      *
      * @return array [
-     * @type string Manipulated image binary data,
-     * @type string The mimetype of the image,
-     * @type string The extension of the image
+     * @type Image The image,
+     * @type string The extension of the image,
+     * @type bool Does the image has alpha?
      * ]
      */
     public function run(string $url, array $params): array
@@ -230,9 +230,6 @@ class Api implements ApiInterface
         // Determine image extension from the libvips loader
         $extension = Utils::determineImageExtension($params['loader']);
 
-        // Get the allowed image types to convert to
-        $allowed = $this->getAllowedImageTypes();
-
         // Put common variables in the parameters
         $params['hasAlpha'] = $image->hasAlpha();
         $params['is16Bit'] = Utils::is16Bit($image->interpretation);
@@ -260,183 +257,6 @@ class Api implements ApiInterface
             }
         }
 
-        $needsGif = (isset($params['output']) && $params['output'] === 'gif')
-            || (!isset($params['output']) && $extension === 'gif');
-
-        // Check if output is set and allowed
-        if (isset($params['output'], $allowed[$params['output']])) {
-            $extension = $params['output'];
-        } elseif (!isset($allowed[$extension]) || ($params['hasAlpha'] && ($extension !== 'png' || $extension !== 'webp'))) {
-            // We force the extension to PNG if:
-            //  - The image has alpha and doesn't have the right extension to output alpha.
-            //    (useful for shape masking and letterboxing)
-            //  - The input extension is not allowed for output.
-            $extension = 'png';
-        }
-
-        $toBufferOptions = [];
-
-        switch ($extension) {
-            case 'jpg':
-                // Strip all metadata (EXIF, XMP, IPTC)
-                $toBufferOptions['strip'] = true;
-                // Set quality (default is 85)
-                $toBufferOptions['Q'] = $this->getQuality($params);
-                // Use progressive (interlace) scan, if necessary
-                $toBufferOptions['interlace'] = array_key_exists('il', $params);
-                // Enable libjpeg's Huffman table optimiser
-                $toBufferOptions['optimize_coding'] = true;
-                break;
-            case 'png':
-                // Use progressive (interlace) scan, if necessary
-                $toBufferOptions['interlace'] = array_key_exists('il', $params);
-                // zlib compression level (default is 6)
-                $toBufferOptions['compression'] = $this->getCompressionLevel($params);
-                // Use adaptive row filtering (default is none)
-                $toBufferOptions['filter'] = array_key_exists('filter', $params) ? 'all' : 'none';
-                break;
-            case 'webp':
-                // Strip all metadata (EXIF, XMP, IPTC)
-                $toBufferOptions['strip'] = true;
-                // Set quality (default is 85)
-                $toBufferOptions['Q'] = $this->getQuality($params);
-                // Set quality of alpha layer to 100
-                $toBufferOptions['alpha_q'] = 100;
-                break;
-        }
-
-        // Write an image to a formatted string
-        $buffer = $image->writeToBuffer(".$extension", $toBufferOptions);
-
-        // Free up memory
-        $image = null;
-
-        $mimeType = $allowed[$extension];
-
-        /*
-         * Note:
-         * It's currently not possible to save gif through libvips.
-         *
-         * We don't deprecate GIF output to make sure to not break
-         * anyone's apps.
-         * If gif output is needed then we are using GD
-         * to convert our libvips image to a gif.
-         *
-         * (Feels a little hackish but there is not an alternative at
-         * this moment..)
-         */
-
-        // Check if GD library is installed on the server
-        $gdAvailable = extension_loaded('gd') && function_exists('gd_info');
-
-        // If the GD library is installed and a gif output is needed.
-        if ($gdAvailable && $needsGif) {
-            // Create GD image from string (suppress any warnings)
-            $gdImage = @imagecreatefromstring($buffer);
-
-            // If image is valid
-            if ($gdImage !== false) {
-                // Enable interlacing if needed
-                if ($toBufferOptions['interlace']) {
-                    imageinterlace($gdImage, true);
-                }
-
-                // Preserve transparency
-                if ($params['hasAlpha']) {
-                    imagecolortransparent($gdImage, imagecolorallocatealpha($gdImage, 0, 0, 0, 127));
-                    imagealphablending($gdImage, false);
-                    imagesavealpha($gdImage, true);
-                }
-
-                // Turn output buffering on
-                ob_start();
-
-                // Output the image to the buffer
-                imagegif($gdImage);
-
-                // Read from buffer
-                $buffer = ob_get_contents();
-
-                // Delete buffer
-                ob_end_clean();
-
-                // Free up memory
-                imagedestroy($gdImage);
-
-                // Extension and mime-type are now gif
-                $extension = 'gif';
-                $mimeType = 'image/gif';
-            }
-        }
-
-        return [
-            $buffer,
-            $mimeType,
-            $extension
-        ];
-    }
-
-    /**
-     * Get the allowed image types to convert to.
-     *
-     * Note: It's currently not possible to save gif through libvips
-     * See: https://github.com/jcupitt/libvips/issues/235
-     * and: https://github.com/jcupitt/libvips/issues/620
-     *
-     * @return array
-     */
-    public function getAllowedImageTypes(): array
-    {
-        return [
-            //'gif' => 'image/gif',
-            'jpg' => 'image/jpeg',
-            'png' => 'image/png',
-            'webp' => 'image/webp'
-        ];
-    }
-
-    /**
-     * Resolve quality.
-     *
-     * @param array $params Parameters array
-     *
-     * @return int The resolved quality.
-     */
-    public function getQuality(array $params): int
-    {
-        $default = 85;
-
-        if (!isset($params['q']) || !is_numeric($params['q'])) {
-            return $default;
-        }
-
-        if ($params['q'] < 1 || $params['q'] > 100) {
-            return $default;
-        }
-
-        return (int)$params['q'];
-    }
-
-    /**
-     * Get the zlib compression level of the lossless PNG output format.
-     * The default level is 6.
-     *
-     * @param array $params Parameters array
-     *
-     * @return int The resolved zlib compression level.
-     */
-    public function getCompressionLevel(array $params): int
-    {
-        $default = 6;
-
-        if (!isset($params['level']) || !is_numeric($params['level'])) {
-            return $default;
-        }
-
-        if ($params['level'] < 0 || $params['level'] > 9) {
-            return $default;
-        }
-
-        return (int)$params['level'];
+        return [$image, $extension, $params['hasAlpha']];
     }
 }

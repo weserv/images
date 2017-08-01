@@ -1,31 +1,23 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Api;
+namespace AndriesLouw\imagesweserv\Test\Api;
 
+use AndriesLouw\imagesweserv\Api\Api;
 use AndriesLouw\imagesweserv\Client;
+use AndriesLouw\imagesweserv\Exception\ImageNotReadableException;
 use AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface;
+use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
 use AndriesLouw\imagesweserv\Throttler\ThrottlerInterface;
-use Jcupitt\Vips\Access;
-use Jcupitt\Vips\Image;
-use Mockery;
-use PHPUnit\Framework\TestCase;
 
-class ApiTest extends TestCase
+class ApiTest extends ImagesweservTestCase
 {
+    private $client;
     private $api;
 
     public function setUp()
     {
-        $this->api = new Api(
-            Mockery::mock(Client::class),
-            Mockery::mock(ThrottlerInterface::class),
-            []
-        );
-    }
-
-    public function tearDown()
-    {
-        Mockery::close();
+        $this->client = $this->getMockery(Client::class);
+        $this->api = new Api($this->client, null, $this->getManipulators());
     }
 
     public function testCreateInstance()
@@ -40,18 +32,13 @@ class ApiTest extends TestCase
         $this->assertNull($this->api->getThrottler());
 
         // Test if we can set a `real` throttler
-        $this->api->setThrottler(Mockery::mock(ThrottlerInterface::class));
-        $this->assertInstanceOf(ThrottlerInterface::class, $this->api->getThrottler());
-    }
-
-    public function testGetThrottler()
-    {
+        $this->api->setThrottler($this->getMockery(ThrottlerInterface::class));
         $this->assertInstanceOf(ThrottlerInterface::class, $this->api->getThrottler());
     }
 
     public function testSetClient()
     {
-        $this->api->setClient(Mockery::mock(Client::class));
+        $this->api->setClient($this->getMockery(Client::class));
         $this->assertInstanceOf(Client::class, $this->api->getClient());
     }
 
@@ -62,7 +49,7 @@ class ApiTest extends TestCase
 
     public function testSetManipulators()
     {
-        $this->api->setManipulators([Mockery::mock(ManipulatorInterface::class)]);
+        $this->api->setManipulators([$this->getMockery(ManipulatorInterface::class)]);
         $manipulators = $this->api->getManipulators();
         $this->assertInstanceOf(ManipulatorInterface::class, $manipulators[0]);
     }
@@ -76,56 +63,19 @@ class ApiTest extends TestCase
 
     public function testGetManipulators()
     {
-        $this->assertEquals([], $this->api->getManipulators());
+        $this->assertEquals($this->getManipulators(), $this->api->getManipulators());
     }
 
-    public function testRun()
+    public function testImageNotReadable()
     {
-        /* 1x1 transparent pixel */
-        $base64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
-        $pixel = base64_decode($base64);
-        $extension = 'png';
-        $type = 'image/png';
+        $this->expectException(ImageNotReadableException::class);
 
-        $tempFile = tempnam(sys_get_temp_dir(), 'phpunit');
+        $testImage = $this->fixturesDir . '/foobar.jpg';
+        $uri = basename($testImage);
 
-        file_put_contents($tempFile, $pixel);
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        $client = Mockery::mock(Client::class, function ($mock) use ($tempFile) {
-            $mock->shouldReceive('get')->andReturn($tempFile);
-        });
-
-        $throttler = Mockery::mock(ThrottlerInterface::class, function ($mock) {
-            $mock->shouldReceive('isExceeded')->with('127.0.0.1');
-        });
-
-        $image = Mockery::mock(Image::class, function ($mock) use ($pixel) {
-            $mock->shouldReceive('writeToBuffer')->andReturn($pixel);
-        });
-
-        $params = [
-            'accessMethod' => Access::SEQUENTIAL,
-            'tmpFileName' => $tempFile,
-            'loader' => 'VipsForeignLoadPng',
-            'hasAlpha' => true,
-            'is16Bit' => false,
-            'isPremultiplied' => false
-        ];
-
-        $manipulator = Mockery::mock(ManipulatorInterface::class, function ($mock) use ($image, $params) {
-            $mock->shouldReceive('setParams')
-                ->with($params)
-                ->andReturnSelf();
-
-            $mock->shouldReceive('getParams')
-                ->andReturn($params);
-
-            $mock->shouldReceive('run')->andReturn($image);
-        });
-
-        $api = new Api($client, $throttler, [$manipulator]);
-        $this->assertEquals([$pixel, $type, $extension], $api->run($tempFile, []));
-
-        unlink($tempFile);
+        $api = new Api($this->client, null, $this->getManipulators());
+        $api->run($uri, []);
     }
 }

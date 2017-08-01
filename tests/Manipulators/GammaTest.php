@@ -1,23 +1,18 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Manipulators;
+namespace AndriesLouw\imagesweserv\Test\Manipulators;
 
+use AndriesLouw\imagesweserv\Manipulators\Gamma;
+use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
 use Jcupitt\Vips\Image;
-use Mockery;
-use PHPUnit\Framework\TestCase;
 
-class GammaTest extends TestCase
+class GammaTest extends ImagesweservTestCase
 {
     private $manipulator;
 
     public function setUp()
     {
         $this->manipulator = new Gamma();
-    }
-
-    public function tearDown()
-    {
-        Mockery::close();
     }
 
     public function testCreateInstance()
@@ -27,7 +22,7 @@ class GammaTest extends TestCase
 
     public function testRun()
     {
-        $image = Mockery::mock(Image::class, function ($mock) {
+        $image = $this->getMockery(Image::class, function ($mock) {
             $mock->shouldReceive('gamma')->with(['exponent' => 1.5])->andReturnSelf()->once();
         });
 
