@@ -26,7 +26,7 @@ class TrimTest extends ImagesweservTestCase
         $this->assertInstanceOf(Trim::class, $this->manipulator);
     }
 
-    public function testTrim()
+    /*public function testTrim()
     {
         $testImage = $this->inputPngOverlayLayer1;
         $expectedImage = $this->expectedDir . '/alpha-layer-1-fill-trim-resize.png';
@@ -48,9 +48,9 @@ class TrimTest extends ImagesweservTestCase
         $this->assertEquals(322, $image->height);
         $this->assertTrue($hasAlpha);
         $this->assertSimilarImage($expectedImage, $image);
-    }
+    }*/
 
-    public function testTrim16bitWithTransparency()
+    /*public function testTrim16bitWithTransparency()
     {
         $testImage = $this->inputPngWithTransparency16bit;
         $expectedImage = $this->expectedDir . '/trim-16bit-rgba.png';
@@ -73,7 +73,7 @@ class TrimTest extends ImagesweservTestCase
         $this->assertEquals(32, $image->height);
         $this->assertTrue($hasAlpha);
         $this->assertSimilarImage($expectedImage, $image);
-    }
+    }*/
 
     public function testTrimSkipShrinkOnLoad()
     {

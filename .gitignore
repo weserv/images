@@ -1,4 +1,6 @@
 vendor
 .idea
+build
 /cronjob.php
 /config.php
+/phpunit.xml

@@ -19,6 +19,8 @@ env:
     - PKG_CONFIG_PATH=$HOME/vips/lib/pkgconfig:$PKG_CONFIG_PATH
     - PYTHONPATH=$HOME/vips/lib/python2.7/site-packages:$PYTHONPATH
     - GI_TYPELIB_PATH=$HOME/vips/lib/girepository-1.0:$GI_TYPELIB_PATH
+    - CC_TEST_REPORTER_ID=e6c8ca5e7e8d38de843cff7190066ace3a868063dcccc35e40a84a6ec2874ed4
+    - GIT_COMMITTED_AT=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then git log -1 --pretty=format:%ct; else git log -1 --skip 1 --pretty=format:%ct; fi)
 
 cache:
   apt: true
@@ -57,4 +59,17 @@ before_install:
 
 install: composer install --prefer-dist
 
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+
 script: composer test
+
+after_success:
+  # Send test coverage to Code Climate
+  - >
+    if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+      ./cc-test-reporter after-build -t clover --exit-code $TRAVIS_TEST_RESULT
+    else
+      echo 'Not submitting test report'
+    fi
