@@ -3,6 +3,7 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Color;
+use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Extend;
 use Jcupitt\Vips\Image;
 
@@ -12,8 +13,6 @@ use Jcupitt\Vips\Image;
  * @property string $h
  * @property string $a
  * @property string $bg
- * @property bool $hasAlpha
- * @property bool $is16Bit
  */
 class Letterbox extends BaseManipulator
 {
@@ -23,6 +22,8 @@ class Letterbox extends BaseManipulator
      * @param  Image $image The source image.
      *
      * @return Image The manipulated image.
+     *
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function run(Image $image): Image
     {
@@ -43,7 +44,7 @@ class Letterbox extends BaseManipulator
             }
 
             // Scale up 8-bit values to match 16-bit input image
-            $multiplier = $this->is16Bit ? 256 : 1;
+            $multiplier = Utils::is16Bit($image->interpretation) ? 256 : 1;
 
             // Create background colour
             $background = [
@@ -63,7 +64,7 @@ class Letterbox extends BaseManipulator
                 ];
             }
 
-            $hasAlpha = $this->hasAlpha;
+            $hasAlpha = $image->hasAlpha();
 
             // Add alpha channel to background colour
             if ($hasAlpha || $backgroundColor[3] < 255) {
@@ -74,9 +75,6 @@ class Letterbox extends BaseManipulator
             if (!$hasAlpha && $backgroundColor[3] < 255) {
                 $result = $image->newFromImage(255 * $multiplier);
                 $image = $image->bandjoin($result);
-
-                // Image has now a alpha channel. Useful for the next manipulators.
-                $this->hasAlpha = true;
             }
 
             $left = (int)round(($width - $image->width) / 2);

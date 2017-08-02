@@ -58,11 +58,11 @@ class ThrottlingPolicy
     /**
      * Ban or challenge (such as a CAPTCHA) at CloudFlare
      *
-     * @param string $ip
+     * @param string $ipAddress
      *
      * @return string|bool CloudFlare rule id or false if the ban was unsuccessful
      */
-    public function banAtCloudFlare(string $ip)
+    public function banAtCloudFlare(string $ipAddress)
     {
         try {
             // Create a connection to the CloudFlare API
@@ -74,14 +74,14 @@ class ThrottlingPolicy
             $response = $accessRule->create($this->config['cloudflare']['zone_id'], $this->config['cloudflare']['mode'],
                 [
                     'target' => 'ip',
-                    'value' => $ip
+                    'value' => $ipAddress
                 ], 'Banned until ' . date(DateTime::ATOM, time() + ($this->config['ban_time'] * 60)));
 
             if ($response->success) {
                 $blockRuleId = $response->result->id;
 
                 // Log it
-                trigger_error("Blocked: $ip rule id: $blockRuleId", E_USER_WARNING);
+                trigger_error("Blocked: $ipAddress rule id: $blockRuleId", E_USER_WARNING);
 
                 return $blockRuleId;
             }

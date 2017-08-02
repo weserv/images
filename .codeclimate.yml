@@ -4,20 +4,23 @@ engines:
     enabled: true
     config:
       languages:
-      - php
+        php:
+          mass_threshold: 60
   fixme:
     enabled: true
+    config:
+      strings:
+      - TODO
+      - FIXME
+      - BUG
   phpmd:
     enabled: true
-    checks:
-      CleanCode/ElseExpression:
-        enabled: false
-      CleanCode/StaticAccess:
-        enabled: false
+    config:
+      rulesets: phpmd.xml
 ratings:
   paths:
-  - "**.inc"
-  - "**.module"
-  - "**.php"
+    - src/**/*.php
+    - tests/**/*.php
 exclude_paths:
 - config/
+- public/

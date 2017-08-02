@@ -17,23 +17,12 @@ class ApiTest extends ImagesweservTestCase
     public function setUp()
     {
         $this->client = $this->getMockery(Client::class);
-        $this->api = new Api($this->client, null, $this->getManipulators());
+        $this->api = new Api($this->client, $this->getManipulators());
     }
 
     public function testCreateInstance()
     {
         $this->assertInstanceOf(Api::class, $this->api);
-    }
-
-    public function testSetThrottler()
-    {
-        // Test if we can set a `null` throttler
-        $this->api->setThrottler(null);
-        $this->assertNull($this->api->getThrottler());
-
-        // Test if we can set a `real` throttler
-        $this->api->setThrottler($this->getMockery(ThrottlerInterface::class));
-        $this->assertInstanceOf(ThrottlerInterface::class, $this->api->getThrottler());
     }
 
     public function testSetClient()
@@ -75,7 +64,7 @@ class ApiTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        $api = new Api($this->client, null, $this->getManipulators());
+        $api = new Api($this->client, $this->getManipulators());
         $api->run($uri, []);
     }
 }

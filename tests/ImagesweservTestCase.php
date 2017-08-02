@@ -64,8 +64,8 @@ class ImagesweservTestCase extends TestCase
         \Mockery::close();
     }
 
-    protected function getMockery(...$args)
+    protected function getMockery($class)
     {
-        return \Mockery::mock(...$args);
+        return \Mockery::mock($class);
     }
 }

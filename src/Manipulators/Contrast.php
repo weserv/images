@@ -2,10 +2,8 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
-use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\BandFormat;
 use Jcupitt\Vips\Image;
-use Jcupitt\Vips\Interpretation;
 
 /**
  * @property string $con
@@ -28,10 +26,10 @@ class Contrast extends BaseManipulator
         $contrast = $this->getContrast();
 
         if ($contrast !== 0) {
-            $contrast = Utils::mapToRange($contrast, -100, 100, -30, 30);
+            // Map contrast from -100/100 to -30/30 range
+            $contrast *= 0.3;
 
-            $image = $this->sigRGB($image, $contrast > 0, 0.5, abs($contrast));
-            /*$image = $this->sigLAB($image, $contrast > 0, 0.5, abs($contrast));*/
+            $image = $this->sigmoid($image, $contrast);
         }
 
         return $image;
@@ -45,15 +43,26 @@ class Contrast extends BaseManipulator
      * an S-shaped curve which boosts the slope in the mid-tones and drops it for
      * white and black.
      *
-     * @param bool $sharpen If true increase the contrast, if false decrease the contrast.
-     * @param float $midpoint Midpoint of the contrast (typically 0.5).
-     * @param float $contrast Strength of the contrast (typically 3-20).
-     * @param bool $ushort Indicating if we have a 16-bit LUT.
+     * This will apply to RGB. And takes no account of image gamma, and applies the
+     * contrast boost to R, G and B bands, thereby also boosting colourfulness.
      *
-     * @return Image 16-bit or 8-bit LUT
+     * @param Image $image The source image.
+     * @param float $contrast Strength of the contrast (typically 3-20).
+     *
+     * @return Image The manipulated image.
      */
-    public function sigmoid(bool $sharpen, float $midpoint, float $contrast, bool $ushort = false): Image
+    public function sigmoid(Image $image, float $contrast): Image
     {
+        // If true increase the contrast, if false decrease the contrast.
+        $sharpen = $contrast > 0;
+
+        // Midpoint of the contrast (typically 0.5).
+        $midpoint = 0.5;
+
+        $contrast = abs($contrast);
+
+        $ushort = $image->format === BandFormat::USHORT;
+
         /**
          * Make a identity LUT, that is, a lut where each pixel has the value of
          * its index ... if you map an image through the identity, you get the
@@ -107,70 +116,8 @@ class Contrast extends BaseManipulator
          * that maths, but we want uchar or ushort
          */
         $result = $result->cast($ushort ? BandFormat::USHORT : BandFormat::UCHAR);
-        return $result;
-    }
 
-    /**
-     * Apply to RGB. This takes no account of image gamma, and applies the
-     * contrast boost to R, G and B bands, thereby also boosting colourfulness.
-     *
-     * @param Image $image The source image.
-     * @param bool $sharpen If true increase the contrast, if false decrease the contrast.
-     * @param float $midpoint Midpoint of the contrast (typically 0.5).
-     * @param float $contrast Strength of the contrast (typically 3-20).
-     *
-     * @return Image The manipulated image.
-     */
-    public function sigRGB(Image $image, bool $sharpen, float $midpoint, float $contrast): Image
-    {
-        $lut = $this->sigmoid($sharpen, $midpoint, $contrast, $image->format === BandFormat::USHORT);
-        return $image->maplut($lut);
-    }
-
-
-    /**
-     * Fancier: apply to L of CIELAB. This will change luminance equally, and will
-     * not change colourfulness.
-     *
-     * @param Image $image The source image.
-     * @param bool $sharpen If true increase the contrast, if false decrease the contrast.
-     * @param float $midpoint Midpoint of the contrast (typically 0.5).
-     * @param float $contrast Strength of the contrast (typically 3-20).
-     *
-     * @return Image The manipulated image.
-     */
-    public function sigLAB(Image $image, bool $sharpen, float $midpoint, float $contrast): Image
-    {
-        $oldInterpretation = $image->interpretation;
-
-        /**
-         * Labs is CIELAB with colour values expressed as short (signed 16-bit ints)
-         * L is in 0 - 32767
-         */
-        $image = $image->colourspace(Interpretation::LABS);
-
-        // Make a 16-bit LUT, then shrink by x2 to make it fit the range of L in labs
-        $lut = $this->sigmoid($sharpen, $midpoint, $contrast, true);
-        $lut = $lut->shrinkh(2)->multiply(0.5);
-        $lut = $lut->cast(BandFormat::SHORT);
-
-        /**
-         * Get the L band from our labs image, map though the LUT, then reattach the
-         * ab bands from the labs image
-         */
-        $L = $image->extract_band(0);
-        $AB = $image->extract_band(1, ['n' => 2]);
-        $L = $L->maplut($lut);
-        $image = $L->bandjoin($AB);
-
-        /**
-         * And back to our original colourspace again (probably rgb)
-         *
-         * After the manipulation above, $image will just be tagged as a generic
-         * multiband image, vips will no longer know that it's a labs, so we need to
-         * tell colourspace what the source space is
-         */
-        return $image->colourspace($oldInterpretation, ['source_space' => Interpretation::LABS]);
+        return $image->maplut($result);
     }
 
     /**

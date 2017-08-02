@@ -20,16 +20,6 @@ class BlurTest extends ImagesweservTestCase
         $this->assertInstanceOf(Blur::class, $this->manipulator);
     }
 
-    public function testRun()
-    {
-        $image = $this->getMockery(Image::class, function ($mock) {
-            $mock->shouldReceive('gaussblur')->with('10')->andReturnSelf()->once();
-        });
-
-        $this->assertNotNull($image);
-        $this->assertInstanceOf(Image::class, $this->manipulator->setParams(['blur' => 10])->run($image));
-    }
-
     public function testGetBlur()
     {
         $this->assertSame(50.0, $this->manipulator->setParams(['blur' => '50'])->getBlur());

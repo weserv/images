@@ -8,7 +8,6 @@ use Jcupitt\Vips\Image;
 /**
  * @property string $shape
  * @property string $circle
- * @property bool $hasAlpha
  * @property string $accessMethod
  */
 class Shape extends BaseManipulator
@@ -28,51 +27,27 @@ class Shape extends BaseManipulator
             $width = $image->width;
             $height = $image->height;
 
-            list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getMaskShape($width, $height, $shape);
+            list($path, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getSVGShape($width, $height, $shape);
 
-            $maskHasAlpha = $mask->hasAlpha();
+            $preserveAspectRatio = $shape === 'ellipse' ? 'none' : 'xMidYMid meet';
+            $svg = "<?xml version='1.0' encoding='UTF-8' standalone='no'?>";
+            $svg .= "<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='$width' height='$height' viewBox='0 0 $width $height'";
+            $svg .= " shape-rendering='geometricPrecision' preserveAspectRatio='$preserveAspectRatio'>";
+            $svg .= $path;
+            $svg .= '</svg>';
 
-            $imageHasAlpha = $this->hasAlpha;
+            $mask = Image::newFromBuffer($svg, '', [
+                'dpi' => 72,
+                'access' => $this->accessMethod,
+            ]);
 
-            // we use the mask alpha if it has alpha
-            if ($maskHasAlpha) {
-                $mask = $mask->extract_band($mask->bands - 1, ['n' => 1]);
-            }
-
-            // Split image into an optional alpha
-            $imageAlpha = $image->extract_band($image->bands - 1, ['n' => 1]);
-
-            // we use the image non-alpha
-            if ($imageHasAlpha) {
-                $image = $image->extract_band(0, ['n' => $image->bands - 1]);
-            }
-
-            // the range of the mask and the image need to match .. one could be
-            // 16-bit, one 8-bit
-            $imageMax = Utils::maximumImageAlpha($image->interpretation);
-            $maskMax = Utils::maximumImageAlpha($mask->interpretation);
-
-            if ($imageHasAlpha) {
-                // combine the new mask and the existing alpha ... there are
-                // many ways of doing this, mult is the simplest
-                $mask = $mask->divide($maskMax)->multiply($imageAlpha->divide($imageMax))->multiply($imageMax);
-            } elseif ($imageMax !== $maskMax) {
-                // adjust the range of the mask to match the image
-                $mask = $mask->divide($maskMax)->multiply($imageMax);
-            }
-
-            // append the mask to the image data ... the mask might be float now,
-            // we must cast the format down to match the image data
-            $image = $image->bandjoin([$mask->cast($image->format)]);
+            $image = $this->cutout($mask, $image);
 
             // If mask dimensions is less than the image dimensions crop the image to the mask dimensions.
             // Removes unnecessary white space.
             if ($maskWidth < $width || $maskHeight < $height) {
                 $image = $image->extract_area($xMin, $yMin, $maskWidth, $maskHeight);
             }
-
-            // Image has now a alpha channel. Useful for the next manipulators.
-            $this->hasAlpha = true;
         }
 
         return $image;
@@ -107,182 +82,86 @@ class Shape extends BaseManipulator
     }
 
     /**
+     * Inspired by this JSFiddle: http://jsfiddle.net/tohan/8vwjn4cx/
+     * modified to support SVG paths
+     *
      * @param int $width
      * @param int $height
      * @param string $shape
      *
      * @return array [
-     *      *SVG image Mask*,
+     *      *SVG path*,
      *      *Left edge of mask*,
      *      *Top edge of mask*,
      *      *Mask width*,
      *      *Mask height*
      * ]
+     *
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
-    private function getMaskShape(int $width, int $height, string $shape): array
+    private function getSVGShape(int $width, int $height, string $shape): array
     {
-        $preserveAspectRatio = $shape === 'ellipse' ? 'none' : 'xMidYMid meet';
-
-        $svgTemplate = <<<SVG
-<?xml version='1.0' encoding='UTF-8' standalone='no'?>
-<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='$width' height='$height' viewBox='0 0 $width $height' 
-shape-rendering='geometricPrecision' preserveAspectRatio='$preserveAspectRatio'> 
-%s
-</svg>
-SVG;
-
         $min = min($width, $height);
         $outerRadius = $min / 2;
         $midX = $width / 2;
         $midY = $height / 2;
 
+        if ($shape === 'ellipse') {
+            // Ellipse
+            return ["<ellipse cx='$midX' cy='$midY' rx='$midX' ry='$midY'/>", 0, 0, $width, $height];
+        }
+
+        if ($shape === 'circle') {
+            // Circle
+            return ["<circle r='$outerRadius' cx='$midX' cy='$midY'/>", $midX - $outerRadius, $midY - $outerRadius, $min, $min];
+        }
+
+        // 'inner' radius of the star (if equal to outerRadius, a polygon is drawn)
+        $innerRadius = $outerRadius;
+
+        // Initial angle (clockwise). By default, stars and polygons are 'pointing' up.
+        $initialAngle = 0.0;
+
+        // Number of points (or number of sides for polygons)
+        $points = 0;
+
         switch ($shape) {
-            case 'ellipse':
-                // Ellipse
-                $xMin = 0;
-                $yMin = 0;
-
-                $maskWidth = $width;
-                $maskHeight = $height;
-
-                $svg = sprintf($svgTemplate, "<ellipse cx='$midX' cy='$midY' rx='$midX' ry='$midY'/>");
-
-                $mask = Image::newFromBuffer($svg, '', [
-                    'dpi' => 72,
-                    'access' => $this->accessMethod,
-                ]);
-                break;
             case 'hexagon':
                 // Hexagon
-                list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getSVGMask(
-                    $svgTemplate,
-                    $midX,
-                    $midY,
-                    6,
-                    $outerRadius,
-                    $outerRadius
-                );
+                $points = 6;
                 break;
             case 'pentagon':
                 // Pentagon
-                list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getSVGMask(
-                    $svgTemplate,
-                    $midX,
-                    $midY,
-                    5,
-                    $outerRadius,
-                    $outerRadius
-                );
+                $points = 5;
                 break;
             case 'pentagon-180':
                 // Pentagon tilted upside down
-                list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getSVGMask(
-                    $svgTemplate,
-                    $midX,
-                    $midY,
-                    5,
-                    $outerRadius,
-                    $outerRadius,
-                    M_PI
-                );
-                break;
-            case 'square':
-                // Square tilted 45 degrees
-                list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getSVGMask(
-                    $svgTemplate,
-                    $midX,
-                    $midY,
-                    4,
-                    $outerRadius,
-                    $outerRadius
-                );
+                $points = 5;
+                $initialAngle = M_PI;
                 break;
             case 'star':
                 // 5 point star
-                list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getSVGMask(
-                    $svgTemplate,
-                    $midX,
-                    $midY,
-                    5,
-                    $outerRadius,
-                    $outerRadius * .382
-                );
+                $points = 5;
+                $innerRadius *= .382;
+                break;
+            case 'square':
+                // Square tilted 45 degrees
+                $points = 4;
                 break;
             case 'triangle':
                 // Triangle
-                list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getSVGMask(
-                    $svgTemplate,
-                    $midX,
-                    $midY,
-                    3,
-                    $outerRadius,
-                    $outerRadius
-                );
+                $points = 3;
                 break;
             case 'triangle-180':
                 // Triangle upside down
-                list($mask, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getSVGMask(
-                    $svgTemplate,
-                    $midX,
-                    $midY,
-                    3,
-                    $outerRadius,
-                    $outerRadius,
-                    M_PI
-                );
-                break;
-            case 'circle':
-            default:
-                $xMin = $midX - $outerRadius;
-                $yMin = $midY - $outerRadius;
-                $maskWidth = $min;
-                $maskHeight = $min;
-
-                $svg = sprintf($svgTemplate, "<circle r='$outerRadius' cx='$midX' cy='$midY'/>");
-
-                $mask = Image::newFromBuffer($svg, '', [
-                    'dpi' => 72,
-                    'access' => $this->accessMethod,
-                ]);
+                $points = 3;
+                $initialAngle = M_PI;
                 break;
         }
 
-        return [$mask, $xMin, $yMin, $maskWidth, $maskHeight];
-    }
-
-    /**
-     * Inspired by this JSFiddle: http://jsfiddle.net/tohan/8vwjn4cx/
-     * modified to support SVG paths
-     *
-     * @param  string $template The SVG template
-     * @param  float $midX midX
-     * @param  float $midY midY
-     * @param  int $points number of points (or number of sides for polygons)
-     * @param  float $outerRadius 'outer' radius of the star
-     * @param  float $innerRadius 'inner' radius of the star (if equal to outerRadius, a polygon is drawn)
-     * @param  float $initialAngle (optional) initial angle (clockwise),
-     *      by default, stars and polygons are 'pointing' up
-     *
-     * @return array [
-     *      *SVG image mask*,
-     *      *Left edge of mask*,
-     *      *Top edge of mask*,
-     *      *Mask width*,
-     *      *Mask height*
-     * ]
-     */
-    private function getSVGMask(
-        string $template,
-        float $midX,
-        float $midY,
-        int $points,
-        float $outerRadius,
-        float $innerRadius,
-        float $initialAngle = 0.0
-    ): array {
         $path = '';
-        $X = [];
-        $Y = [];
+        $xArr = [];
+        $yArr = [];
         if ($innerRadius !== $outerRadius) {
             $points *= 2;
         }
@@ -302,29 +181,60 @@ SVG;
             }
             $x = round($midX + $radius * cos($angle));
             $y = round($midY + $radius * sin($angle));
-            $X[] = $x;
-            $Y[] = $y;
+            $xArr[] = $x;
+            $yArr[] = $y;
             $path .= "$x $y";
         }
-        $path .= ' Z';
-        $xMin = min($X);
-        $yMin = min($Y);
-        $xMax = max($X);
-        $yMax = max($Y);
-        $width = $xMax - $xMin;
-        $height = $yMax - $yMin;
+        $xMin = min($xArr);
+        $yMin = min($yArr);
+        $width = max($xArr) - $xMin;
+        $height = max($yArr) - $yMin;
 
-        $svg = sprintf($template, "<path d='$path'/>");
+        return ["<path d='$path Z'/>", $xMin, $yMin, $width, $height];
+    }
 
-        return [
-            Image::newFromBuffer($svg, '', [
-                'dpi' => 72,
-                'access' => $this->accessMethod,
-            ]),
-            $xMin,
-            $yMin,
-            $width,
-            $height
-        ];
+    /**
+     * Cutout src over dst
+     *
+     * @param Image $mask
+     * @param Image $dst
+     *
+     * @return Image
+     */
+    public function cutout(Image $mask, Image $dst): Image
+    {
+        $maskHasAlpha = $mask->hasAlpha();
+        $dstHasAlpha = $dst->hasAlpha();
+
+        // we use the mask alpha if it has alpha
+        if ($maskHasAlpha) {
+            $mask = $mask->extract_band($mask->bands - 1, ['n' => 1]);
+        }
+
+        // split dst into an optional alpha
+        $dstAlpha = $dst->extract_band($dst->bands - 1, ['n' => 1]);
+
+        // we use the dst non-alpha
+        if ($dstHasAlpha) {
+            $dst = $dst->extract_band(0, ['n' => $dst->bands - 1]);
+        }
+
+        // the range of the mask and the image need to match .. one could be
+        // 16-bit, one 8-bit
+        $dstMax = Utils::maximumImageAlpha($dst->interpretation);
+        $maskMax = Utils::maximumImageAlpha($mask->interpretation);
+
+        if ($dstHasAlpha) {
+            // combine the new mask and the existing alpha ... there are
+            // many ways of doing this, mult is the simplest
+            $mask = $mask->divide($maskMax)->multiply($dstAlpha->divide($dstMax))->multiply($dstMax);
+        } elseif ($dstMax !== $maskMax) {
+            // adjust the range of the mask to match the image
+            $mask = $mask->divide($maskMax)->multiply($dstMax);
+        }
+
+        // append the mask to the image data ... the mask might be float now,
+        // we must cast the format down to match the image data
+        return $dst->bandjoin([$mask->cast($dst->format)]);
     }
 }

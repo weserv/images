@@ -7,7 +7,6 @@ use Jcupitt\Vips\Image;
 
 /**
  * @property string $blur
- * @property bool $hasAlpha
  * @property bool $isPremultiplied
  * @property string $accessMethod
  */
@@ -26,10 +25,8 @@ class Blur extends BaseManipulator
             return $image;
         }
 
-        if ($this->hasAlpha && !$this->isPremultiplied) {
-            // Premultiply image alpha channel before blur transformation to avoid
-            // dark fringing around bright pixels
-            // See: http://entropymine.com/imageworsener/resizealpha/
+        if (!$this->isPremultiplied && $image->hasAlpha()) {
+            // Premultiply image alpha channel before blur transformation
             $image = $image->premultiply();
             $this->isPremultiplied = true;
         }
@@ -49,7 +46,6 @@ class Blur extends BaseManipulator
             $image = $image->conv($blur);
         } else {
             if ($this->accessMethod === Access::SEQUENTIAL) {
-                // TODO Figure out how many scanline(s) ('tile_height') it will need.
                 $image = $image->linecache([
                     'tile_height' => 10,
                     'access' => Access::SEQUENTIAL,

@@ -7,18 +7,30 @@ use AndriesLouw\imagesweserv\Client;
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Manipulators\Thumbnail;
 use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
+use Jcupitt\Vips\Image;
+use Mockery\MockInterface;
 
 class ThumbnailTest extends ImagesweservTestCase
 {
+    /**
+     * @var Client|MockInterface $client
+     */
     private $client;
+
+    /**
+     * @var Api $api
+     */
     private $api;
 
+    /**
+     * @var Thumbnail $manipulator
+     */
     private $manipulator;
 
     public function setUp()
     {
         $this->client = $this->getMockery(Client::class);
-        $this->api = new Api($this->client, null, $this->getManipulators());
+        $this->api = new Api($this->client, $this->getManipulators());
         $this->manipulator = new Thumbnail();
     }
 
@@ -50,12 +62,13 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpg', $extension);
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(294, $image->width);
         $this->assertEquals(240, $image->height);
-        $this->assertFalse($hasAlpha);
+        $this->assertFalse($image->hasAlpha());
     }
 
     /*
@@ -72,12 +85,13 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpg', $extension);
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(320, $image->width);
         $this->assertEquals(261, $image->height);
-        $this->assertFalse($hasAlpha);
+        $this->assertFalse($image->hasAlpha());
     }
 
     /*
@@ -94,12 +108,13 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpg', $extension);
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(392, $image->width);
         $this->assertEquals(320, $image->height);
-        $this->assertFalse($hasAlpha);
+        $this->assertFalse($image->hasAlpha());
     }
 
     public function testIdentityTransform()
@@ -111,12 +126,13 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpg', $extension);
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(2725, $image->width);
         $this->assertEquals(2225, $image->height);
-        $this->assertFalse($hasAlpha);
+        $this->assertFalse($image->hasAlpha());
     }
 
     public function testFitup()
@@ -131,12 +147,13 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpg', $extension);
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(3000, $image->width);
         $this->assertEquals(2450, $image->height);
-        $this->assertFalse($hasAlpha);
+        $this->assertFalse($image->hasAlpha());
     }
 
     public function testTooLarge()
@@ -169,12 +186,13 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpg', $extension);
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(320, $image->width);
         $this->assertEquals(240, $image->height);
-        $this->assertFalse($hasAlpha);
+        $this->assertFalse($image->hasAlpha());
     }
 
     public function testSquareUpscale()
@@ -189,12 +207,13 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpg', $extension);
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(3000, $image->width);
         $this->assertEquals(2450, $image->height);
-        $this->assertFalse($hasAlpha);
+        $this->assertFalse($image->hasAlpha());
     }
 
     /*
@@ -212,12 +231,13 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpg', $extension);
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(2725, $image->width);
         $this->assertEquals(2225, $image->height);
-        $this->assertFalse($hasAlpha);
+        $this->assertFalse($image->hasAlpha());
     }
 
     /*
@@ -235,12 +255,13 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpg', $extension);
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(2725, $image->width);
         $this->assertEquals(2225, $image->height);
-        $this->assertFalse($hasAlpha);
+        $this->assertFalse($image->hasAlpha());
     }
 
     public function testTiff()
@@ -256,12 +277,13 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('tiff', $extension);
+        $this->assertEquals('tiffload', $image->get('vips-loader'));
         $this->assertEquals(240, $image->width);
         $this->assertEquals(320, $image->height);
-        $this->assertFalse($hasAlpha);
+        $this->assertFalse($image->hasAlpha());
     }
 
     /*
@@ -279,12 +301,13 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('tiff', $extension);
+        $this->assertEquals('tiffload', $image->get('vips-loader'));
         $this->assertEquals(243, $image->width);
         $this->assertEquals(320, $image->height);
-        $this->assertFalse($hasAlpha);
+        $this->assertFalse($image->hasAlpha());
     }
 
     /*
@@ -302,12 +325,13 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpg', $extension);
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(320, $image->width);
         $this->assertEquals(261, $image->height);
-        $this->assertFalse($hasAlpha);
+        $this->assertFalse($image->hasAlpha());
     }
 
     /*
@@ -326,12 +350,13 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpg', $extension);
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(320, $image->width);
         $this->assertEquals(320, $image->height);
-        $this->assertFalse($hasAlpha);
+        $this->assertFalse($image->hasAlpha());
     }
 
     /*
@@ -349,12 +374,13 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpg', $extension);
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(320, $image->width);
         $this->assertEquals(2225, $image->height);
-        $this->assertFalse($hasAlpha);
+        $this->assertFalse($image->hasAlpha());
     }
 
     /*
@@ -372,12 +398,13 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpg', $extension);
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(2725, $image->width);
         $this->assertEquals(320, $image->height);
-        $this->assertFalse($hasAlpha);
+        $this->assertFalse($image->hasAlpha());
     }
 
     /*
@@ -396,12 +423,13 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpg', $extension);
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(3000, $image->width);
         $this->assertEquals(3000, $image->height);
-        $this->assertFalse($hasAlpha);
+        $this->assertFalse($image->hasAlpha());
     }
 
     /*
@@ -419,12 +447,13 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpg', $extension);
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(3000, $image->width);
         $this->assertEquals(2225, $image->height);
-        $this->assertFalse($hasAlpha);
+        $this->assertFalse($image->hasAlpha());
     }
 
     /*
@@ -442,12 +471,13 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpg', $extension);
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(2725, $image->width);
         $this->assertEquals(3000, $image->height);
-        $this->assertFalse($hasAlpha);
+        $this->assertFalse($image->hasAlpha());
     }
 
     /*
@@ -466,12 +496,13 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpg', $extension);
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(320, $image->width);
         $this->assertEquals(3000, $image->height);
-        $this->assertFalse($hasAlpha);
+        $this->assertFalse($image->hasAlpha());
     }
 
     /*
@@ -490,12 +521,13 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpg', $extension);
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(3000, $image->width);
         $this->assertEquals(320, $image->height);
-        $this->assertFalse($hasAlpha);
+        $this->assertFalse($image->hasAlpha());
     }
 
     public function testAbsoluteIdentityTransform()
@@ -509,12 +541,13 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpg', $extension);
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(2725, $image->width);
         $this->assertEquals(2225, $image->height);
-        $this->assertFalse($hasAlpha);
+        $this->assertFalse($image->hasAlpha());
     }
 
     public function testEntropyCropJpeg()
@@ -532,13 +565,14 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpg', $extension);
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(3, $image->bands);
         $this->assertEquals(80, $image->width);
         $this->assertEquals(320, $image->height);
-        $this->assertFalse($hasAlpha);
+        $this->assertFalse($image->hasAlpha());
         $this->assertSimilarImage($expectedImage, $image);
     }
 
@@ -557,13 +591,14 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('png', $extension);
+        $this->assertEquals('pngload', $image->get('vips-loader'));
         $this->assertEquals(4, $image->bands);
         $this->assertEquals(320, $image->width);
         $this->assertEquals(80, $image->height);
-        $this->assertTrue($hasAlpha);
+        $this->assertTrue($image->hasAlpha());
         $this->assertSimilarImage($expectedImage, $image);
     }
 
@@ -582,13 +617,14 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpg', $extension);
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(3, $image->bands);
         $this->assertEquals(80, $image->width);
         $this->assertEquals(320, $image->height);
-        $this->assertFalse($hasAlpha);
+        $this->assertFalse($image->hasAlpha());
         $this->assertSimilarImage($expectedImage, $image);
     }
 
@@ -607,13 +643,14 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        list($image, $extension, $hasAlpha) = $this->api->run($uri, $params);
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('png', $extension);
+        $this->assertEquals('pngload', $image->get('vips-loader'));
         $this->assertEquals(4, $image->bands);
         $this->assertEquals(320, $image->width);
         $this->assertEquals(80, $image->height);
-        $this->assertTrue($hasAlpha);
+        $this->assertTrue($image->hasAlpha());
         $this->assertSimilarImage($expectedImage, $image);
     }
 

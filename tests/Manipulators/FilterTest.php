@@ -21,30 +21,4 @@ class FilterTest extends ImagesweservTestCase
         $this->assertInstanceOf(Filter::class, $this->manipulator);
     }
 
-    public function testRunGreyscaleFilter()
-    {
-        $image = $this->getMockery(Image::class, function ($mock) {
-            $mock->shouldReceive('colourspace')->with(Interpretation::B_W)->andReturnSelf()->once();
-        });
-
-        $this->assertInstanceOf(Image::class, $this->manipulator->runGreyscaleFilter($image));
-    }
-
-    public function testRunSepiaFilter()
-    {
-        $image = $this->getMockery(Image::class, function ($mock) {
-            $mock->shouldReceive('recomb')->with(\Mockery::any())->andReturnSelf()->once();
-        });
-
-        $this->assertInstanceOf(Image::class, $this->manipulator->runSepiaFilter($image));
-    }
-
-    public function testRunNegateFilter()
-    {
-        $image = $this->getMockery(Image::class, function ($mock) {
-            $mock->shouldReceive('invert')->andReturnSelf()->once();
-        });
-
-        $this->assertInstanceOf(Image::class, $this->manipulator->runNegateFilter($image));
-    }
 }

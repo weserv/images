@@ -12,11 +12,7 @@ interface ApiInterface
      * @param  string $url Source URL
      * @param  array $params The manipulation params
      *
-     * @return array [
-     *      @type Image The image,
-     *      @type string The extension of the image,
-     *      @type bool Does the image has alpha?
-     * ]
+     * @return Image The image
      */
-    public function run(string $url, array $params): array;
+    public function run(string $url, array $params): Image;
 }

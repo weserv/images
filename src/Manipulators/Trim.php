@@ -2,11 +2,11 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
+use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Image;
 
 /**
  * @property string $trim
- * @property bool $is16Bit
  */
 class Trim extends BaseManipulator
 {
@@ -70,7 +70,7 @@ class Trim extends BaseManipulator
         $background = array_slice($background, 0, $image->bands - 1);
 
         // Scale up 8-bit values to match 16-bit input image
-        $multiplier = $this->is16Bit ? 256 : 1;
+        $multiplier = Utils::is16Bit($image->interpretation) ? 256 : 1;
 
         // Background / object threshold
         $threshold = $sensitivity * $multiplier;

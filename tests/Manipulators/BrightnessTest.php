@@ -20,15 +20,6 @@ class BrightnessTest extends ImagesweservTestCase
         $this->assertInstanceOf(Brightness::class, $this->manipulator);
     }
 
-    public function testRun()
-    {
-        $image = $this->getMockery(Image::class, function ($mock) {
-            $mock->shouldReceive('linear')->with([1, 1, 1], [127.5, 127.5, 127.5])->andReturnSelf()->once();
-        });
-
-        $this->assertInstanceOf(Image::class, $this->manipulator->setParams(['bri' => 50])->run($image));
-    }
-
     public function testGetBrightness()
     {
         $this->assertSame(50, $this->manipulator->setParams(['bri' => '50'])->getBrightness());

@@ -262,11 +262,12 @@ if (!empty($_GET['url'])) {
     ];
 
     // Set API
-    $api = new AndriesLouw\imagesweserv\Api\Api($client, $throttler ?? null, $manipulators);
+    $api = new AndriesLouw\imagesweserv\Api\Api($client, $manipulators);
 
     // Setup server
     $server = new AndriesLouw\imagesweserv\Server(
-        $api
+        $api,
+        $throttler ?? null
     );
 
     /*$server->setDefaults([
@@ -289,7 +290,7 @@ if (!empty($_GET['url'])) {
         /**
          * Generate and output image.
          */
-        $server->outputImage($uri, $_GET);
+        $server->outputImage($uri->__toString(), $_GET);
     } catch (ImageTooLargeException $e) {
         $error = $error_messages['image_too_large'];
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);

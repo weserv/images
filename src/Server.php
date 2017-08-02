@@ -3,11 +3,16 @@
 namespace AndriesLouw\imagesweserv;
 
 use AndriesLouw\imagesweserv\Api\ApiInterface;
+use AndriesLouw\imagesweserv\Exception\RateExceededException;
+use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
+use AndriesLouw\imagesweserv\Throttler\ThrottlerInterface;
+use Jcupitt\Vips\Config;
+use Jcupitt\Vips\DebugLogger;
 use Jcupitt\Vips\Image;
-use League\Uri\Schemes\Http as HttpUri;
 
-/*use League\Uri\Components\HierarchicalPath as Path;*/
-
+/**
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ */
 class Server
 {
     /**
@@ -16,6 +21,13 @@ class Server
      * @var ApiInterface
      */
     protected $api;
+
+    /**
+     * The throttler
+     *
+     * @var ThrottlerInterface|null
+     */
+    protected $throttler;
 
     /**
      * Default image manipulations.
@@ -35,10 +47,12 @@ class Server
      * Create Server instance.
      *
      * @param ApiInterface $api Image manipulation API.
+     * @param ThrottlerInterface|null $throttler Throttler
      */
-    public function __construct(ApiInterface $api)
+    public function __construct(ApiInterface $api, $throttler)
     {
         $this->setApi($api);
+        $this->setThrottler($throttler);
     }
 
     /**
@@ -59,6 +73,26 @@ class Server
     public function setApi(ApiInterface $api)
     {
         $this->api = $api;
+    }
+
+    /**
+     * Get the throttler
+     *
+     * @return ThrottlerInterface|null Throttler class
+     */
+    public function getThrottler()
+    {
+        return $this->throttler;
+    }
+
+    /**
+     * Set the throttler
+     *
+     * @param ThrottlerInterface|null $throttler Throttler class
+     */
+    public function setThrottler($throttler)
+    {
+        $this->throttler = $throttler;
     }
 
     /**
@@ -132,37 +166,42 @@ class Server
      * @param  string $url Image URL
      * @param  array $params Image manipulation params.
      *
-     * @return array [
-     *      @type Image The image,
-     *      @type string The extension of the image,
-     *      @type bool Does the image has alpha?
-     * ]
+     * @return Image The image
      */
-    public function makeImage(string $url, array $params): array
+    public function makeImage(string $url, array $params): Image
     {
         return $this->api->run($url, $this->getAllParams($params));
     }
 
     /**
-     * Generate and output image.
+     * Write an image to a formatted string.
      *
-     * @param HttpUri $uri Image URL
+     * @param Image $image The image
      * @param array $params Image manipulation params.
+     *
+     * @return array [
+     * @type string The formatted image,
+     * @type string Image extension
+     * ]
      */
-    public function outputImage(HttpUri $uri, array $params)
+    public function makeBuffer(Image $image, array $params): array
     {
-        list($image, $extension, $hasAlpha) = $this->makeImage($uri->__toString(), $params);
+        // Get the operation loader
+        $loader = $image->typeof('vips-loader') !== 0 ? $image->get('vips-loader') : 'unknown';
 
-        // Get the allowed image types to convert to
-        $allowed = $this->getAllowedImageTypes();
+        // Determine image extension from the libvips loader
+        $extension = Utils::determineImageExtension($loader);
+
+        // Does this image have an alpha channel?
+        $hasAlpha = $image->hasAlpha();
 
         $needsGif = (isset($params['output']) && $params['output'] === 'gif')
             || (!isset($params['output']) && $extension === 'gif');
 
         // Check if output is set and allowed
-        if (isset($params['output'], $allowed[$params['output']])) {
+        if (isset($params['output']) && $this->isExtensionAllowed($params['output'])) {
             $extension = $params['output'];
-        } elseif (($hasAlpha && ($extension !== 'png' || $extension !== 'webp')) || !isset($allowed[$extension])) {
+        } elseif (($hasAlpha && ($extension !== 'png' || $extension !== 'webp')) || !$this->isExtensionAllowed($extension)) {
             // We force the extension to PNG if:
             //  - The image has alpha and doesn't have the right extension to output alpha.
             //    (useful for shape masking and letterboxing)
@@ -175,11 +214,6 @@ class Server
         // Write an image to a formatted string
         $buffer = $image->writeToBuffer(".$extension", $toBufferOptions);
 
-        // Free up memory
-        $image = null;
-
-        $mimeType = $allowed[$extension];
-
         // Check if GD library is installed on the server
         $gdAvailable = extension_loaded('gd') && function_exists('gd_info');
 
@@ -187,15 +221,54 @@ class Server
         if ($gdAvailable && $needsGif) {
             $buffer = $this->bufferToGif($buffer, $toBufferOptions['interlace'], $hasAlpha);
 
-            // Extension and mime-type are now gif
+            // Extension is now gif
             $extension = 'gif';
-            $mimeType = 'image/gif';
         }
+
+        return [$buffer, $extension];
+    }
+
+    /**
+     * Generate and output image.
+     *
+     * @param string $uri Image URL
+     * @param array $params Image manipulation params.
+     *
+     * @throws RateExceededException if a user rate limit is exceeded
+     */
+    public function outputImage(string $uri, array $params)
+    {
+        // Throttler can be null
+        if ($this->throttler) {
+            // For PHPUnit check if REMOTE_ADDR is set
+            $ipAddress = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+
+            // Check if rate is exceeded for IP
+            if ($this->throttler->isExceeded($ipAddress)) {
+                throw new RateExceededException('There are an unusual number of requests coming from this IP address.');
+            }
+        }
+
+        $isDebug = isset($params['debug']) && $params['debug'] === '1';
+
+        // If debugging is needed
+        if ($isDebug) {
+            // Turn on output buffering
+            ob_start();
+
+            // Set our php-vips debug logger
+            Config::setLogger(new DebugLogger());
+        }
+
+        $image = $this->makeImage($uri, $params);
+        list($buffer, $extension) = $this->makeBuffer($image, $params);
+
+        $mimeType = $this->extensionToMimeType($extension);
 
         header('Expires: ' . date_create('+31 days')->format('D, d M Y H:i:s') . ' GMT'); //31 days
         header('Cache-Control: max-age=2678400'); //31 days
 
-        if (isset($params['debug']) && $params['debug'] === '1') {
+        if ($isDebug) {
             header('Content-type: text/plain');
 
             $json = [
@@ -213,11 +286,6 @@ class Server
         } else {
             header("Content-type: $mimeType");
 
-            /*
-             * We could ouput the origin filename with this:
-             * $friendlyName = pathinfo((new Path($uri->getPath()))->getBasename(), PATHINFO_FILENAME) . $extension;
-             * but due to security reasons we've disabled that.
-             */
             $friendlyName = "image.$extension";
 
             if (array_key_exists('download', $params)) {
@@ -233,69 +301,39 @@ class Server
         }
     }
 
-
     /**
-     * Get the allowed image types to convert to.
+     * Is the extension allowed to pass on to the selected save operation?
      *
      * Note: It's currently not possible to save gif through libvips
      * See: https://github.com/jcupitt/libvips/issues/235
      * and: https://github.com/jcupitt/libvips/issues/620
      *
-     * @return array
+     * @param string $extension
+     *
+     * @return bool
      */
-    public function getAllowedImageTypes(): array
+    public function isExtensionAllowed(string $extension): bool
     {
-        return [
-            //'gif' => 'image/gif',
+        return $extension === 'jpg' || $extension === 'png' || $extension === 'webp';
+    }
+
+    /**
+     * Determines the appropriate mime type (from list of hardcoded values)
+     * using the provided extension.
+     * @param string $extension
+     *
+     * @return string Mime type
+     */
+    public function extensionToMimeType(string $extension): string
+    {
+        $mimeTypes = [
+            'gif' => 'image/gif',
             'jpg' => 'image/jpeg',
             'png' => 'image/png',
             'webp' => 'image/webp'
         ];
-    }
 
-    /**
-     * Resolve quality.
-     *
-     * @param array $params Parameters array
-     *
-     * @return int The resolved quality.
-     */
-    public function getQuality(array $params): int
-    {
-        $default = 85;
-
-        if (!isset($params['q']) || !is_numeric($params['q'])) {
-            return $default;
-        }
-
-        if ($params['q'] < 1 || $params['q'] > 100) {
-            return $default;
-        }
-
-        return (int)$params['q'];
-    }
-
-    /**
-     * Get the zlib compression level of the lossless PNG output format.
-     * The default level is 6.
-     *
-     * @param array $params Parameters array
-     *
-     * @return int The resolved zlib compression level.
-     */
-    public function getCompressionLevel(array $params): int
-    {
-        $default = 6;
-
-        if (!isset($params['level']) || !is_numeric($params['level'])) {
-            return $default;
-        }
-
-        if ($params['level'] < 0 || $params['level'] > 9) {
-            return $default;
-        }
-
-        return (int)$params['level'];
+        return $mimeTypes[$extension];
     }
 
     /**
@@ -316,7 +354,7 @@ class Server
             // Strip all metadata (EXIF, XMP, IPTC)
             $toBufferOptions['strip'] = true;
             // Set quality (default is 85)
-            $toBufferOptions['Q'] = $this->getQuality($params);
+            $toBufferOptions['Q'] = $this->getQuality($params, $extension);
             // Use progressive (interlace) scan, if necessary
             $toBufferOptions['interlace'] = array_key_exists('il', $params);
             // Enable libjpeg's Huffman table optimiser
@@ -328,7 +366,7 @@ class Server
             // Use progressive (interlace) scan, if necessary
             $toBufferOptions['interlace'] = array_key_exists('il', $params);
             // zlib compression level (default is 6)
-            $toBufferOptions['compression'] = $this->getCompressionLevel($params);
+            $toBufferOptions['compression'] = $this->getQuality($params, $extension);
             // Use adaptive row filtering (default is none)
             $toBufferOptions['filter'] = array_key_exists('filter', $params) ? 'all' : 'none';
             return $toBufferOptions;
@@ -338,13 +376,48 @@ class Server
             // Strip all metadata (EXIF, XMP, IPTC)
             $toBufferOptions['strip'] = true;
             // Set quality (default is 85)
-            $toBufferOptions['Q'] = $this->getQuality($params);
+            $toBufferOptions['Q'] = $this->getQuality($params, $extension);
             // Set quality of alpha layer to 100
             $toBufferOptions['alpha_q'] = 100;
             return $toBufferOptions;
         }
 
         return $toBufferOptions;
+    }
+
+    /**
+     * Resolve the quality for the provided extension.
+     *
+     * For a png it returns the zlib compression level
+     *
+     * @param array $params Parameters array
+     * @param string $extension Image extension
+     *
+     * @return int The resolved quality.
+     */
+    public function getQuality(array $params, string $extension): int
+    {
+        $quality = 0;
+
+        if ($extension === 'jpg' || $extension === 'webp') {
+            $quality = 85;
+
+            if (isset($params['q']) && is_numeric($params['q'])
+                && $params['q'] >= 1 && $params['q'] <= 100) {
+                $quality = (int)$params['q'];;
+            }
+        }
+
+        if ($extension === 'png') {
+            $quality = 6;
+
+            if (isset($params['level']) && is_numeric($params['level'])
+                && $params['level'] >= 0 && $params['level'] <= 9) {
+                $quality = (int)$params['level'];
+            }
+        }
+
+        return $quality;
     }
 
     /**

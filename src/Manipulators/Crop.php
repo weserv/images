@@ -31,7 +31,7 @@ class Crop extends BaseManipulator
 
         // Smart crop is handled in Thumbnail
         $isSmartCrop = $this->a === 'entropy' || $this->a === 'attention';
-        $isCropNeeded = $this->t === 'square' || $this->t ===  'squaredown' || strpos($this->t, 'crop') === 0;
+        $isCropNeeded = $this->t === 'square' || $this->t === 'squaredown' || strpos($this->t, 'crop') === 0;
 
         if ($coordinates) {
             $coordinates = $this->limitToImageBoundaries($image, $coordinates);
@@ -66,6 +66,8 @@ class Crop extends BaseManipulator
      * @param $imageHeight
      *
      * @return array|null The resolved coordinates.
+     *
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function resolveCropCoordinates($imageWidth, $imageHeight)
     {
@@ -125,19 +127,19 @@ class Crop extends BaseManipulator
             return $cropMethods[$this->a];
         }
 
-        $matches = explode('-', $this->a);
+        // Focal point
+        if (strpos($this->a, 'crop-') === 0) {
+            $matches = explode('-', substr($this->a, 4));
+            if (!isset($matches[2]) && is_numeric($matches[0]) && is_numeric($matches[1])) {
+                if ($matches[0] > 100 || $matches[1] > 100) {
+                    return [50, 50];
+                }
 
-        if (isset($matches[0], $matches[1], $matches[2]) && $matches[0] === 'crop' && !isset($matches[3])
-            && is_numeric($matches[1]) && is_numeric($matches[2])
-        ) {
-            if ($matches[1] > 100 || $matches[2] > 100) {
-                return [50, 50];
+                return [
+                    (int)$matches[0],
+                    (int)$matches[1],
+                ];
             }
-
-            return [
-                (int)$matches[1],
-                (int)$matches[2],
-            ];
         }
 
         return [50, 50];
@@ -151,27 +153,35 @@ class Crop extends BaseManipulator
      * @param int $inHeight The image height.
      * @param int $outWidth The output width.
      * @param int $outHeight The output height.
-     * @param int $x The x offset.
-     * @param int $y The y offset.
+     * @param int $xOffset The x offset.
+     * @param int $yOffset The y offset.
      *
      * @return array The crop offset.
+     *
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
-    public function calculateCrop(int $inWidth, int $inHeight, int $outWidth, int $outHeight, int $x, int $y): array
-    {
+    public function calculateCrop(
+        int $inWidth,
+        int $inHeight,
+        int $outWidth,
+        int $outHeight,
+        int $xOffset,
+        int $yOffset
+    ): array {
         // Default values
         $left = 0;
         $top = 0;
 
         // Assign only if valid
-        if ($x >= 0 && $x < ($inWidth - $outWidth)) {
-            $left = $x;
-        } elseif ($x >= ($inWidth - $outWidth)) {
+        if ($xOffset >= 0 && $xOffset < ($inWidth - $outWidth)) {
+            $left = $xOffset;
+        } elseif ($xOffset >= ($inWidth - $outWidth)) {
             $left = $inWidth - $outWidth;
         }
 
-        if ($y >= 0 && $y < ($inHeight - $outHeight)) {
-            $top = $y;
-        } elseif ($y >= ($inHeight - $outHeight)) {
+        if ($yOffset >= 0 && $yOffset < ($inHeight - $outHeight)) {
+            $top = $yOffset;
+        } elseif ($yOffset >= ($inHeight - $outHeight)) {
             $top = $inHeight - $outHeight;
         }
 

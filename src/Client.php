@@ -60,13 +60,6 @@ class Client
                 'max' => $this->options['max_redirects'], // allow at most 10 redirects.
                 'strict' => false,      // use "strict" RFC compliant redirects.
                 'referer' => true,      // add a Referer header
-                'on_redirect' => function (
-                    RequestInterface $request,
-                    ResponseInterface $response,
-                    UriInterface $uri
-                ) {
-                    //trigger_error('Internal redirecting  ' . $request->getUri() . ' to ' . $uri, E_USER_NOTICE);
-                },
                 'track_redirects' => false
             ],
             'expect' => false, // Send an empty Expect header (avoids 100 responses)

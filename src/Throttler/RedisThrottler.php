@@ -77,101 +77,101 @@ class RedisThrottler implements ThrottlerInterface
     /**
      * Determine if any rate limits have been exceeded
      *
-     * @param string $ip
+     * @param string $ipAddress
      *
      * @return bool
      */
-    public function isExceeded($ip): bool
+    public function isExceeded($ipAddress): bool
     {
-        if ($this->redis->exists($this->prefix . $ip . ':lockout')) {
+        if ($this->redis->exists($this->prefix . $ipAddress . ':lockout')) {
             return true;
         }
-        if ($this->increment($ip, $this->config['minutes']) > $this->config['allowed_requests']) {
+        if ($this->increment($ipAddress, $this->config['minutes']) > $this->config['allowed_requests']) {
             $ttl = $this->policy->getBanTime() * 60;
             $expires = time() + $ttl;
             // Is CloudFlare enabled?
             if ($this->policy->isCloudFlareEnabled()) {
-                $this->policy->banAtCloudFlare($ip);
+                $this->policy->banAtCloudFlare($ipAddress);
             }
-            $this->redis->set($this->prefix . $ip . ':lockout', $expires, 'ex', $ttl);
-            $this->resetAttempts($ip);
+            $this->redis->set($this->prefix . $ipAddress . ':lockout', $expires, 'ex', $ttl);
+            $this->resetAttempts($ipAddress);
             return true;
         }
         return false;
     }
 
     /**
-     * Increment the counter for a given IP for a given decay time.
+     * Increment the counter for a given ip address for a given decay time.
      *
-     * @param  string $ip
+     * @param  string $ipAddress
      * @param  float|int $decayMinutes
      * @return int
      */
-    public function increment($ip, $decayMinutes = 1): int
+    public function increment($ipAddress, $decayMinutes = 1): int
     {
-        $value = $this->redis->incr($this->prefix . $ip);
+        $value = $this->redis->incr($this->prefix . $ipAddress);
         // Check if this increment is new, and if so set expires time
         if ((int)$value === 1) {
-            $this->redis->expireat($this->prefix . $ip, time() + ($decayMinutes * 60));
+            $this->redis->expireat($this->prefix . $ipAddress, time() + ($decayMinutes * 60));
         }
         return $value;
     }
 
     /**
-     * Get the number of attempts for the given IP.
+     * Get the number of attempts for the given ip address.
      *
-     * @param  string $ip
+     * @param  string $ipAddress
      * @return mixed
      */
-    public function attempts($ip): int
+    public function attempts($ipAddress): int
     {
-        return (int)$this->redis->get($this->prefix . $ip);
+        return (int)$this->redis->get($this->prefix . $ipAddress);
     }
 
     /**
-     * Reset the number of attempts for the given IP.
+     * Reset the number of attempts for the given ip address.
      *
-     * @param  string $ip
+     * @param  string $ipAddress
      * @return bool true on success or false on failure.
      */
-    public function resetAttempts($ip): bool
+    public function resetAttempts($ipAddress): bool
     {
-        return (bool)$this->redis->del([$this->prefix . $ip]);
+        return (bool)$this->redis->del([$this->prefix . $ipAddress]);
     }
 
     /**
-     * Get the number of retries left for the given IP.
+     * Get the number of retries left for the given ip address.
      *
-     * @param  string $ip
+     * @param  string $ipAddress
      * @param  int $maxAttempts
      * @return int
      */
-    public function retriesLeft($ip, $maxAttempts): int
+    public function retriesLeft($ipAddress, $maxAttempts): int
     {
-        $attempts = $this->attempts($ip);
+        $attempts = $this->attempts($ipAddress);
         return $attempts === 0 ? $maxAttempts : $maxAttempts - $attempts + 1;
     }
 
     /**
-     * Clear the hits and lockout for the given IP.
+     * Clear the hits and lockout for the given ip address.
      *
-     * @param  string $ip
+     * @param  string $ipAddress
      * @return void
      */
-    public function clear($ip)
+    public function clear($ipAddress)
     {
-        $this->resetAttempts($ip);
-        $this->redis->del([$this->prefix . $ip . ':lockout']);
+        $this->resetAttempts($ipAddress);
+        $this->redis->del([$this->prefix . $ipAddress . ':lockout']);
     }
 
     /**
-     * Get the number of seconds until the "IP" is accessible again.
+     * Get the number of seconds until the ip address is accessible again.
      *
-     * @param  string $ip
+     * @param  string $ipAddress
      * @return int
      */
-    public function availableIn($ip): int
+    public function availableIn($ipAddress): int
     {
-        return (int)$this->redis->get($this->prefix . $ip . ':lockout') - time();
+        return (int)$this->redis->get($this->prefix . $ipAddress . ':lockout') - time();
     }
 }

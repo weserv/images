@@ -3,13 +3,12 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Color;
+use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\BandFormat;
 use Jcupitt\Vips\Image;
 
 /**
  * @property string $bg
- * @property bool $hasAlpha
- * @property bool $is16Bit
  * @property bool $isPremultiplied
  */
 class Background extends BaseManipulator
@@ -20,10 +19,12 @@ class Background extends BaseManipulator
      * @param Image $image The source image.
      *
      * @return Image The manipulated image.
+     *
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function run(Image $image): Image
     {
-        if (!$this->bg || !$this->hasAlpha) {
+        if (!$this->bg || !$image->hasAlpha()) {
             return $image;
         }
 
@@ -35,7 +36,7 @@ class Background extends BaseManipulator
 
         $backgroundRGBA = $background->toRGBA();
 
-        $is16Bit = $this->is16Bit;
+        $is16Bit = Utils::is16Bit($image->interpretation);
 
         // Scale up 8-bit values to match 16-bit input image
         $multiplier = $is16Bit ? 256 : 1;
@@ -59,9 +60,7 @@ class Background extends BaseManipulator
             // Ensure overlay is premultiplied sRGB
             $backgroundImage = $backgroundImage->premultiply();
 
-            // Premultiply image alpha channel before background transformation to avoid
-            // dark fringing around bright pixels
-            // See: http://entropymine.com/imageworsener/resizealpha/
+            // Premultiply image alpha channel before background transformation
             if (!$this->isPremultiplied) {
                 $image = $image->premultiply();
                 $this->isPremultiplied = true;
@@ -91,11 +90,7 @@ class Background extends BaseManipulator
                 $image = $image->unpremultiply();
 
                 // Cast pixel values to integer
-                if ($is16Bit) {
-                    $image = $image->cast(BandFormat::USHORT);
-                } else {
-                    $image = $image->cast(BandFormat::UCHAR);
-                }
+                $image = $is16Bit ? $image->cast(BandFormat::USHORT) : $image->cast(BandFormat::UCHAR);
 
                 $this->isPremultiplied = false;
             }

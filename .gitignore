@@ -3,4 +3,5 @@ vendor
 build
 /cronjob.php
 /config.php
+/GenerateExpectedFixtures.php
 /phpunit.xml

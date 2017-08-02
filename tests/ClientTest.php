@@ -51,38 +51,4 @@ class ClientTest extends ImagesweservTestCase
     {
         $this->assertSame($this->options, $this->client->getOptions());
     }
-
-    public function testOutputClient()
-    {
-        /* 1x1 transparent pixel */
-        $base64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
-        $pixel = base64_decode($base64);
-
-        $response = $this->getMockery(ResponseInterface::class);
-
-        $client = $this->getMockery(\GuzzleHttp\Client::class, function ($mock) use ($response, $pixel) {
-            $mock->shouldReceive('request')
-                ->with('GET', '/', [
-                    'sink' => $this->tempFile,
-                    'timeout' => $this->options['timeout'],
-                    'headers' => [
-                        'Accept-Encoding' => 'gzip',
-                        'User-Agent' => $this->options['user_agent'],
-                    ]
-                ])
-                ->andReturnUsing(function () use ($response, $pixel) {
-                    file_put_contents($this->tempFile, $pixel);
-
-                    return $response;
-                })->once();
-        });
-
-        $this->client->setClient($client);
-
-        $this->assertSame($this->tempFile, $this->client->get('/'));
-
-        $this->assertStringEqualsFile($this->tempFile, $pixel);
-
-        unlink($this->tempFile);
-    }
 }

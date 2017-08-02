@@ -59,45 +59,28 @@ class Color
      */
     public function __construct($value)
     {
-        do {
-            if ($hex = $this->getHexFromColorName($value)) {
-                $rgb = $this->parseHex($hex);
-                $alpha = 255;
-                break;
-            }
-
-            if (preg_match(self::SHORT_RGB, $value)) {
-                $rgb = $this->parseHex($value . $value);
-                $alpha = 255;
-                break;
-            }
-
-            if (preg_match(self::SHORT_ARGB, $value)) {
-                $rgb = $this->parseHex(substr($value, 1) . substr($value, 1));
-                $alpha = ($value[0] / 10) * 255;
-                break;
-            }
-
-            if (preg_match(self::LONG_RGB, $value)) {
-                $rgb = $this->parseHex($value);
-                $alpha = 255;
-                break;
-            }
-
-            if (preg_match(self::LONG_ARGB, $value)) {
-                $rgb = $this->parseHex(substr($value, 2));
-                $alpha = (substr($value, 0, 2) / 100) * 255;
-                break;
-            }
-
+        if ($hex = $this->getHexFromColorName($value)) {
+            $rgb = $this->parseHex($hex);
+            $alpha = 255;
+        } elseif (preg_match(self::SHORT_RGB, $value)) {
+            $rgb = $this->parseHex($value . $value);
+            $alpha = 255;
+        } elseif (preg_match(self::SHORT_ARGB, $value)) {
+            $rgb = $this->parseHex(substr($value, 1) . substr($value, 1));
+            $alpha = ($value[0] / 10) * 255;
+        } elseif (preg_match(self::LONG_RGB, $value)) {
+            $rgb = $this->parseHex($value);
+            $alpha = 255;
+        } elseif (preg_match(self::LONG_ARGB, $value)) {
+            $rgb = $this->parseHex(substr($value, 2));
+            $alpha = (substr($value, 0, 2) / 100) * 255;
+        } else {
             // Defaults to transparent
             $rgb = [0, 0, 0];
             $alpha = 0;
-        } while (false);
+        }
 
-        $this->red = $rgb[0];
-        $this->green = $rgb[1];
-        $this->blue = $rgb[2];
+        list($this->red, $this->green, $this->blue) = $rgb;
         $this->alpha = $alpha;
     }
 
@@ -154,6 +137,8 @@ class Color
      * @param string $name The color name
      *
      * @return string|null The hex code.
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function getHexFromColorName(string $name)
     {

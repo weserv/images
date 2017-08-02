@@ -75,15 +75,48 @@ class Utils
     }
 
     /**
-     * Get the angle of rotation from our EXIF metadata.
+     * Resolve an explicit angle.
      *
-     * @param  Image $image The source image.
+     * If an angle is provided, it is converted to a valid 90/180/270deg rotation.
+     * For example, `-450` will produce a 270deg rotation.
+     *
+     * @param  string|int $angle Angle of rotation, must be a multiple of 90.
      *
      * @return int rotation
      */
-    public static function resolveExifOrientation(Image $image): int
+    public static function resolveAngleRotation($angle): int
+    {
+        if (!is_numeric($angle)) {
+            return 0;
+        }
+
+        // Check if is not a multiple of 90
+        if ($angle % 90 !== 0) {
+            return 0;
+        }
+
+        // Calculate the rotation for the given angle that is a multiple of 90
+        $angle %= 360;
+
+        if ($angle < 0) {
+            $angle += 360;
+        }
+
+        return $angle;
+    }
+
+    /**
+     * Calculate the angle of rotation and need-to-flip for the given Exif orientation
+     *
+     * @param  Image $image The source image.
+     *
+     * @return array [rotation, flip, flop]
+     */
+    public static function resolveExifOrientation(Image $image): array
     {
         $rotate = 0;
+        $flip = false;
+        $flop = false;
 
         $exifOrientation = self::exifOrientation($image);
         switch ($exifOrientation) {
@@ -96,77 +129,56 @@ class Utils
             case 8:
                 $rotate = 270;
                 break;
+            case 2: // flop 1
+                $flop = true;
+                break;
+            case 7: // flip 6
+                $flip = true;
+                $rotate = 90;
+                break;
+            case 4: // flop 3
+                $flop = true;
+                $rotate = 180;
+                break;
+            case 5: // flip 8
+                $flip = true;
+                $rotate = 270;
+                break;
         }
 
-        return $rotate;
-    }
-
-    /**
-     * Convert a number range to another range, maintaining ratio
-     *
-     * @param int $value
-     * @param int $in_min
-     * @param int $in_max
-     * @param int $out_min
-     * @param int $out_max
-     *
-     * @return float
-     */
-    public static function mapToRange(int $value, int $in_min, int $in_max, int $out_min, int $out_max): float
-    {
-        return (float)($value - $in_min) * ($out_max - $out_min) / ($in_max - $in_min) + $out_min;
+        return [$rotate, $flip, $flop];
     }
 
     /**
      * Determine image extension from the name of the load operation
      *
-     * @param string|null $loader The name of the load operation
+     * @param string $loader The name of the load operation
      *
-     * @return string image type
+     * @return string image extension
      */
-    public static function determineImageExtension($loader)
+    public static function determineImageExtension(string $loader): string
     {
+        $extension = 'unknown';
+
         switch ($loader) {
-            case 'VipsForeignLoadJpegFile':
-                return 'jpg';
-            case 'VipsForeignLoadPng':
-                return 'png';
-            case 'VipsForeignLoadWebpFile':
-                return 'webp';
-            case 'VipsForeignLoadTiffFile':
-                return 'tiff';
-            case 'VipsForeignLoadGifFile':
-                return 'gif';
-            case 'VipsForeignLoadSvgFile':
-                return 'svg';
-            case 'VipsForeignLoadPdfFile':
-                return 'pdf';
-            case 'VipsForeignLoadRaw':
-                return 'raw';
-            case 'VipsForeignLoadMagickFile':
-                // Not a extension
-                return 'magick';
-            case 'VipsForeignLoadOpenexr':
-                return 'exr';
-            case 'VipsForeignLoadMat':
-                return 'mat';
-            case 'VipsForeignLoadRad':
-                return 'hdr';
-            case 'VipsForeignLoadPpm':
-                return 'ppm';
-            case 'VipsForeignLoadFits':
-                return 'fits';
-            case 'VipsForeignLoadVips':
-                return 'v';
-            case 'VipsForeignLoadAnalyze':
-                return 'img';
-            case 'VipsForeignLoadCsv':
-                return 'csv';
-            case 'VipsForeignLoadMatrix':
-                return 'txt';
-            default:
-                return 'unknown';
+            case 'jpegload':
+                $extension = 'jpg';
+                break;
+            case 'pngload':
+                $extension = 'png';
+                break;
+            case 'webpload':
+                $extension = 'webp';
+                break;
+            case 'tiffload':
+                $extension = 'tiff';
+                break;
+            case 'gifload':
+                $extension = 'gif';
+                break;
         }
+
+        return $extension;
     }
 
     /**
@@ -178,20 +190,13 @@ class Utils
      */
     public static function formatSizeUnits(int $bytes): string
     {
-        if ($bytes >= 1073741824) {
-            return number_format($bytes / 1073741824, 2) . ' GB';
-        }
-        if ($bytes >= 1048576) {
-            return number_format($bytes / 1048576, 2) . ' MB';
-        }
-        if ($bytes >= 1024) {
-            return number_format($bytes / 1024, 2) . ' KB';
-        }
-        if ($bytes > 1) {
-            return $bytes . ' bytes';
-        }
-        if ($bytes === 1) {
-            return '1 byte';
+        if ($bytes > 0) {
+            $unit = (int)log($bytes, 1024);
+            $units = ['B', 'KB', 'MB', 'GB'];
+
+            if (array_key_exists($unit, $units) === true) {
+                return sprintf('%d %s', $bytes / (1024 ** $unit), $units[$unit]);
+            }
         }
 
         return '0 bytes';

@@ -7,7 +7,6 @@ use Jcupitt\Vips\Interpretation;
 
 /**
  * @property string $filt
- * @property bool $hasAlpha
  */
 class Filter extends BaseManipulator
 {
@@ -64,7 +63,7 @@ class Filter extends BaseManipulator
             ]
         );
 
-        if ($this->hasAlpha) {
+        if ($image->hasAlpha()) {
             // Separate alpha channel
             $imageWithoutAlpha = $image->extract_band(0, ['n' => $image->bands - 1]);
             $alpha = $image->extract_band($image->bands - 1, ['n' => 1]);

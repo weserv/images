@@ -21,9 +21,4 @@ class UtilsTest extends ImagesweservTestCase
         $this->assertSame(65535, Utils::maximumImageAlpha(Interpretation::GREY16));
         $this->assertSame(255, Utils::maximumImageAlpha(Interpretation::SRGB));
     }
-
-    public function testMapToRange()
-    {
-        $this->assertSame(127.5, Utils::mapToRange(50, 0, 100, 0, 255));
-    }
 }

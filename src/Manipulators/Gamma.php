@@ -6,7 +6,6 @@ use Jcupitt\Vips\Image;
 
 /**
  * @property string $gam
- * @property bool $hasAlpha
  * @property bool $isPremultiplied
  */
 class Gamma extends BaseManipulator
@@ -24,17 +23,15 @@ class Gamma extends BaseManipulator
             return $image;
         }
 
-        if ($this->hasAlpha && !$this->isPremultiplied) {
-            // Premultiply image alpha channel before gamma transformation to avoid
-            // dark fringing around bright pixels
-            // See: http://entropymine.com/imageworsener/resizealpha/
-            $image = $image->premultiply();
-            $this->isPremultiplied = true;
-        }
-
         $gamma = $this->getGamma();
 
-        if ($this->hasAlpha) {
+        if ($image->hasAlpha()) {
+            if (!$this->isPremultiplied) {
+                // Premultiply image alpha channel before gamma transformation
+                $image = $image->premultiply();
+                $this->isPremultiplied = true;
+            }
+
             // Separate alpha channel
             $imageWithoutAlpha = $image->extract_band(0, ['n' => $image->bands - 1]);
             $alpha = $image->extract_band($image->bands - 1, ['n' => 1]);

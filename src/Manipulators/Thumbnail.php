@@ -17,7 +17,12 @@ use Jcupitt\Vips\Size;
  * @property string $tmpFileName
  * @property string $page
  * @property string $or
+ * @property int $exifRotation
+ * @property bool $flip
+ * @property bool $flop
  * @property string $trim
+ *
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class Thumbnail extends BaseManipulator
 {
@@ -27,6 +32,8 @@ class Thumbnail extends BaseManipulator
      * @var int|null
      */
     protected $maxImageSize;
+
+    const VIPS_MAX_COORD = 10000000;
 
     /**
      * Create Thumbnail instance.
@@ -69,21 +76,24 @@ class Thumbnail extends BaseManipulator
      */
     public function run(Image $image): Image
     {
-        $width = (int)$this->w;
-        $height = (int)$this->h;
+        // Cast any strings to integers
+        $this->w = (int)$this->w;
+        $this->h = (int)$this->h;
+
         $fit = $this->getFit();
 
-        if ($width <= 0) {
-            $width = 0;
+        // Width and height should never be less than zero
+        if ($this->w < 0) {
+            $this->w = 0;
         }
-        if ($height <= 0) {
-            $height = 0;
+        if ($this->h < 0) {
+            $this->h = 0;
         }
 
         // Check if image size is greater then the maximum allowed image size after dimension is resolved
-        $this->checkImageSize($image, $width, $height);
+        $this->checkImageSize($image, $this->w, $this->h);
 
-        $image = $this->doThumbnail($image, $fit, $width, $height);
+        $image = $this->doThumbnail($image, $fit, $this->w, $this->h);
 
         return $image;
     }
@@ -165,6 +175,8 @@ class Thumbnail extends BaseManipulator
      * @param  int $height The height.
      *
      * @return Image The manipulated image.
+     *
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function doThumbnail(Image $image, string $fit, int $width, int $height): Image
     {
@@ -191,10 +203,9 @@ class Thumbnail extends BaseManipulator
         $inputWidth = $image->width;
         $inputHeight = $image->height;
 
-        $orientation = $this->or;
-        $exifOrientation = Utils::resolveExifOrientation($image);
-        $userRotate = $orientation === '90' || $orientation === '270';
-        $exifRotate = $exifOrientation === 90 || $exifOrientation === 270;
+        $angle = Utils::resolveAngleRotation($this->or);
+        $userRotate = $angle === 90 || $angle === 270;
+        $exifRotate = $this->exifRotation === 90 || $this->exifRotation === 270;
 
         if ($userRotate xor $exifRotate) {
             // Swap input width and height when rotating by 90 or 270 degrees
@@ -213,8 +224,7 @@ class Thumbnail extends BaseManipulator
         if ($isSmartCrop) {
             // Set crop option
             $thumbnailOptions['crop'] = $cropPosition;
-        } elseif ($width > 0 && $height > 0) {
-            // Fixed width and height
+        } elseif ($width > 0 && $height > 0) { // Fixed width and height
             $xFactor = (float)($inputWidth / $width);
             $yFactor = (float)($inputHeight / $height);
             switch ($fit) {
@@ -222,38 +232,44 @@ class Thumbnail extends BaseManipulator
                 case 'squaredown':
                 case 'crop':
                     if ($xFactor < $yFactor) {
-                        $targetResizeHeight = (int)round((float)($inputHeight / $xFactor));
+                        $targetResizeHeight = (int)round($inputHeight / $xFactor);
                     } else {
-                        $targetResizeWidth = (int)round((float)($inputWidth / $yFactor));
+                        $targetResizeWidth = (int)round($inputWidth / $yFactor);
                     }
                     break;
                 case 'letterbox':
                 case 'fit':
                 case 'fitup':
                     if ($xFactor > $yFactor) {
-                        $targetResizeHeight = (int)round((float)($inputHeight / $xFactor));
+                        $targetResizeHeight = (int)round($inputHeight / $xFactor);
                     } else {
-                        $targetResizeWidth = (int)round((float)($inputWidth / $yFactor));
+                        $targetResizeWidth = (int)round($inputWidth / $yFactor);
                     }
                     break;
             }
-        } elseif ($width > 0) {
-            // Fixed width
+        } elseif ($width > 0) { // Fixed width
             if ($fit === 'absolute') {
                 $targetResizeHeight = $this->h = $inputHeight;
             } else {
                 // Auto height
                 $yFactor = (float)($inputWidth / $width);
-                $targetResizeHeight = $this->h = (int)round((float)($inputHeight / $yFactor));
+                $this->h = (int)round($inputHeight / $yFactor);
+
+                // Height is missing, replace with a huuuge value to prevent
+                // reduction or enlargement in that axis
+                $targetResizeHeight = self::VIPS_MAX_COORD;
             }
-        } elseif ($height > 0) {
-            // Fixed height
+        } elseif ($height > 0) { // Fixed height
             if ($fit === 'absolute') {
                 $targetResizeWidth = $this->w = $inputWidth;
             } else {
                 // Auto width
                 $xFactor = (float)($inputHeight / $height);
-                $targetResizeWidth = $this->w = (int)round((float)($inputWidth / $xFactor));
+                $this->w = (int)round($inputWidth / $xFactor);
+
+                // Width is missing, replace with a huuuge value to prevent
+                // reduction or enlargement in that axis
+                $targetResizeWidth = self::VIPS_MAX_COORD;
             }
         } else {
             // Identity transform
@@ -261,10 +277,11 @@ class Thumbnail extends BaseManipulator
             $targetResizeHeight = $this->h = $inputHeight;
         }
 
-        if ($userRotate) {
+        if ($userRotate || ($exifRotate && ($this->flip || $this->flop))) {
             // Swap target output width and height when rotating by 90 or 270 degrees
             // Note: EXIF orientation is handled in the thumbnail operator
-            // so it's not necessary to swap it here.
+            // so it's only necessary to swap it here when mirroring is required.
+            // (Because vips_autorot` does not support the various mirror modes).
             list($targetResizeWidth, $targetResizeHeight) = [$targetResizeHeight, $targetResizeWidth];
         }
 

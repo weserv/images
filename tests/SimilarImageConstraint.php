@@ -2,6 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Test;
 
+use Jcupitt\Vips\Access;
 use Jcupitt\Vips\Image;
 use Jcupitt\Vips\Interpretation;
 use PHPUnit\Framework\Constraint\Constraint;
@@ -174,10 +175,12 @@ class SimilarImageConstraint extends Constraint
         ];
 
         if (is_string($image)) {
-            $thumbnailImage = Image::thumbnail($image, 9, $thumbnailOptions)->colourspace(Interpretation::B_W);
-        } else {
-            $thumbnailImage = $image->thumbnail_image(9, $thumbnailOptions)->colourspace(Interpretation::B_W);
+            // Can't use `Image::thumbnail` because of shrink-on-load differences.
+            $image = Image::newFromFile($image, ['access' => Access::SEQUENTIAL]);
         }
+
+        /** @var Image $thumbnailImage */
+        $thumbnailImage = $image->thumbnail_image(9, $thumbnailOptions)->colourspace(Interpretation::B_W);
 
         $dHashImage = $this->normalizeImage($thumbnailImage->copyMemory())->extract_band(0);
 

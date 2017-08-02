@@ -23,61 +23,6 @@ class ShapeTest extends ImagesweservTestCase
         $this->assertInstanceOf(Shape::class, $this->manipulator);
     }
 
-    public function testRun()
-    {
-        $image = $this->getMockery('Jcupitt\Vips\Image[bandjoin, __get]', [''], function ($mock) {
-            $mock->shouldReceive('__get')
-                ->with('bands')
-                ->andReturn(3)
-                ->twice();
-
-            $mock->shouldReceive('__get')
-                ->with('interpretation')
-                ->andReturn(Interpretation::SRGB)
-                ->once();
-
-            $mock->shouldReceive('__get')
-                ->with('width')
-                ->andReturn(100)
-                ->once();
-
-            $mock->shouldReceive('__get')
-                ->with('height')
-                ->andReturn(100)
-                ->once();
-
-            $mock->shouldReceive('__get')
-                ->with('format')
-                ->andReturn(BandFormat::UCHAR)
-                ->once();
-
-            $mock->shouldReceive('extract_band')
-                ->with(\Mockery::any(), \Mockery::any())
-                ->andReturnSelf()
-                ->twice();
-
-            $mock->shouldReceive('linear')
-                ->with(\Mockery::any(), 0, \Mockery::any())
-                ->andReturnSelf()
-                ->once();
-
-            $mock->shouldReceive('bandjoin')
-                ->with(\Mockery::any())
-                ->andReturnSelf()
-                ->once();
-        });
-
-        $params = [
-            'shape' => 'circle',
-            'accessMethod' => Access::SEQUENTIAL,
-            'hasAlpha' => true,
-            'is16Bit' => false,
-            'isPremultiplied' => false,
-        ];
-
-        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
-    }
-
     public function testGetShape()
     {
         $this->assertSame('circle', $this->manipulator->setParams(['shape' => 'circle'])->getShape());

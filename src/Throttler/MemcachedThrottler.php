@@ -78,95 +78,95 @@ class MemcachedThrottler implements ThrottlerInterface
     /**
      * Determine if any rate limits have been exceeded
      *
-     * @param string $ip
+     * @param string $ipAddress
      *
      * @return bool
      */
-    public function isExceeded($ip): bool
+    public function isExceeded($ipAddress): bool
     {
-        if (($cached = $this->memcached->get($this->prefix . $ip . ':lockout')) !== false) {
+        if ($this->memcached->get($this->prefix . $ipAddress . ':lockout') !== false) {
             return true;
         }
-        if ($this->increment($ip, $this->config['minutes']) > $this->config['allowed_requests']) {
+        if ($this->increment($ipAddress, $this->config['minutes']) > $this->config['allowed_requests']) {
             $expires = time() + ($this->policy->getBanTime() * 60);
             // Is CloudFlare enabled?
             if ($this->policy->isCloudFlareEnabled()) {
-                $this->policy->banAtCloudFlare($ip);
+                $this->policy->banAtCloudFlare($ipAddress);
             }
-            $this->memcached->add($this->prefix . $ip . ':lockout', $expires, $expires);
-            $this->resetAttempts($ip);
+            $this->memcached->add($this->prefix . $ipAddress . ':lockout', $expires, $expires);
+            $this->resetAttempts($ipAddress);
             return true;
         }
         return false;
     }
 
     /**
-     * Increment the counter for a given IP for a given decay time.
+     * Increment the counter for a given ip address for a given decay time.
      *
-     * @param  string $ip
+     * @param  string $ipAddress
      * @param  float|int $decayMinutes
      * @return int
      */
-    public function increment($ip, $decayMinutes = 1): int
+    public function increment($ipAddress, $decayMinutes = 1): int
     {
-        return (int)$this->memcached->increment($this->prefix . $ip, 1, 1, time() + ($decayMinutes * 60));
+        return (int)$this->memcached->increment($this->prefix . $ipAddress, 1, 1, time() + ($decayMinutes * 60));
     }
 
     /**
-     * Get the number of attempts for the given IP.
+     * Get the number of attempts for the given ip address.
      *
-     * @param  string $ip
+     * @param  string $ipAddress
      * @return mixed
      */
-    public function attempts($ip): int
+    public function attempts($ipAddress): int
     {
-        return $this->memcached->get($this->prefix . $ip);
+        return $this->memcached->get($this->prefix . $ipAddress);
     }
 
     /**
-     * Reset the number of attempts for the given IP.
+     * Reset the number of attempts for the given ip address.
      *
-     * @param  string $ip
+     * @param  string $ipAddress
      * @return bool true on success or false on failure.
      */
-    public function resetAttempts($ip): bool
+    public function resetAttempts($ipAddress): bool
     {
-        return $this->memcached->delete($this->prefix . $ip);
+        return $this->memcached->delete($this->prefix . $ipAddress);
     }
 
     /**
-     * Get the number of retries left for the given IP.
+     * Get the number of retries left for the given ip address.
      *
-     * @param  string $ip
+     * @param  string $ipAddress
      * @param  int $maxAttempts
      * @return int
      */
-    public function retriesLeft($ip, $maxAttempts): int
+    public function retriesLeft($ipAddress, $maxAttempts): int
     {
-        $attempts = $this->attempts($ip);
+        $attempts = $this->attempts($ipAddress);
         return $attempts === 0 ? $maxAttempts : $maxAttempts - $attempts + 1;
     }
 
     /**
-     * Clear the hits and lockout for the given IP.
+     * Clear the hits and lockout for the given ip address.
      *
-     * @param  string $ip
+     * @param  string $ipAddress
      * @return void
      */
-    public function clear($ip)
+    public function clear($ipAddress)
     {
-        $this->resetAttempts($ip);
-        $this->memcached->delete($this->prefix . $ip . ':lockout');
+        $this->resetAttempts($ipAddress);
+        $this->memcached->delete($this->prefix . $ipAddress . ':lockout');
     }
 
     /**
-     * Get the number of seconds until the "IP" is accessible again.
+     * Get the number of seconds until the ip address is accessible again.
      *
-     * @param  string $ip
+     * @param  string $ipAddress
      * @return int
      */
-    public function availableIn($ip): int
+    public function availableIn($ipAddress): int
     {
-        return $this->memcached->get($this->prefix . $ip . ':lockout') - time();
+        return $this->memcached->get($this->prefix . $ipAddress . ':lockout') - time();
     }
 }

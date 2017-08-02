@@ -20,18 +20,6 @@ class GammaTest extends ImagesweservTestCase
         $this->assertInstanceOf(Gamma::class, $this->manipulator);
     }
 
-    public function testRun()
-    {
-        $image = $this->getMockery(Image::class, function ($mock) {
-            $mock->shouldReceive('gamma')->with(['exponent' => 1.5])->andReturnSelf()->once();
-        });
-
-        $this->assertInstanceOf(
-            Image::class,
-            $this->manipulator->setParams(['hasAlpha' => false, 'gam' => '1.5'])->run($image)
-        );
-    }
-
     public function testGetGamma()
     {
         $this->assertSame(1.5, $this->manipulator->setParams(['gam' => '1.5'])->getGamma());

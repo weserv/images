@@ -7,7 +7,6 @@ use Jcupitt\Vips\Image;
 
 /**
  * @property string $bri
- * @property bool $hasAlpha
  */
 class Brightness extends BaseManipulator
 {
@@ -24,19 +23,26 @@ class Brightness extends BaseManipulator
             return $image;
         }
 
-        $amount = $this->getBrightness();
+        $brightness = $this->getBrightness();
 
-        if ($amount !== 0) {
-            $amount = Utils::mapToRange($amount, -100, 100, -255, 255);
+        if ($brightness !== 0) {
+            // Map brightness from -100/100 to -255/255 range
+            $brightness *= 2.55;
+
+            // Scale up 8-bit values to match 16-bit input image
+            $brightness *= Utils::is16Bit($image->interpretation) ? 256.0 : 1.0;
 
             // Edit the brightness
-            if ($this->hasAlpha) {
+            if ($image->hasAlpha()) {
                 // Separate alpha channel
                 $imageWithoutAlpha = $image->extract_band(0, ['n' => $image->bands - 1]);
                 $alpha = $image->extract_band($image->bands - 1, ['n' => 1]);
-                $image = $imageWithoutAlpha->linear([1, 1, 1], [$amount, $amount, $amount])->bandjoin($alpha);
+                $image = $imageWithoutAlpha->linear(
+                    [1, 1, 1],
+                    [$brightness, $brightness, $brightness]
+                )->bandjoin($alpha);
             } else {
-                $image = $image->linear([1, 1, 1], [$amount, $amount, $amount]);
+                $image = $image->linear([1, 1, 1], [$brightness, $brightness, $brightness]);
             }
 
             /*$oldInterpretation = $image->interpretation;
@@ -44,7 +50,7 @@ class Brightness extends BaseManipulator
             $lch = $image->colourspace(Interpretation::LCH);
 
             // Edit the brightness
-            $image = $lch->add([$amount, 1, 1])->colourspace($oldInterpretation);*/
+            $image = $lch->add([$brightness, 1, 1])->colourspace($oldInterpretation);*/
         }
 
         return $image;
