@@ -335,8 +335,11 @@ if (!empty($_GET['url'])) {
             echo $error['message'];
         } else {
             $curlHandler = $e->getHandlerContext();
+            $response = $e->getResponse();
+            $hasResponse = $response !== null && $e->hasResponse();
 
-            $isDnsError = isset($curlHandler['errno']) && $curlHandler['errno'] === 6;
+            $isDnsError = (isset($curlHandler['errno']) && $curlHandler['errno'] === CURLE_COULDNT_RESOLVE_HOST) ||
+                ($hasResponse && strpos($response->getHeaderLine('X-Squid-Error'), 'ERR_DNS_FAIL') !== false);
 
             $error = $isDnsError ? $error_messages['dns_error'] : $error_messages['curl_error'];
 
@@ -345,9 +348,8 @@ if (!empty($_GET['url'])) {
 
             $statusCode = $e->getCode();
             $reasonPhrase = $e->getMessage();
-            $response = $e->getResponse();
 
-            if ($response !== null && $e->hasResponse()) {
+            if ($hasResponse) {
                 $statusCode = $response->getStatusCode();
                 $reasonPhrase = $response->getReasonPhrase();
             }
