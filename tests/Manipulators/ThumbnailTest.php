@@ -55,7 +55,7 @@ class ThumbnailTest extends ImagesweservTestCase
         $testImage = $this->inputJpg;
         $params = [
             'w' => '320',
-            'h' => '240',
+            'h' => '240'
         ];
 
         $uri = basename($testImage);
