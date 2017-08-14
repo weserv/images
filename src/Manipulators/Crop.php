@@ -3,6 +3,7 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use Jcupitt\Vips\Image;
+use Jcupitt\Vips\Interesting;
 
 /**
  * @property string $t
@@ -29,8 +30,7 @@ class Crop extends BaseManipulator
 
         $coordinates = $this->resolveCropCoordinates($imageWidth, $imageHeight);
 
-        // Smart crop is handled in Thumbnail
-        $isSmartCrop = $this->a === 'entropy' || $this->a === 'attention';
+        $isSmartCrop = $this->a === Interesting::ENTROPY || $this->a === Interesting::ATTENTION;
         $isCropNeeded = $this->t === 'square' || $this->t === 'squaredown' || strpos($this->t, 'crop') === 0;
 
         if ($coordinates) {
@@ -42,18 +42,23 @@ class Crop extends BaseManipulator
                 $coordinates[0],
                 $coordinates[1]
             );
-        } elseif (!$isSmartCrop && ($imageWidth !== $width || $imageHeight !== $height) && $isCropNeeded) {
+        } elseif (($imageWidth !== $width || $imageHeight !== $height) && $isCropNeeded) {
             $minWidth = min($imageWidth, $width);
             $minHeight = min($imageHeight, $height);
 
-            list($offsetPercentageX, $offsetPercentageY) = $this->getCrop();
-            $offsetX = (int)(($imageWidth - $width) * ($offsetPercentageX / 100));
-            $offsetY = (int)(($imageHeight - $height) * ($offsetPercentageY / 100));
+            if ($isSmartCrop) {
+                // Need to copy to memory, we have to stay seq.
+                $image = $image->copyMemory()->smartcrop($minWidth, $minHeight, ['interesting' => $this->a]);
+            } else {
+                list($offsetPercentageX, $offsetPercentageY) = $this->getCrop();
+                $offsetX = (int)(($imageWidth - $width) * ($offsetPercentageX / 100));
+                $offsetY = (int)(($imageHeight - $height) * ($offsetPercentageY / 100));
 
-            list($left, $top) = $this->calculateCrop($imageWidth, $imageHeight, $width, $height,
-                $offsetX, $offsetY);
+                list($left, $top) = $this->calculateCrop($imageWidth, $imageHeight, $width, $height,
+                    $offsetX, $offsetY);
 
-            $image = $image->crop($left, $top, $minWidth, $minHeight);
+                $image = $image->crop($left, $top, $minWidth, $minHeight);
+            }
         }
 
         return $image;

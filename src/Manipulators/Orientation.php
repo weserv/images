@@ -6,8 +6,7 @@ use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Image;
 
 /**
- * @property string $or
- * @property int $exifRotation
+ * @property int $rotation
  * @property bool $flip
  * @property bool $flop
  */
@@ -23,10 +22,9 @@ class Orientation extends BaseManipulator
     public function run(Image $image): Image
     {
         // Rotate if required.
-        $angle = $this->getRotation();
-        if ($angle !== 0) {
+        if ($this->rotation !== 0) {
             // Need to copy to memory, we have to stay seq.
-            $image = $image->copyMemory()->rot('d' . $angle);
+            $image = $image->copyMemory()->rot('d' . $this->rotation);
         }
 
         // Flip (mirror about Y axis) if required.
@@ -39,25 +37,11 @@ class Orientation extends BaseManipulator
             $image = $image->fliphor();
         }
 
-        // Remove EXIF Orientation from image, if mirroring is required.
-        if ($this->flip || $this->flop) {
+        // Remove EXIF Orientation from image, if any
+        if ($image->typeof(Utils::VIPS_META_ORIENTATION) !== 0) {
             $image->remove(Utils::VIPS_META_ORIENTATION);
         }
 
         return $image;
-    }
-
-    /**
-     * Get the angle of rotation.
-     *
-     * By default, returns zero, i.e. no rotation.
-     *
-     * @return int The angle of rotation.
-     */
-    public function getRotation(): int
-    {
-        // Calculate the angle of rotation
-        $missingExifRotation = $this->flip || $this->flop ? $this->exifRotation : 0;
-        return (Utils::resolveAngleRotation($this->or) + $missingExifRotation) % 360;
     }
 }

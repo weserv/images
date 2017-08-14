@@ -119,10 +119,9 @@ class OrientationTest extends ImagesweservTestCase
                 $this->assertEquals($orientation === 'Landscape' ? 240 : 427, $image->height);
                 $this->assertFalse($image->hasAlpha());
 
-                if($exifTag !== 1) {
-                    // Check if the EXIF orientation header is removed
-                    $this->assertEquals(0, $image->typeof(Utils::VIPS_META_ORIENTATION));
-                }
+                // Check if the EXIF orientation header is removed
+                $this->assertEquals(0, $image->typeof(Utils::VIPS_META_ORIENTATION));
+
 
                 $this->assertSimilarImage($expectedImage, $image);
             }

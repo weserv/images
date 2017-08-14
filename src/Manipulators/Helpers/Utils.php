@@ -106,45 +106,49 @@ class Utils
     }
 
     /**
-     * Calculate the angle of rotation and need-to-flip for the given Exif orientation
+     * Calculate the angle of rotation and need-to-flip for the given exif orientation
+     * and parameters
      *
      * @param  Image $image The source image.
      *
+     * @param array $params Parameters array
      * @return array [rotation, flip, flop]
      */
-    public static function resolveExifOrientation(Image $image): array
+    public static function resolveRotationAndFlip(Image $image, array $params): array
     {
-        $rotate = 0;
-        $flip = false;
-        $flop = false;
+        $rotate = isset($params['or']) ? self::resolveAngleRotation($params['or']) : 0;
+        $flip = isset($params['flip']) || array_key_exists('flip', $params);
+        $flop = isset($params['flop']) || array_key_exists('flop', $params);
 
         $exifOrientation = self::exifOrientation($image);
         switch ($exifOrientation) {
             case 6:
-                $rotate = 90;
+                $rotate += 90;
                 break;
             case 3:
-                $rotate = 180;
+                $rotate += 180;
                 break;
             case 8:
-                $rotate = 270;
+                $rotate += 270;
                 break;
             case 2: // flop 1
                 $flop = true;
                 break;
             case 7: // flip 6
                 $flip = true;
-                $rotate = 90;
+                $rotate += 90;
                 break;
             case 4: // flop 3
                 $flop = true;
-                $rotate = 180;
+                $rotate += 180;
                 break;
             case 5: // flip 8
                 $flip = true;
-                $rotate = 270;
+                $rotate += 270;
                 break;
         }
+
+        $rotate %= 360;
 
         return [$rotate, $flip, $flop];
     }

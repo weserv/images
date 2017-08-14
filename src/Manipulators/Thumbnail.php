@@ -16,8 +16,7 @@ use Jcupitt\Vips\Size;
  * @property string $a
  * @property string $tmpFileName
  * @property string $page
- * @property string $or
- * @property int $exifRotation
+ * @property int $rotation
  * @property bool $flip
  * @property bool $flop
  * @property string $trim
@@ -182,7 +181,7 @@ class Thumbnail extends BaseManipulator
     {
         // Default settings
         $thumbnailOptions = [
-            'auto_rotate' => true,
+            'auto_rotate' => false,
             'linear' => false
         ];
 
@@ -203,28 +202,19 @@ class Thumbnail extends BaseManipulator
         $inputWidth = $image->width;
         $inputHeight = $image->height;
 
-        $angle = Utils::resolveAngleRotation($this->or);
-        $userRotate = $angle === 90 || $angle === 270;
-        $exifRotate = $this->exifRotation === 90 || $this->exifRotation === 270;
+        $rotation = $this->rotation;
+        $swapNeeded = $rotation === 90 || $rotation === 270;
 
-        if ($userRotate xor $exifRotate) {
+        if ($swapNeeded) {
             // Swap input width and height when rotating by 90 or 270 degrees
             list($inputWidth, $inputHeight) = [$inputHeight, $inputWidth];
         }
-
-        $cropPosition = $this->a;
 
         // Scaling calculations
         $targetResizeWidth = $width;
         $targetResizeHeight = $height;
 
-        // Is smart crop? Only when a fixed width and height is specified.
-        $isSmartCrop = $width > 0 && $height > 0 && ($cropPosition === Interesting::ENTROPY || $cropPosition === Interesting::ATTENTION);
-
-        if ($isSmartCrop) {
-            // Set crop option
-            $thumbnailOptions['crop'] = $cropPosition;
-        } elseif ($width > 0 && $height > 0) { // Fixed width and height
+        if ($width > 0 && $height > 0) { // Fixed width and height
             $xFactor = (float)($inputWidth / $width);
             $yFactor = (float)($inputHeight / $height);
             switch ($fit) {
@@ -277,11 +267,8 @@ class Thumbnail extends BaseManipulator
             $targetResizeHeight = $this->h = $inputHeight;
         }
 
-        if ($userRotate || ($exifRotate && ($this->flip || $this->flop))) {
+        if ($swapNeeded) {
             // Swap target output width and height when rotating by 90 or 270 degrees
-            // Note: EXIF orientation is handled in the thumbnail operator
-            // so it's only necessary to swap it here when mirroring is required.
-            // (Because vips_autorot` does not support the various mirror modes).
             list($targetResizeWidth, $targetResizeHeight) = [$targetResizeHeight, $targetResizeWidth];
         }
 

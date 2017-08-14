@@ -146,8 +146,8 @@ class Api implements ApiInterface
         // Put common variables in the parameters
         $params['isPremultiplied'] = false;
 
-        // Calculate the angle of rotation and need-to-flip for the given Exif orientation
-        list($params['exifRotation'], $params['flip'], $params['flop']) = Utils::resolveExifOrientation($image);
+        // Calculate the angle of rotation and need-to-flip for the given exif orientation and parameters
+        list($params['rotation'], $params['flip'], $params['flop']) = Utils::resolveRotationAndFlip($image, $params);
 
         // Do our image manipulations
         foreach ($this->manipulators as $manipulator) {
