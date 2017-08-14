@@ -63,7 +63,7 @@ class FilterTest extends ImagesweservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testSepiaFilter()
+    public function testSepiaFilterJpeg()
     {
         $testImage = $this->inputJpg;
         $expectedImage = $this->expectedDir . '/sepia.jpg';
@@ -82,6 +82,30 @@ class FilterTest extends ImagesweservTestCase
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals('jpegload', $image->get('vips-loader'));
+        $this->assertEquals(320, $image->width);
+        $this->assertEquals(240, $image->height);
+        $this->assertSimilarImage($expectedImage, $image);
+    }
+
+    public function testSepiaFilterPngTransparent()
+    {
+        $testImage = $this->inputPngOverlayLayer1;
+        $expectedImage = $this->expectedDir . '/sepia-trans.png';
+        $params = [
+            'w' => '320',
+            'h' => '240',
+            't' => 'square',
+            'filt' => 'sepia'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
+
+        $this->assertEquals('pngload', $image->get('vips-loader'));
         $this->assertEquals(320, $image->width);
         $this->assertEquals(240, $image->height);
         $this->assertSimilarImage($expectedImage, $image);

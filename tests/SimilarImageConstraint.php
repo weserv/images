@@ -15,9 +15,9 @@ class SimilarImageConstraint extends Constraint
 {
     /*
      * The expected image
-     * @var Image|string $value
+     * @var Image $expectedImage
      */
-    protected $value;
+    protected $expectedImage;
 
     /*
      * Distance threshold. Defaulting to 5 (~7% threshold)
@@ -43,10 +43,11 @@ class SimilarImageConstraint extends Constraint
      */
     protected $actualHash;
 
-    public function __construct($value, int $threshold)
+    public function __construct($image, int $threshold)
     {
         parent::__construct();
-        $this->value = $value;
+        $this->expectedImage = is_string($image) ?
+            Image::newFromFile($image, ['access' => Access::SEQUENTIAL]) : $image;
         $this->threshold = $threshold;
     }
 
@@ -60,7 +61,11 @@ class SimilarImageConstraint extends Constraint
      */
     public function matches($other): bool
     {
-        $this->expectedHash = $this->dHash($this->value);
+        if (is_string($other)) {
+            $other = Image::newFromFile($other, ['access' => Access::SEQUENTIAL]);
+        }
+
+        $this->expectedHash = $this->dHash($this->expectedImage);
         $this->actualHash = $this->dHash($other);
 
         $this->distance = $this->dHashDistance($this->expectedHash, $this->actualHash);
@@ -161,11 +166,11 @@ class SimilarImageConstraint extends Constraint
      * Calculate a perceptual hash of an image.
      * Based on the dHash gradient method - see http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html
      *
-     * @param Image|string $image
+     * @param Image $image
      *
      * @return string
      */
-    private function dHash($image): string
+    private function dHash(Image $image): string
     {
         $thumbnailOptions = [
             'height' => 8,
@@ -173,11 +178,6 @@ class SimilarImageConstraint extends Constraint
             'auto_rotate' => false,
             'linear' => false
         ];
-
-        if (is_string($image)) {
-            // Can't use `Image::thumbnail` because of shrink-on-load differences.
-            $image = Image::newFromFile($image, ['access' => Access::SEQUENTIAL]);
-        }
 
         /** @var Image $thumbnailImage */
         $thumbnailImage = $image->thumbnail_image(9, $thumbnailOptions)->colourspace(Interpretation::B_W);

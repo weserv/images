@@ -40,6 +40,18 @@ class ImagesweservTestCase extends TestCase
         self::assertThat($actualImage, $constraint);
     }
 
+    /**
+     * Verify the maximum color distance
+     *
+     * @param Image|string $expectedImage
+     * @param Image|string $actualImage
+     * @param float $threshold
+     */
+    public function assertMaxColourDistance($expectedImage, $actualImage, float $threshold = 1.0) {
+        $constraint = new MaxColorDistanceConstraint($expectedImage, $threshold);
+        self::assertThat($actualImage, $constraint);
+    }
+
     public function getManipulators()
     {
         return [
