@@ -183,7 +183,7 @@ class FilterTest extends ImagesweservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testNegateFilterPngAlpha()
+    public function testNegateFilterPngWithGreyAlpha()
     {
         $testImage = $this->inputPngWithGreyAlpha;
         $expectedImage = $this->expectedDir . '/negate-alpha.png';

@@ -29,9 +29,6 @@ class Brightness extends BaseManipulator
             // Map brightness from -100/100 to -255/255 range
             $brightness *= 2.55;
 
-            // Scale up 8-bit values to match 16-bit input image
-            $brightness *= Utils::is16Bit($image->interpretation) ? 256.0 : 1.0;
-
             // Edit the brightness
             if ($image->hasAlpha()) {
                 // Separate alpha channel

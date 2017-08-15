@@ -281,6 +281,7 @@ class Thumbnail extends BaseManipulator
             $thumbnailOptions['size'] = $this->withoutEnlargement($fit) ? Size::DOWN : Size::BOTH;
         }
 
+        // Note: After this operation the image is always sRGB
         return $this->trim ?
             $image->thumbnail_image($targetResizeWidth, $thumbnailOptions) :
             Image::thumbnail($this->tmpFileName, $targetResizeWidth, $thumbnailOptions);

@@ -161,10 +161,8 @@ class Api implements ApiInterface
 
         // Reverse premultiplication after all transformations:
         if ($params['isPremultiplied']) {
-            $image = $image->unpremultiply();
-
-            // Cast pixel values to integer
-            $image = Utils::is16Bit($image->interpretation) ? $image->cast(BandFormat::USHORT) : $image->cast(BandFormat::UCHAR);
+            // Unpremultiply image alpha and cast pixel values to integer
+            $image = $image->unpremultiply()->cast(BandFormat::UCHAR);
         }
 
         return $image;

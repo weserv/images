@@ -57,8 +57,8 @@ class ImagesweservTestCase extends TestCase
         return [
             new Trim(),
             new Thumbnail(71000000),
-            new Crop(),
             new Orientation(),
+            new Crop(),
             new Letterbox(),
             new Shape,
             new Brightness(),
