@@ -13,17 +13,17 @@ use Mockery\MockInterface;
 class ThumbnailTest extends ImagesweservTestCase
 {
     /**
-     * @var Client|MockInterface $client
+     * @var Client|MockInterface
      */
     private $client;
 
     /**
-     * @var Api $api
+     * @var Api
      */
     private $api;
 
     /**
-     * @var Thumbnail $manipulator
+     * @var Thumbnail
      */
     private $manipulator;
 

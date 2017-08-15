@@ -7,12 +7,23 @@ use AndriesLouw\imagesweserv\Client;
 use AndriesLouw\imagesweserv\Manipulators\Trim;
 use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
 use Jcupitt\Vips\Image;
+use Mockery\MockInterface;
 
 class TrimTest extends ImagesweservTestCase
 {
+    /**
+     * @var Client|MockInterface
+     */
     private $client;
+
+    /**
+     * @var Api
+     */
     private $api;
 
+    /**
+     * @var Trim
+     */
     private $manipulator;
 
     public function setUp()

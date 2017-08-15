@@ -13,17 +13,17 @@ use Mockery\MockInterface;
 class LetterboxTest extends ImagesweservTestCase
 {
     /**
-     * @var Client|MockInterface $client
+     * @var Client|MockInterface
      */
     private $client;
 
     /**
-     * @var Api $api
+     * @var Api
      */
     private $api;
 
     /**
-     * @var Letterbox $manipulator
+     * @var Letterbox
      */
     private $manipulator;
 

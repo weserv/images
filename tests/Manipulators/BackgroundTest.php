@@ -12,17 +12,17 @@ use Mockery\MockInterface;
 class BackgroundTest extends ImagesweservTestCase
 {
     /**
-     * @var Client|MockInterface $client
+     * @var Client|MockInterface
      */
     private $client;
 
     /**
-     * @var Api $api
+     * @var Api
      */
     private $api;
 
     /**
-     * @var Background $manipulator
+     * @var Background
      */
     private $manipulator;
 
