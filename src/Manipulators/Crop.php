@@ -54,8 +54,8 @@ class Crop extends BaseManipulator
                 $offsetX = (int)(($imageWidth - $width) * ($offsetPercentageX / 100));
                 $offsetY = (int)(($imageHeight - $height) * ($offsetPercentageY / 100));
 
-                list($left, $top) = $this->calculateCrop($imageWidth, $imageHeight, $width, $height,
-                    $offsetX, $offsetY);
+                list($left, $top) = $this->calculateCrop([$imageWidth, $imageHeight], [$width, $height],
+                    [$offsetX, $offsetY]);
 
                 $image = $image->crop($left, $top, $minWidth, $minHeight);
             }
@@ -154,40 +154,31 @@ class Crop extends BaseManipulator
      * Calculate the (left, top) coordinates of the output image
      * within the input image, applying the given x and y offsets.
      *
-     * @param int $inWidth The image width.
-     * @param int $inHeight The image height.
-     * @param int $outWidth The output width.
-     * @param int $outHeight The output height.
-     * @param int $xOffset The x offset.
-     * @param int $yOffset The y offset.
+     * @param array $inCoordinates The image width/height.
+     * @param array $outCoordinates The output width/height.
+     * @param array $offsets The x/y offset.
      *
      * @return array The crop offset.
      *
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
-    public function calculateCrop(
-        int $inWidth,
-        int $inHeight,
-        int $outWidth,
-        int $outHeight,
-        int $xOffset,
-        int $yOffset
-    ): array {
+    public function calculateCrop(array $inCoordinates, array $outCoordinates, array $offsets): array
+    {
         // Default values
         $left = 0;
         $top = 0;
 
         // Assign only if valid
-        if ($xOffset >= 0 && $xOffset < ($inWidth - $outWidth)) {
-            $left = $xOffset;
-        } elseif ($xOffset >= ($inWidth - $outWidth)) {
-            $left = $inWidth - $outWidth;
+        if ($offsets[0] >= 0 && $offsets[0] < ($inCoordinates[0] - $outCoordinates[0])) {
+            $left = $offsets[0];
+        } elseif ($offsets[0] >= ($inCoordinates[0] - $outCoordinates[0])) {
+            $left = $inCoordinates[0] - $outCoordinates[0];
         }
 
-        if ($yOffset >= 0 && $yOffset < ($inHeight - $outHeight)) {
-            $top = $yOffset;
-        } elseif ($yOffset >= ($inHeight - $outHeight)) {
-            $top = $inHeight - $outHeight;
+        if ($offsets[1] >= 0 && $offsets[1] < ($inCoordinates[1] - $outCoordinates[1])) {
+            $top = $offsets[1];
+        } elseif ($offsets[1] >= ($inCoordinates[1] - $outCoordinates[1])) {
+            $top = $inCoordinates[1] - $outCoordinates[1];
         }
 
         // The resulting left and top could have been outside the image after calculation from bottom/right edges

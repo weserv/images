@@ -120,10 +120,10 @@ class MaxColorDistanceConstraint extends Constraint
 
         // Premultiply and remove alpha
         if ($image1->hasAlpha()) {
-            $image1 = $image1->premultiply()->extract_band(1, ['n' => $image1->bands - 1]);
+            $image1 = $image1->premultiply()->extract_band(0, ['n' => $image1->bands - 1]);
         }
         if ($image2->hasAlpha()) {
-            $image2 = $image2->premultiply()->extract_band(1, ['n' => $image2->bands - 1]);
+            $image2 = $image2->premultiply()->extract_band(0, ['n' => $image2->bands - 1]);
         }
 
         // Calculate color distance
