@@ -188,8 +188,9 @@ class Color
      */
     public function __construct($value)
     {
-        if (is_string($value) && isset(self::$colors[strtolower($value)])) {
-            $value = self::$colors[strtolower($value)];
+        $valueLower = strtolower($value);
+        if (isset(self::$colors[$valueLower])) {
+            $value = self::$colors[$valueLower];
         }
 
         list($this->alpha, $this->red, $this->green, $this->blue) = $this->parse($value);

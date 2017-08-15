@@ -91,13 +91,6 @@ class ColorTest extends ImagesweservTestCase
         $this->assertSame([0, 0, 0, 0], $color->toRGBA());
     }
 
-    public function testObjectColor()
-    {
-        $color = new Color(new \stdClass());
-
-        $this->assertSame([0, 0, 0, 0], $color->toRGBA());
-    }
-
     public function testUnknownColor()
     {
         $color = new Color('unknown');

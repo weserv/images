@@ -5,7 +5,6 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Image;
-use Jcupitt\Vips\Interesting;
 use Jcupitt\Vips\Interpretation;
 use Jcupitt\Vips\Size;
 
@@ -281,7 +280,10 @@ class Thumbnail extends BaseManipulator
             $thumbnailOptions['size'] = $this->withoutEnlargement($fit) ? Size::DOWN : Size::BOTH;
         }
 
-        // Note: After this operation the image is always sRGB
+        /**
+         * Note: After this operation the pixel interpretation is sRGB
+         * @see Interpretation::SRGB
+         */
         return $this->trim ?
             $image->thumbnail_image($targetResizeWidth, $thumbnailOptions) :
             Image::thumbnail($this->tmpFileName, $targetResizeWidth, $thumbnailOptions);

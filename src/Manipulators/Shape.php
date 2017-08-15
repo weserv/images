@@ -113,10 +113,12 @@ class Shape extends BaseManipulator
 
         if ($shape === 'circle') {
             // Circle
-            return ["<circle r='$outerRadius' cx='$midX' cy='$midY'/>", $midX - $outerRadius, $midY - $outerRadius, $min, $min];
+            $xMin = $midX - $outerRadius;
+            $yMin = $midY - $outerRadius;
+            return ["<circle r='$outerRadius' cx='$midX' cy='$midY'/>", $xMin, $yMin, $min, $min];
         }
 
-        // 'inner' radius of the star (if equal to outerRadius, a polygon is drawn)
+        // 'inner' radius of the polygon/star
         $innerRadius = $outerRadius;
 
         // Initial angle (clockwise). By default, stars and polygons are 'pointing' up.
@@ -141,7 +143,7 @@ class Shape extends BaseManipulator
                 break;
             case 'star':
                 // 5 point star
-                $points = 5;
+                $points = 5 * 2;
                 $innerRadius *= .382;
                 break;
             case 'square':
@@ -162,9 +164,6 @@ class Shape extends BaseManipulator
         $path = '';
         $xArr = [];
         $yArr = [];
-        if ($innerRadius !== $outerRadius) {
-            $points *= 2;
-        }
         for ($i = 0; $i <= $points; $i++) {
             $angle = $i * 2 * M_PI / $points - M_PI / 2 + $initialAngle;
             $radius = $i % 2 === 0 ? $outerRadius : $innerRadius;
