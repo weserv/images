@@ -3,12 +3,13 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
+use Jcupitt\Vips\Access;
 use Jcupitt\Vips\Image;
 
 /**
  * @property string $shape
  * @property string $circle
- * @property string $accessMethod
+ * @property string $strim
  */
 class Shape extends BaseManipulator
 {
@@ -30,23 +31,35 @@ class Shape extends BaseManipulator
             list($path, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getSVGShape($width, $height, $shape);
 
             $preserveAspectRatio = $shape === 'ellipse' ? 'none' : 'xMidYMid meet';
-            $svg = "<?xml version='1.0' encoding='UTF-8' standalone='no'?>";
-            $svg .= "<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='$width' height='$height' viewBox='0 0 $width $height'";
+            $svg = '<?xml version=\'1.0\' encoding=\'UTF-8\' standalone=\'no\'?>';
+            $svg .= "<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='$width' height='$height' viewBox='$xMin $yMin $maskWidth $maskHeight'";
             $svg .= " shape-rendering='geometricPrecision' preserveAspectRatio='$preserveAspectRatio'>";
             $svg .= $path;
             $svg .= '</svg>';
 
             $mask = Image::newFromBuffer($svg, '', [
                 'dpi' => 72,
-                'access' => $this->accessMethod,
+                'access' => Access::SEQUENTIAL,
             ]);
 
             $image = $this->cutout($mask, $image);
 
-            // If mask dimensions is less than the image dimensions crop the image to the mask dimensions.
-            // Removes unnecessary white space.
-            if ($maskWidth < $width || $maskHeight < $height) {
-                $image = $image->extract_area($xMin, $yMin, $maskWidth, $maskHeight);
+            // Crop the image to the mask dimensions;
+            // if strim is defined and if it's not a ellipse
+            if (isset($this->strim) && $shape !== 'ellipse') {
+                $xScale = (float)($width / $maskWidth);
+                $yScale = (float)($height / $maskHeight);
+                $scale = min($xScale, $yScale);
+
+                $trimWidth = (int)round($maskWidth * $scale);
+                $trimHeight = (int)round($maskHeight * $scale);
+
+                // If the trim dimensions is less than the image dimensions
+                if ($trimWidth < $width || $trimHeight < $height) {
+                    $left = (int)round(($width - $maskWidth * $scale) / 2);
+                    $top = (int)round(($height - $maskHeight * $scale) / 2);
+                    $image = $image->extract_area($left, $top, $trimWidth, $trimHeight);
+                }
             }
         }
 
@@ -67,6 +80,7 @@ class Shape extends BaseManipulator
             $this->shape === 'pentagon-180' ||
             $this->shape === 'square' ||
             $this->shape === 'star' ||
+            $this->shape === 'star-pudgy' ||
             $this->shape === 'triangle' ||
             $this->shape === 'triangle-180'
         ) {
@@ -145,6 +159,11 @@ class Shape extends BaseManipulator
                 // 5 point star
                 $points = 5 * 2;
                 $innerRadius *= .382;
+                break;
+            case 'star-pudgy':
+                // 5 point star (pudgy)
+                $points = 5 * 2;
+                $innerRadius *= .5;
                 break;
             case 'square':
                 // Square tilted 45 degrees
