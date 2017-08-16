@@ -47,17 +47,11 @@ class Shape extends BaseManipulator
             // Crop the image to the mask dimensions;
             // if strim is defined and if it's not a ellipse
             if (isset($this->strim) && $shape !== 'ellipse') {
-                $xScale = (float)($width / $maskWidth);
-                $yScale = (float)($height / $maskHeight);
-                $scale = min($xScale, $yScale);
-
-                $trimWidth = (int)round($maskWidth * $scale);
-                $trimHeight = (int)round($maskHeight * $scale);
+                list($left, $top, $trimWidth, $trimHeight) = $this->resolveShapeTrim($width, $height, $maskWidth,
+                    $maskHeight);
 
                 // If the trim dimensions is less than the image dimensions
                 if ($trimWidth < $width || $trimHeight < $height) {
-                    $left = (int)round(($width - $maskWidth * $scale) / 2);
-                    $top = (int)round(($height - $maskHeight * $scale) / 2);
                     $image = $image->extract_area($left, $top, $trimWidth, $trimHeight);
                 }
             }
@@ -254,5 +248,29 @@ class Shape extends BaseManipulator
         // append the mask to the image data ... the mask might be float now,
         // we must cast the format down to match the image data
         return $dst->bandjoin([$mask->cast($dst->format)]);
+    }
+
+    /**
+     * Calculate the area to extract
+     *
+     * @param int $width
+     * @param int $height
+     * @param int $maskWidth
+     * @param int $maskHeight
+     *
+     * @return array
+     */
+    public function resolveShapeTrim(int $width, int $height, int $maskWidth, int $maskHeight): array
+    {
+        $xScale = (float)($width / $maskWidth);
+        $yScale = (float)($height / $maskHeight);
+        $scale = min($xScale, $yScale);
+
+        $trimWidth = $maskWidth * $scale;
+        $trimHeight = $maskHeight * $scale;
+        $left = (int)round(($width - $trimWidth) / 2);
+        $top = (int)round(($height - $trimHeight) / 2);
+
+        return [$left, $top, (int)round($trimWidth), (int)round($trimHeight)];
     }
 }
