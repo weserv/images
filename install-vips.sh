@@ -15,7 +15,7 @@ if [ -d "$HOME/vips/bin" ]; then
 	echo "Found $installed_version"
 	if [[ "$installed_version" =~ ^vips-$escaped_version ]]; then
 		echo "Using cached directory"
-		exit 0
+		#exit 0
 	fi
 fi
 

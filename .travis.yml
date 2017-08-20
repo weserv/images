@@ -31,7 +31,10 @@ cache:
 addons:
   apt:
     packages:
-      - gobject-introspection
+      - libexpat1-dev
+      - liblcms2-dev
+      - libmagickwand-dev
+      - libopenexr-dev
       - libcfitsio3-dev
       - libfftw3-dev
       - libgif-dev
@@ -42,7 +45,9 @@ addons:
       - liborc-0.4-dev
       - libpango1.0-dev
       - libpoppler-glib-dev
+      - librsvg2-dev
       - libwebp-dev
+      - libglib2.0-dev
 
 before_install:
   - bash install-vips.sh 
