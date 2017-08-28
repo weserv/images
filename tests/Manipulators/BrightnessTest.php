@@ -33,6 +33,11 @@ class BrightnessTest extends ImagesweservTestCase
         $this->manipulator = new Brightness();
     }
 
+    public function testCreateInstance()
+    {
+        $this->assertInstanceOf(Brightness::class, $this->manipulator);
+    }
+
     public function testBrightnessIncrease()
     {
         $testImage = $this->inputJpg;
@@ -103,11 +108,6 @@ class BrightnessTest extends ImagesweservTestCase
         $this->assertEquals(320, $image->width);
         $this->assertEquals(240, $image->height);
         $this->assertSimilarImage($expectedImage, $image);
-    }
-
-    public function testCreateInstance()
-    {
-        $this->assertInstanceOf(Brightness::class, $this->manipulator);
     }
 
     public function testGetBrightness()

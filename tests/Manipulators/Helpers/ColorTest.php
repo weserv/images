@@ -84,6 +84,27 @@ class ColorTest extends ImagesweservTestCase
         $this->assertSame([0, 0, 0, 0], $color->toRGBA());
     }
 
+    public function testTwoDigitColorCode()
+    {
+        $color = new Color('01');
+
+        $this->assertSame([0, 0, 0, 0], $color->toRGBA());
+    }
+
+    public function testFiveDigitColorCode()
+    {
+        $color = new Color('01234');
+
+        $this->assertSame([0, 0, 0, 0], $color->toRGBA());
+    }
+
+    public function testNineDigitColorCode()
+    {
+        $color = new Color('012345678');
+
+        $this->assertSame([0, 0, 0, 0], $color->toRGBA());
+    }
+
     public function testNullColor()
     {
         $color = new Color(null);

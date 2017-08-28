@@ -5,6 +5,7 @@
 [![Source Code](https://img.shields.io/badge/source-andrieslouw/imagesweserv-blue.svg?style=flat-square)](https://github.com/andrieslouw/imagesweserv)
 [![Software License](https://img.shields.io/badge/license-BSD3-brightgreen.svg?style=flat-square)](https://opensource.org/licenses/BSD-3-Clause)
 [![Build Status](https://travis-ci.org/andrieslouw/imagesweserv.svg?branch=3.x)](https://travis-ci.org/andrieslouw/imagesweserv)
+[![Test Coverage](https://codeclimate.com/github/andrieslouw/imagesweserv/badges/coverage.svg)](https://codeclimate.com/github/andrieslouw/imagesweserv/coverage)
 
 Source code of images.weserv.nl, to be used on your own server(s). Images.weserv.nl leverages powerful libraries like [php-vips](https://github.com/jcupitt/php-vips) (for image handling and manipulation), [Guzzle](https://github.com/guzzle/guzzle) (for sending HTTP requests) and [URI](https://github.com/thephpleague/uri) (to create and manage URIs).
 
