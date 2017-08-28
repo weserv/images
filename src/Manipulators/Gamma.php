@@ -35,9 +35,9 @@ class Gamma extends BaseManipulator
             // Separate alpha channel
             $imageWithoutAlpha = $image->extract_band(0, ['n' => $image->bands - 1]);
             $alpha = $image->extract_band($image->bands - 1, ['n' => 1]);
-            $image = $imageWithoutAlpha->gamma(['exponent' => $gamma])->bandjoin($alpha);
+            $image = $imageWithoutAlpha->gamma(['exponent' => 1.0 / $gamma])->bandjoin($alpha);
         } else {
-            $image = $image->gamma(['exponent' => $gamma]);
+            $image = $image->gamma(['exponent' => 1.0 / $gamma]);
         }
 
         return $image;

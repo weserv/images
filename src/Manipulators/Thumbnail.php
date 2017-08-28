@@ -19,6 +19,7 @@ use Jcupitt\Vips\Size;
  * @property bool $flip
  * @property bool $flop
  * @property string $trim
+ * @property string $gam
  *
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
@@ -281,11 +282,14 @@ class Thumbnail extends BaseManipulator
         }
 
         /**
+         * Try to use shrink-on-load for JPEG and WebP, when not
+         * applying gamma correction or when trimming isn't required.
+         *
          * Note: After this operation the pixel interpretation is sRGB or RGB
          * @see Interpretation::SRGB
          * @see Interpretation::RGB
          */
-        return $this->trim ?
+        return $this->trim || isset($this->gam) ?
             $image->thumbnail_image($targetResizeWidth, $thumbnailOptions) :
             Image::thumbnail($this->tmpFileName, $targetResizeWidth, $thumbnailOptions);
     }
