@@ -8,6 +8,7 @@ use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Manipulators\Thumbnail;
 use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
 use Jcupitt\Vips\Image;
+use Jcupitt\Vips\Interpretation;
 use Mockery\MockInterface;
 
 class ThumbnailTest extends ImagesweservTestCase
@@ -71,7 +72,7 @@ class ThumbnailTest extends ImagesweservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
-    /*
+    /**
      * Provide only one dimension, should default to fit
      */
     public function testFixedWidth()
@@ -94,7 +95,7 @@ class ThumbnailTest extends ImagesweservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
-    /*
+    /**
      * Provide only one dimension, should default to fit
      */
     public function testFixedHeight()
@@ -216,7 +217,7 @@ class ThumbnailTest extends ImagesweservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
-    /*
+    /**
      * Do not enlarge when input width is already less than output width
      */
     public function testSquareDownWidth()
@@ -240,7 +241,7 @@ class ThumbnailTest extends ImagesweservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
-    /*
+    /**
      * Do not enlarge when input height is already less than output height
      */
     public function testSquareDownHeight()
@@ -286,7 +287,7 @@ class ThumbnailTest extends ImagesweservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
-    /*
+    /**
      * Width or height considering ratio (portrait)
      */
     public function testTiffRatioPortrait()
@@ -310,7 +311,7 @@ class ThumbnailTest extends ImagesweservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
-    /*
+    /**
      * Width or height considering ratio (landscape)
      */
     public function testJpgRatioLandscape()
@@ -334,7 +335,7 @@ class ThumbnailTest extends ImagesweservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
-    /*
+    /**
      * Downscale width and height, ignoring aspect ratio
      */
     public function testAbsoluteDownscale()
@@ -359,7 +360,7 @@ class ThumbnailTest extends ImagesweservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
-    /*
+    /**
      * Downscale width, ignoring aspect ratio
      */
     public function testAbsoluteDownscaleWidth()
@@ -383,7 +384,7 @@ class ThumbnailTest extends ImagesweservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
-    /*
+    /**
      * Downscale width, ignoring aspect ratio
      */
     public function testAbsoluteDownscaleHeight()
@@ -407,7 +408,7 @@ class ThumbnailTest extends ImagesweservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
-    /*
+    /**
      * Upscale width and height, ignoring aspect ratio
      */
     public function testAbsoluteUpscale()
@@ -432,7 +433,7 @@ class ThumbnailTest extends ImagesweservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
-    /*
+    /**
      * Upscale width and height, ignoring aspect ratio
      */
     public function testAbsoluteUpscaleWidth()
@@ -456,7 +457,7 @@ class ThumbnailTest extends ImagesweservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
-    /*
+    /**
      * Upscale width and height, ignoring aspect ratio
      */
     public function testAbsoluteUpscaleHeight()
@@ -480,7 +481,7 @@ class ThumbnailTest extends ImagesweservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
-    /*
+    /**
      * Downscale width, upscale height, ignoring aspect ratio
      */
     public function testAbsoluteDownscaleWidthUpscaleHeight()
@@ -505,7 +506,7 @@ class ThumbnailTest extends ImagesweservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
-    /*
+    /**
      * Upscale width, downscale height, ignoring aspect ratio
      */
     public function testAbsoluteUpscaleWidthDownscaleHeight()
@@ -651,6 +652,80 @@ class ThumbnailTest extends ImagesweservTestCase
         $this->assertEquals(320, $image->width);
         $this->assertEquals(80, $image->height);
         $this->assertTrue($image->hasAlpha());
+        $this->assertSimilarImage($expectedImage, $image);
+    }
+
+    /**
+     * From CMYK to sRGB
+     */
+    public function testCMYKTosRGB()
+    {
+        $testImage = $this->inputJpgWithCmykProfile;
+        $params = [
+            'w' => '320'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
+        $this->assertEquals(Interpretation::RGB, $image->interpretation);
+        $this->assertEquals(320, $image->width);
+    }
+
+    /**
+     * From CMYK to sRGB with white background, not yellow
+     */
+    public function testCMYKTosRGBWithBackground()
+    {
+        $testImage = $this->inputJpgWithCmykProfile;
+        $expectedImage = $this->expectedDir . '/colourspace.cmyk.jpg';
+        $params = [
+            'w' => '320',
+            'h' => '240',
+            't' => 'letterbox',
+            'bg' => 'white'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
+        $this->assertEquals(Interpretation::RGB, $image->interpretation);
+        $this->assertEquals(320, $image->width);
+        $this->assertEquals(240, $image->height);
+        $this->assertSimilarImage($expectedImage, $image);
+    }
+
+    /**
+     * From profile-less CMYK to sRGB
+     */
+    public function testProfileLessCMYKTosRGB()
+    {
+        $testImage = $this->inputJpgWithCmykNoProfile;
+        $expectedImage = $this->expectedDir . '/colourspace.cmyk-without-profile.jpg';
+        $params = [
+            'w' => '320'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
+        $this->assertEquals(Interpretation::RGB, $image->interpretation);
+        $this->assertEquals(320, $image->width);
         $this->assertSimilarImage($expectedImage, $image);
     }
 

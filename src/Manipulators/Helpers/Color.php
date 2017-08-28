@@ -213,7 +213,7 @@ class Color
      */
     public function parse($color): array
     {
-        // Defaults to transparent
+        // Default to transparent
         $default = [0, 0, 0, 0];
 
         // If it's not a string; return default

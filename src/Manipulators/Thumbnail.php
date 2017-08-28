@@ -188,14 +188,14 @@ class Thumbnail extends BaseManipulator
         if (Utils::hasProfile($image)) {
             // Convert to sRGB using embedded profile
             // https://packages.debian.org/sid/all/icc-profiles-free/filelist
-            $thumbnailOptions['export_profile'] = __DIR__ . '/../ICC/sRGB.icc';
+            $thumbnailOptions['export_profile'] = __DIR__ . '/../ICC/sRGB.icm';
         } elseif ($image->interpretation === Interpretation::CMYK) {
             // CMYK with no embedded profile, import using default CMYK profile
             // http://www.argyllcms.com/cmyk.icm
             $thumbnailOptions['import_profile'] = __DIR__ . '/../ICC/cmyk.icm';
             // Always convert to sRGB
             // https://packages.debian.org/sid/all/icc-profiles-free/filelist
-            $thumbnailOptions['export_profile'] = __DIR__ . '/../ICC/sRGB.icc';
+            $thumbnailOptions['export_profile'] = __DIR__ . '/../ICC/sRGB.icm';
         }
 
         $inputWidth = $image->width;
@@ -281,8 +281,9 @@ class Thumbnail extends BaseManipulator
         }
 
         /**
-         * Note: After this operation the pixel interpretation is sRGB
+         * Note: After this operation the pixel interpretation is sRGB or RGB
          * @see Interpretation::SRGB
+         * @see Interpretation::RGB
          */
         return $this->trim ?
             $image->thumbnail_image($targetResizeWidth, $thumbnailOptions) :

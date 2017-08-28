@@ -31,13 +31,8 @@ class Letterbox extends BaseManipulator
         $height = $this->h;
 
         if (($image->width !== $width || $image->height !== $height) && $this->t === 'letterbox') {
-            // Default: black
-            $backgroundColor = [
-                0,
-                0,
-                0,
-                0
-            ];
+            // Default to transparent
+            $backgroundColor = [0, 0, 0, 0];
 
             if ($this->bg) {
                 $backgroundColor = (new Color($this->bg))->toRGBA();

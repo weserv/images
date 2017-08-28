@@ -39,7 +39,7 @@ class LetterboxTest extends ImagesweservTestCase
         $this->assertInstanceOf(Letterbox::class, $this->manipulator);
     }
 
-    /*
+    /**
      * TIFF letterbox known to cause rounding errors
      */
     public function testTiffLetterbox()

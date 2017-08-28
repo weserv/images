@@ -32,6 +32,7 @@ class ShapeTest extends ImagesweservTestCase
         $this->assertSame('pentagon-180', $this->manipulator->setParams(['shape' => 'pentagon-180'])->getShape());
         $this->assertSame('square', $this->manipulator->setParams(['shape' => 'square'])->getShape());
         $this->assertSame('star', $this->manipulator->setParams(['shape' => 'star'])->getShape());
+        $this->assertSame('star-pudgy', $this->manipulator->setParams(['shape' => 'star-pudgy'])->getShape());
         $this->assertSame('triangle', $this->manipulator->setParams(['shape' => 'triangle'])->getShape());
         $this->assertSame('triangle-180', $this->manipulator->setParams(['shape' => 'triangle-180'])->getShape());
         $this->assertSame('circle', $this->manipulator->setParams(['circle' => true])->getShape());

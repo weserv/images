@@ -39,7 +39,7 @@ class OrientationTest extends ImagesweservTestCase
         $this->assertInstanceOf(Orientation::class, $this->manipulator);
     }
 
-    /*
+    /**
      * Rotate by any 90-multiple angle
      */
     public function testRotateBy90MultipleAngle()
@@ -65,7 +65,7 @@ class OrientationTest extends ImagesweservTestCase
         }
     }
 
-    /*
+    /**
      * Rotate by any 180-multiple angle
      */
     public function testRotateBy180MultipleAngle()
@@ -91,7 +91,7 @@ class OrientationTest extends ImagesweservTestCase
         }
     }
 
-    /*
+    /**
      * EXIF Orientation, auto-rotate
      */
     public function testAutoRotate()
