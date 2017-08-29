@@ -29,9 +29,9 @@ class OrientationTest extends ImagesweservTestCase
 
     public function setUp()
     {
-        $this->manipulator = new Orientation();
         $this->client = $this->getMockery(Client::class);
         $this->api = new Api($this->client, $this->getManipulators());
+        $this->manipulator = new Orientation();
     }
 
     public function testCreateInstance()

@@ -50,7 +50,7 @@ Thanks for your support!
 - With the magical help of [libvips](https://github.com/jcupitt/libvips) and the PHP binding [php-vips](https://github.com/jcupitt/php-vips), we "officially" support `PNG`, `JPG`, `WEBP`, `GIF` (not animated), `SVG`, `PDF` and `TIFF` as image input. "Unofficially" we're supporting all [libMagick image file types](https://www.imagemagick.org/script/formats.php#supported). 
 
 #### Output
-- We've added `&output=webp` in an effort to support more image formats as output. See [#68](https://github.com/andrieslouw/imagesweserv/issues/68).
+- We've added `&output=webp` and `&output=tiff` in an effort to support more image formats as output. See [#68](https://github.com/andrieslouw/imagesweserv/issues/68).
 
 #### Improvements
 - Image filename in HTTP header (`Content-Disposition: inline`). See [#78](https://github.com/andrieslouw/imagesweserv/issues/78).

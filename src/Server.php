@@ -314,7 +314,7 @@ class Server
      */
     public function isExtensionAllowed(string $extension): bool
     {
-        return $extension === 'jpg' || $extension === 'png' || $extension === 'webp';
+        return $extension === 'jpg' || $extension === 'png' || $extension === 'webp' || $extension === 'tiff';
     }
 
     /**
@@ -330,7 +330,8 @@ class Server
             'gif' => 'image/gif',
             'jpg' => 'image/jpeg',
             'png' => 'image/png',
-            'webp' => 'image/webp'
+            'webp' => 'image/webp',
+            'tiff' => 'image/tiff'
         ];
 
         return $mimeTypes[$extension];
@@ -359,7 +360,6 @@ class Server
             $toBufferOptions['interlace'] = array_key_exists('il', $params);
             // Enable libjpeg's Huffman table optimiser
             $toBufferOptions['optimize_coding'] = true;
-            return $toBufferOptions;
         }
 
         if ($extension === 'png') {
@@ -369,7 +369,6 @@ class Server
             $toBufferOptions['compression'] = $this->getQuality($params, $extension);
             // Use adaptive row filtering (default is none)
             $toBufferOptions['filter'] = array_key_exists('filter', $params) ? 'all' : 'none';
-            return $toBufferOptions;
         }
 
         if ($extension === 'webp') {
@@ -379,7 +378,15 @@ class Server
             $toBufferOptions['Q'] = $this->getQuality($params, $extension);
             // Set quality of alpha layer to 100
             $toBufferOptions['alpha_q'] = 100;
-            return $toBufferOptions;
+        }
+
+        if ($extension === 'tiff') {
+            // Strip all metadata (EXIF, XMP, IPTC)
+            $toBufferOptions['strip'] = true;
+            // Set quality (default is 85)
+            $toBufferOptions['Q'] = $this->getQuality($params, $extension);
+            // Set the tiff compression
+            $toBufferOptions['compression'] = 'jpeg';
         }
 
         return $toBufferOptions;
@@ -399,12 +406,12 @@ class Server
     {
         $quality = 0;
 
-        if ($extension === 'jpg' || $extension === 'webp') {
+        if ($extension === 'jpg' || $extension === 'webp' || $extension === 'tiff') {
             $quality = 85;
 
             if (isset($params['q']) && is_numeric($params['q'])
                 && $params['q'] >= 1 && $params['q'] <= 100) {
-                $quality = (int)$params['q'];;
+                $quality = (int)$params['q'];
             }
         }
 

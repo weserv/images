@@ -28,21 +28,10 @@ class Crop extends BaseManipulator
         $imageWidth = $image->width;
         $imageHeight = $image->height;
 
-        $coordinates = $this->resolveCropCoordinates($imageWidth, $imageHeight);
-
         $isSmartCrop = $this->a === Interesting::ENTROPY || $this->a === Interesting::ATTENTION;
         $isCropNeeded = $this->t === 'square' || $this->t === 'squaredown' || strpos($this->t, 'crop') === 0;
 
-        if ($coordinates) {
-            $coordinates = $this->limitToImageBoundaries($image, $coordinates);
-
-            $image = $image->crop(
-                $coordinates[2],
-                $coordinates[3],
-                $coordinates[0],
-                $coordinates[1]
-            );
-        } elseif (($imageWidth !== $width || $imageHeight !== $height) && $isCropNeeded) {
+        if (($imageWidth !== $width || $imageHeight !== $height) && $isCropNeeded) {
             $minWidth = min($imageWidth, $width);
             $minHeight = min($imageHeight, $height);
 
@@ -59,6 +48,19 @@ class Crop extends BaseManipulator
 
                 $image = $image->crop($left, $top, $minWidth, $minHeight);
             }
+        }
+
+        $coordinates = $this->resolveCropCoordinates($imageWidth, $imageHeight);
+
+        if ($coordinates) {
+            $coordinates = $this->limitToImageBoundaries($image, $coordinates);
+
+            $image = $image->crop(
+                $coordinates[2],
+                $coordinates[3],
+                $coordinates[0],
+                $coordinates[1]
+            );
         }
 
         return $image;
@@ -134,7 +136,7 @@ class Crop extends BaseManipulator
 
         // Focal point
         if (strpos($this->a, 'crop-') === 0) {
-            $matches = explode('-', substr($this->a, 4));
+            $matches = explode('-', substr($this->a, 5));
             if (!isset($matches[2]) && is_numeric($matches[0]) && is_numeric($matches[1])) {
                 if ($matches[0] > 100 || $matches[1] > 100) {
                     return [50, 50];
@@ -142,7 +144,7 @@ class Crop extends BaseManipulator
 
                 return [
                     (int)$matches[0],
-                    (int)$matches[1],
+                    (int)$matches[1]
                 ];
             }
         }
