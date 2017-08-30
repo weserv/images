@@ -186,23 +186,23 @@ class Utils
     }
 
     /**
-     * http://stackoverflow.com/questions/5501427/php-filesize-mb-kb-conversion
+     * https://stackoverflow.com/questions/2510434/format-bytes-to-kilobytes-megabytes-gigabytes
      *
      * @param int $bytes
+     * @param int $precision
      *
      * @return string
      */
-    public static function formatSizeUnits(int $bytes): string
+    public static function formatBytes(int $bytes, int $precision = 2): string
     {
-        if ($bytes > 0) {
-            $unit = (int)log($bytes, 1024);
-            $units = ['B', 'KB', 'MB', 'GB'];
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
-            if (array_key_exists($unit, $units) === true) {
-                return sprintf('%d %s', $bytes / (1024 ** $unit), $units[$unit]);
-            }
-        }
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
 
-        return '0 bytes';
+        $bytes /= 1024 ** $pow;
+
+        return round($bytes, $precision) . ' ' . $units[$pow];
     }
 }

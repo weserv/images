@@ -4,10 +4,6 @@ namespace AndriesLouw\imagesweserv\Test\Manipulators;
 
 use AndriesLouw\imagesweserv\Manipulators\Shape;
 use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
-use Jcupitt\Vips\Access;
-use Jcupitt\Vips\BandFormat;
-use Jcupitt\Vips\Image;
-use Jcupitt\Vips\Interpretation;
 
 class ShapeTest extends ImagesweservTestCase
 {

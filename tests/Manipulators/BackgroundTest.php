@@ -124,7 +124,7 @@ class BackgroundTest extends ImagesweservTestCase
 
         $this->assertEquals(32, $image->width);
         $this->assertEquals(32, $image->height);
-        $this->assertMaxColourDistance($expectedImage, $image);
+        $this->assertMaxColorDistance($expectedImage, $image);
     }
 
     public function testFlattenGreyScaleToOrange()

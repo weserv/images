@@ -574,34 +574,6 @@ class ThumbnailTest extends ImagesweservTestCase
     }
 
     /**
-     * From CMYK to sRGB with white background, not yellow
-     */
-    public function testCMYKTosRGBWithBackground()
-    {
-        $testImage = $this->inputJpgWithCmykProfile;
-        $expectedImage = $this->expectedDir . '/colourspace.cmyk.jpg';
-        $params = [
-            'w' => '320',
-            'h' => '240',
-            't' => 'letterbox',
-            'bg' => 'white'
-        ];
-
-        $uri = basename($testImage);
-
-        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
-
-        /** @var Image $image */
-        $image = $this->api->run($uri, $params);
-
-        $this->assertEquals('jpegload', $image->get('vips-loader'));
-        $this->assertEquals(Interpretation::RGB, $image->interpretation);
-        $this->assertEquals(320, $image->width);
-        $this->assertEquals(240, $image->height);
-        $this->assertSimilarImage($expectedImage, $image);
-    }
-
-    /**
      * From profile-less CMYK to sRGB
      */
     public function testProfileLessCMYKTosRGB()

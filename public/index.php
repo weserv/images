@@ -313,7 +313,7 @@ if (!empty($_GET['url'])) {
         } elseif ($previousException instanceof ImageTooBigException) {
             $error = $error_messages['image_too_big'];
             $imageSize = $previousException->getMessage();
-            $maxImageSize = Utils::formatSizeUnits($clientOptions['max_image_size']);
+            $maxImageSize = Utils::formatBytes($clientOptions['max_image_size']);
 
             header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
             header('Content-type: ' . $error['content-type']);

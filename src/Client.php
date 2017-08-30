@@ -79,9 +79,8 @@ class Client
                 if ($this->options['max_image_size'] !== 0 &&
                     $response->getHeaderLine('Content-Length') > $this->options['max_image_size']
                 ) {
-                    $size = $response->getHeaderLine('Content-Length');
-                    $imageSize = Utils::formatSizeUnits($size);
-                    throw new ImageTooBigException($imageSize);
+                    $size = (int) $response->getHeaderLine('Content-Length');
+                    throw new ImageTooBigException(Utils::formatBytes($size));
                 }
             }
         ];

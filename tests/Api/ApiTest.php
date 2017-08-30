@@ -7,7 +7,6 @@ use AndriesLouw\imagesweserv\Client;
 use AndriesLouw\imagesweserv\Exception\ImageNotReadableException;
 use AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface;
 use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
-use AndriesLouw\imagesweserv\Throttler\ThrottlerInterface;
 
 class ApiTest extends ImagesweservTestCase
 {

@@ -4,7 +4,6 @@ namespace AndriesLouw\imagesweserv\Test;
 
 use AndriesLouw\imagesweserv\Client;
 use GuzzleHttp\ClientInterface;
-use Psr\Http\Message\ResponseInterface;
 
 class ClientTest extends ImagesweservTestCase
 {
