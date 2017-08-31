@@ -256,8 +256,39 @@ class Server
             // Turn on output buffering
             ob_start();
 
-            // Set our php-vips debug logger
-            Config::setLogger(new DebugLogger());
+            // Set our custom debug logger
+            Config::setLogger(new class extends DebugLogger
+            {
+                public function log($level, $message, array $context = array())
+                {
+                    // Base64 encode buffers
+                    /*if (($message === 'newFromBuffer' || $message === 'findLoadBuffer') &&
+                        isset($context['arguments'][0])) {
+                        $context['arguments'][0] = base64_encode($context['arguments'][0]);
+                    }
+                    if ($message === 'writeToBuffer' && isset($context['result'])) {
+                        $context['result'] = base64_encode($context['result']);
+                    }*/
+
+                    if (($message === 'findLoad' || $message === 'findLoadBuffer' ||
+                            $message === 'writeToFile' || $message === 'newFromFile' ||
+                            $message === 'newFromBuffer' || $message === 'thumbnail') &&
+                        isset($context['arguments'][0])) {
+                        $context['arguments'][0] = '##REDACTED##';
+                    }
+                    if ($message === 'writeToBuffer' && isset($context['result'])) {
+                        $context['result'] = '##REDACTED##';
+                    }
+                    if ($message === 'thumbnail' && isset($context['arguments'][2]['export_profile'])) {
+                        $context['arguments'][2]['export_profile'] = '##REDACTED##';
+                    }
+                    if ($message === 'thumbnail' && isset($context['arguments'][2]['import_profile'])) {
+                        $context['arguments'][2]['import_profile'] = '##REDACTED##';
+                    }
+
+                    parent::log($level, $message, $context);
+                }
+            });
         }
 
         $image = $this->makeImage($uri, $params);
@@ -270,12 +301,6 @@ class Server
 
         if ($isDebug) {
             header('Content-type: text/plain');
-
-            $json = [
-                'result' => base64_encode($buffer)
-            ];
-            echo '[' . date('Y-m-d\TH:i:sP') . '] debug: outputImage ';
-            echo json_encode($json) . PHP_EOL;
 
             // Output buffering is enabled; flush it and turn it off
             ob_end_flush();
