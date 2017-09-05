@@ -1,9 +1,9 @@
 # Images.weserv.nl
 
-[![Author](https://img.shields.io/badge/author-andrieslouw-blue.svg?style=flat-square)](https://github.com/andrieslouw)
-[![Author](https://img.shields.io/badge/author-kleisauke-blue.svg?style=flat-square)](https://github.com/kleisauke)
-[![Source Code](https://img.shields.io/badge/source-andrieslouw/imagesweserv-blue.svg?style=flat-square)](https://github.com/andrieslouw/imagesweserv)
-[![Software License](https://img.shields.io/badge/license-BSD3-brightgreen.svg?style=flat-square)](https://opensource.org/licenses/BSD-3-Clause)
+[![Author](https://img.shields.io/badge/author-andrieslouw-blue.svg)](https://github.com/andrieslouw)
+[![Author](https://img.shields.io/badge/author-kleisauke-blue.svg)](https://github.com/kleisauke)
+[![Source Code](https://img.shields.io/badge/source-andrieslouw/imagesweserv-blue.svg)](https://github.com/andrieslouw/imagesweserv)
+[![Software License](https://img.shields.io/badge/license-BSD3-brightgreen.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![Build Status](https://travis-ci.org/andrieslouw/imagesweserv.svg?branch=3.x)](https://travis-ci.org/andrieslouw/imagesweserv)
 [![Test Coverage](https://codeclimate.com/github/andrieslouw/imagesweserv/badges/coverage.svg)](https://codeclimate.com/github/andrieslouw/imagesweserv/coverage)
 
