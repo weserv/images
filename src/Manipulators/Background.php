@@ -3,12 +3,12 @@
 namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Color;
-use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\BandFormat;
 use Jcupitt\Vips\Image;
 
 /**
  * @property string $bg
+ * @property string $t
  * @property bool $isPremultiplied
  */
 class Background extends BaseManipulator
@@ -24,7 +24,11 @@ class Background extends BaseManipulator
      */
     public function run(Image $image): Image
     {
-        if (!$this->bg || !$image->hasAlpha()) {
+        // Skip this manipulator if:
+        // - There's no bg parameter.
+        // - Letterboxing is required.
+        // - The image doesn't have an alpha channel.
+        if (!$this->bg || $this->t === 'letterbox' || !$image->hasAlpha()) {
             return $image;
         }
 

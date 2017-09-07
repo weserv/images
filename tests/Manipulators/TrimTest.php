@@ -8,6 +8,7 @@ use AndriesLouw\imagesweserv\Manipulators\Trim;
 use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
 use Jcupitt\Vips\Image;
 use Mockery\MockInterface;
+use PHPUnit\Framework\Error\Warning;
 
 class TrimTest extends ImagesweservTestCase
 {
@@ -110,6 +111,46 @@ class TrimTest extends ImagesweservTestCase
         $this->assertEquals(300, $image->height);
         $this->assertFalse($image->hasAlpha());
         $this->assertSimilarImage($expectedImage, $image);
+    }
+
+    public function testAggressiveTrimTriggersError()
+    {
+        $testImage = $this->inputPngOverlayLayer0;
+        $params = [
+            'trim' => '200'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        $this->expectException(Warning::class);
+
+        $this->api->run($uri, $params);
+    }
+
+    public function testAggressiveTrimReturnsOriginalImage()
+    {
+        $testImage = $this->inputPngOverlayLayer0;
+        $params = [
+            'trim' => '200'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        /** @var Image $image */
+        $image = @$this->api->run($uri, $params);
+
+        $this->assertEquals('pngload', $image->get('vips-loader'));
+
+        // Check if dimensions is unchanged
+        $this->assertEquals(2048, $image->width);
+        $this->assertEquals(1536, $image->height);
+
+        // Check if the image is unchanged
+        $this->assertSimilarImage($testImage, $image);
     }
 
     public function testGetTrim()

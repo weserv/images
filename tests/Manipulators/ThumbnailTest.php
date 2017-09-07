@@ -95,6 +95,27 @@ class ThumbnailTest extends ImagesweservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
+    public function testInvalidHeight()
+    {
+        $testImage = $this->inputJpg;
+        $params = [
+            'w' => '320',
+            'h' => '-100'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
+        $this->assertEquals(320, $image->width);
+        $this->assertEquals(261, $image->height);
+        $this->assertFalse($image->hasAlpha());;
+    }
+
     /**
      * Provide only one dimension, should default to fit
      */
@@ -102,6 +123,27 @@ class ThumbnailTest extends ImagesweservTestCase
     {
         $testImage = $this->inputJpg;
         $params = [
+            'h' => '320'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
+
+        $this->assertEquals('jpegload', $image->get('vips-loader'));
+        $this->assertEquals(392, $image->width);
+        $this->assertEquals(320, $image->height);
+        $this->assertFalse($image->hasAlpha());
+    }
+
+    public function testInvalidWidth()
+    {
+        $testImage = $this->inputJpg;
+        $params = [
+            'w' => '-100',
             'h' => '320'
         ];
 

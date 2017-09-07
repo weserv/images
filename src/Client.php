@@ -5,10 +5,8 @@ namespace AndriesLouw\imagesweserv;
 use AndriesLouw\imagesweserv\Exception\ImageNotValidException;
 use AndriesLouw\imagesweserv\Exception\ImageTooBigException;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
-use Exception;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Psr7\Request;
 use Psr\Http\Message\ResponseInterface;
 
 class Client
