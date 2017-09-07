@@ -5,6 +5,7 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Image;
+use Jcupitt\Vips\Intent;
 use Jcupitt\Vips\Interpretation;
 use Jcupitt\Vips\Size;
 
@@ -190,6 +191,8 @@ class Thumbnail extends BaseManipulator
             // Convert to sRGB using embedded profile
             // https://packages.debian.org/sid/all/icc-profiles-free/filelist
             $thumbnailOptions['export_profile'] = __DIR__ . '/../ICC/sRGB.icm';
+            // Use "perceptual" intent to better match imagemagick.
+            $thumbnailOptions['intent'] = Intent::PERCEPTUAL;
         } elseif ($image->interpretation === Interpretation::CMYK) {
             // CMYK with no embedded profile, import using default CMYK profile
             // http://www.argyllcms.com/cmyk.icm
@@ -197,6 +200,8 @@ class Thumbnail extends BaseManipulator
             // Always convert to sRGB
             // https://packages.debian.org/sid/all/icc-profiles-free/filelist
             $thumbnailOptions['export_profile'] = __DIR__ . '/../ICC/sRGB.icm';
+            // Use "perceptual" intent to better match imagemagick.
+            $thumbnailOptions['intent'] = Intent::PERCEPTUAL;
         }
 
         $inputWidth = $image->width;

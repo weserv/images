@@ -2,7 +2,7 @@
 
 version_full=$VIPS_VERSION_MAJOR.$VIPS_VERSION_MINOR.$VIPS_VERSION_MICRO
 version_suffix=$VIPS_VERSION_SUFFIX
-vips_tarball=https://github.com/jcupitt/libvips/releases/download/v$version_full${version_suffix:+-$version_suffix}/vips-$version_full.tar.gz
+vips_tarball=https://github.com/jcupitt/libvips/releases/download/v$version_full${version_suffix:+-$version_suffix}/vips-$version_full-1.tar.gz
 
 set -e
 
@@ -21,7 +21,7 @@ fi
 
 rm -rf $HOME/vips
 wget $vips_tarball
-tar xf vips-$version_full.tar.gz
+tar xf vips-$version_full-1.tar.gz
 cd vips-$version_full
 CXXFLAGS=-D_GLIBCXX_USE_CXX11_ABI=0 ./configure --prefix=$HOME/vips $*
 make && make install
