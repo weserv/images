@@ -194,8 +194,9 @@ if (!empty($_GET['url'])) {
             'image/gif' => 'gif',
             'image/bmp' => 'bmp',
             'image/tiff' => 'tiff',
+            'image/webp' => 'webp',
             'image/x-icon' => 'ico',
-            'image/vnd.microsoft.icon' => 'ico',*/
+            'image/vnd.microsoft.icon' => 'ico'*/
         ]
     ];
 
@@ -277,12 +278,12 @@ if (!empty($_GET['url'])) {
         'small' => [
             'w' => 200,
             'h' => 200,
-            'fit' => 'crop',
+            'fit' => 'crop'
         ],
         'medium' => [
             'w' => 600,
             'h' => 400,
-            'fit' => 'crop',
+            'fit' => 'crop'
         ]
     ]);*/
 
@@ -295,86 +296,79 @@ if (!empty($_GET['url'])) {
         $error = $error_messages['image_too_large'];
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
         header('Content-type: ' . $error['content-type']);
+
         echo $error['header'] . ' - ' . $e->getMessage();
-    } catch (RequestException $e) {
-        $previousException = $e->getPrevious();
+    } catch (ImageNotValidException $e) {
+        $error = $error_messages['invalid_image'];
+
+        header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
+        header('Content-type: ' . $error['content-type']);
+
+        trigger_error(sprintf($error['log'], $uri->__toString()), E_USER_WARNING);
+
+        echo $e->getMessage();
+    } catch (ImageTooBigException $e) {
         $clientOptions = $client->getOptions();
 
-        // Check if there is a previous exception
-        if ($previousException instanceof ImageNotValidException) {
-            $error = $error_messages['invalid_image'];
+        $error = $error_messages['image_too_big'];
+        $imageSize = $e->getMessage();
+        $maxImageSize = Utils::formatBytes($clientOptions['max_image_size']);
 
-            header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
-            header('Content-type: ' . $error['content-type']);
+        header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
+        header('Content-type: ' . $error['content-type']);
 
-            trigger_error(sprintf($error['log'], $uri->__toString()), E_USER_WARNING);
+        trigger_error(sprintf($error['log'], $uri->__toString()), E_USER_WARNING);
 
-            echo $previousException->getMessage();
-        } elseif ($previousException instanceof ImageTooBigException) {
-            $error = $error_messages['image_too_big'];
-            $imageSize = $previousException->getMessage();
-            $maxImageSize = Utils::formatBytes($clientOptions['max_image_size']);
+        echo sprintf($error['message'], $imageSize, $maxImageSize);
+    } catch (RequestException $e) {
+        $curlHandler = $e->getHandlerContext();
+        $response = $e->getResponse();
+        $hasResponse = $response !== null && $e->hasResponse();
 
-            header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
-            header('Content-type: ' . $error['content-type']);
+        $isDnsError = (isset($curlHandler['errno']) && $curlHandler['errno'] === CURLE_COULDNT_RESOLVE_HOST) ||
+            ($hasResponse && strpos($response->getHeaderLine('X-Squid-Error'), 'ERR_DNS_FAIL') !== false);
 
-            trigger_error(sprintf($error['log'], $uri->__toString()), E_USER_WARNING);
+        $error = $isDnsError ? $error_messages['dns_error'] : $error_messages['curl_error'];
 
-            echo sprintf($error['message'], $imageSize, $maxImageSize);
-        } elseif ($previousException instanceof InvalidArgumentException) {
-            $error = $error_messages['invalid_redirect_url'];
-            header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
-            header('Content-type: ' . $error['content-type']);
-            echo $error['message'];
-        } else {
-            $curlHandler = $e->getHandlerContext();
-            $response = $e->getResponse();
-            $hasResponse = $response !== null && $e->hasResponse();
+        header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
+        header('Content-type: ' . $error['content-type']);
 
-            $isDnsError = (isset($curlHandler['errno']) && $curlHandler['errno'] === CURLE_COULDNT_RESOLVE_HOST) ||
-                ($hasResponse && strpos($response->getHeaderLine('X-Squid-Error'), 'ERR_DNS_FAIL') !== false);
+        $statusCode = $e->getCode();
+        $reasonPhrase = $e->getMessage();
 
-            $error = $isDnsError ? $error_messages['dns_error'] : $error_messages['curl_error'];
+        if ($hasResponse) {
+            $statusCode = $response->getStatusCode();
+            $reasonPhrase = $response->getReasonPhrase();
+        }
 
-            header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
-            header('Content-type: ' . $error['content-type']);
+        $errorMessage = "$statusCode $reasonPhrase";
 
-            $statusCode = $e->getCode();
-            $reasonPhrase = $e->getMessage();
+        if (!$isDnsError && isset($_GET['errorredirect'])) {
+            $isSameHost = 'weserv.nl';
 
-            if ($hasResponse) {
-                $statusCode = $response->getStatusCode();
-                $reasonPhrase = $response->getReasonPhrase();
-            }
+            try {
+                $uri = parseUrl($_GET['errorredirect']);
 
-            $errorMessage = "$statusCode $reasonPhrase";
+                $append = substr($uri->getHost(), -strlen($isSameHost)) === $isSameHost ? "&error=$statusCode" : '';
 
-            if (!$isDnsError && isset($_GET['errorredirect'])) {
-                $isSameHost = 'weserv.nl';
+                $sanitizedUri = sanitizeErrorRedirect($uri);
 
-                try {
-                    $uri = parseUrl($_GET['errorredirect']);
-
-                    $append = substr($uri->getHost(), -strlen($isSameHost)) === $isSameHost ? "&error=$statusCode" : '';
-
-                    $sanitizedUri = sanitizeErrorRedirect($uri);
-
-                    header('Location: ' . $sanitizedUri . $append);
-                } catch (Exception $ignored) {
-                    $message = sprintf($error['message'], $errorMessage);
-
-                    echo $message;
-                }
-            } else {
-                $message = $isDnsError ? $error['message'] : sprintf($error['message'], $errorMessage);
+                header('Location: ' . $sanitizedUri . $append);
+            } catch (Exception $ignored) {
+                $message = sprintf($error['message'], $errorMessage);
 
                 echo $message;
             }
+        } else {
+            $message = $isDnsError ? $error['message'] : sprintf($error['message'], $errorMessage);
+
+            echo $message;
         }
     } catch (RateExceededException $e) {
         $error = $error_messages['rate_exceeded'];
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
         header('Content-type: ' . $error['content-type']);
+
         echo $error['header'] . ' - ' . $e->getMessage();
     } catch (ImageNotReadableException $e) {
         $error = $error_messages['image_not_readable'];
@@ -398,6 +392,12 @@ if (!empty($_GET['url'])) {
         );
 
         echo $error['header'] . ' - ' . $e->getMessage();
+    } catch (InvalidArgumentException $e) {
+        $error = $error_messages['invalid_redirect_url'];
+        header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
+        header('Content-type: ' . $error['content-type']);
+
+        echo $error['message'];
     } catch (Exception $e) {
         // If there's an exception which is not already caught.
         // Then it's a unknown exception.
@@ -416,6 +416,7 @@ if (!empty($_GET['url'])) {
 
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
         header('Content-type: ' . $error['content-type']);
+
         echo $error['message'];
     }
 

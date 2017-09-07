@@ -5,13 +5,11 @@ namespace AndriesLouw\imagesweserv;
 use AndriesLouw\imagesweserv\Exception\ImageNotValidException;
 use AndriesLouw\imagesweserv\Exception\ImageTooBigException;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
+use Exception;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
-use InvalidArgumentException;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\UriInterface;
 
 class Client
 {
@@ -79,7 +77,7 @@ class Client
                 if ($this->options['max_image_size'] !== 0 &&
                     $response->getHeaderLine('Content-Length') > $this->options['max_image_size']
                 ) {
-                    $size = (int) $response->getHeaderLine('Content-Length');
+                    $size = (int)$response->getHeaderLine('Content-Length');
                     throw new ImageTooBigException(Utils::formatBytes($size));
                 }
             }
@@ -147,7 +145,9 @@ class Client
      * @throws ImageTooBigException if the requested image is too big to be
      *      downloaded.
      * @throws RequestException for errors that occur during a transfer
-     *      or during the on_headers event
+     *      or during the on_headers event.
+     * @throws \InvalidArgumentException if the redirect URI can not be
+     *      parsed (with parse_url).
      *
      * @return string File name
      */
@@ -167,9 +167,18 @@ class Client
          */
         try {
             $this->client->request('GET', $url, $requestOptions);
-        } catch (InvalidArgumentException $e) {
-            $req = new Request('GET', $url);
-            throw new RequestException('Unable to parse redirect URI', $req, null, $e);
+        } catch (RequestException $e) {
+            $previousException = $e->getPrevious();
+
+            // Check if we need to throw a previous exception
+            // which can occur during the on_headers event
+            if ($previousException instanceof ImageNotValidException ||
+                $previousException instanceof ImageTooBigException) {
+                throw $previousException;
+            }
+
+            // Still here? Then just re-throw the exception.
+            throw $e;
         }
 
 
