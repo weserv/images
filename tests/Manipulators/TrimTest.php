@@ -61,6 +61,8 @@ class TrimTest extends ImagesweservTestCase
         $this->assertEquals(450, $image->width);
         $this->assertEquals(322, $image->height);
         $this->assertTrue($image->hasAlpha());
+
+        // FIXME: Wrong output, see: https://github.com/jcupitt/libvips/issues/670#issuecomment-319350493
         $this->assertSimilarImage($expectedImage, $image);
     }
 

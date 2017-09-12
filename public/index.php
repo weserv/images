@@ -708,7 +708,10 @@ if (!empty($_GET['url'])) {
                 <section id="shape" class="goto">
                     <h1>Shape</h1>
                     <h3 id="shape-shape">Shape <code>&amp;shape=</code></h3>
-                    <p>Crops the image to a specific shape. More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/49">Issue #49 - Add circle effect to photos</a>.</p>
+                    <p>Crops the image to a specific shape. Use <code>strim</code> to also remove the remaining whitespace. More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/49">Issue #49 - Add circle effect to photos</a>.</p>
+                    <div class="notices note">
+                        <p>Previously the <code>strim</code> parameter was enabled by default. In September 2017 it was changed to an optional parameter to be more consistent with other features.</p>
+                    </div>
                     <h4 id="shape-accepts">Accepts:</h4>
                     <ul>
                         <li><code>circle</code></li>
@@ -736,6 +739,9 @@ if (!empty($_GET['url'])) {
                     <a href="//$url/?url=$exampleImage&amp;w=300&amp;con=25"><img src="//$url/?url=$exampleImage&amp;w=300&amp;con=25" alt=""/></a>
                     <h3 id="gamma-gam">Gamma <code>&amp;gam=</code> <span class="new">New!</span></h3>
                     <p>Adjusts the image gamma. Use values between <code>1</code> and <code>3</code>. The default value is <code>2.2</code>, a suitable approximation for sRGB images.</p>
+                    <div class="notices note">
+                        <p>The behavior of adjusting the image gamma was changed in September 2017. We apologise for any inconvenience caused.</p>
+                    </div>
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;gam=3"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;w=300&amp;gam=3"><img src="//$url/?url=$exampleImage&amp;w=300&amp;gam=3" alt=""/></a>
                     <h3 id="sharpen-sharp">Sharpen <code>&amp;sharp=</code> <span class="new">New!</span></h3>

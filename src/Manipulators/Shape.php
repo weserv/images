@@ -38,8 +38,7 @@ class Shape extends BaseManipulator
             $svg .= '</svg>';
 
             $mask = Image::newFromBuffer($svg, '', [
-                'dpi' => 72,
-                'access' => Access::SEQUENTIAL,
+                'access' => Access::SEQUENTIAL
             ]);
 
             $image = $this->cutout($mask, $image);

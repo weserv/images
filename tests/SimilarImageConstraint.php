@@ -182,6 +182,27 @@ class SimilarImageConstraint extends Constraint
         /** @var Image $thumbnailImage */
         $thumbnailImage = $image->thumbnail_image(9, $thumbnailOptions)->colourspace(Interpretation::B_W);
 
+        // TODO: Pull request https://github.com/jcupitt/php-vips-ext/pull/13 needs to be merged first.
+        /*$dHashImage = $this->normalizeImage($thumbnailImage->copyMemory())->extract_band(0)->writeToMemory();
+
+        // Calculate dHash
+        $hash = 0;
+        $bit = 1;
+        for ($y = 0; $y < 8; $y++) {
+            for ($x = 0; $x < 8; $x++) {
+                $left = $dHashImage[($x * 8) + $y];
+                $right = $dHashImage[($x * 8) + $y + 1];
+
+                // Each hash bit is set based on whether the left pixel is brighter than the right pixel
+                if ($left > $right) {
+                    $hash |= $bit;
+                }
+
+                // Prepare the next loop
+                $bit <<= 1;
+            }
+        }*/
+
         $dHashImage = $this->normalizeImage($thumbnailImage->copyMemory())->extract_band(0);
 
         // Calculate dHash
