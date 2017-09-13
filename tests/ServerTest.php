@@ -111,7 +111,8 @@ class ServerTest extends ImagesweservTestCase
     {
         $testImage = $this->inputJpg;
         $params = [
-            'w' => '320'
+            'w' => '320',
+            'output' => 'jpg'
         ];
 
         $uri = basename($testImage);
@@ -149,7 +150,152 @@ class ServerTest extends ImagesweservTestCase
         ob_start();
         $this->server->outputImage($uri, $params);
         $content = ob_get_clean();
+
         $this->assertStringStartsWith('data:image/jpeg;base64', $content);
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testOutputDebugInfo()
+    {
+        $testImage = $this->inputJpgWithCmykNoProfile;
+        $params = [
+            'debug' => '1'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+        $this->throttler->shouldReceive('isExceeded')->with('127.0.0.1');
+
+        ob_start();
+        $this->server->outputImage($uri, $params);
+        $content = ob_get_clean();
+
+        $this->assertContains('debug: newFromFile', $content);
+    }
+
+    /**
+     * @runInSeparateProcess
+     * @requires extension xdebug
+     */
+    public function testContentDispositionAttachmentHeader()
+    {
+        $testImage = $this->inputJpg;
+        $params = [
+            'download' => '1'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+        $this->throttler->shouldReceive('isExceeded')->with('127.0.0.1');
+
+        ob_start();
+        $this->server->outputImage($uri, $params);
+        $headers = xdebug_get_headers();
+        ob_end_clean();
+
+        $this->assertContains('Content-Disposition: attachment; filename=image.jpg', $headers);
+    }
+
+    /**
+     * @runInSeparateProcess
+     * @requires extension gd
+     */
+    public function testOutputImageAsGif()
+    {
+        $testImage = $this->inputPngWithGreyAlpha;
+        $params = [
+            'w' => '320',
+            'h' => '240',
+            't' => 'square',
+            'output' => 'gif'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+        $this->throttler->shouldReceive('isExceeded')->with('127.0.0.1');
+
+        ob_start();
+        $this->server->outputImage($uri, $params);
+        $content = ob_get_clean();
+
+        $image = Image::newFromBuffer($content);
+
+        $this->assertEquals('gifload_buffer', $image->get('vips-loader'));
+        $this->assertEquals(320, $image->width);
+        $this->assertEquals(240, $image->height);
+        $this->assertTrue($image->hasAlpha());
+    }
+
+    /**
+     * @runInSeparateProcess
+     * @requires extension gd
+     */
+    public function testOutputImageAsInterlacedGif()
+    {
+        $testImage = $this->inputJpg;
+        $params = [
+            'w' => '320',
+            'h' => '240',
+            't' => 'square',
+            'il' => 'true',
+            'output' => 'gif'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+        $this->throttler->shouldReceive('isExceeded')->with('127.0.0.1');
+
+        ob_start();
+        $this->server->outputImage($uri, $params);
+        $content = ob_get_clean();
+
+        $image = Image::newFromBuffer($content);
+
+        $this->assertEquals('gifload_buffer', $image->get('vips-loader'));
+        $this->assertEquals(320, $image->width);
+        $this->assertEquals(240, $image->height);
+        $this->assertFalse($image->hasAlpha());
+    }
+
+    public function testGetBufferOptions()
+    {
+        $this->assertSame([
+            'strip' => true,
+            'Q' => 85,
+            'interlace' => true,
+            'optimize_coding' => true
+        ], $this->server->getBufferOptions(['il' => '1'], 'jpg'));
+        $this->assertSame([
+            'interlace' => true,
+            'compression' => 6,
+            'filter' => 'all'
+        ], $this->server->getBufferOptions(['il' => '1', 'filter' => 1], 'png'));
+        $this->assertSame([
+            'strip' => true,
+            'Q' => 85,
+            'alpha_q' => 100
+        ], $this->server->getBufferOptions([], 'webp'));
+        $this->assertSame([
+            'strip' => true,
+            'Q' => 85,
+            'compression' => 'jpeg'
+        ], $this->server->getBufferOptions([], 'tiff'));
+    }
+
+    public function testGetQuality()
+    {
+        $this->assertSame(1, $this->server->getQuality(['q' => '1'], 'jpg'));
+        $this->assertSame(100, $this->server->getQuality(['q' => '100'], 'jpg'));
+        $this->assertSame(85, $this->server->getQuality(['q' => '0'], 'jpg'));
+        $this->assertSame(0, $this->server->getQuality(['level' => '0'], 'png'));
+        $this->assertSame(9, $this->server->getQuality(['level' => '9'], 'png'));
+        $this->assertSame(6, $this->server->getQuality(['level' => '10'], 'png'));
     }
 
     public function testSetThrottler()

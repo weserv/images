@@ -21,6 +21,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * A base test case with some custom expectations.
+ * @requires extension vips
  */
 class ImagesweservTestCase extends TestCase
 {
