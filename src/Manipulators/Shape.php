@@ -102,6 +102,8 @@ class Shape extends BaseManipulator
      *      *Mask width*,
      *      *Mask height*
      * ]
+     *
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     private function getSVGShape(int $width, int $height, string $shape): array
     {
@@ -204,10 +206,8 @@ class Shape extends BaseManipulator
         }
         $xMin = min($xArr);
         $yMin = min($yArr);
-        $width = max($xArr) - $xMin;
-        $height = max($yArr) - $yMin;
 
-        return ["<path d='$path Z'/>", $xMin, $yMin, $width, $height];
+        return ["<path d='$path Z'/>", $xMin, $yMin, max($xArr) - $xMin, max($yArr) - $yMin];
     }
 
     /**
@@ -261,10 +261,8 @@ class Shape extends BaseManipulator
         }
         $xMin = min($xArr);
         $yMin = min($yArr);
-        $width = max($xArr) - $xMin;
-        $height = max($yArr) - $yMin;
 
-        return ["<path d='$path Z'/>", $xMin, $yMin, $width, $height];
+        return ["<path d='$path Z'/>", $xMin, $yMin, max($xArr) - $xMin, max($yArr) - $yMin];
     }
 
     /**
