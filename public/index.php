@@ -723,6 +723,7 @@ if (!empty($_GET['url'])) {
                         <li><code>hexagon</code></li>
                         <li><code>square</code>: Square tilted 45 degrees</li>
                         <li><code>star</code>: 5-point star</li>
+                        <li><code>heart</code></li>
                     </ul>
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle" alt=""/></a>

@@ -73,7 +73,7 @@ class Shape extends BaseManipulator
             $this->shape === 'pentagon-180' ||
             $this->shape === 'square' ||
             $this->shape === 'star' ||
-            $this->shape === 'star-pudgy' ||
+            $this->shape === 'heart' ||
             $this->shape === 'triangle' ||
             $this->shape === 'triangle-180'
         ) {
@@ -89,8 +89,7 @@ class Shape extends BaseManipulator
     }
 
     /**
-     * Inspired by this JSFiddle: http://jsfiddle.net/tohan/8vwjn4cx/
-     * modified to support SVG paths
+     * Get the SVG shape
      *
      * @param int $width
      * @param int $height
@@ -103,8 +102,6 @@ class Shape extends BaseManipulator
      *      *Mask width*,
      *      *Mask height*
      * ]
-     *
-     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     private function getSVGShape(int $width, int $height, string $shape): array
     {
@@ -123,6 +120,11 @@ class Shape extends BaseManipulator
             $xMin = $midX - $outerRadius;
             $yMin = $midY - $outerRadius;
             return ["<circle r='$outerRadius' cx='$midX' cy='$midY'/>", $xMin, $yMin, $min, $min];
+        }
+
+        if ($shape === 'heart') {
+            // Heart
+            return $this->getSVGHeart($outerRadius, $outerRadius);
         }
 
         // 'inner' radius of the polygon/star
@@ -153,11 +155,6 @@ class Shape extends BaseManipulator
                 $points = 5 * 2;
                 $innerRadius *= .382;
                 break;
-            case 'star-pudgy':
-                // 5 point star (pudgy)
-                $points = 5 * 2;
-                $innerRadius *= .5;
-                break;
             case 'square':
                 // Square tilted 45 degrees
                 $points = 4;
@@ -172,6 +169,72 @@ class Shape extends BaseManipulator
                 $initialAngle = M_PI;
                 break;
         }
+
+        return $this->getSVGMask($midX, $midY, [$points, $outerRadius, $innerRadius, $initialAngle]);
+    }
+
+    /**
+     * Formula from http://mathworld.wolfram.com/HeartCurve.html
+     *
+     * @param float $midX midX
+     * @param float $midY midY
+     *
+     * @return array [
+     *      *SVG path*,
+     *      *Left edge of mask*,
+     *      *Top edge of mask*,
+     *      *Mask width*,
+     *      *Mask height*
+     * ]
+     */
+    public function getSVGHeart(float $midX, float $midY): array
+    {
+        $path = '';
+        $xArr = [];
+        $yArr = [];
+        for ($t = -M_PI; $t <= M_PI; $t += 0.02) {
+            $xPt = 16 * (sin($t) ** 3);
+            $yPt = 13 * cos($t) - 5 * cos(2 * $t) - 2 * cos(3 * $t) - cos(4 * $t);
+
+            $x = round($midX + $xPt * $midX);
+            $y = round($midY - $yPt * $midY);
+            $xArr[] = $x;
+            $yArr[] = $y;
+            $path .= "$x $y L";
+        }
+        $xMin = min($xArr);
+        $yMin = min($yArr);
+        $width = max($xArr) - $xMin;
+        $height = max($yArr) - $yMin;
+
+        return ["<path d='$path Z'/>", $xMin, $yMin, $width, $height];
+    }
+
+    /**
+     * Inspired by this JSFiddle: http://jsfiddle.net/tohan/8vwjn4cx/
+     * modified to support SVG paths
+     *
+     * @param float $midX midX
+     * @param float $midY midY
+     * @param array $parameters mask parameters
+     *
+     * @return array [
+     *      *SVG path*,
+     *      *Left edge of mask*,
+     *      *Top edge of mask*,
+     *      *Mask width*,
+     *      *Mask height*
+     * ]
+     */
+    private function getSVGMask(float $midX, float $midY, array $parameters): array
+    {
+        /**
+         * @var int $points Number of points (or number of sides for polygons)
+         * @var float $outerRadius 'outer' radius of the star
+         * @var float $innerRadius 'inner' radius of the star (if equal to outerRadius, a polygon is drawn)
+         * @var float $initialAngle Initial angle (clockwise). By default, stars and polygons are 'pointing' up.
+         */
+        list($points, $outerRadius, $innerRadius, $initialAngle) = $parameters;
 
         $path = '';
         $xArr = [];
@@ -239,10 +302,13 @@ class Shape extends BaseManipulator
             // combine the new mask and the existing alpha ... there are
             // many ways of doing this, mult is the simplest
             $mask = $mask->divide($maskMax)->multiply($dstAlpha->divide($dstMax))->multiply($dstMax);
-        } elseif ($dstMax !== $maskMax) {
+        }
+        // Not needed; after the thumbnail manipulator it's not an
+        // 16-bit image anymore.
+        /*elseif ($dstMax !== $maskMax) {
             // adjust the range of the mask to match the image
             $mask = $mask->divide($maskMax)->multiply($dstMax);
-        }
+        }*/
 
         // append the mask to the image data ... the mask might be float now,
         // we must cast the format down to match the image data

@@ -31,6 +31,7 @@ Thanks for your support!
     - `hexagon`
     - `square`: Square tilted 45 degrees
     - `star`: 5-point star
+    - `heart`
 
 #### Adjustments
 - The brightness of an image `&bri=`. Use values between `-100` and `+100`, where `0` represents no change.
