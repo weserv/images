@@ -78,52 +78,6 @@ class ClientTest extends ImagesweservTestCase
         $this->client->get('http://test');
     }
 
-    public function testImageNotValidException()
-    {
-        $mock = new MockHandler([
-            new Response(200, ['Content-Type' => 'application/zip'])
-        ]);
-
-        $handler = HandlerStack::create($mock);
-
-        $options = $this->options;
-        $options['allowed_mime_types'] = [
-            'image/jpeg' => 'jpg',
-            'image/png' => 'png',
-            'image/gif' => 'gif',
-            'image/bmp' => 'bmp',
-            'image/tiff' => 'tiff',
-            'image/webp' => 'webp',
-            'image/x-icon' => 'ico',
-            'image/vnd.microsoft.icon' => 'ico'
-        ];
-
-        $this->client = new Client($this->tempFile, $options, ['handler' => $handler]);
-
-        $this->expectException(ImageNotValidException::class);
-
-        $this->client->get('image.zip');
-    }
-
-    public function testImageTooBigException()
-    {
-        $mock = new MockHandler([
-            new Response(200, ['Content-Length' => 2048])
-        ]);
-
-        $handler = HandlerStack::create($mock);
-
-        $options = $this->options;
-        $options['max_image_size'] = 1024;
-
-        $this->client = new Client($this->tempFile, $options, ['handler' => $handler]);
-
-        $this->expectException(ImageTooBigException::class);
-        $this->expectExceptionMessage('2 KB');
-
-        $this->client->get('image.jpg');
-    }
-
     public function testUserAgent()
     {
         $mock = new MockHandler([

@@ -8,6 +8,10 @@
     <filter>
         <whitelist>
             <directory suffix=".php">./src/</directory>
+            <exclude>
+                <directory suffix="Interface.php">./src/</directory>
+                <directory suffix="Exception.php">./src/Exception/</directory>
+            </exclude>
         </whitelist>
     </filter>
     <logging>

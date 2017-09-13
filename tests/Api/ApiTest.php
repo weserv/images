@@ -4,7 +4,6 @@ namespace AndriesLouw\imagesweserv\Test\Api;
 
 use AndriesLouw\imagesweserv\Api\Api;
 use AndriesLouw\imagesweserv\Client;
-use AndriesLouw\imagesweserv\Exception\ImageNotReadableException;
 use AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface;
 use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
 
@@ -52,18 +51,5 @@ class ApiTest extends ImagesweservTestCase
     public function testGetManipulators()
     {
         $this->assertEquals($this->getManipulators(), $this->api->getManipulators());
-    }
-
-    public function testImageNotReadable()
-    {
-        $this->expectException(ImageNotReadableException::class);
-
-        $testImage = $this->fixturesDir . '/foobar.jpg';
-        $uri = basename($testImage);
-
-        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
-
-        $api = new Api($this->client, $this->getManipulators());
-        $api->run($uri, []);
     }
 }

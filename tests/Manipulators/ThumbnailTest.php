@@ -199,23 +199,6 @@ class ThumbnailTest extends ImagesweservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
-    public function testTooLarge()
-    {
-        $testImage = $this->inputJpg;
-        $params = [
-            'w' => '35500000',
-            'h' => '35500000'
-        ];
-
-        $uri = basename($testImage);
-
-        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
-
-        $this->expectException(ImageTooLargeException::class);
-
-        $this->api->run($uri, $params);
-    }
-
     public function testSquare()
     {
         $testImage = $this->inputJpg;
