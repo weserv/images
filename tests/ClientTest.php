@@ -3,8 +3,6 @@
 namespace AndriesLouw\imagesweserv\Test;
 
 use AndriesLouw\imagesweserv\Client;
-use AndriesLouw\imagesweserv\Exception\ImageNotValidException;
-use AndriesLouw\imagesweserv\Exception\ImageTooBigException;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Handler\MockHandler;

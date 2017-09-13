@@ -58,7 +58,6 @@ class GammaTest extends ImagesweservTestCase
         /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(258, $image->width);
         $this->assertEquals(222, $image->height);
         $this->assertSimilarImage($expectedImage, $image);
@@ -84,7 +83,6 @@ class GammaTest extends ImagesweservTestCase
         /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(258, $image->width);
         $this->assertEquals(222, $image->height);
         $this->assertSimilarImage($expectedImage, $image);
@@ -111,7 +109,6 @@ class GammaTest extends ImagesweservTestCase
         /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('pngload', $image->get('vips-loader'));
         $this->assertEquals(320, $image->width);
         $this->assertSimilarImage($expectedImage, $image);
     }

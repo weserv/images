@@ -56,7 +56,6 @@ class ContrastTest extends ImagesweservTestCase
         /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(320, $image->width);
         $this->assertEquals(240, $image->height);
         $this->assertSimilarImage($expectedImage, $image);
@@ -80,7 +79,6 @@ class ContrastTest extends ImagesweservTestCase
         /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(320, $image->width);
         $this->assertEquals(240, $image->height);
         $this->assertSimilarImage($expectedImage, $image);

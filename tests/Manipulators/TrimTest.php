@@ -57,7 +57,6 @@ class TrimTest extends ImagesweservTestCase
         /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('pngload', $image->get('vips-loader'));
         $this->assertEquals(450, $image->width);
         $this->assertEquals(322, $image->height);
         $this->assertTrue($image->hasAlpha());
@@ -84,7 +83,6 @@ class TrimTest extends ImagesweservTestCase
         /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('pngload', $image->get('vips-loader'));
         $this->assertEquals(4, $image->bands);
         $this->assertEquals(32, $image->width);
         $this->assertEquals(32, $image->height);
@@ -108,7 +106,6 @@ class TrimTest extends ImagesweservTestCase
         /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(300, $image->width);
         $this->assertEquals(300, $image->height);
         $this->assertFalse($image->hasAlpha());
@@ -144,8 +141,6 @@ class TrimTest extends ImagesweservTestCase
 
         /** @var Image $image */
         $image = @$this->api->run($uri, $params);
-
-        $this->assertEquals('pngload', $image->get('vips-loader'));
 
         // Check if dimensions is unchanged
         $this->assertEquals(2048, $image->width);

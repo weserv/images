@@ -213,7 +213,6 @@ class BackgroundTest extends ImagesweservTestCase
         /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(3, $image->bands);
     }
 
@@ -231,7 +230,6 @@ class BackgroundTest extends ImagesweservTestCase
         /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('pngload', $image->get('vips-loader'));
         $this->assertEquals(4, $image->bands);
     }
 }

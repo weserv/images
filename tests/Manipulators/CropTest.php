@@ -190,7 +190,6 @@ class CropTest extends ImagesweservTestCase
         /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(3, $image->bands);
         $this->assertEquals(80, $image->width);
         $this->assertEquals(320, $image->height);
@@ -216,7 +215,6 @@ class CropTest extends ImagesweservTestCase
         /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('pngload', $image->get('vips-loader'));
         $this->assertEquals(4, $image->bands);
         $this->assertEquals(320, $image->width);
         $this->assertEquals(80, $image->height);
@@ -242,7 +240,6 @@ class CropTest extends ImagesweservTestCase
         /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(3, $image->bands);
         $this->assertEquals(80, $image->width);
         $this->assertEquals(320, $image->height);
@@ -268,7 +265,6 @@ class CropTest extends ImagesweservTestCase
         /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('pngload', $image->get('vips-loader'));
         $this->assertEquals(4, $image->bands);
         $this->assertEquals(320, $image->width);
         $this->assertEquals(80, $image->height);

@@ -59,7 +59,6 @@ class LetterboxTest extends ImagesweservTestCase
         /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('tiffload', $image->get('vips-loader'));
         $this->assertEquals(240, $image->width);
         $this->assertEquals(320, $image->height);
         $this->assertFalse($image->hasAlpha());
@@ -87,7 +86,6 @@ class LetterboxTest extends ImagesweservTestCase
         /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('tiffload', $image->get('vips-loader'));
         $this->assertEquals(4, $image->bands);
         $this->assertEquals(64, $image->width);
         $this->assertEquals(128, $image->height);
@@ -117,7 +115,6 @@ class LetterboxTest extends ImagesweservTestCase
         /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('jpegload', $image->get('vips-loader'));
         $this->assertEquals(Interpretation::RGB, $image->interpretation);
         $this->assertEquals(320, $image->width);
         $this->assertEquals(240, $image->height);
@@ -145,7 +142,6 @@ class LetterboxTest extends ImagesweservTestCase
         /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('pngload', $image->get('vips-loader'));
         $this->assertEquals(4, $image->bands);
         $this->assertEquals(50, $image->width);
         $this->assertEquals(50, $image->height);
@@ -173,7 +169,6 @@ class LetterboxTest extends ImagesweservTestCase
         /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('pngload', $image->get('vips-loader'));
         $this->assertEquals(4, $image->bands);
         $this->assertEquals(32, $image->width);
         $this->assertEquals(16, $image->height);
@@ -200,7 +195,6 @@ class LetterboxTest extends ImagesweservTestCase
         /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('pngload', $image->get('vips-loader'));
         $this->assertEquals(4, $image->bands);
         $this->assertEquals(32, $image->width);
         $this->assertEquals(16, $image->height);
@@ -227,7 +221,6 @@ class LetterboxTest extends ImagesweservTestCase
         /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('pngload', $image->get('vips-loader'));
         $this->assertEquals(4, $image->bands);
         $this->assertEquals(32, $image->width);
         $this->assertEquals(16, $image->height);
@@ -255,7 +248,6 @@ class LetterboxTest extends ImagesweservTestCase
         /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals('pngload', $image->get('vips-loader'));
         $this->assertEquals(3, $image->bands);
         $this->assertEquals(320, $image->width);
         $this->assertEquals(240, $image->height);

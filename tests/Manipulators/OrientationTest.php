@@ -58,7 +58,6 @@ class OrientationTest extends ImagesweservTestCase
             /** @var Image $image */
             $image = $this->api->run($uri, $params);
 
-            $this->assertEquals('jpegload', $image->get('vips-loader'));
             $this->assertEquals(240, $image->width);
             $this->assertEquals(320, $image->height);
             $this->assertFalse($image->hasAlpha());
@@ -84,7 +83,6 @@ class OrientationTest extends ImagesweservTestCase
             /** @var Image $image */
             $image = $this->api->run($uri, $params);
 
-            $this->assertEquals('jpegload', $image->get('vips-loader'));
             $this->assertEquals(320, $image->width);
             $this->assertEquals(240, $image->height);
             $this->assertFalse($image->hasAlpha());
@@ -114,7 +112,6 @@ class OrientationTest extends ImagesweservTestCase
                 /** @var Image $image */
                 $image = $this->api->run($uri, $params);
 
-                $this->assertEquals('jpegload', $image->get('vips-loader'));
                 $this->assertEquals(320, $image->width);
                 $this->assertEquals($orientation === 'Landscape' ? 240 : 427, $image->height);
                 $this->assertFalse($image->hasAlpha());
