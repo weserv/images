@@ -109,7 +109,7 @@ class ThumbnailTest extends ImagesweservTestCase
 
         $this->assertEquals(320, $image->width);
         $this->assertEquals(261, $image->height);
-        $this->assertFalse($image->hasAlpha());;
+        $this->assertFalse($image->hasAlpha());
     }
 
     /**

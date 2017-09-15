@@ -96,8 +96,8 @@ class Api implements ApiInterface
     /**
      * Perform image manipulations.
      *
-     * @param  string $url Source URL
-     * @param  array $params The manipulation params
+     * @param string $url Source URL
+     * @param array $params The manipulation params
      *
      * @throws ImageNotReadableException if the provided image is not readable.
      * @throws ImageTooLargeException if the provided image is too large for
@@ -117,8 +117,9 @@ class Api implements ApiInterface
 
         // Don't use sequential mode read, if we're doing a trim.
         // (it will scan the whole image once to find the crop area)
-        $params['accessMethod'] = isset($params['trim']) || array_key_exists('trim',
-            $params) ? Access::RANDOM : Access::SEQUENTIAL;
+        $params['accessMethod'] = isset($params['trim']) || array_key_exists('trim', $params) ?
+            Access::RANDOM :
+            Access::SEQUENTIAL;
 
         // Find the name of the load operation vips will use to load a file
         $params['loader'] = Image::findLoad($tmpFileName);

@@ -77,7 +77,9 @@ class Background extends BaseManipulator
 
             if ($image->bands < 3) {
                 // Convert sRGB to greyscale
-                $backgroundColor = (0.2126 * $backgroundRGBA[0]) + (0.7152 * $backgroundRGBA[1]) + (0.0722 * $backgroundRGBA[2]);
+                $backgroundColor = (0.2126 * $backgroundRGBA[0]) +
+                    (0.7152 * $backgroundRGBA[1]) +
+                    (0.0722 * $backgroundRGBA[2]);
             }
 
             // Flatten on premultiplied images causes weird results
@@ -102,8 +104,8 @@ class Background extends BaseManipulator
      * Alpha composite src over dst
      * Assumes alpha channels are already premultiplied and will be unpremultiplied after.
      *
-     * @param  Image $src The source image.
-     * @param  Image $dst The distance image (in this case the background).
+     * @param Image $src The source image.
+     * @param Image $dst The distance image (in this case the background).
      *
      * @return Image The manipulated image.
      */

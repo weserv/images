@@ -21,6 +21,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * A base test case with some custom expectations.
+ *
  * @requires extension vips
  */
 class ImagesweservTestCase extends TestCase
@@ -33,7 +34,7 @@ class ImagesweservTestCase extends TestCase
      *
      * @param Image|string $expectedImage
      * @param Image|string $actualImage
-     * @param int $threshold
+     * @param int          $threshold
      */
     public function assertSimilarImage($expectedImage, $actualImage, int $threshold = 5)
     {
@@ -46,7 +47,7 @@ class ImagesweservTestCase extends TestCase
      *
      * @param Image|string $expectedImage
      * @param Image|string $actualImage
-     * @param float $threshold
+     * @param float        $threshold
      */
     public function assertMaxColorDistance($expectedImage, $actualImage, float $threshold = 1.0)
     {

@@ -17,7 +17,7 @@ class Crop extends BaseManipulator
     /**
      * Perform crop image manipulation.
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
      *
      * @return Image The manipulated image.
      */
@@ -43,8 +43,11 @@ class Crop extends BaseManipulator
                 $offsetX = (int)(($imageWidth - $width) * ($offsetPercentageX / 100));
                 $offsetY = (int)(($imageHeight - $height) * ($offsetPercentageY / 100));
 
-                list($left, $top) = $this->calculateCrop([$imageWidth, $imageHeight], [$width, $height],
-                    [$offsetX, $offsetY]);
+                list($left, $top) = $this->calculateCrop(
+                    [$imageWidth, $imageHeight],
+                    [$width, $height],
+                    [$offsetX, $offsetY]
+                );
 
                 $image = $image->crop($left, $top, $minWidth, $minHeight);
             }
@@ -198,8 +201,8 @@ class Crop extends BaseManipulator
     /**
      * Limit coordinates to image boundaries.
      *
-     * @param  Image $image The source image.
-     * @param  array $coordinates The coordinates.
+     * @param Image $image The source image.
+     * @param array $coordinates The coordinates.
      *
      * @return array The limited coordinates.
      */

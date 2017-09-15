@@ -12,7 +12,7 @@ class Brightness extends BaseManipulator
     /**
      * Perform brightness image manipulation.
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
      *
      * @return Image The manipulated image.
      */

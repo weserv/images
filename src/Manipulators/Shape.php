@@ -16,7 +16,7 @@ class Shape extends BaseManipulator
     /**
      * Perform shape image manipulation.
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
      *
      * @return Image The manipulated image.
      */
@@ -32,7 +32,8 @@ class Shape extends BaseManipulator
 
             $preserveAspectRatio = $shape === 'ellipse' ? 'none' : 'xMidYMid meet';
             $svg = '<?xml version=\'1.0\' encoding=\'UTF-8\' standalone=\'no\'?>';
-            $svg .= "<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='$width' height='$height' viewBox='$xMin $yMin $maskWidth $maskHeight'";
+            $svg .= "<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='$width' height='$height'";
+            $svg .= " viewBox='$xMin $yMin $maskWidth $maskHeight'";
             $svg .= " shape-rendering='geometricPrecision' preserveAspectRatio='$preserveAspectRatio'>";
             $svg .= $path;
             $svg .= '</svg>';
@@ -46,8 +47,12 @@ class Shape extends BaseManipulator
             // Crop the image to the mask dimensions;
             // if strim is defined and if it's not a ellipse
             if (isset($this->strim) && $shape !== 'ellipse') {
-                list($left, $top, $trimWidth, $trimHeight) = $this->resolveShapeTrim($width, $height, $maskWidth,
-                    $maskHeight);
+                list($left, $top, $trimWidth, $trimHeight) = $this->resolveShapeTrim(
+                    $width,
+                    $height,
+                    $maskWidth,
+                    $maskHeight
+                );
 
                 // If the trim dimensions is less than the image dimensions
                 if ($trimWidth < $width || $trimHeight < $height) {

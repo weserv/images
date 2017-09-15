@@ -69,7 +69,10 @@ class MaxColorDistanceConstraint extends Constraint
      */
     public function failureDescription($other): string
     {
-        return 'actual image color distance ' . $this->maxColorDistance . ' is less than the expected maximum color distance ' . $this->acceptedDistance;
+        return 'actual image color distance ' .
+            $this->maxColorDistance .
+            ' is less than the expected maximum color distance ' .
+            $this->acceptedDistance;
     }
 
     /**

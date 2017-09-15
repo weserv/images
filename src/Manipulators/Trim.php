@@ -13,7 +13,7 @@ class Trim extends BaseManipulator
     /**
      * Perform trim image manipulation.
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
      *
      * @return Image The manipulated image.
      */
@@ -55,8 +55,8 @@ class Trim extends BaseManipulator
     /**
      * Perform trim image manipulation.
      *
-     * @param  Image $image The source image.
-     * @param  int $sensitivity Trim sensitivity
+     * @param Image $image The source image.
+     * @param int $sensitivity Trim sensitivity
      *
      * @return Image The manipulated image.
      */
@@ -82,8 +82,10 @@ class Trim extends BaseManipulator
         ]);
 
         if ($trim['width'] === 0 || $trim['height'] === 0) {
-            trigger_error(sprintf('Unexpected error while trimming. Sensitivity (%s) is too high.', $sensitivity),
-                E_USER_WARNING);
+            trigger_error(
+                sprintf('Unexpected error while trimming. Sensitivity (%s) is too high.', $sensitivity),
+                E_USER_WARNING
+            );
             return $image;
         }
 

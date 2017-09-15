@@ -15,7 +15,7 @@ class Blur extends BaseManipulator
     /**
      * Perform blur image manipulation.
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
      *
      * @return Image The manipulated image.
      */
@@ -72,7 +72,6 @@ class Blur extends BaseManipulator
 
         if ($this->blur < 0.3 || $this->blur > 1000) {
             return -1.0;
-
         }
 
         return (float)$this->blur;

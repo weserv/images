@@ -66,16 +66,22 @@ class ThrottlingPolicy
     {
         try {
             // Create a connection to the CloudFlare API
-            $accessRule = new AccessRules($this->config['cloudflare']['email'],
-                $this->config['cloudflare']['auth_key']);
+            $accessRule = new AccessRules(
+                $this->config['cloudflare']['email'],
+                $this->config['cloudflare']['auth_key']
+            );
 
             // Ban
             // We're removing the ban with a cronjob if the ban time has exceeded
-            $response = $accessRule->create($this->config['cloudflare']['zone_id'], $this->config['cloudflare']['mode'],
+            $response = $accessRule->create(
+                $this->config['cloudflare']['zone_id'],
+                $this->config['cloudflare']['mode'],
                 [
                     'target' => 'ip',
                     'value' => $ipAddress
-                ], 'Banned until ' . date(DateTime::ATOM, time() + ($this->config['ban_time'] * 60)));
+                ],
+                'Banned until ' . date(DateTime::ATOM, time() + ($this->config['ban_time'] * 60))
+            );
 
             if ($response->success) {
                 $blockRuleId = $response->result->id;
@@ -97,14 +103,17 @@ class ThrottlingPolicy
      * Unban a rule id by CloudFlare
      *
      * @param string $blockRuleId
+     *
      * @return bool indicating if the unban was successful
      */
     public function unbanAtCloudFlare(string $blockRuleId): bool
     {
         try {
             // Create a connection to the CloudFlare API
-            $accessRule = new AccessRules($this->config['cloudflare']['email'],
-                $this->config['cloudflare']['auth_key']);
+            $accessRule = new AccessRules(
+                $this->config['cloudflare']['email'],
+                $this->config['cloudflare']['auth_key']
+            );
 
             // Unban
             $response = $accessRule->delete_rule($this->config['cloudflare']['zone_id'], $blockRuleId);

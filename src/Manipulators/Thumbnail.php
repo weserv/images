@@ -68,7 +68,7 @@ class Thumbnail extends BaseManipulator
     /**
      * Perform thumbnail image manipulation.
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
      *
      * @throws ImageTooLargeException if the provided image is too large for processing.
      *
@@ -102,7 +102,7 @@ class Thumbnail extends BaseManipulator
      * Indicating if we should not enlarge the output if the input width
      * *and* height are already less than the required dimensions
      *
-     * @param  string $fit The resolved fit.
+     * @param string $fit The resolved fit.
      *
      * @return bool
      */
@@ -138,9 +138,9 @@ class Thumbnail extends BaseManipulator
     /**
      * Check if image size is greater then the maximum allowed image size.
      *
-     * @param  Image $image The source image.
-     * @param  int $width The image width.
-     * @param  int $height The image height.
+     * @param Image $image The source image.
+     * @param int $width The image width.
+     * @param int $height The image height.
      *
      * @throws ImageTooLargeException if the provided image is too large for processing.
      */
@@ -161,7 +161,8 @@ class Thumbnail extends BaseManipulator
             $imageSize = $width * $height;
 
             if ($imageSize > $this->maxImageSize) {
-                throw new ImageTooLargeException('Image is too large for processing. Width x Height should be less than 70 megapixels.');
+                $error = 'Image is too large for processing. Width x Height should be less than 70 megapixels.';
+                throw new ImageTooLargeException($error);
             }
         }
     }
@@ -169,10 +170,10 @@ class Thumbnail extends BaseManipulator
     /**
      * Perform thumbnail image manipulation.
      *
-     * @param  Image $image The source image.
-     * @param  string $fit The fit.
-     * @param  int $width The width.
-     * @param  int $height The height.
+     * @param Image $image The source image.
+     * @param string $fit The fit.
+     * @param int $width The width.
+     * @param int $height The height.
      *
      * @return Image The manipulated image.
      *
@@ -291,6 +292,7 @@ class Thumbnail extends BaseManipulator
          * applying gamma correction or when trimming isn't required.
          *
          * Note: After this operation the pixel interpretation is sRGB or RGB
+         *
          * @see Interpretation::SRGB
          * @see Interpretation::RGB
          */

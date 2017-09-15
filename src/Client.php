@@ -44,6 +44,7 @@ class Client
 
     /**
      * Initialize the client
+     *
      * @param array $guzzleOptions Specific Guzzle options
      */
     private function initClient(array $guzzleOptions)
@@ -62,19 +63,18 @@ class Client
             'http_errors' => true,
             'on_headers' => function (ResponseInterface $response) {
                 if (!empty($this->options['allowed_mime_types']) &&
-                    !isset($this->options['allowed_mime_types'][$response->getHeaderLine('Content-Type')])
-                ) {
+                    !isset($this->options['allowed_mime_types'][$response->getHeaderLine('Content-Type')])) {
                     $supportedImages = array_pop($this->options['allowed_mime_types']);
                     if (count($this->options['allowed_mime_types']) > 1) {
-                        $supportedImages = implode(', ',
-                                $this->options['allowed_mime_types']) . ' and ' . $supportedImages;
+                        $supportedImages = implode(', ', $this->options['allowed_mime_types']) .
+                            ' and ' . $supportedImages;
                     }
-
-                    throw new ImageNotValidException('The request image is not a valid (supported) image. Supported images are: ' . $supportedImages);
+                    $error = 'The request image is not a valid (supported) image. Supported images are: ' .
+                        $supportedImages;
+                    throw new ImageNotValidException($error);
                 }
                 if ($this->options['max_image_size'] !== 0 &&
-                    $response->getHeaderLine('Content-Length') > $this->options['max_image_size']
-                ) {
+                    $response->getHeaderLine('Content-Length') > $this->options['max_image_size']) {
                     $size = (int)$response->getHeaderLine('Content-Length');
                     throw new ImageTooBigException(Utils::formatBytes($size));
                 }
@@ -120,7 +120,7 @@ class Client
     /**
      * Get the client options
      *
-     * @return  array $options Client options
+     * @return array $options Client options
      */
     public function getOptions(): array
     {
@@ -136,7 +136,7 @@ class Client
     }
 
     /**
-     * @param string $url
+     * @param  string $url
      *
      * @throws ImageNotValidException if the requested image is not a valid
      *      image.

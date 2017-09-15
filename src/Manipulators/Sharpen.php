@@ -16,7 +16,7 @@ class Sharpen extends BaseManipulator
     /**
      * Perform sharpen image manipulation.
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
      *
      * @return Image The manipulated image.
      */
@@ -83,10 +83,10 @@ class Sharpen extends BaseManipulator
     /**
      * Sharpen flat and jagged areas. Use sigma of -1.0 for fast sharpen.
      *
-     * @param  Image $image The source image.
-     * @param  float $sigma Sharpening mask to apply in pixels, but comes at a performance cost. (Default: -1)
-     * @param  float $flat Sharpening to apply to flat areas. (Default: 1.0)
-     * @param  float $jagged Sharpening to apply to jagged areas. (Default: 2.0)
+     * @param Image $image The source image.
+     * @param float $sigma Sharpening mask to apply in pixels, but comes at a performance cost. (Default: -1)
+     * @param float $flat Sharpening to apply to flat areas. (Default: 1.0)
+     * @param float $jagged Sharpening to apply to jagged areas. (Default: 2.0)
      *
      * @return Image The manipulated image.
      */
@@ -94,14 +94,11 @@ class Sharpen extends BaseManipulator
     {
         if ($sigma === -1.0) {
             // Fast, mild sharpen
-            $matrix = Image::newFromArray(
-                [
-                    [-1.0, -1.0, -1.0],
-                    [-1.0, 32, -1.0],
-                    [-1.0, -1.0, -1.0]
-                ],
-                24.0
-            );
+            $matrix = Image::newFromArray([
+                [-1.0, -1.0, -1.0],
+                [-1.0, 32, -1.0],
+                [-1.0, -1.0, -1.0]
+            ], 24.0);
 
             return $image->conv($matrix);
         }
@@ -120,12 +117,10 @@ class Sharpen extends BaseManipulator
             ]);
         }
 
-        return $image->sharpen(
-            [
-                'sigma' => $sigma,
-                'm1' => $flat,
-                'm2' => $jagged
-            ]
-        )->colourspace($oldInterpretation);
+        return $image->sharpen([
+            'sigma' => $sigma,
+            'm1' => $flat,
+            'm2' => $jagged
+        ])->colourspace($oldInterpretation);
     }
 }

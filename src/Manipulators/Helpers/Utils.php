@@ -24,7 +24,7 @@ class Utils
     /**
      * Are pixel values in this image 16-bit integer?
      *
-     * @param  string $interpretation The VipsInterpretation
+     * @param string $interpretation The VipsInterpretation
      *
      * @return bool indicating if the pixel values in this image are 16-bit
      */
@@ -37,7 +37,7 @@ class Utils
     /**
      * Does this image have an embedded profile?
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
      *
      * @return bool indicating if this image have an embedded profile
      */
@@ -50,7 +50,7 @@ class Utils
      * Return the image alpha maximum. Useful for combining alpha bands. scRGB
      * images are 0 - 1 for image data, but the alpha is 0 - 255.
      *
-     * @param  string $interpretation The VipsInterpretation
+     * @param string $interpretation The VipsInterpretation
      *
      * @return int the image alpha maximum
      */
@@ -80,7 +80,7 @@ class Utils
      * If an angle is provided, it is converted to a valid 90/180/270deg rotation.
      * For example, `-450` will produce a 270deg rotation.
      *
-     * @param  string|int $angle Angle of rotation, must be a multiple of 90.
+     * @param string|int $angle Angle of rotation, must be a multiple of 90.
      *
      * @return int rotation
      */
@@ -109,9 +109,9 @@ class Utils
      * Calculate the angle of rotation and need-to-flip for the given exif orientation
      * and parameters
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
      *
-     * @param array $params Parameters array
+     * @param  array $params Parameters array
      * @return array [rotation, flip, flop]
      */
     public static function resolveRotationAndFlip(Image $image, array $params): array

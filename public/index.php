@@ -28,12 +28,13 @@ use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use GuzzleHttp\Exception\RequestException;
 use Jcupitt\Vips\Exception as VipsException;
 use League\Uri\Components\HierarchicalPath as Path;
+use League\Uri\Components\Host;
 use League\Uri\Components\Query;
 use League\Uri\Schemes\Http as HttpUri;
 
 // See for an example: config.example.php
 /** @noinspection PhpIncludeInspection */
-$config = @include (__DIR__ . '/../config.php') ?: [];
+$config = @include(__DIR__ . '/../config.php') ?: [];
 
 $error_messages = [
     'invalid_url' => [
@@ -234,14 +235,20 @@ if (!empty($_GET['url'])) {
             //}
 
             // Create an new Memcached throttler instance
-            $throttler = new AndriesLouw\imagesweserv\Throttler\MemcachedThrottler($memcached, $throttlingPolicy,
-                $config['throttler']);
+            $throttler = new AndriesLouw\imagesweserv\Throttler\MemcachedThrottler(
+                $memcached,
+                $throttlingPolicy,
+                $config['throttler']
+            );
         } elseif ($driver === 'redis') {
             $redis = new Predis\Client($config['redis']);
 
             // Create an new Redis throttler instance
-            $throttler = new AndriesLouw\imagesweserv\Throttler\RedisThrottler($redis, $throttlingPolicy,
-                $config['throttler']);
+            $throttler = new AndriesLouw\imagesweserv\Throttler\RedisThrottler(
+                $redis,
+                $throttlingPolicy,
+                $config['throttler']
+            );
         }
     }
 
@@ -344,12 +351,12 @@ if (!empty($_GET['url'])) {
         $errorMessage = "$statusCode $reasonPhrase";
 
         if (!$isDnsError && isset($_GET['errorredirect'])) {
-            $isSameHost = 'weserv.nl';
+            $host = isset($config['url']) ? (new Host($config['url']))->getRegisterableDomain() : 'weserv.nl';
 
             try {
                 $uri = parseUrl($_GET['errorredirect']);
 
-                $append = substr($uri->getHost(), -strlen($isSameHost)) === $isSameHost ? "&error=$statusCode" : '';
+                $append = substr($uri->getHost(), -strlen($host)) === $host ? "&error=$statusCode" : '';
 
                 $sanitizedUri = sanitizeErrorRedirect($uri);
 

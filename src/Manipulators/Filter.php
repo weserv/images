@@ -13,7 +13,7 @@ class Filter extends BaseManipulator
     /**
      * Perform filter image manipulation.
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
      *
      * @return Image The manipulated image.
      */
@@ -37,7 +37,7 @@ class Filter extends BaseManipulator
     /**
      * Perform greyscale manipulation.
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
      *
      * @return Image The manipulated image.
      */
@@ -49,7 +49,7 @@ class Filter extends BaseManipulator
     /**
      * Perform sepia manipulation.
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
      *
      * @return Image The manipulated image.
      */
@@ -76,7 +76,7 @@ class Filter extends BaseManipulator
     /**
      * Perform negate manipulation.
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
      *
      * @return Image The manipulated image.
      */

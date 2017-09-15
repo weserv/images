@@ -85,7 +85,10 @@ class SimilarImageConstraint extends Constraint
      */
     public function failureDescription($other): string
     {
-        return 'actual image similarity distance ' . $this->distance . ' is less than the threshold ' . $this->threshold;
+        return 'actual image similarity distance ' .
+            $this->distance .
+            ' is less than the threshold ' .
+            $this->threshold;
     }
 
     /**
@@ -164,7 +167,8 @@ class SimilarImageConstraint extends Constraint
 
     /**
      * Calculate a perceptual hash of an image.
-     * Based on the dHash gradient method - see http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html
+     * Based on the dHash gradient method - see:
+     * http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html
      *
      * @param Image $image
      *

@@ -108,7 +108,7 @@ class Server
     /**
      * Set default image manipulations.
      *
-     * @param  array $defaults Default image manipulations.
+     * @param array $defaults Default image manipulations.
      */
     public function setDefaults(array $defaults)
     {
@@ -163,8 +163,8 @@ class Server
     /**
      * Generate manipulated image.
      *
-     * @param  string $url Image URL
-     * @param  array $params Image manipulation params.
+     * @param string $url Image URL
+     * @param array $params Image manipulation params.
      *
      * @return Image The image
      */
@@ -180,8 +180,8 @@ class Server
      * @param array $params Image manipulation params.
      *
      * @return array [
-     * @type string The formatted image,
-     * @type string Image extension
+     * @type   string The formatted image,
+     * @type   string Image extension
      * ]
      */
     public function makeBuffer(Image $image, array $params): array
@@ -201,7 +201,8 @@ class Server
         // Check if output is set and allowed
         if (isset($params['output']) && $this->isExtensionAllowed($params['output'])) {
             $extension = $params['output'];
-        } elseif (($hasAlpha && ($extension !== 'png' || $extension !== 'webp')) || !$this->isExtensionAllowed($extension)) {
+        } elseif (($hasAlpha && ($extension !== 'png' || $extension !== 'webp'))
+            || !$this->isExtensionAllowed($extension)) {
             // We force the extension to PNG if:
             //  - The image has alpha and doesn't have the right extension to output alpha.
             //    (useful for shape masking and letterboxing)
@@ -273,7 +274,8 @@ class Server
                     if (($message === 'findLoad' || $message === 'findLoadBuffer' ||
                             $message === 'writeToFile' || $message === 'newFromFile' ||
                             $message === 'newFromBuffer' || $message === 'thumbnail') &&
-                        isset($context['arguments'][0])) {
+                        isset($context['arguments'][0])
+                    ) {
                         $context['arguments'][0] = '##REDACTED##';
                     }
                     if ($message === 'writeToBuffer' && isset($context['result'])) {
@@ -345,6 +347,7 @@ class Server
     /**
      * Determines the appropriate mime type (from list of hardcoded values)
      * using the provided extension.
+     *
      * @param string $extension
      *
      * @return string Mime type
@@ -434,8 +437,8 @@ class Server
         if ($extension === 'jpg' || $extension === 'webp' || $extension === 'tiff') {
             $quality = 85;
 
-            if (isset($params['q']) && is_numeric($params['q'])
-                && $params['q'] >= 1 && $params['q'] <= 100) {
+            if (isset($params['q']) && is_numeric($params['q']) &&
+                $params['q'] >= 1 && $params['q'] <= 100) {
                 $quality = (int)$params['q'];
             }
         }
@@ -443,8 +446,8 @@ class Server
         if ($extension === 'png') {
             $quality = 6;
 
-            if (isset($params['level']) && is_numeric($params['level'])
-                && $params['level'] >= 0 && $params['level'] <= 9) {
+            if (isset($params['level']) && is_numeric($params['level']) &&
+                $params['level'] >= 0 && $params['level'] <= 9) {
                 $quality = (int)$params['level'];
             }
         }
