@@ -50,10 +50,11 @@ class ApiTest extends ImagesweservTestCase
         $this->assertInstanceOf(ManipulatorInterface::class, $manipulators[0]);
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     */
     public function testSetInvalidManipulator()
     {
-        $this->expectException(\InvalidArgumentException::class);
-
         $this->api->setManipulators([new \StdClass()]);
     }
 

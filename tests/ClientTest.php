@@ -4,7 +4,6 @@ namespace AndriesLouw\imagesweserv\Test;
 
 use AndriesLouw\imagesweserv\Client;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
@@ -69,10 +68,11 @@ class ClientTest extends ImagesweservTestCase
         $this->assertSame($this->options, $this->client->getOptions());
     }
 
+    /**
+     * @expectedException \GuzzleHttp\Exception\RequestException
+     */
     public function testInvalidRedirectURI()
     {
-        $this->expectException(RequestException::class);
-
         $this->client->get('http://test');
     }
 

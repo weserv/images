@@ -112,6 +112,9 @@ class TrimTest extends ImagesweservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
+    /**
+     * @expectedException \PHPUnit\Framework\Error\Warning
+     */
     public function testAggressiveTrimTriggersError()
     {
         $testImage = $this->inputPngOverlayLayer0;
@@ -122,8 +125,6 @@ class TrimTest extends ImagesweservTestCase
         $uri = basename($testImage);
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
-
-        $this->expectException(Warning::class);
 
         $this->api->run($uri, $params);
     }

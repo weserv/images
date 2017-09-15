@@ -113,7 +113,7 @@ class RedisThrottler implements ThrottlerInterface
     {
         $value = $this->redis->incr($this->prefix . $ipAddress);
         // Check if this increment is new, and if so set expires time
-        if ((int)$value === 1) {
+        if ($value === 1) {
             $this->redis->expireat($this->prefix . $ipAddress, time() + ($decayMinutes * 60));
         }
         return $value;

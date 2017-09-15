@@ -17,12 +17,21 @@ class ThrottlingPolicy
     protected $config;
 
     /**
+     * AccessRules instance.
+     *
+     * @var AccessRules
+     */
+    protected $accessRules;
+
+    /**
      * Create a new ThrottlerPolicy instance.
      *
+     * @param AccessRules $accessRules
      * @param array $config
      */
-    public function __construct(array $config)
+    public function __construct(AccessRules $accessRules, array $config)
     {
+        $this->accessRules = $accessRules;
         $this->config = array_merge([
             'ban_time' => 60, // If exceed, ban for 60 minutes
             'cloudflare' => [
@@ -65,15 +74,9 @@ class ThrottlingPolicy
     public function banAtCloudFlare(string $ipAddress)
     {
         try {
-            // Create a connection to the CloudFlare API
-            $accessRule = new AccessRules(
-                $this->config['cloudflare']['email'],
-                $this->config['cloudflare']['auth_key']
-            );
-
             // Ban
             // We're removing the ban with a cronjob if the ban time has exceeded
-            $response = $accessRule->create(
+            $response = $this->accessRules->create(
                 $this->config['cloudflare']['zone_id'],
                 $this->config['cloudflare']['mode'],
                 [
@@ -109,14 +112,8 @@ class ThrottlingPolicy
     public function unbanAtCloudFlare(string $blockRuleId): bool
     {
         try {
-            // Create a connection to the CloudFlare API
-            $accessRule = new AccessRules(
-                $this->config['cloudflare']['email'],
-                $this->config['cloudflare']['auth_key']
-            );
-
             // Unban
-            $response = $accessRule->delete_rule($this->config['cloudflare']['zone_id'], $blockRuleId);
+            $response = $this->accessRules->delete_rule($this->config['cloudflare']['zone_id'], $blockRuleId);
 
             // Log it
             trigger_error("Removed rule id: $blockRuleId from CloudFlare", E_USER_WARNING);
