@@ -59,7 +59,7 @@ class Contrast extends BaseManipulator
         // Midpoint of the contrast (typically 0.5).
         $midpoint = 0.5;
 
-        $contrast = abs($contrast);
+        $contrast = (float) abs($contrast);
 
         $ushort = $image->format === BandFormat::USHORT;
 

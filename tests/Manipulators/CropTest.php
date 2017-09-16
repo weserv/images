@@ -352,27 +352,28 @@ class CropTest extends ImagesweservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-//    public function testImageResizeAndExtractSvg72DPI()
-//    {
-//        $testImage = $this->inputSvg;
-//        $expectedImage = $this->expectedDir . '/svg72.png';
-//        $params = [
-//            'w' => '1024',
-//            't' => 'fitup',
-//            'crop' => '40,40,290,760'
-//        ];
-//
-//        $uri = basename($testImage);
-//
-//        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
-//
-//        /** @var Image $image */
-//        $image = $this->api->run($uri, $params);
-//
-//        $this->assertEquals(40, $image->width);
-//        $this->assertEquals(40, $image->height);
-//        $this->assertSimilarImage($expectedImage, $image);
-//    }
+    public function testImageResizeAndExtractSvg72DPI()
+    {
+        $testImage = $this->inputSvg;
+        $expectedImage = $this->expectedDir . '/svg72.png';
+        $params = [
+            'w' => '1024',
+            't' => 'fitup',
+            'crop' => '40,40,290,760'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
+
+        // FIXME: Pixelated when being processed, see: https://github.com/jcupitt/libvips/pull/724
+        /*$this->assertEquals(40, $image->width);
+        $this->assertEquals(40, $image->height);
+        $this->assertSimilarImage($expectedImage, $image);*/
+    }
 
     public function testImageResizeCropAndExtract()
     {
