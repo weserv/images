@@ -432,9 +432,9 @@ if (!empty($_GET['url'])) {
     $name = $config['name'] ?? 'API 3 - GitHub, DEMO';
     $url = $config['url'] ?? 'images.weserv.nl';
 
-    $exampleImage = $config['exampleImage'] ?? 'rbx.weserv.nl/lichtenstein.jpg';
-    $exampleTransparentImage = $config['exampleTransparentImage'] ?? 'rbx.weserv.nl/transparency_demo.png';
-    $exampleSmartcropImage = $config['exampleSmartcropImage'] ?? 'ssl:upload.wikimedia.org/wikipedia/commons/4/45/Equus_quagga_burchellii_-_Etosha%2C_2014.jpg';
+    $exampleImage = $config['exampleImage'] ?? 'ory.weserv.nl/lichtenstein.jpg';
+    $exampleTransparentImage = $config['exampleTransparentImage'] ?? 'ory.weserv.nl/transparency_demo.png';
+    $exampleSmartcropImage = $config['exampleSmartcropImage'] ?? 'ory.weserv.nl/zebra.jpg';
 
     $html = <<<HTML
 <!DOCTYPE html>
@@ -813,8 +813,8 @@ if (!empty($_GET['url'])) {
                     <p>If there is a problem loading an image, then a error is shown. However, there might be a need where instead of giving a broken image to the user, you want a default image to be delivered.</p>
                     <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/37">Issue #37 - Return default image if the image's URL not found</a>.</p>
                     <p>The URL must not include a <code>errorredirect</code> querystring (if it does, it will be ignored).</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=example.org/noimage.jpg&amp;errorredirect=$url%2F%3Furl%3D$exampleImage%26w%3D300"&gt;</code></pre>
-                    <a href="//$url/?url=example.org/noimage.jpg&amp;errorredirect=$url%2F%3Furl%3D$exampleImage%26w%3D300"><img src="//$url/?url=example.org/noimage.jpg&amp;errorredirect=$url%2F%3Furl%3D$exampleImage%26w%3D300" alt=""/></a>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=example.org/noimage.jpg&amp;errorredirect=ssl:$url%2F%3Furl%3D$exampleImage%26w%3D300"&gt;</code></pre>
+                    <a href="//$url/?url=example.org/noimage.jpg&amp;errorredirect=ssl:$url%2F%3Furl%3D$exampleImage%26w%3D300"><img src="//$url/?url=example.org/noimage.jpg&amp;errorredirect=ssl:$url%2F%3Furl%3D$exampleImage%26w%3D300" alt=""/></a>
                     <h3 id="page">Page <code>&amp;page=</code> <span class="new">New!</span></h3>
                     <p>To load a given page (for an PDF, TIFF and multi-size ICO file). The value is numbered from zero.</p>
                 </section>

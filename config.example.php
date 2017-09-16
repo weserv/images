@@ -3,9 +3,9 @@
 return [
     'name' => 'API 3 - GitHub, DEMO',
     'url' => 'images.weserv.nl',
-    'exampleImage' => 'rbx.weserv.nl/lichtenstein.jpg',
-    'exampleTransparentImage' => 'rbx.weserv.nl/transparency_demo.png',
-    'exampleSmartcropImage' => 'ssl:upload.wikimedia.org/wikipedia/commons/4/45/Equus_quagga_burchellii_-_Etosha%2C_2014.jpg',
+    'exampleImage' => 'ory.weserv.nl/lichtenstein.jpg',
+    'exampleTransparentImage' => 'ory.weserv.nl/transparency_demo.png',
+    'exampleSmartcropImage' => 'ory.weserv.nl/zebra.jpg',
     // Client options
     'client' => [
         // User agent for this client
