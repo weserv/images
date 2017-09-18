@@ -352,7 +352,8 @@ class CropTest extends ImagesweservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    // FIXME: Pixelated when being processed, see: https://github.com/jcupitt/libvips/pull/724
+    // TODO: This is fixed in libvips master which isn't released yet.
+    // Wait for v8.6.0-alpha5 or v8.6.0.
     /*public function testImageResizeAndExtractSvg72DPI()
     {
         $testImage = $this->inputSvg;

@@ -64,10 +64,13 @@ class Trim extends BaseManipulator
     {
         // Find the value of the pixel at (0, 0), `find_trim` search for all pixels
         // significantly different from this
-        $background = $image->getpoint(0, 0);
-
-        // Extract a slice of the array (length: bands - 1)
-        $background = array_slice($background, 0, $image->bands - 1);
+        if ($image->hasAlpha()) {
+            // If the image has alpha, we'll need to flatten before `getpoint`
+            // to get a correct background value.
+            $background = $image->flatten()->getpoint(0, 0);
+        } else {
+            $background = $image->getpoint(0, 0);
+        }
 
         // Scale up 8-bit values to match 16-bit input image
         $multiplier = Utils::is16Bit($image->interpretation) ? 256 : 1;
