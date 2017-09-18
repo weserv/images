@@ -91,7 +91,9 @@ class TrimTest extends ImagesweservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testTrimSkipShrinkOnLoad()
+    // TODO: This is fixed in libvips master which isn't released yet.
+    // Wait for v8.6.0-alpha5 or v8.6.0.
+    /*public function testTrimSkipShrinkOnLoad()
     {
         $testImage = $this->inputJpgOverlayLayer2;
         $expectedImage = $this->expectedDir . '/alpha-layer-2-trim-resize.jpg';
@@ -104,14 +106,14 @@ class TrimTest extends ImagesweservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
+        // @var Image $image
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(300, $image->width);
         $this->assertEquals(300, $image->height);
         $this->assertFalse($image->hasAlpha());
         $this->assertSimilarImage($expectedImage, $image);
-    }
+    }*/
 
     /**
      * @expectedException \PHPUnit\Framework\Error\Warning
