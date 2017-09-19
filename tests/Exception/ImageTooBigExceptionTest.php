@@ -28,14 +28,13 @@ class ImageTooBigExceptionTest extends ImagesweservTestCase
     }
 
     /**
-     * Test can construct the exception, then throw it.
+     * Test can construct and throw an exception.
      *
      * @expectedException \AndriesLouw\imagesweserv\Exception\ImageTooBigException
      */
     public function testThrowException()
     {
-        $exception = new ImageTooBigException();
-        throw $exception;
+        throw new ImageTooBigException();
     }
 
     /**

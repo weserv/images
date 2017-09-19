@@ -28,14 +28,13 @@ class ImageNotValidExceptionTest extends ImagesweservTestCase
     }
 
     /**
-     * Test can construct the exception, then throw it.
+     * Test can construct and throw an exception.
      *
      * @expectedException \AndriesLouw\imagesweserv\Exception\ImageNotValidException
      */
     public function testThrowException()
     {
-        $exception = new ImageNotValidException();
-        throw $exception;
+        throw new ImageNotValidException();
     }
 
     /**

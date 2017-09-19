@@ -10,14 +10,13 @@ use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
 class ImageNotReadableExceptionTest extends ImagesweservTestCase
 {
     /**
-     * Test can construct the exception, then throw it.
+     * Test can construct and throw an exception.
      *
      * @expectedException \AndriesLouw\imagesweserv\Exception\ImageNotReadableException
      */
     public function testThrowException()
     {
-        $exception = new ImageNotReadableException();
-        throw $exception;
+        throw new ImageNotReadableException();
     }
 
     /**

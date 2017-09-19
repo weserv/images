@@ -10,14 +10,13 @@ use Mockery;
 class ImageTooLargeExceptionTest extends ImagesweservTestCase
 {
     /**
-     * Test can construct the exception, then throw it.
+     * Test can construct and throw an exception.
      *
      * @expectedException \AndriesLouw\imagesweserv\Exception\ImageTooLargeException
      */
     public function testThrowException()
     {
-        $exception = new ImageTooLargeException();
-        throw $exception;
+        throw new ImageTooLargeException();
     }
 
     /**

@@ -5,6 +5,7 @@ namespace AndriesLouw\imagesweserv;
 use AndriesLouw\imagesweserv\Exception\ImageNotValidException;
 use AndriesLouw\imagesweserv\Exception\ImageTooBigException;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
+use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
@@ -26,7 +27,7 @@ class Client
     protected $options;
 
     /**
-     * @var \GuzzleHttp\Client
+     * @var GuzzleClient
      */
     private $client;
 
@@ -82,7 +83,7 @@ class Client
         ];
 
         $guzzleConfig = array_merge($defaultConfig, $guzzleOptions);
-        $guzzleClient = new \GuzzleHttp\Client($guzzleConfig);
+        $guzzleClient = new GuzzleClient($guzzleConfig);
 
         $this->setClient($guzzleClient);
     }

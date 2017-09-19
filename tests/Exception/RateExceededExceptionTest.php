@@ -12,14 +12,13 @@ use AndriesLouw\imagesweserv\Throttler\ThrottlerInterface;
 class RateExceededExceptionTest extends ImagesweservTestCase
 {
     /**
-     * Test can construct the exception, then throw it.
+     * Test can construct and throw an exception.
      *
      * @expectedException \AndriesLouw\imagesweserv\Exception\RateExceededException
      */
     public function testThrowException()
     {
-        $exception = new RateExceededException();
-        throw $exception;
+        throw new RateExceededException();
     }
 
     /**
