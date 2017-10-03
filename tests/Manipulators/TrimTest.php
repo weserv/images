@@ -8,7 +8,6 @@ use AndriesLouw\imagesweserv\Manipulators\Trim;
 use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
 use Jcupitt\Vips\Image;
 use Mockery\MockInterface;
-use PHPUnit\Framework\Error\Warning;
 
 class TrimTest extends ImagesweservTestCase
 {
@@ -61,9 +60,7 @@ class TrimTest extends ImagesweservTestCase
         $this->assertEquals(322, $image->height);
         $this->assertTrue($image->hasAlpha());
 
-        // TODO: This is fixed in libvips master which isn't released yet.
-        // Wait for v8.6.0-alpha5 or v8.6.0.
-        //$this->assertSimilarImage($expectedImage, $image);
+        $this->assertSimilarImage($expectedImage, $image);
     }
 
     public function testTrim16bitWithTransparency()
@@ -91,9 +88,7 @@ class TrimTest extends ImagesweservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    // TODO: This is fixed in libvips master which isn't released yet.
-    // Wait for v8.6.0-alpha5 or v8.6.0.
-    /*public function testTrimSkipShrinkOnLoad()
+    public function testTrimSkipShrinkOnLoad()
     {
         $testImage = $this->inputJpgOverlayLayer2;
         $expectedImage = $this->expectedDir . '/alpha-layer-2-trim-resize.jpg';
@@ -113,7 +108,7 @@ class TrimTest extends ImagesweservTestCase
         $this->assertEquals(300, $image->height);
         $this->assertFalse($image->hasAlpha());
         $this->assertSimilarImage($expectedImage, $image);
-    }*/
+    }
 
     /**
      * @expectedException \PHPUnit\Framework\Error\Warning

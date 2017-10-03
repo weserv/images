@@ -90,7 +90,7 @@ class LetterboxTest extends ImagesweservTestCase
         $this->assertEquals(64, $image->width);
         $this->assertEquals(128, $image->height);
 
-        // FIXME: Temporarily disabled due to: https://github.com/jcupitt/libvips/issues/730
+        // TODO: Temporarily disabled due to: https://github.com/jcupitt/libvips/issues/730
         //$this->assertSimilarImage($expectedImage, $image);
     }
 

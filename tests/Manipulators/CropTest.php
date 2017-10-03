@@ -352,9 +352,7 @@ class CropTest extends ImagesweservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    // TODO: This is fixed in libvips master which isn't released yet.
-    // Wait for v8.6.0-alpha5 or v8.6.0.
-    /*public function testImageResizeAndExtractSvg72DPI()
+    public function testImageResizeAndExtractSvg72DPI()
     {
         $testImage = $this->inputSvg;
         $expectedImage = $this->expectedDir . '/svg72.png';
@@ -374,7 +372,7 @@ class CropTest extends ImagesweservTestCase
         $this->assertEquals(40, $image->width);
         $this->assertEquals(40, $image->height);
         $this->assertSimilarImage($expectedImage, $image);
-    }*/
+    }
 
     public function testImageResizeCropAndExtract()
     {
