@@ -79,10 +79,7 @@ class Trim extends BaseManipulator
         $threshold = $sensitivity * $multiplier;
 
         // Search for the bounding box of the non-background area
-        $trim = $image->find_trim([
-            'threshold' => $threshold,
-            'background' => $background
-        ]);
+        $trim = $image->find_trim(compact('threshold', 'background'));
 
         if ($trim['width'] === 0 || $trim['height'] === 0) {
             trigger_error(

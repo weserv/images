@@ -90,7 +90,7 @@ class ServerTest extends ImagesweservTestCase
             ],
         ]);
 
-        $all_params = $this->server->getAllParams([
+        $allParams = $this->server->getAllParams([
             'w' => '100',
             'p' => 'small',
         ]);
@@ -101,7 +101,7 @@ class ServerTest extends ImagesweservTestCase
             'h' => '200',
             'fit' => 'crop',
             'p' => 'small',
-        ], $all_params);
+        ], $allParams);
     }
 
     /**

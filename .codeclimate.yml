@@ -1,5 +1,17 @@
----
-engines:
+version: "2"
+checks:
+  method-lines:
+    config:
+      threshold: 100
+  argument-count:
+    enabled: false
+  method-complexity:
+    config:
+      threshold: 10
+  complex-logic:
+    config:
+      threshold: 10
+plugins:
   duplication:
     enabled: true
     config:
@@ -17,10 +29,7 @@ engines:
     enabled: true
     config:
       rulesets: phpmd.xml
-ratings:
-  paths:
-    - src/**/*.php
-    - tests/**/*.php
-exclude_paths:
-- config/
-- public/
+exclude_patterns:
+- "config/"
+- "public/"
+- "tests/"
