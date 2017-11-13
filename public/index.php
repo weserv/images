@@ -444,16 +444,14 @@ if (!empty($_GET['url'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
     <title>Image cache &amp; resize proxy</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico"/>
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css" integrity="sha384-HoFyoZ18hzctAGKv3BkTqlVH019/pvkU+3BKRAlDRgLuguzWZI0MMuF0JpcMOAye" crossorigin="anonymous" />
-    <link rel="stylesheet" href="//static.weserv.nl/images-v3b.css" integrity="sha384-uK5EDEl5284pk7sp8AC3YxS4EqJ6yZO8/yT4sCB8iwG2As8Fv9QJA2l7leomLlbQ" crossorigin="anonymous">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.2/gh-fork-ribbon.min.css" integrity="sha384-jUHnRx457Q15HVKSx5g+6jqsItdcFcR0BBu729dDIMmTM4HT1sbXZuxxOpuiaM/p" crossorigin="anonymous" />
+    <link rel="stylesheet" href="//static.weserv.nl/images-v3c.css" integrity="sha384-m6zDiOevtGm3DYkqK31apUJ5oIjQdPY598x0L0ldq5idDHj6ILXI86LgP7C9UiQj" crossorigin="anonymous" />
 	<!--[if lte IE 9]>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.ie.min.css" />
-	<script src="//static.weserv.nl/html5shiv-printshiv.min.js" type="text/javascript"></script>
+	    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.2/gh-fork-ribbon.ie.min.css" />
+	    <script src="//static.weserv.nl/html5shiv-printshiv.min.js" type="text/javascript"></script>
 	<![endif]-->
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js" type="text/javascript" integrity="sha384-8gBf6Y4YYq7Jx97PIqmTwLPin4hxIzQw5aDmUg/DDhul9fFpbbLcLh3nTIIDJKhx" crossorigin="anonymous"></script>
-    <script src="//static.weserv.nl/bootstrap.min.js" type="text/javascript" integrity="sha384-knhWhSzIcpYIfitKUjDBo/EQ3F5MWCwASUtB6UCe2N038X5KhwbGAoxmLaV8hn12" crossorigin="anonymous"></script>
 </head>
-<body data-spy="scroll" data-target=".scrollspy">
+<body>
     <nav id="sidebar">
         <div id="header-wrapper">
             <div id="header">
@@ -464,35 +462,34 @@ if (!empty($_GET['url'])) {
             </div>
         </div>
         <div class="scrollbar-inner">
-            <div class="scrollspy">
-                <ul id="nav" class="nav topics" data-spy="affix">
-                    <li class="dd-item active"><a href="#image-api" class="cen"><span>$name</span></a>
-                        <ul class="nav inner">
-                            <li class="dd-item"><a href="#quick-reference"><span>Quick reference</span></a></li>
-                            <li class="dd-item"><a href="#size"><span>Size</span></a></li>
-                            <li class="dd-item"><a href="#orientation"><span>Orientation</span></a></li>
-                            <li class="dd-item"><a href="#trans"><span>Transformation</span></a></li>
-                            <li class="dd-item"><a href="#crop"><span>Crop position</span></a></li>
-                            <li class="dd-item"><a href="#shape"><span>Shape</span></a></li>
-                            <li class="dd-item"><a href="#adjustments"><span>Adjustments</span></a></li>
-                            <li class="dd-item"><a href="#effects"><span>Effects</span></a></li>
-                            <li class="dd-item"><a href="#encoding"><span>Encoding</span></a></li>
-                            <li class="dd-item"><a href="#misc"><span>Miscellaneous</span></a></li>
-                        </ul>
-                    </li>
-                </ul>
-                <br />
-                <section id="footer">
-                    <p><a href="https://github.com/andrieslouw/imagesweserv">Source code available on GitHub</a><br /><a href="//getgrav.org">Design inspired by Grav</a></p>
-                </section>
-            </div>
+            <ul id="nav" class="nav topics" data-gumshoe-header>
+                <li class="dd-item active">
+                    <a href="#image-api" class="cen"><span>$name</span></a>
+                    <ul class="nav inner" data-gumshoe>
+                        <li class="dd-item"><a href="#quick-reference"><span>Quick reference</span></a></li>
+                        <li class="dd-item"><a href="#size"><span>Size</span></a></li>
+                        <li class="dd-item"><a href="#orientation"><span>Orientation</span></a></li>
+                        <li class="dd-item"><a href="#trans"><span>Transformation</span></a></li>
+                        <li class="dd-item"><a href="#crop"><span>Crop position</span></a></li>
+                        <li class="dd-item"><a href="#shape"><span>Shape</span></a></li>
+                        <li class="dd-item"><a href="#adjustments"><span>Adjustments</span></a></li>
+                        <li class="dd-item"><a href="#effects"><span>Effects</span></a></li>
+                        <li class="dd-item"><a href="#encoding"><span>Encoding</span></a></li>
+                        <li class="dd-item"><a href="#misc"><span>Miscellaneous</span></a></li>
+                    </ul>
+                </li>
+            </ul>
+            <br />
+            <section id="footer">
+                <p><a href="https://github.com/andrieslouw/imagesweserv">Source code available on GitHub</a><br /><a href="//getgrav.org">Design inspired by Grav</a></p>
+            </section>
         </div>
     </nav>
     <section id="body">
         <div class="highlightable">
             <div id="body-inner">
                 <section id="image-api" class="goto">
-                    <p>Images.<b>weserv</b>.nl is an image <b>cache</b> &amp; <b>resize</b> proxy. Our servers resize your image, cache it worldwide, and display it. <a class="github-fork-ribbon right-top" href="https://github.com/andrieslouw/imagesweserv/issues" title="Feedback? Github!">Feedback? GitHub!</a></p>
+                    <p>Images.<b>weserv</b>.nl is an image <b>cache</b> &amp; <b>resize</b> proxy. Our servers resize your image, cache it worldwide, and display it. <a class="github-fork-ribbon right-top" href="https://github.com/andrieslouw/imagesweserv/issues" data-ribbon="Feedback? Github!" title="Feedback? Github!">Feedback? GitHub!</a></p>
                     <ul>
                         <li>We don't support animated images (yet), but we do support GIF, JPEG, PNG, BMP, XBM, WebP and other filetypes, even transparent images.</li>
                         <li>We do support IPv6, <a href="http://ipv6-test.com/validate.php?url=$url" rel="nofollow">serving dual stack</a>, and supporting <a href="https://$url/?url=ipv6.google.com/logos/logo.gif">IPv6-only origin hosts</a>.</li>
@@ -821,6 +818,27 @@ if (!empty($_GET['url'])) {
             </div>
         </div>
     </section>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/gumshoe/3.5.0/js/gumshoe.min.js" integrity="sha384-p7piu74dRCJsfxPGT47BzozCizUhFdI8JIIY28ed/8Jna8iZmpT8O0VnDTBh29Xh" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            var header = document.getElementById('image-api');
+            var active;
+
+            gumshoe.init({
+                offset: -header.clientHeight,
+                callback: function nav(nav) {
+                    if (nav !== undefined && nav.target !== active) {
+                        window.history.replaceState(null, null, '#' + nav.target.id);
+                        active = nav.target;
+                    }
+                }
+            });
+        });
+
+        window.addEventListener('load', function () {
+            gumshoe.setDistances();
+        });
+    </script>
 </body>
 </html>
 HTML;
