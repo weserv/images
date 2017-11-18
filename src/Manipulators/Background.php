@@ -48,13 +48,11 @@ class Background extends BaseManipulator
             $backgroundImage = $image->newFromImage($backgroundRGBA[0]);
 
             // Bandwise join the rest of the channels including the alpha channel.
-            $backgroundImage = $backgroundImage->bandjoin(
-                [
-                    $backgroundRGBA[1],
-                    $backgroundRGBA[2],
-                    $backgroundRGBA[3]
-                ]
-            );
+            $backgroundImage = $backgroundImage->bandjoin([
+                $backgroundRGBA[1],
+                $backgroundRGBA[2],
+                $backgroundRGBA[3]
+            ]);
 
             // Ensure overlay is premultiplied sRGB
             $backgroundImage = $backgroundImage->premultiply();
@@ -69,7 +67,11 @@ class Background extends BaseManipulator
              * Alpha composite src over dst
              * Assumes alpha channels are already premultiplied and will be unpremultiplied after
              */
-            $image = Image::composite([$backgroundImage, $image], [2/*VipsBlendMode::OVER*/], ['premultiplied' => true]);
+            $image = Image::composite(
+                [$backgroundImage, $image],
+                [2/*VipsBlendMode::OVER*/],
+                ['premultiplied' => true]
+            );
         } else {
             // If it's a 8bit-alpha channel image or the requested background color hasn't an alpha channel;
             // then flatten the alpha out of an image, replacing it with a constant background color.
