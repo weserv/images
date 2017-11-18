@@ -1,7 +1,13 @@
+# Composer
 vendor
+
+# IntelliJ
 .idea
-build
+
+# PHPUnit
+/phpunit.xml
+
+# User-specific stuff
 /cronjob.php
 /config.php
 /GenerateExpectedFixtures.php
-/phpunit.xml

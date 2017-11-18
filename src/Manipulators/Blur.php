@@ -35,14 +35,11 @@ class Blur extends BaseManipulator
 
         if ($blur === -1.0) {
             // Fast, mild blur - averages neighbouring pixels
-            $blur = Image::newFromArray(
-                [
-                    [1.0, 1.0, 1.0],
-                    [1.0, 1.0, 1.0],
-                    [1.0, 1.0, 1.0]
-                ],
-                9.0
-            );
+            $blur = Image::newFromArray([
+                [1.0, 1.0, 1.0],
+                [1.0, 1.0, 1.0],
+                [1.0, 1.0, 1.0]
+            ], 9.0);
             $image = $image->conv($blur);
         } else {
             if ($this->accessMethod === Access::SEQUENTIAL) {
