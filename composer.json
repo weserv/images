@@ -23,12 +23,18 @@
             "email": "info@kleisauke.nl"
         }
     ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/kleisauke/cloudflare-php"
+        }
+    ],
     "require": {
         "php": ">=7.0.11",
         "ext-curl": "*",
         "ext-vips": ">=1.0.7",
+        "cloudflare/sdk": "dev-access-rules",
         "guzzlehttp/guzzle": "^6.3",
-        "jamesryanbell/cloudflare": "^1.11",
         "jcupitt/vips": "1.0.x-dev",
         "league/uri": "^5.0",
         "predis/predis": "^1.1"

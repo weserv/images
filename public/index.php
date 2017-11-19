@@ -25,7 +25,6 @@ use AndriesLouw\imagesweserv\Exception\ImageTooBigException;
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Exception\RateExceededException;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
-use Cloudflare\Zone\Firewall\AccessRules;
 use GuzzleHttp\Exception\RequestException;
 use Jcupitt\Vips\Exception as VipsException;
 use League\Uri\Components\HierarchicalPath as Path;
@@ -212,16 +211,21 @@ if (!empty($_GET['url'])) {
 
     // If config throttler is set, IP isn't on the throttler whitelist and Memcached is installed
     if (isset($config['throttler']) && !isset($config['throttler-whitelist'][$_SERVER['REMOTE_ADDR']])) {
-        $cloudFlareEmail = $config['cloudflare']['email'] ?? '';
-        $cloudFlareAuthKey = $config['cloudflare']['auth_key'] ?? '';
+        $policyConfig = $config['throttling-policy'];
+
+        $cloudFlareEmail = $policyConfig['cloudflare']['email'] ?? '';
+        $cloudFlareAuthKey = $policyConfig['cloudflare']['auth_key'] ?? '';
+
+        $key = new Cloudflare\API\Auth\APIKey($cloudFlareEmail, $cloudFlareAuthKey);
+        $adapter = new Cloudflare\API\Adapter\Guzzle($key);
 
         // Firewall access rules
-        $accessRules = new AccessRules(
-            $cloudFlareEmail,
-            $cloudFlareAuthKey
-        );
+        $accessRules = new Cloudflare\API\Endpoints\AccessRules($adapter);
 
-        $throttlingPolicy = new AndriesLouw\imagesweserv\Throttler\ThrottlingPolicy($accessRules, $config['throttling-policy']);
+        $throttlingPolicy = new AndriesLouw\imagesweserv\Throttler\ThrottlingPolicy(
+            $accessRules,
+            $policyConfig
+        );
 
         // Defaulting to Redis
         $driver = $config['throttler']['driver'] ?? 'redis';

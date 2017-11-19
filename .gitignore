@@ -8,6 +8,7 @@ vendor
 /phpunit.xml
 
 # User-specific stuff
-/cronjob.php
+/cronjob-redis.php
+/cronjob-memcached.php
 /config.php
 /GenerateExpectedFixtures.php

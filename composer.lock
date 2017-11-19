@@ -4,8 +4,58 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "d0167be1c767a9bfacb2a968e7b7b03c",
+    "content-hash": "4497e59297d54a2ee32e4e421362a5c6",
     "packages": [
+        {
+            "name": "cloudflare/sdk",
+            "version": "dev-access-rules",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/kleisauke/cloudflare-php.git",
+                "reference": "951f6ebbc8e8bf39bf66be6712dc417413eb7ae8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/kleisauke/cloudflare-php/zipball/951f6ebbc8e8bf39bf66be6712dc417413eb7ae8",
+                "reference": "951f6ebbc8e8bf39bf66be6712dc417413eb7ae8",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^6.2.2",
+                "php": ">=7.0.0",
+                "psr/http-message": "~1.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.6",
+                "phpmd/phpmd": "@stable",
+                "phpunit/phpunit": "5.7.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Cloudflare\\API\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "classmap": [
+                    "tests/"
+                ]
+            },
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Junade Ali",
+                    "email": "junade@cloudflare.com"
+                }
+            ],
+            "description": "PHP binding for v4 of the Cloudflare Client API.",
+            "support": {
+                "source": "https://github.com/kleisauke/cloudflare-php/tree/access-rules"
+            },
+            "time": "2017-11-19T08:25:45+00:00"
+        },
         {
             "name": "guzzlehttp/guzzle",
             "version": "6.3.0",
@@ -186,47 +236,6 @@
                 "url"
             ],
             "time": "2017-03-20T17:10:46+00:00"
-        },
-        {
-            "name": "jamesryanbell/cloudflare",
-            "version": "1.11.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/jamesryanbell/cloudflare.git",
-                "reference": "75e93bb822619d8ddb8b1843588caa2fad739491"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/jamesryanbell/cloudflare/zipball/75e93bb822619d8ddb8b1843588caa2fad739491",
-                "reference": "75e93bb822619d8ddb8b1843588caa2fad739491",
-                "shasum": ""
-            },
-            "require-dev": {
-                "phpunit/phpunit": "< 6",
-                "satooshi/php-coveralls": "dev-master"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Cloudflare\\": "src/CloudFlare"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "James Bell",
-                    "email": "james@james-bell.co.uk"
-                }
-            ],
-            "description": "CloudFlare API - PHP",
-            "keywords": [
-                "api",
-                "cloudflare"
-            ],
-            "time": "2017-08-04T19:01:02+00:00"
         },
         {
             "name": "jcupitt/vips",
@@ -2543,6 +2552,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "cloudflare/sdk": 20,
         "jcupitt/vips": 20
     },
     "prefer-stable": false,

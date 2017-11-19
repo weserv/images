@@ -21,6 +21,10 @@ max_line_length = 120
 [*.{htm,html,js,css,scss}]
 indent_size = 2
 
+# Remove final newline
+[*.{txt,htm,html,xml}]
+insert_final_newline = false
+
 # Markdown files
 [*.md]
 max_line_length = off
@@ -35,7 +39,11 @@ indent_size = 2
 indent_style = ignore
 insert_final_newline = ignore
 
-# JSON/YAML files contain newlines inconsistently
+# JSON/YAML files
 [*.{json,yml}]
 indent_size = 2
-insert_final_newline = ignore
+insert_final_newline = false
+
+# Composer files
+[{composer.json,composer.lock}]
+indent_size = 4
