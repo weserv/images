@@ -33,7 +33,7 @@ class MaxColorDistanceConstraint extends Constraint
     public function __construct($image, float $acceptedDistance)
     {
         parent::__construct();
-        $this->expectedImage = is_string($image) ?
+        $this->expectedImage = \is_string($image) ?
             Image::newFromFile($image, ['access' => Access::SEQUENTIAL]) : $image;
         $this->acceptedDistance = $acceptedDistance;
     }
@@ -48,7 +48,7 @@ class MaxColorDistanceConstraint extends Constraint
      */
     public function matches($other): bool
     {
-        if (is_string($other)) {
+        if (\is_string($other)) {
             $other = Image::newFromFile($other, ['access' => Access::SEQUENTIAL]);
         }
 

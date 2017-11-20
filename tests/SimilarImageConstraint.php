@@ -46,7 +46,7 @@ class SimilarImageConstraint extends Constraint
     public function __construct($image, int $threshold)
     {
         parent::__construct();
-        $this->expectedImage = is_string($image) ?
+        $this->expectedImage = \is_string($image) ?
             Image::newFromFile($image, ['access' => Access::SEQUENTIAL]) : $image;
         $this->threshold = $threshold;
     }
@@ -61,7 +61,7 @@ class SimilarImageConstraint extends Constraint
      */
     public function matches($other): bool
     {
-        if (is_string($other)) {
+        if (\is_string($other)) {
             $other = Image::newFromFile($other, ['access' => Access::SEQUENTIAL]);
         }
 

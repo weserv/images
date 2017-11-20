@@ -71,7 +71,7 @@ class ThrottlingPolicy
      *
      * @return bool indicating if the ban was successful
      */
-    public function banAtCloudFlare(string $ipAddress)
+    public function banAtCloudFlare(string $ipAddress): bool
     {
         try {
             $config = new \Cloudflare\API\Configurations\AccessRules();

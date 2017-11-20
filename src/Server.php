@@ -216,7 +216,7 @@ class Server
         $buffer = $image->writeToBuffer(".$extension", $toBufferOptions);
 
         // Check if GD library is installed on the server
-        $gdAvailable = extension_loaded('gd') && function_exists('gd_info');
+        $gdAvailable = \extension_loaded('gd') && \function_exists('gd_info');
 
         // If the GD library is installed and a gif output is needed.
         if ($gdAvailable && $needsGif) {

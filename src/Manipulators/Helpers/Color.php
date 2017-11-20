@@ -217,7 +217,7 @@ class Color
         $default = [0, 0, 0, 0];
 
         // If it's not a string; return default
-        if (!is_string($color)) {
+        if (!\is_string($color)) {
             return $default;
         }
 
@@ -230,7 +230,7 @@ class Color
         }
 
         // Get string length
-        $colorLength = strlen($color);
+        $colorLength = \strlen($color);
 
         // Invalid color; return default
         if ($colorLength < 3 || $colorLength === 5 || $colorLength > 8) {
