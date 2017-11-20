@@ -127,14 +127,16 @@ class ThrottlingPolicyTest extends ImagesweservTestCase
         $ipAddress = '127.0.0.1';
         $zoneID = $this->config['cloudflare']['zone_id'];
 
-        $errorMsg = 'Client error: `POST https://api.cloudflare.com/client/v4/zones/' . $zoneID . '/firewall/access_rules/rules` resulted in a `403 Forbidden` response';
+        $errorMsg = 'Client error: `POST https://api.cloudflare.com/client/v4/zones/' .
+            $zoneID . '/firewall/access_rules/rules` resulted in a `403 Forbidden` response';
 
         $this->accessRules->shouldReceive('createRule')->with(
             $this->config['cloudflare']['zone_id'],
             $this->config['cloudflare']['mode'],
             \Mockery::any(),
             \Mockery::any()
-        )->andThrow(new RequestException($errorMsg, new Request('POST', 'zones/' . $zoneID . '/firewall/access_rules/rules')));
+        )->andThrow(new RequestException($errorMsg, new Request('POST', 'zones/' .
+            $zoneID . '/firewall/access_rules/rules')));
 
         $this->policy->banAtCloudFlare($ipAddress);
     }
@@ -147,12 +149,14 @@ class ThrottlingPolicyTest extends ImagesweservTestCase
         $blockRuleId = '92f17202ed8bd63d69a66b86a49a8f6b';
         $zoneID = $this->config['cloudflare']['zone_id'];
 
-        $errorMsg = 'Client error: `DELETE https://api.cloudflare.com/client/v4/zones/' . $zoneID . '/firewall/access_rules/rules/' . $blockRuleId . '` resulted in a `403 Forbidden` response';
+        $errorMsg = 'Client error: `DELETE https://api.cloudflare.com/client/v4/zones/' .
+            $zoneID . '/firewall/access_rules/rules/' . $blockRuleId . '` resulted in a `403 Forbidden` response';
 
         $this->accessRules->shouldReceive('deleteRule')->with(
             $this->config['cloudflare']['zone_id'],
             $blockRuleId
-        )->andThrow(new RequestException($errorMsg, new Request('DELETE', 'zones/' . $zoneID . '/firewall/access_rules/rules' . $blockRuleId)));
+        )->andThrow(new RequestException($errorMsg, new Request('DELETE', 'zones/' .
+            $zoneID . '/firewall/access_rules/rules' . $blockRuleId)));
 
         $this->policy->unbanAtCloudFlare($blockRuleId);
     }
@@ -162,14 +166,16 @@ class ThrottlingPolicyTest extends ImagesweservTestCase
         $ipAddress = '127.0.0.1';
         $zoneID = $this->config['cloudflare']['zone_id'];
 
-        $errorMsg = 'Client error: `POST https://api.cloudflare.com/client/v4/zones/' . $zoneID . '/firewall/access_rules/rules` resulted in a `403 Forbidden` response';
+        $errorMsg = 'Client error: `POST https://api.cloudflare.com/client/v4/zones/' .
+            $zoneID . '/firewall/access_rules/rules` resulted in a `403 Forbidden` response';
 
         $this->accessRules->shouldReceive('createRule')->with(
             $this->config['cloudflare']['zone_id'],
             $this->config['cloudflare']['mode'],
             \Mockery::any(),
             \Mockery::any()
-        )->andThrow(new RequestException($errorMsg, new Request('POST', 'zones/' . $zoneID . '/firewall/access_rules/rules')));
+        )->andThrow(new RequestException($errorMsg, new Request('POST', 'zones/' .
+            $zoneID . '/firewall/access_rules/rules')));
 
         $successful = @$this->policy->banAtCloudFlare($ipAddress);
         $this->assertFalse($successful);
@@ -180,12 +186,14 @@ class ThrottlingPolicyTest extends ImagesweservTestCase
         $blockRuleId = '92f17202ed8bd63d69a66b86a49a8f6b';
         $zoneID = $this->config['cloudflare']['zone_id'];
 
-        $errorMsg = 'Client error: `DELETE https://api.cloudflare.com/client/v4/zones/' . $zoneID . '/firewall/access_rules/rules/' . $blockRuleId . '` resulted in a `403 Forbidden` response';
+        $errorMsg = 'Client error: `DELETE https://api.cloudflare.com/client/v4/zones/' .
+            $zoneID . '/firewall/access_rules/rules/' . $blockRuleId . '` resulted in a `403 Forbidden` response';
 
         $this->accessRules->shouldReceive('deleteRule')->with(
             $this->config['cloudflare']['zone_id'],
             $blockRuleId
-        )->andThrow(new RequestException($errorMsg, new Request('DELETE', 'zones/' . $zoneID . '/firewall/access_rules/rules' . $blockRuleId)));
+        )->andThrow(new RequestException($errorMsg, new Request('DELETE', 'zones/' .
+            $zoneID . '/firewall/access_rules/rules' . $blockRuleId)));
 
         $successful = @$this->policy->unbanAtCloudFlare($blockRuleId);
         $this->assertFalse($successful);
