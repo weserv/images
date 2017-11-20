@@ -45,10 +45,8 @@ class Background extends BaseManipulator
             // alpha compositing.
 
             // Create a new image from a constant that matches the origin image dimensions
-            $backgroundImage = $image->newFromImage($backgroundRGBA[0]);
-
-            // Bandwise join the rest of the channels including the alpha channel.
-            $backgroundImage = $backgroundImage->bandjoin([
+            $backgroundImage = $image->newFromImage([
+                $backgroundRGBA[0],
                 $backgroundRGBA[1],
                 $backgroundRGBA[2],
                 $backgroundRGBA[3]
