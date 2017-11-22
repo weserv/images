@@ -187,7 +187,8 @@ class SimilarImageConstraint extends Constraint
         $thumbnailImage = $image->thumbnail_image(9, $thumbnailOptions)->colourspace(Interpretation::B_W);
 
         // TODO: Pull request https://github.com/jcupitt/php-vips-ext/pull/13 needs to be merged first.
-        /*$dHashImage = $this->normalizeImage($thumbnailImage->copyMemory())->extract_band(0)->writeToMemory();
+        /*$memStr = $this->normalizeImage($thumbnailImage->copyMemory())->extract_band(0)->writeToMemory();
+        $dHashImage = unpack('C*', $memStr);
 
         // Calculate dHash
         $hash = 0;
