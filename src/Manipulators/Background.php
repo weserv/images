@@ -4,6 +4,7 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Color;
 use Jcupitt\Vips\BandFormat;
+use Jcupitt\Vips\BlendMode;
 use Jcupitt\Vips\Image;
 
 /**
@@ -65,11 +66,7 @@ class Background extends BaseManipulator
              * Alpha composite src over dst
              * Assumes alpha channels are already premultiplied and will be unpremultiplied after
              */
-            $image = Image::composite(
-                [$backgroundImage, $image],
-                [2/*VipsBlendMode::OVER*/],
-                ['premultiplied' => true]
-            );
+            $image = $backgroundImage->composite($image, [BlendMode::OVER], ['premultiplied' => true]);
         } else {
             // If it's a 8bit-alpha channel image or the requested background color hasn't an alpha channel;
             // then flatten the alpha out of an image, replacing it with a constant background color.

@@ -23,17 +23,11 @@
             "email": "info@kleisauke.nl"
         }
     ],
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/kleisauke/cloudflare-php"
-        }
-    ],
     "require": {
         "php": ">=7.0.11",
         "ext-curl": "*",
         "ext-vips": ">=1.0.7",
-        "cloudflare/sdk": "dev-access-rules",
+        "cloudflare/sdk": "^1.0",
         "guzzlehttp/guzzle": "^6.3",
         "jcupitt/vips": "1.0.x-dev",
         "league/uri": "^5.0",
@@ -60,7 +54,9 @@
             "parallel-lint . --exclude vendor",
             "phpunit",
             "phpcs --standard=phpcs-ruleset.xml ."
-        ]
+        ],
+        "post-install-cmd": "\\League\\Uri\\Installer\\ICANNSection::update",
+        "post-update-cmd": "\\League\\Uri\\Installer\\ICANNSection::update"
     },
     "config": {
         "preferred-install": "dist",

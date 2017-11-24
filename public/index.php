@@ -474,6 +474,12 @@ if (!empty($_GET['url'])) {
                     <div id="weserv-logo">Images.<strong>weserv</strong>.nl</div>
                     <span>Image cache &amp; resize proxy</span>
                 </a>
+                <!-- Implement Algolia DocSearch -->
+                <!-- <div class="searchbox">
+                    <label for="search-by"><i class="fa fa-search"></i></label>
+                    <input id="search-by" type="text" placeholder="Search Documentation" data-search-input="/s/q">
+                    <span data-search-clear><i class="fa fa-close"></i></span>
+                </div> -->
             </div>
         </div>
         <div class="scrollbar-inner">
@@ -509,7 +515,7 @@ if (!empty($_GET['url'])) {
                         <li>We don't support animated images (yet), but we do support GIF, JPEG, PNG, BMP, XBM, WebP and other filetypes, even transparent images.</li>
                         <li>We do support IPv6, <a href="http://ipv6-test.com/validate.php?url=$url" rel="nofollow">serving dual stack</a>, and supporting <a href="https://$url/?url=ipv6.google.com/logos/logo.gif">IPv6-only origin hosts</a>.</li>
                         <li>For secure connections over TLS/SSL, you can use <a href="https://$url/"><b>https</b>://$url/</a>. <br /><small class="sslnote">This can be very useful for embedding HTTP images on HTTPS websites. HTTPS origin hosts can be used by <a href="https://github.com/andrieslouw/imagesweserv/issues/33">prefixing the hostname with ssl:</a></small></li>
-                        <li>We're part of the <a href="https://www.cloudflare.com/">Cloudflare</a> community. Images are being cached and delivered straight from <a href="https://www.cloudflare.com/network-map">100+ global datacenters</a>. This ensures the fastest load times and best performance.</li>
+                        <li>We're part of the <a href="https://www.cloudflare.com/">Cloudflare</a> community. Images are being cached and delivered straight from <a href="https://www.cloudflare.com/network">100+ global datacenters</a>. This ensures the fastest load times and best performance.</li>
                         <li>On average, we resize 1 million (10<sup>6</sup>) images per hour, which generates around 25TB of outbound traffic per month.</li>
                     </ul>
                     <p>Requesting an image:</p>

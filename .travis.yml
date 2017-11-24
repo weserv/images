@@ -11,10 +11,9 @@ php:
 
 env:
   global:
-    - VIPS_VERSION_MAJOR=8
-    - VIPS_VERSION_MINOR=6
-    - VIPS_VERSION_MICRO=0
-    - VIPS_VERSION_SUFFIX=alpha5
+    - VIPS_VERSION=8.6.0
+    - VIPS_PRE_VERSION=alpha5
+    - VIPS_TAR_VERSION=$VIPS_VERSION-4
     - VIPS_WARNING=0
     - PATH=$HOME/vips/bin:$PATH
     - LD_LIBRARY_PATH=$HOME/vips/lib:$LD_LIBRARY_PATH
@@ -52,15 +51,15 @@ addons:
       - libglib2.0-dev
 
 before_install:
-  - bash install-vips.sh 
-    --disable-debug 
-    --disable-dependency-tracking 
-    --disable-introspection 
-    --disable-static 
-    --enable-gtk-doc-html=no 
-    --enable-gtk-doc=no 
-    --enable-pyvips8=no 
-    --without-orc 
+  - bash install-vips.sh
+    --disable-debug
+    --disable-dependency-tracking
+    --disable-introspection
+    --disable-static
+    --enable-gtk-doc-html=no
+    --enable-gtk-doc=no
+    --enable-pyvips8=no
+    --without-orc
     --without-python
   - yes '' | pecl install vips
 

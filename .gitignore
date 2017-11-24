@@ -4,6 +4,9 @@ vendor
 # IntelliJ
 .idea
 
+# SASS cache files
+.sass-cache
+
 # PHPUnit
 /phpunit.xml
 
