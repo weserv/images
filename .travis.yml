@@ -12,15 +12,15 @@ php:
 env:
   global:
     - VIPS_VERSION=8.6.0
-    - VIPS_PRE_VERSION=alpha5
-    - VIPS_TAR_VERSION=$VIPS_VERSION-4
+    - VIPS_PRE_VERSION=beta1
+    - VIPS_TAR_VERSION=$VIPS_VERSION-beta1
     - VIPS_WARNING=0
     - PATH=$HOME/vips/bin:$PATH
     - LD_LIBRARY_PATH=$HOME/vips/lib:$LD_LIBRARY_PATH
     - PKG_CONFIG_PATH=$HOME/vips/lib/pkgconfig:$PKG_CONFIG_PATH
     - PYTHONPATH=$HOME/vips/lib/python2.7/site-packages:$PYTHONPATH
     - GI_TYPELIB_PATH=$HOME/vips/lib/girepository-1.0:$GI_TYPELIB_PATH
-    - CC_TEST_REPORTER_ID=e6c8ca5e7e8d38de843cff7190066ace3a868063dcccc35e40a84a6ec2874ed4
+    - CC_TEST_REPORTER_ID=d7d9e0ca223ad571f837ce20b4da80e054a5cbc833b41145b9bc97e496a1910b
     - GIT_COMMITTED_AT=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then git log -1 --pretty=format:%ct; else git log -1 --skip 1 --pretty=format:%ct; fi)
 
 cache:
