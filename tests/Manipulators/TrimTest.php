@@ -29,67 +29,42 @@ class TrimTest extends TestCase
     {
         $image = Mockery::mock('Jcupitt\Vips\Image[more, __get]', [''], function ($mock) {
             $mock->shouldReceive('__get')
-                ->with('bands')
-                ->andReturn(3)
-                ->times(10);
-
-            $mock->shouldReceive('__get')
                 ->with('width')
                 ->andReturn(100)
-                ->twice();
+                ->once();
 
             $mock->shouldReceive('__get')
                 ->with('height')
                 ->andReturn(100)
-                ->twice();
+                ->once();
 
             $mock->shouldReceive('getpoint')
                 ->with(0, 0)
-                ->andReturn([0])
+                ->andReturn([255.0, 255.0, 255.0])
                 ->once();
 
-            $mock->shouldReceive('rank')
-                ->with(Mockery::any(), Mockery::any(), Mockery::any())
-                ->andReturnSelf()
+            $mock->shouldReceive('__get')
+                ->with('bands')
+                ->andReturn(3)
                 ->once();
 
-            $mock->shouldReceive('linear')
-                ->with(1, [0], [])
-                ->andReturnSelf()
+            $mock->shouldReceive('find_trim')
+                ->with([
+                    'threshold' => 10,
+                    'background' => [255.0, 255.0]
+                ])
+                ->andReturn([
+                    'left' => 0,
+                    'top' => 0,
+                    'width' => 100,
+                    'height' => 100
+                ])
                 ->once();
-
-            $mock->shouldReceive('abs')
-                ->andReturnSelf()
-                ->once();
-
-            $mock->shouldReceive('more')
-                ->with(10)
-                ->andReturnSelf()
-                ->once();
-
-            $mock->shouldReceive('project')
-                ->andReturnSelf()
-                ->once();
-
-            $mock->shouldReceive('profile')
-                ->andReturnSelf()
-                ->times(4);
-
-            $mock->shouldReceive('flip')
-                ->andReturnSelf()
-                ->twice();
-
-            $mock->shouldReceive('min')
-                ->andReturn(0)
-                ->times(4);
-
-            $mock->shouldReceive('extract_band')
-                ->with(Mockery::any())
-                ->andReturnSelf();
 
             $mock->shouldReceive('crop')
                 ->with(0, 0, 100, 100)
-                ->andReturnSelf();
+                ->andReturnSelf()
+                ->once();
         });
 
         $params = [

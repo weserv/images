@@ -85,19 +85,16 @@ class Shape extends BaseManipulator
      */
     public function getShape()
     {
-        $validShapeArr = [
-            'circle' => 0,
-            'ellipse' => 1,
-            'hexagon' => 2,
-            'pentagon' => 3,
-            'pentagon-180' => 4,
-            'square' => 5,
-            'star' => 6,
-            'triangle' => 7,
-            'triangle-180' => 8
-        ];
-
-        if (isset($validShapeArr[$this->shape])) {
+        if ($this->shape === 'circle' ||
+            $this->shape === 'ellipse' ||
+            $this->shape === 'hexagon' ||
+            $this->shape === 'pentagon' ||
+            $this->shape === 'pentagon-180' ||
+            $this->shape === 'square' ||
+            $this->shape === 'star' ||
+            $this->shape === 'triangle' ||
+            $this->shape === 'triangle-180'
+        ) {
             return $this->shape;
         }
 

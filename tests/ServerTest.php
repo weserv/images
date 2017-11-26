@@ -127,12 +127,7 @@ class ServerTest extends TestCase
             'loader' => 'VipsForeignLoadPng',
             'hasAlpha' => true,
             'is16Bit' => false,
-            'isPremultiplied' => false,
-            'rotation' => 0,
-            'flip' => false,
-            'flop' => false,
-            'w' => 0,
-            'h' => 0
+            'isPremultiplied' => false
         ];
 
         $manipulator = Mockery::mock(Manipulators\ManipulatorInterface::class, function ($mock) use ($image, $params) {
@@ -200,12 +195,7 @@ class ServerTest extends TestCase
             'hasAlpha' => true,
             'is16Bit' => false,
             'isPremultiplied' => false,
-            'encoding' => 'base64',
-            'rotation' => 0,
-            'flip' => false,
-            'flop' => false,
-            'w' => 0,
-            'h' => 0
+            'encoding' => 'base64'
         ];
 
         $manipulator = Mockery::mock(Manipulators\ManipulatorInterface::class, function ($mock) use ($image, $params) {

@@ -163,7 +163,7 @@ class Api implements ApiInterface
             // Check if rate is exceeded for IP
             try {
                 if ($this->throttler->isExceeded($ip)) {
-                    throw new RateExceededException();
+                    throw new RateExceededException('There are an unusual number of requests coming from this IP address.');
                 }
             } catch (ConnectionException $e) {
                 // Log redis exceptions
@@ -189,13 +189,10 @@ class Api implements ApiInterface
 
         // Things that won't work with sequential mode images:
         //  - Trim (will scan the whole image once to find the crop area).
-        //  - A 90/180/270-degree rotate (will need to read a column of pixels for every output line it writes).
-        //  - Smart crop
         $isTrim = isset($params['trim']) || array_key_exists('trim', $params);
-        $isSmartCrop = isset($params['a']) && ($params['a'] === 'entropy' || $params['a'] === 'attention');
 
         // If any of the above adjustments; don't use sequential mode read.
-        $params['accessMethod'] = $isTrim || $isSmartCrop ? Access::RANDOM : Access::SEQUENTIAL;
+        $params['accessMethod'] = $isTrim ? Access::RANDOM : Access::SEQUENTIAL;
 
         // Save our temporary file name
         $params['tmpFileName'] = $tmpFileName;
@@ -216,6 +213,10 @@ class Api implements ApiInterface
                 $params['loader'] === 'VipsForeignLoadMagickFile')
         ) {
             $loadOptions['page'] = (int)$params['page'];
+
+            // Add page to the temporary file parameter
+            // Useful for the thumbnail operator
+            $params['tmpFileName'] .= '[page=' . $loadOptions['page'] . ']';
         }
 
         try {
@@ -236,33 +237,6 @@ class Api implements ApiInterface
         $params['hasAlpha'] = $image->hasAlpha();
         $params['is16Bit'] = Utils::is16Bit($image->interpretation);
         $params['isPremultiplied'] = false;
-
-        // Calculate angle of rotation
-        list($params['rotation'], $params['flip'], $params['flop']) = Utils::calculateRotationAndFlip($params, $image);
-
-        // A 90/180/270-degree rotate doesn't work with sequential access.
-        // If our access method is sequential and rotation is needed;
-        // Force the access method to random and reload our image.
-        if ($params['accessMethod'] === Access::SEQUENTIAL && $params['rotation'] !== 0) {
-            $params['accessMethod'] = Access::RANDOM;
-            $loadOptions['access'] = Access::RANDOM;
-            // Reload image
-            $image = Image::newFromFile($tmpFileName, $loadOptions);
-        }
-
-        // Set width and height to zero if it's invalid
-        // Otherwise cast it to a integer
-        if (!isset($params['w']) || !is_numeric($params['w']) || $params['w'] <= 0) {
-            $params['w'] = 0;
-        } else {
-            $params['w'] = (int)$params['w'];
-        }
-
-        if (!isset($params['h']) || !is_numeric($params['h']) || $params['h'] <= 0) {
-            $params['h'] = 0;
-        } else {
-            $params['h'] = (int)$params['h'];
-        }
 
         // Do our image manipulations
         foreach ($this->manipulators as $manipulator) {
@@ -292,15 +266,12 @@ class Api implements ApiInterface
         // Check if output is set and allowed
         if (isset($params['output'], $allowed[$params['output']])) {
             $extension = $params['output'];
-        } else {
-            $supportsAlpha = ['png', 'webp'];
-            if (!isset($allowed[$extension]) || ($params['hasAlpha'] && !isset($supportsAlpha[$extension]))) {
-                // We force the extension to PNG if:
-                //  - The image has alpha and doesn't have the right extension to output alpha.
-                //    (useful for shape masking and letterboxing)
-                //  - The input extension is not allowed for output.
-                $extension = 'png';
-            }
+        } elseif (!isset($allowed[$extension]) || ($params['hasAlpha'] && ($extension !== 'png' || $extension !== 'webp'))) {
+            // We force the extension to PNG if:
+            //  - The image has alpha and doesn't have the right extension to output alpha.
+            //    (useful for shape masking and letterboxing)
+            //  - The input extension is not allowed for output.
+            $extension = 'png';
         }
 
         $toBufferOptions = [];

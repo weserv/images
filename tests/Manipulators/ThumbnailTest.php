@@ -5,18 +5,19 @@ namespace AndriesLouw\imagesweserv\Manipulators;
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Image;
+use Jcupitt\Vips\Interesting;
 use Jcupitt\Vips\Interpretation;
-use Jcupitt\Vips\Kernel;
+use Jcupitt\Vips\Size;
 use Mockery;
 use PHPUnit\Framework\TestCase;
 
-class SizeTest extends TestCase
+class ThumbnailTest extends TestCase
 {
     private $manipulator;
 
     public function setUp()
     {
-        $this->manipulator = new Size();
+        $this->manipulator = new Thumbnail();
     }
 
     public function tearDown()
@@ -26,7 +27,7 @@ class SizeTest extends TestCase
 
     public function testCreateInstance()
     {
-        $this->assertInstanceOf(Size::class, $this->manipulator);
+        $this->assertInstanceOf(Thumbnail::class, $this->manipulator);
     }
 
     public function testSetMaxImageSize()
@@ -45,69 +46,7 @@ class SizeTest extends TestCase
         $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
-                ->andReturn(1967, 1967, 1967, 245)
-                ->times(4);
-
-            $mock->shouldReceive('__get')
-                ->with('height')
-                ->andReturn(2421, 2421, 2421, 302)
-                ->times(4);
-
-            $mock->shouldReceive('__get')
-                ->with('interpretation')
-                ->andReturn(Interpretation::SRGB)
-                ->once();
-
-            $mock->shouldReceive('typeof')
-                ->with(Utils::VIPS_META_ICC_NAME)
-                ->andReturn(0)
-                ->once();
-
-            $mock->shouldReceive('shrinkv')
-                ->with(8.0)
-                ->andReturnSelf()
-                ->once();
-
-            $mock->shouldReceive('shrinkh')
-                ->with(8.0)
-                ->andReturnSelf()
-                ->once();
-
-            $mock->shouldReceive('reducev')
-                ->with(Mockery::any(), [
-                    'kernel' => Kernel::LANCZOS3,
-                    'centre' => true,
-                ])
-                ->andReturnSelf()
-                ->once();
-
-            $mock->shouldReceive('reduceh')
-                ->with(Mockery::any(), [
-                    'kernel' => Kernel::LANCZOS3,
-                    'centre' => true,
-                ])
-                ->andReturnSelf()
-                ->once();
-        });
-
-        $params = [
-            'w' => 300,
-            'h' => 300,
-            't' => 'fit',
-            'hasAlpha' => false,
-            'is16Bit' => false,
-            'isPremultiplied' => false,
-        ];
-
-        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
-    }
-
-    public function testFitup()
-    {
-        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
-            $mock->shouldReceive('__get')
-                ->with('width')
-                ->andReturn(1967, 1967, 1967)
+                ->andReturn(1967)
                 ->times(3);
 
             $mock->shouldReceive('__get')
@@ -121,12 +60,74 @@ class SizeTest extends TestCase
                 ->once();
 
             $mock->shouldReceive('typeof')
+                ->with(Utils::VIPS_META_ORIENTATION)
+                ->andReturn(0)
+                ->once();
+
+            $mock->shouldReceive('typeof')
                 ->with(Utils::VIPS_META_ICC_NAME)
                 ->andReturn(0)
                 ->once();
 
-            $mock->shouldReceive('affine')
-                ->with(Mockery::any(), Mockery::any())
+            $mock->shouldReceive('thumbnail')
+                ->with('lichtenstein.jpg', 244, [
+                    'height' => 300,
+                    'auto_rotate' => true,
+                    'linear' => false,
+                    'size' => Size::DOWN
+                ])
+                ->andReturnSelf()
+                ->once();
+        });
+
+        $params = [
+            'w' => 300,
+            'h' => 300,
+            't' => 'fit',
+            'tmpFileName' => 'lichtenstein.jpg',
+            'hasAlpha' => false,
+            'is16Bit' => false,
+            'isPremultiplied' => false,
+        ];
+
+        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
+    }
+
+    public function testFitup()
+    {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
+            $mock->shouldReceive('__get')
+                ->with('width')
+                ->andReturn(1967)
+                ->times(3);
+
+            $mock->shouldReceive('__get')
+                ->with('height')
+                ->andReturn(2421)
+                ->times(3);
+
+            $mock->shouldReceive('__get')
+                ->with('interpretation')
+                ->andReturn(Interpretation::SRGB)
+                ->once();
+
+            $mock->shouldReceive('typeof')
+                ->with(Utils::VIPS_META_ORIENTATION)
+                ->andReturn(0)
+                ->once();
+
+            $mock->shouldReceive('typeof')
+                ->with(Utils::VIPS_META_ICC_NAME)
+                ->andReturn(0)
+                ->once();
+
+            $mock->shouldReceive('thumbnail')
+                ->with('lichtenstein.jpg', 2437, [
+                    'height' => 3000,
+                    'auto_rotate' => true,
+                    'linear' => false,
+                    'size' => Size::BOTH
+                ])
                 ->andReturnSelf()
                 ->once();
         });
@@ -135,6 +136,7 @@ class SizeTest extends TestCase
             'w' => 3000,
             'h' => 3000,
             't' => 'fitup',
+            'tmpFileName' => 'lichtenstein.jpg',
             'hasAlpha' => false,
             'is16Bit' => false,
             'isPremultiplied' => false,
@@ -148,13 +150,13 @@ class SizeTest extends TestCase
         $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
-                ->andReturn(1967, 1967, 1967, 327)
-                ->times(4);
+                ->andReturn(1967)
+                ->times(3);
 
             $mock->shouldReceive('__get')
                 ->with('height')
-                ->andReturn(2421, 2421, 2421, 403)
-                ->times(4);
+                ->andReturn(2421)
+                ->times(3);
 
             $mock->shouldReceive('__get')
                 ->with('interpretation')
@@ -162,32 +164,21 @@ class SizeTest extends TestCase
                 ->once();
 
             $mock->shouldReceive('typeof')
+                ->with(Utils::VIPS_META_ORIENTATION)
+                ->andReturn(0)
+                ->once();
+
+            $mock->shouldReceive('typeof')
                 ->with(Utils::VIPS_META_ICC_NAME)
                 ->andReturn(0)
                 ->once();
 
-            $mock->shouldReceive('shrinkv')
-                ->with(6.0)
-                ->andReturnSelf()
-                ->once();
-
-            $mock->shouldReceive('shrinkh')
-                ->with(6.0)
-                ->andReturnSelf()
-                ->once();
-
-            $mock->shouldReceive('reducev')
-                ->with(Mockery::any(), [
-                    'kernel' => Kernel::LANCZOS3,
-                    'centre' => true,
-                ])
-                ->andReturnSelf()
-                ->once();
-
-            $mock->shouldReceive('reduceh')
-                ->with(Mockery::any(), [
-                    'kernel' => Kernel::LANCZOS3,
-                    'centre' => true,
+            $mock->shouldReceive('thumbnail')
+                ->with('lichtenstein.jpg', 300, [
+                    'height' => 369,
+                    'auto_rotate' => true,
+                    'linear' => false,
+                    'size' => Size::BOTH
                 ])
                 ->andReturnSelf()
                 ->once();
@@ -198,6 +189,7 @@ class SizeTest extends TestCase
             'h' => 300,
             't' => 'square',
             'a' => 'top-left',
+            'tmpFileName' => 'lichtenstein.jpg',
             'hasAlpha' => false,
             'is16Bit' => false,
             'isPremultiplied' => false,
@@ -225,8 +217,23 @@ class SizeTest extends TestCase
                 ->once();
 
             $mock->shouldReceive('typeof')
+                ->with(Utils::VIPS_META_ORIENTATION)
+                ->andReturn(0)
+                ->once();
+
+            $mock->shouldReceive('typeof')
                 ->with(Utils::VIPS_META_ICC_NAME)
                 ->andReturn(0)
+                ->once();
+
+            $mock->shouldReceive('thumbnail')
+                ->with('lichtenstein.jpg', 3000, [
+                    'height' => 3692,
+                    'auto_rotate' => true,
+                    'linear' => false,
+                    'size' => Size::DOWN
+                ])
+                ->andReturnSelf()
                 ->once();
         });
 
@@ -234,6 +241,7 @@ class SizeTest extends TestCase
             'w' => 3000,
             'h' => 3000,
             't' => 'squaredown',
+            'tmpFileName' => 'lichtenstein.jpg',
             'hasAlpha' => false,
             'is16Bit' => false,
             'isPremultiplied' => false,
@@ -248,13 +256,13 @@ class SizeTest extends TestCase
         $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
-                ->andReturn(1967, 1967, 1967, 327)
-                ->times(4);
+                ->andReturn(1967)
+                ->times(3);
 
             $mock->shouldReceive('__get')
                 ->with('height')
-                ->andReturn(2421, 2421, 2421, 302)
-                ->times(4);
+                ->andReturn(2421)
+                ->times(3);
 
             $mock->shouldReceive('__get')
                 ->with('interpretation')
@@ -262,32 +270,21 @@ class SizeTest extends TestCase
                 ->once();
 
             $mock->shouldReceive('typeof')
+                ->with(Utils::VIPS_META_ORIENTATION)
+                ->andReturn(0)
+                ->once();
+
+            $mock->shouldReceive('typeof')
                 ->with(Utils::VIPS_META_ICC_NAME)
                 ->andReturn(0)
                 ->once();
 
-            $mock->shouldReceive('shrinkv')
-                ->with(8.0)
-                ->andReturnSelf()
-                ->once();
-
-            $mock->shouldReceive('shrinkh')
-                ->with(6.0)
-                ->andReturnSelf()
-                ->once();
-
-            $mock->shouldReceive('reducev')
-                ->with(Mockery::any(), [
-                    'kernel' => Kernel::LANCZOS3,
-                    'centre' => true,
-                ])
-                ->andReturnSelf()
-                ->once();
-
-            $mock->shouldReceive('reduceh')
-                ->with(Mockery::any(), [
-                    'kernel' => Kernel::LANCZOS3,
-                    'centre' => true,
+            $mock->shouldReceive('thumbnail')
+                ->with('lichtenstein.jpg', 300, [
+                    'height' => 300,
+                    'auto_rotate' => true,
+                    'linear' => false,
+                    'size' => 'force'
                 ])
                 ->andReturnSelf()
                 ->once();
@@ -297,6 +294,7 @@ class SizeTest extends TestCase
             'w' => 300,
             'h' => 300,
             't' => 'absolute',
+            'tmpFileName' => 'lichtenstein.jpg',
             'hasAlpha' => false,
             'is16Bit' => false,
             'isPremultiplied' => false,
@@ -310,13 +308,13 @@ class SizeTest extends TestCase
         $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
             $mock->shouldReceive('__get')
                 ->with('width')
-                ->andReturn(1967, 1967, 1967, 245)
-                ->times(4);
+                ->andReturn(1967)
+                ->times(3);
 
             $mock->shouldReceive('__get')
                 ->with('height')
-                ->andReturn(2421, 2421, 2421, 302)
-                ->times(4);
+                ->andReturn(2421)
+                ->times(3);
 
             $mock->shouldReceive('__get')
                 ->with('interpretation')
@@ -324,32 +322,21 @@ class SizeTest extends TestCase
                 ->once();
 
             $mock->shouldReceive('typeof')
+                ->with(Utils::VIPS_META_ORIENTATION)
+                ->andReturn(0)
+                ->once();
+
+            $mock->shouldReceive('typeof')
                 ->with(Utils::VIPS_META_ICC_NAME)
                 ->andReturn(0)
                 ->once();
 
-            $mock->shouldReceive('shrinkv')
-                ->with(8.0)
-                ->andReturnSelf()
-                ->once();
-
-            $mock->shouldReceive('shrinkh')
-                ->with(8.0)
-                ->andReturnSelf()
-                ->once();
-
-            $mock->shouldReceive('reducev')
-                ->with(Mockery::any(), [
-                    'kernel' => Kernel::LANCZOS3,
-                    'centre' => true,
-                ])
-                ->andReturnSelf()
-                ->once();
-
-            $mock->shouldReceive('reduceh')
-                ->with(Mockery::any(), [
-                    'kernel' => Kernel::LANCZOS3,
-                    'centre' => true,
+            $mock->shouldReceive('thumbnail')
+                ->with('lichtenstein.jpg', 244, [
+                    'height' => 300,
+                    'auto_rotate' => true,
+                    'linear' => false,
+                    'size' => Size::BOTH
                 ])
                 ->andReturnSelf()
                 ->once();
@@ -360,6 +347,116 @@ class SizeTest extends TestCase
             'h' => 300,
             't' => 'letterbox',
             'bg' => 'black',
+            'tmpFileName' => 'lichtenstein.jpg',
+            'hasAlpha' => false,
+            'is16Bit' => false,
+            'isPremultiplied' => false,
+        ];
+
+        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
+    }
+
+
+    public function testEntropyCrop()
+    {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
+            $mock->shouldReceive('__get')
+                ->with('width')
+                ->andReturn(1967)
+                ->times(3);
+
+            $mock->shouldReceive('__get')
+                ->with('height')
+                ->andReturn(2421)
+                ->times(3);
+
+            $mock->shouldReceive('__get')
+                ->with('interpretation')
+                ->andReturn(Interpretation::SRGB)
+                ->once();
+
+            $mock->shouldReceive('typeof')
+                ->with(Utils::VIPS_META_ORIENTATION)
+                ->andReturn(0)
+                ->once();
+
+            $mock->shouldReceive('typeof')
+                ->with(Utils::VIPS_META_ICC_NAME)
+                ->andReturn(0)
+                ->once();
+
+            $mock->shouldReceive('thumbnail')
+                ->with('lichtenstein.jpg', 300, [
+                    'height' => 300,
+                    'auto_rotate' => true,
+                    'linear' => false,
+                    'size' => Size::BOTH,
+                    'crop' => Interesting::ENTROPY,
+                ])
+                ->andReturnSelf()
+                ->once();
+        });
+
+        $params = [
+            'w' => 300,
+            'h' => 300,
+            't' => 'square',
+            'a' => 'entropy',
+            'tmpFileName' => 'lichtenstein.jpg',
+            'hasAlpha' => false,
+            'is16Bit' => false,
+            'isPremultiplied' => false,
+        ];
+
+        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
+    }
+
+    public function testAttentionCrop()
+    {
+        $image = Mockery::mock('Jcupitt\Vips\Image[__get, typeof]', [''], function ($mock) {
+            $mock->shouldReceive('__get')
+                ->with('width')
+                ->andReturn(1967)
+                ->times(3);
+
+            $mock->shouldReceive('__get')
+                ->with('height')
+                ->andReturn(2421)
+                ->times(3);
+
+            $mock->shouldReceive('__get')
+                ->with('interpretation')
+                ->andReturn(Interpretation::SRGB)
+                ->once();
+
+            $mock->shouldReceive('typeof')
+                ->with(Utils::VIPS_META_ORIENTATION)
+                ->andReturn(0)
+                ->once();
+
+            $mock->shouldReceive('typeof')
+                ->with(Utils::VIPS_META_ICC_NAME)
+                ->andReturn(0)
+                ->once();
+
+            $mock->shouldReceive('thumbnail')
+                ->with('lichtenstein.jpg', 300, [
+                    'height' => 300,
+                    'auto_rotate' => true,
+                    'linear' => false,
+                    'size' => Size::BOTH,
+                    'crop' => Interesting::ATTENTION,
+                ])
+                ->andReturnSelf()
+                ->once();
+        });
+
+        $params = [
+            'w' => 300,
+            'h' => 300,
+            't' => 'square',
+            'a' => 'attention',
+            'tmpFileName' => 'lichtenstein.jpg',
             'hasAlpha' => false,
             'is16Bit' => false,
             'isPremultiplied' => false,
