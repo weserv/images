@@ -80,6 +80,13 @@ class Filter extends BaseManipulator
      */
     public function runNegateFilter(Image $image): Image
     {
+        if ($image->hasAlpha()) {
+            // Separate alpha channel
+            $imageWithoutAlpha = $image->extract_band(0, ['n' => $image->bands - 1]);
+            $alpha = $image->extract_band($image->bands - 1, ['n' => 1]);
+            return $imageWithoutAlpha->invert()->bandjoin($alpha);
+        }
+
         return $image->invert();
     }
 }

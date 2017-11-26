@@ -768,7 +768,7 @@ if (!empty($_GET['url'])) {
                     <h3 id="gamma-gam">Gamma <code>&amp;gam=</code> <span class="new">New!</span></h3>
                     <p>Adjusts the image gamma. Use values between <code>1</code> and <code>3</code>. The default value is <code>2.2</code>, a suitable approximation for sRGB images.</p>
                     <div class="notices note">
-                        <p>The behavior of adjusting the image gamma was changed in September 2017. We apologise for any inconvenience caused.</p>
+                        <p>The behavior of adjusting the image gamma was changed in September 2017. We apologize for any inconvenience caused.</p>
                     </div>
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;gam=3"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;w=300&amp;gam=3"><img src="//$url/?url=$exampleImage&amp;w=300&amp;gam=3" alt=""/></a>
