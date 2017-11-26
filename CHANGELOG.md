@@ -3,7 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [3.0.0] - Unreleased
+
+Requires libvips v8.6.0.
+
 ### Note
 With the feedback that you've provided we can successfully close the following issues/enhancements: 
 [#13](https://github.com/andrieslouw/imagesweserv/issues/13), [#15](https://github.com/andrieslouw/imagesweserv/issues/15), [#37](https://github.com/andrieslouw/imagesweserv/issues/37), [#62](https://github.com/andrieslouw/imagesweserv/issues/62), [#68](https://github.com/andrieslouw/imagesweserv/issues/68), [#69](https://github.com/andrieslouw/imagesweserv/issues/69), [#70](https://github.com/andrieslouw/imagesweserv/issues/70), [#75](https://github.com/andrieslouw/imagesweserv/issues/75), [#76](https://github.com/andrieslouw/imagesweserv/issues/76), [#78](https://github.com/andrieslouw/imagesweserv/issues/78), [#80](https://github.com/andrieslouw/imagesweserv/issues/80), [#81](https://github.com/andrieslouw/imagesweserv/issues/81) and [#90](https://github.com/andrieslouw/imagesweserv/issues/90). 
@@ -98,6 +101,6 @@ The start of our image proxy. See for more details [here](https://github.com/and
 We never kept a change log from 2007 till 2015.
 For a quick overview what we've added, changed or fixed in the past see our [completed label](https://github.com/andrieslouw/imagesweserv/issues?utf8=%E2%9C%93&q=label%3Acompleted%20no%3Amilestone) on our issue tracker. Or take a look at our [1.x branch](https://github.com/andrieslouw/imagesweserv/tree/1.x).
 
-[Unreleased]: https://github.com/andrieslouw/imagesweserv/compare/HEAD...3.x
+[3.0.0]: https://github.com/andrieslouw/imagesweserv/compare/HEAD...3.x
 [2.0.0]: https://github.com/andrieslouw/imagesweserv/compare/HEAD...78d8b32
 [1.0.0]: https://github.com/andrieslouw/imagesweserv/tree/1.x
