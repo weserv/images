@@ -14,7 +14,7 @@ interface ThrottlerInterface
      *
      * @return bool
      */
-    public function isExceeded($ipAddress): bool;
+    public function isExceeded(string $ipAddress): bool;
 
     /**
      * Increment the counter for a given ip address for a given decay time.
@@ -24,16 +24,16 @@ interface ThrottlerInterface
      *
      * @return int
      */
-    public function increment($ipAddress, $decayMinutes = 1): int;
+    public function increment(string $ipAddress, $decayMinutes = 1): int;
 
     /**
      * Get the number of attempts for the given ip address.
      *
      * @param string $ipAddress
      *
-     * @return mixed
+     * @return int
      */
-    public function attempts($ipAddress): int;
+    public function attempts(string $ipAddress): int;
 
     /**
      * Reset the number of attempts for the given ip address.
@@ -42,7 +42,7 @@ interface ThrottlerInterface
      *
      * @return bool true on success or false on failure.
      */
-    public function resetAttempts($ipAddress): bool;
+    public function resetAttempts(string $ipAddress): bool;
 
     /**
      * Get the number of retries left for the given ip address.
@@ -52,7 +52,7 @@ interface ThrottlerInterface
      *
      * @return int
      */
-    public function retriesLeft($ipAddress, $maxAttempts): int;
+    public function retriesLeft(string $ipAddress, int $maxAttempts): int;
 
     /**
      * Clear the hits and lockout for the given ip address.
@@ -61,7 +61,7 @@ interface ThrottlerInterface
      *
      * @return void
      */
-    public function clear($ipAddress);
+    public function clear(string $ipAddress);
 
     /**
      * Get the number of seconds until the ip address is accessible again.
@@ -70,5 +70,5 @@ interface ThrottlerInterface
      *
      * @return int
      */
-    public function availableIn($ipAddress): int;
+    public function availableIn(string $ipAddress): int;
 }

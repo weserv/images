@@ -69,6 +69,8 @@ class Server
      * Set image manipulation API.
      *
      * @param ApiInterface $api Image manipulation API.
+     *
+     * @return void
      */
     public function setApi(ApiInterface $api)
     {
@@ -89,6 +91,8 @@ class Server
      * Set the throttler
      *
      * @param ThrottlerInterface|null $throttler Throttler class
+     *
+     * @return void
      */
     public function setThrottler($throttler)
     {
@@ -109,6 +113,8 @@ class Server
      * Set default image manipulations.
      *
      * @param array $defaults Default image manipulations.
+     *
+     * @return void
      */
     public function setDefaults(array $defaults)
     {
@@ -129,6 +135,8 @@ class Server
      * Set preset image manipulations.
      *
      * @param array $presets Preset image manipulations.
+     *
+     * @return void
      */
     public function setPresets(array $presets)
     {
@@ -236,11 +244,13 @@ class Server
      * @param array $params Image manipulation params.
      *
      * @throws RateExceededException if a user rate limit is exceeded
+     *
+     * @return void
      */
     public function outputImage(string $uri, array $params)
     {
         // Throttler can be null
-        if ($this->throttler) {
+        if ($this->throttler !== null) {
             // For PHPUnit check if REMOTE_ADDR is set
             $ipAddress = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
 

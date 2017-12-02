@@ -7,8 +7,8 @@ use Jcupitt\Vips\Interesting;
 
 /**
  * @property string $t
- * @property string $w
- * @property string $h
+ * @property int $w
+ * @property int $h
  * @property string $a
  * @property string $crop
  */
@@ -55,7 +55,7 @@ class Crop extends BaseManipulator
 
         $coordinates = $this->resolveCropCoordinates($imageWidth, $imageHeight);
 
-        if ($coordinates) {
+        if ($coordinates !== null) {
             $coordinates = $this->limitToImageBoundaries($image, $coordinates);
 
             $image = $image->crop(
@@ -72,14 +72,14 @@ class Crop extends BaseManipulator
     /**
      * Resolve crop coordinates.
      *
-     * @param $imageWidth
-     * @param $imageHeight
+     * @param int $imageWidth
+     * @param int $imageHeight
      *
      * @return array|null The resolved coordinates.
      *
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
-    public function resolveCropCoordinates($imageWidth, $imageHeight)
+    public function resolveCropCoordinates(int $imageWidth, int $imageHeight)
     {
         if (!isset($this->crop)) {
             return null;
@@ -113,7 +113,7 @@ class Crop extends BaseManipulator
     /**
      * Resolve crop.
      *
-     * @return array The resolved crop.
+     * @return int[] The resolved crop.
      */
     public function getCrop(): array
     {
@@ -159,11 +159,11 @@ class Crop extends BaseManipulator
      * Calculate the (left, top) coordinates of the output image
      * within the input image, applying the given x and y offsets.
      *
-     * @param array $inCoordinates The image width/height.
-     * @param array $outCoordinates The output width/height.
-     * @param array $offsets The x/y offset.
+     * @param int[] $inCoordinates The image width/height.
+     * @param int[] $outCoordinates The output width/height.
+     * @param int[] $offsets The x/y offset.
      *
-     * @return array The crop offset.
+     * @return int[] The crop offset.
      *
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
@@ -202,9 +202,9 @@ class Crop extends BaseManipulator
      * Limit coordinates to image boundaries.
      *
      * @param Image $image The source image.
-     * @param array $coordinates The coordinates.
+     * @param int[] $coordinates The coordinates.
      *
-     * @return array The limited coordinates.
+     * @return int[] The limited coordinates.
      */
     public function limitToImageBoundaries(Image $image, array $coordinates): array
     {

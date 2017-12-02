@@ -19,7 +19,7 @@ class Contrast extends BaseManipulator
      */
     public function run(Image $image): Image
     {
-        if (!$this->con) {
+        if ($this->con === null) {
             return $image;
         }
 

@@ -11,15 +11,15 @@ use Jcupitt\Vips\Size;
 
 /**
  * @property string $t
- * @property string $w
- * @property string $h
+ * @property string|int $w
+ * @property string|int $h
  * @property string $a
  * @property string $tmpFileName
  * @property string $page
  * @property int $rotation
  * @property bool $flip
  * @property bool $flop
- * @property string $trim
+ * @property string|bool $trim
  * @property string $gam
  *
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
@@ -58,7 +58,9 @@ class Thumbnail extends BaseManipulator
     /**
      * Set the maximum image size.
      *
-     * @param int|null Maximum image size in pixels.
+     * @param int|null $maxImageSize Maximum image size in pixels.
+     *
+     * @return void
      */
     public function setMaxImageSize($maxImageSize)
     {
@@ -143,6 +145,8 @@ class Thumbnail extends BaseManipulator
      * @param int $height The image height.
      *
      * @throws ImageTooLargeException if the provided image is too large for processing.
+     *
+     * @return void
      */
     public function checkImageSize(Image $image, int $width, int $height)
     {
@@ -157,7 +161,7 @@ class Thumbnail extends BaseManipulator
             $height = (int)($width / ($image->width / $image->height));
         }
 
-        if ($this->maxImageSize) {
+        if ($this->maxImageSize !== null) {
             $imageSize = $width * $height;
 
             if ($imageSize > $this->maxImageSize) {
@@ -296,7 +300,7 @@ class Thumbnail extends BaseManipulator
          * @see Interpretation::SRGB
          * @see Interpretation::RGB
          */
-        return $this->trim || isset($this->gam) ?
+        return $this->trim !== false || isset($this->gam) ?
             $image->thumbnail_image($targetResizeWidth, $thumbnailOptions) :
             Image::thumbnail($this->tmpFileName, $targetResizeWidth, $thumbnailOptions);
     }

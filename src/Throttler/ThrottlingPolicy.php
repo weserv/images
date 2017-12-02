@@ -57,9 +57,9 @@ class ThrottlingPolicy
     /**
      * Is the CloudFlare provider enabled?
      *
-     * @return string
+     * @return bool
      */
-    public function isCloudFlareEnabled(): string
+    public function isCloudFlareEnabled(): bool
     {
         return $this->config['cloudflare']['enabled'];
     }

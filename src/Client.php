@@ -47,6 +47,8 @@ class Client
      * Initialize the client
      *
      * @param array $guzzleOptions Specific Guzzle options
+     *
+     * @return void
      */
     private function initClient(array $guzzleOptions)
     {
@@ -92,6 +94,8 @@ class Client
      * Create client instance.
      *
      * @param ClientInterface $client The guzzle client.
+     *
+     * @return void
      */
     public function setClient(ClientInterface $client)
     {
@@ -112,6 +116,8 @@ class Client
      * Set the client options
      *
      * @param array $options Client options
+     *
+     * @return void
      */
     public function setOptions(array $options)
     {

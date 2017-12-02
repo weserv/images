@@ -29,7 +29,7 @@ class Background extends BaseManipulator
         // - There's no bg parameter.
         // - Letterboxing is required.
         // - The image doesn't have an alpha channel.
-        if (!$this->bg || $this->t === 'letterbox' || !$image->hasAlpha()) {
+        if ($this->bg === null || $this->t === 'letterbox' || !$image->hasAlpha()) {
             return $image;
         }
 

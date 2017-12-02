@@ -58,6 +58,8 @@ class Api implements ApiInterface
      * Set the PHP HTTP client
      *
      * @param Client $client Guzzle client
+     *
+     * @return void
      */
     public function setClient(Client $client)
     {
@@ -81,6 +83,8 @@ class Api implements ApiInterface
      *
      * @throws InvalidArgumentException if there's a manipulator which not extends
      *      ManipulatorInterface
+     *
+     * @return void
      */
     public function setManipulators(array $manipulators)
     {

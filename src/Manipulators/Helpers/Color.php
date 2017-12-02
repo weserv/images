@@ -207,7 +207,7 @@ class Color
      *
      * @param string|null $color Hex color representation
      *
-     * @return array a decimal ARGB array
+     * @return int[] a decimal ARGB array
      *
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */

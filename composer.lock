@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "1a40eb3b323cfd7a948a205e04741d41",
+    "content-hash": "5cd606afe50a9f87554a833f3dc778f6",
     "packages": [
         {
             "name": "cloudflare/sdk",
-            "version": "1.0.7",
+            "version": "1.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cloudflare/cloudflare-php.git",
-                "reference": "d00a1d3f44cb5ebd8886c54129f5fd574abe6ae9"
+                "reference": "99d89e7dc3f1e39401f92112b3a325ad31a431e6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cloudflare/cloudflare-php/zipball/d00a1d3f44cb5ebd8886c54129f5fd574abe6ae9",
-                "reference": "d00a1d3f44cb5ebd8886c54129f5fd574abe6ae9",
+                "url": "https://api.github.com/repos/cloudflare/cloudflare-php/zipball/99d89e7dc3f1e39401f92112b3a325ad31a431e6",
+                "reference": "99d89e7dc3f1e39401f92112b3a325ad31a431e6",
                 "shasum": ""
             },
             "require": {
@@ -47,7 +47,7 @@
                 }
             ],
             "description": "PHP binding for v4 of the Cloudflare Client API.",
-            "time": "2017-11-25T03:49:35+00:00"
+            "time": "2017-11-27T08:50:05+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -285,34 +285,39 @@
                 "libvips",
                 "processing"
             ],
-            "time": "2017-11-23T15:14:00+00:00"
+            "time": "2017-11-23 15:14:00"
         },
         {
             "name": "league/uri",
-            "version": "5.0.0",
+            "version": "5.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/uri.git",
-                "reference": "ef6f413061bd4a9926c4c4394a5f5d384bfd8487"
+                "reference": "872194ac1ca5e51fbb9e0e5ba4d27f91aa783e82"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/uri/zipball/ef6f413061bd4a9926c4c4394a5f5d384bfd8487",
-                "reference": "ef6f413061bd4a9926c4c4394a5f5d384bfd8487",
+                "url": "https://api.github.com/repos/thephpleague/uri/zipball/872194ac1ca5e51fbb9e0e5ba4d27f91aa783e82",
+                "reference": "872194ac1ca5e51fbb9e0e5ba4d27f91aa783e82",
                 "shasum": ""
             },
             "require": {
                 "ext-fileinfo": "*",
                 "ext-intl": "*",
                 "ext-mbstring": "*",
-                "league/uri-manipulations": "^1.0",
-                "league/uri-schemes": "^1.0",
-                "php": ">=7.0"
+                "league/uri-components": "^1.5.0",
+                "league/uri-hostname-parser": "^1.0.4",
+                "league/uri-interfaces": "^1.0",
+                "league/uri-manipulations": "^1.3",
+                "league/uri-parser": "^1.3.0",
+                "league/uri-schemes": "^1.1.1",
+                "php": ">=7.0.13",
+                "psr/http-message": "^1.0"
             },
             "type": "metapackage",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "5.0.x-dev"
+                    "dev-master": "5.x-dev"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -332,31 +337,35 @@
                 "data-uri",
                 "file-uri",
                 "ftp",
+                "hostname",
                 "http",
                 "https",
                 "middleware",
+                "parse_str",
                 "parse_url",
                 "psr-7",
+                "query-string",
+                "querystring",
                 "rfc3986",
                 "rfc3987",
                 "uri",
                 "url",
                 "ws"
             ],
-            "time": "2017-02-06T08:50:02+00:00"
+            "time": "2017-12-01T13:36:42+00:00"
         },
         {
             "name": "league/uri-components",
-            "version": "1.4.1",
+            "version": "1.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/uri-components.git",
-                "reference": "ecc7ba1e6ef940bcc5d28e745b1a13a996c2bc67"
+                "reference": "1b2e4ed0e6d7b1aff85ba5775652e23badc908ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/uri-components/zipball/ecc7ba1e6ef940bcc5d28e745b1a13a996c2bc67",
-                "reference": "ecc7ba1e6ef940bcc5d28e745b1a13a996c2bc67",
+                "url": "https://api.github.com/repos/thephpleague/uri-components/zipball/1b2e4ed0e6d7b1aff85ba5775652e23badc908ac",
+                "reference": "1b2e4ed0e6d7b1aff85ba5775652e23badc908ac",
                 "shasum": ""
             },
             "require": {
@@ -364,11 +373,12 @@
                 "ext-fileinfo": "*",
                 "ext-intl": "*",
                 "ext-mbstring": "*",
-                "league/uri-hostname-parser": "^1.0.2",
+                "league/uri-hostname-parser": "^1.0.4",
                 "php": ">=7.0"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^2.3",
+                "phpstan/phpstan": "^0.9.0",
                 "phpunit/phpunit": "^6.0"
             },
             "type": "library",
@@ -412,20 +422,20 @@
                 "url",
                 "userinfo"
             ],
-            "time": "2017-11-24T07:54:09+00:00"
+            "time": "2017-12-01T11:49:21+00:00"
         },
         {
             "name": "league/uri-hostname-parser",
-            "version": "1.0.2",
+            "version": "1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/uri-hostname-parser.git",
-                "reference": "4fa49dbf02e506f55000544ea1f99cf25c7149a2"
+                "reference": "c475caaa1f0bcc88853a85e0b9f65544685a8164"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/uri-hostname-parser/zipball/4fa49dbf02e506f55000544ea1f99cf25c7149a2",
-                "reference": "4fa49dbf02e506f55000544ea1f99cf25c7149a2",
+                "url": "https://api.github.com/repos/thephpleague/uri-hostname-parser/zipball/c475caaa1f0bcc88853a85e0b9f65544685a8164",
+                "reference": "c475caaa1f0bcc88853a85e0b9f65544685a8164",
                 "shasum": ""
             },
             "require": {
@@ -481,7 +491,7 @@
                 "domain parsing",
                 "icann"
             ],
-            "time": "2017-11-23T12:07:26+00:00"
+            "time": "2017-11-30T16:52:23+00:00"
         },
         {
             "name": "league/uri-interfaces",
@@ -537,20 +547,20 @@
         },
         {
             "name": "league/uri-manipulations",
-            "version": "1.2.0",
+            "version": "1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/uri-manipulations.git",
-                "reference": "03cf5bc525611c3cb37b31b3845a91bf01725b31"
+                "reference": "e8ad43a956234a78763cc44fa16ddebeb1f4fbf4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/uri-manipulations/zipball/03cf5bc525611c3cb37b31b3845a91bf01725b31",
-                "reference": "03cf5bc525611c3cb37b31b3845a91bf01725b31",
+                "url": "https://api.github.com/repos/thephpleague/uri-manipulations/zipball/e8ad43a956234a78763cc44fa16ddebeb1f4fbf4",
+                "reference": "e8ad43a956234a78763cc44fa16ddebeb1f4fbf4",
                 "shasum": ""
             },
             "require": {
-                "league/uri-components": "^1.4",
+                "league/uri-components": "^1.4.1",
                 "league/uri-interfaces": "^1.0",
                 "php": ">=7.0",
                 "psr/http-message": "^1.0"
@@ -605,20 +615,20 @@
                 "uri",
                 "url"
             ],
-            "time": "2017-11-22T12:09:07+00:00"
+            "time": "2017-11-24T08:17:41+00:00"
         },
         {
             "name": "league/uri-parser",
-            "version": "1.2.0",
+            "version": "1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/uri-parser.git",
-                "reference": "5d0beab08f29079fac1bb76dbcb2336ef10af8b8"
+                "reference": "f3c99b77f0cba4446dad2eca8c57227fcda0f39b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/uri-parser/zipball/5d0beab08f29079fac1bb76dbcb2336ef10af8b8",
-                "reference": "5d0beab08f29079fac1bb76dbcb2336ef10af8b8",
+                "url": "https://api.github.com/repos/thephpleague/uri-parser/zipball/f3c99b77f0cba4446dad2eca8c57227fcda0f39b",
+                "reference": "f3c99b77f0cba4446dad2eca8c57227fcda0f39b",
                 "shasum": ""
             },
             "require": {
@@ -635,7 +645,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "1.x-dev"
                 }
             },
             "autoload": {
@@ -666,20 +676,20 @@
                 "uri",
                 "url"
             ],
-            "time": "2017-10-20T10:37:29+00:00"
+            "time": "2017-12-01T11:53:01+00:00"
         },
         {
             "name": "league/uri-schemes",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/uri-schemes.git",
-                "reference": "ffb93d46db6315fc2320b9332f2ada94751f7556"
+                "reference": "fd2448689186bfff27a112aa21d82931f4b366c5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/uri-schemes/zipball/ffb93d46db6315fc2320b9332f2ada94751f7556",
-                "reference": "ffb93d46db6315fc2320b9332f2ada94751f7556",
+                "url": "https://api.github.com/repos/thephpleague/uri-schemes/zipball/fd2448689186bfff27a112aa21d82931f4b366c5",
+                "reference": "fd2448689186bfff27a112aa21d82931f4b366c5",
                 "shasum": ""
             },
             "require": {
@@ -687,8 +697,8 @@
                 "ext-intl": "*",
                 "ext-mbstring": "*",
                 "league/uri-interfaces": "^1.0",
-                "league/uri-parser": "^1.2",
-                "php": ">=7.0",
+                "league/uri-parser": "^1.3.0",
+                "php": ">=7.0.13",
                 "psr/http-message": "^1.0"
             },
             "require-dev": {
@@ -739,7 +749,7 @@
                 "ws",
                 "wss"
             ],
-            "time": "2017-11-02T12:48:27+00:00"
+            "time": "2017-12-01T12:05:37+00:00"
         },
         {
             "name": "predis/predis",
@@ -1355,29 +1365,35 @@
         },
         {
             "name": "phpdocumentor/reflection-docblock",
-            "version": "4.1.1",
+            "version": "4.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/ReflectionDocBlock.git",
-                "reference": "2d3d238c433cf69caeb4842e97a3223a116f94b2"
+                "reference": "66465776cfc249844bde6d117abff1d22e06c2da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/2d3d238c433cf69caeb4842e97a3223a116f94b2",
-                "reference": "2d3d238c433cf69caeb4842e97a3223a116f94b2",
+                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/66465776cfc249844bde6d117abff1d22e06c2da",
+                "reference": "66465776cfc249844bde6d117abff1d22e06c2da",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.0",
-                "phpdocumentor/reflection-common": "^1.0@dev",
+                "phpdocumentor/reflection-common": "^1.0.0",
                 "phpdocumentor/type-resolver": "^0.4.0",
                 "webmozart/assert": "^1.0"
             },
             "require-dev": {
-                "mockery/mockery": "^0.9.4",
-                "phpunit/phpunit": "^4.4"
+                "doctrine/instantiator": "~1.0.5",
+                "mockery/mockery": "^1.0",
+                "phpunit/phpunit": "^6.4"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.x-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "phpDocumentor\\Reflection\\": [
@@ -1396,7 +1412,7 @@
                 }
             ],
             "description": "With this component, a library can provide support for annotations via DocBlocks or otherwise retrieve information that is embedded in a DocBlock.",
-            "time": "2017-08-30T18:51:59+00:00"
+            "time": "2017-11-27T17:38:31+00:00"
         },
         {
             "name": "phpdocumentor/type-resolver",
@@ -1510,16 +1526,16 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "5.2.3",
+            "version": "5.2.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "8e1d2397d8adf59a3f12b2878a3aaa66d1ab189d"
+                "reference": "033ec97498cf530cc1be4199264cad568b19be26"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/8e1d2397d8adf59a3f12b2878a3aaa66d1ab189d",
-                "reference": "8e1d2397d8adf59a3f12b2878a3aaa66d1ab189d",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/033ec97498cf530cc1be4199264cad568b19be26",
+                "reference": "033ec97498cf530cc1be4199264cad568b19be26",
                 "shasum": ""
             },
             "require": {
@@ -1528,7 +1544,7 @@
                 "php": "^7.0",
                 "phpunit/php-file-iterator": "^1.4.2",
                 "phpunit/php-text-template": "^1.2.1",
-                "phpunit/php-token-stream": "^2.0",
+                "phpunit/php-token-stream": "^2.0.1",
                 "sebastian/code-unit-reverse-lookup": "^1.0.1",
                 "sebastian/environment": "^3.0",
                 "sebastian/version": "^2.0.1",
@@ -1570,20 +1586,20 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2017-11-03T13:47:33+00:00"
+            "time": "2017-11-27T09:00:30+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
-            "version": "1.4.2",
+            "version": "1.4.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-file-iterator.git",
-                "reference": "3cc8f69b3028d0f96a9078e6295d86e9bf019be5"
+                "reference": "730b01bc3e867237eaac355e06a36b85dd93a8b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-file-iterator/zipball/3cc8f69b3028d0f96a9078e6295d86e9bf019be5",
-                "reference": "3cc8f69b3028d0f96a9078e6295d86e9bf019be5",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-file-iterator/zipball/730b01bc3e867237eaac355e06a36b85dd93a8b4",
+                "reference": "730b01bc3e867237eaac355e06a36b85dd93a8b4",
                 "shasum": ""
             },
             "require": {
@@ -1617,7 +1633,7 @@
                 "filesystem",
                 "iterator"
             ],
-            "time": "2016-10-03T07:40:28+00:00"
+            "time": "2017-11-27T13:52:08+00:00"
         },
         {
             "name": "phpunit/php-text-template",
@@ -1711,16 +1727,16 @@
         },
         {
             "name": "phpunit/php-token-stream",
-            "version": "2.0.1",
+            "version": "2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-token-stream.git",
-                "reference": "9a02332089ac48e704c70f6cefed30c224e3c0b0"
+                "reference": "791198a2c6254db10131eecfe8c06670700904db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-token-stream/zipball/9a02332089ac48e704c70f6cefed30c224e3c0b0",
-                "reference": "9a02332089ac48e704c70f6cefed30c224e3c0b0",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-token-stream/zipball/791198a2c6254db10131eecfe8c06670700904db",
+                "reference": "791198a2c6254db10131eecfe8c06670700904db",
                 "shasum": ""
             },
             "require": {
@@ -1756,20 +1772,20 @@
             "keywords": [
                 "tokenizer"
             ],
-            "time": "2017-08-20T05:47:52+00:00"
+            "time": "2017-11-27T05:48:46+00:00"
         },
         {
             "name": "phpunit/phpunit",
-            "version": "6.4.4",
+            "version": "6.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "562f7dc75d46510a4ed5d16189ae57fbe45a9932"
+                "reference": "8eea3cfbfe3c8363f8111e24569bdb6ead71ea6e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/562f7dc75d46510a4ed5d16189ae57fbe45a9932",
-                "reference": "562f7dc75d46510a4ed5d16189ae57fbe45a9932",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/8eea3cfbfe3c8363f8111e24569bdb6ead71ea6e",
+                "reference": "8eea3cfbfe3c8363f8111e24569bdb6ead71ea6e",
                 "shasum": ""
             },
             "require": {
@@ -1783,12 +1799,12 @@
                 "phar-io/version": "^1.0",
                 "php": "^7.0",
                 "phpspec/prophecy": "^1.7",
-                "phpunit/php-code-coverage": "^5.2.2",
-                "phpunit/php-file-iterator": "^1.4.2",
+                "phpunit/php-code-coverage": "^5.2.3",
+                "phpunit/php-file-iterator": "^1.4.3",
                 "phpunit/php-text-template": "^1.2.1",
                 "phpunit/php-timer": "^1.0.9",
-                "phpunit/phpunit-mock-objects": "^4.0.3",
-                "sebastian/comparator": "^2.0.2",
+                "phpunit/phpunit-mock-objects": "^5.0",
+                "sebastian/comparator": "^2.1",
                 "sebastian/diff": "^2.0",
                 "sebastian/environment": "^3.1",
                 "sebastian/exporter": "^3.1",
@@ -1814,7 +1830,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "6.4.x-dev"
+                    "dev-master": "6.5.x-dev"
                 }
             },
             "autoload": {
@@ -1840,20 +1856,20 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2017-11-08T11:26:09+00:00"
+            "time": "2017-12-01T09:57:23+00:00"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
-            "version": "4.0.4",
+            "version": "5.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit-mock-objects.git",
-                "reference": "2f789b59ab89669015ad984afa350c4ec577ade0"
+                "reference": "a58b8fc03ca12d8bf6122ea942bc72c99c7cda4a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit-mock-objects/zipball/2f789b59ab89669015ad984afa350c4ec577ade0",
-                "reference": "2f789b59ab89669015ad984afa350c4ec577ade0",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit-mock-objects/zipball/a58b8fc03ca12d8bf6122ea942bc72c99c7cda4a",
+                "reference": "a58b8fc03ca12d8bf6122ea942bc72c99c7cda4a",
                 "shasum": ""
             },
             "require": {
@@ -1866,7 +1882,7 @@
                 "phpunit/phpunit": "<6.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^6.0"
+                "phpunit/phpunit": "^6.5"
             },
             "suggest": {
                 "ext-soap": "*"
@@ -1874,7 +1890,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "4.0.x-dev"
+                    "dev-master": "5.0.x-dev"
                 }
             },
             "autoload": {
@@ -1889,7 +1905,7 @@
             "authors": [
                 {
                     "name": "Sebastian Bergmann",
-                    "email": "sb@sebastian-bergmann.de",
+                    "email": "sebastian@phpunit.de",
                     "role": "lead"
                 }
             ],
@@ -1899,7 +1915,7 @@
                 "mock",
                 "xunit"
             ],
-            "time": "2017-08-03T14:08:16+00:00"
+            "time": "2017-12-01T16:12:08+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
@@ -2610,7 +2626,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=7.0.11",
+        "php": ">=7.0.13",
         "ext-curl": "*",
         "ext-vips": ">=1.0.8"
     },

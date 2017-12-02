@@ -70,7 +70,7 @@ class RedisThrottler implements ThrottlerInterface
      *
      * @return void
      */
-    public function setPrefix($prefix)
+    public function setPrefix(string $prefix)
     {
         $this->prefix = !empty($prefix) ? $prefix . '_' : '';
     }
@@ -82,7 +82,7 @@ class RedisThrottler implements ThrottlerInterface
      *
      * @return bool
      */
-    public function isExceeded($ipAddress): bool
+    public function isExceeded(string $ipAddress): bool
     {
         if ($this->redis->exists($this->prefix . $ipAddress . ':lockout')) {
             return true;
@@ -109,7 +109,7 @@ class RedisThrottler implements ThrottlerInterface
      *
      * @return int
      */
-    public function increment($ipAddress, $decayMinutes = 1): int
+    public function increment(string $ipAddress, $decayMinutes = 1): int
     {
         $value = $this->redis->incr($this->prefix . $ipAddress);
         // Check if this increment is new, and if so set expires time
@@ -124,9 +124,9 @@ class RedisThrottler implements ThrottlerInterface
      *
      * @param string $ipAddress
      *
-     * @return mixed
+     * @return int
      */
-    public function attempts($ipAddress): int
+    public function attempts(string $ipAddress): int
     {
         return (int)$this->redis->get($this->prefix . $ipAddress);
     }
@@ -138,7 +138,7 @@ class RedisThrottler implements ThrottlerInterface
      *
      * @return bool true on success or false on failure.
      */
-    public function resetAttempts($ipAddress): bool
+    public function resetAttempts(string $ipAddress): bool
     {
         return (bool)$this->redis->del([$this->prefix . $ipAddress]);
     }
@@ -151,7 +151,7 @@ class RedisThrottler implements ThrottlerInterface
      *
      * @return int
      */
-    public function retriesLeft($ipAddress, $maxAttempts): int
+    public function retriesLeft(string $ipAddress, int $maxAttempts): int
     {
         $attempts = $this->attempts($ipAddress);
         return $attempts === 0 ? $maxAttempts : $maxAttempts - $attempts + 1;
@@ -164,7 +164,7 @@ class RedisThrottler implements ThrottlerInterface
      *
      * @return void
      */
-    public function clear($ipAddress)
+    public function clear(string $ipAddress)
     {
         $this->resetAttempts($ipAddress);
         $this->redis->del([$this->prefix . $ipAddress . ':lockout']);
@@ -177,7 +177,7 @@ class RedisThrottler implements ThrottlerInterface
      *
      * @return int
      */
-    public function availableIn($ipAddress): int
+    public function availableIn(string $ipAddress): int
     {
         return (int)$this->redis->get($this->prefix . $ipAddress . ':lockout') - time();
     }

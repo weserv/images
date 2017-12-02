@@ -8,8 +8,8 @@ use Jcupitt\Vips\Image;
 
 /**
  * @property string $t
- * @property string $w
- * @property string $h
+ * @property int $w
+ * @property int $h
  * @property string $a
  * @property string $bg
  */
@@ -33,7 +33,7 @@ class Letterbox extends BaseManipulator
             // Default to transparent
             $backgroundColor = [0, 0, 0, 0];
 
-            if ($this->bg) {
+            if ($this->bg !== null) {
                 $backgroundColor = (new Color($this->bg))->toRGBA();
             }
 

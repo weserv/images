@@ -42,7 +42,7 @@ class Sharpen extends BaseManipulator
     /**
      * Resolve sharpen amount.
      *
-     * @return array The resolved sharpen amount.
+     * @return float[] The resolved sharpen amount.
      *
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */

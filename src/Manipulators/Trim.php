@@ -6,7 +6,7 @@ use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Image;
 
 /**
- * @property string $trim
+ * @property string|bool $trim
  */
 class Trim extends BaseManipulator
 {
@@ -79,7 +79,10 @@ class Trim extends BaseManipulator
         $threshold = $sensitivity * $multiplier;
 
         // Search for the bounding box of the non-background area
-        $trim = $image->find_trim(compact('threshold', 'background'));
+        $trim = $image->find_trim([
+            'threshold' => $threshold,
+            'background' => $background
+        ]);
 
         if ($trim['width'] === 0 || $trim['height'] === 0) {
             trigger_error(

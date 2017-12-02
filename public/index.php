@@ -30,7 +30,7 @@ use Jcupitt\Vips\Exception as VipsException;
 use League\Uri\Components\HierarchicalPath as Path;
 use League\Uri\Components\Host;
 use League\Uri\Components\Query;
-use League\Uri\Schemes\Http as HttpUri;
+use League\Uri\Http as HttpUri;
 
 // See for an example: config.example.php
 /** @noinspection PhpIncludeInspection */
@@ -114,7 +114,7 @@ $error_messages = [
  *
  * @return HttpUri parsed URI
  */
-function parseUrl(string $url)
+function parseUrl(string $url): HttpUri
 {
     // Check for HTTPS origin hosts
     if (strpos($url, 'ssl:') === 0) {
@@ -139,7 +139,7 @@ function parseUrl(string $url)
  *
  * @return string sanitized URI
  */
-function sanitizeErrorRedirect(HttpUri $errorUrl)
+function sanitizeErrorRedirect(HttpUri $errorUrl): string
 {
     $queryStr = $errorUrl->getQuery();
     if (!empty($queryStr)) {
@@ -235,7 +235,7 @@ if (!empty($_GET['url'])) {
             $memcached = new Memcached('mc');
 
             // When using persistent connections, it's important to not re-add servers.
-            if (!count($memcached->getServerList())) {
+            if (empty($memcached->getServerList())) {
                 $memcached->setOptions([
                     Memcached::OPT_BINARY_PROTOCOL => true,
                     Memcached::OPT_COMPRESSION => false
@@ -244,9 +244,9 @@ if (!empty($_GET['url'])) {
                 $memcached->addServer($config['memcached']['host'], $config['memcached']['port']);
             }
 
-            //if ($memcached->getVersion() === false) {
-            //trigger_error('MemcachedException. Message: Could not establish Memcached connection', E_USER_WARNING);
-            //}
+            /*if ($memcached->getVersion() === false) {
+                trigger_error('MemcachedException. Message: Could not establish Memcached connection', E_USER_WARNING);
+            }*/
 
             // Create an new Memcached throttler instance
             $throttler = new AndriesLouw\imagesweserv\Throttler\MemcachedThrottler(
@@ -460,6 +460,9 @@ if (!empty($_GET['url'])) {
     <title>Image cache &amp; resize proxy</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico"/>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.2/gh-fork-ribbon.min.css" integrity="sha384-jUHnRx457Q15HVKSx5g+6jqsItdcFcR0BBu729dDIMmTM4HT1sbXZuxxOpuiaM/p" crossorigin="anonymous" />
+    <!-- TODO: Implement Algolia DocSearch -->
+    <!-- <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/images-v3.css" /> -->
     <link rel="stylesheet" href="//static.weserv.nl/images-v3c.css" integrity="sha384-m6zDiOevtGm3DYkqK31apUJ5oIjQdPY598x0L0ldq5idDHj6ILXI86LgP7C9UiQj" crossorigin="anonymous" />
 	<!--[if lte IE 9]>
 	    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.2/gh-fork-ribbon.ie.min.css" />
@@ -474,7 +477,7 @@ if (!empty($_GET['url'])) {
                     <div id="weserv-logo">Images.<strong>weserv</strong>.nl</div>
                     <span>Image cache &amp; resize proxy</span>
                 </a>
-                <!-- Implement Algolia DocSearch -->
+                <!-- TODO: Implement Algolia DocSearch -->
                 <!-- <div class="searchbox">
                     <label for="search-by"><i class="fa fa-search"></i></label>
                     <input id="search-by" type="text" placeholder="Search Documentation" data-search-input="/s/q">
@@ -737,7 +740,7 @@ if (!empty($_GET['url'])) {
                     <h3 id="shape-shape">Shape <code>&amp;shape=</code></h3>
                     <p>Crops the image to a specific shape. Use <code>strim</code> to also remove the remaining whitespace. More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/49">Issue #49 - Add circle effect to photos</a>.</p>
                     <div class="notices note">
-                        <p>Previously the <code>strim</code> parameter was enabled by default. In November 2017 it was changed to an optional parameter to be more consistent with other features.</p>
+                        <p>Previously the <code>strim</code> parameter was enabled by default. In December 2017 it was changed to an optional parameter to be more consistent with other features.</p>
                     </div>
                     <h4 id="shape-accepts">Accepts:</h4>
                     <ul>
@@ -768,7 +771,7 @@ if (!empty($_GET['url'])) {
                     <h3 id="gamma-gam">Gamma <code>&amp;gam=</code> <span class="new">New!</span></h3>
                     <p>Adjusts the image gamma. Use values between <code>1</code> and <code>3</code>. The default value is <code>2.2</code>, a suitable approximation for sRGB images.</p>
                     <div class="notices note">
-                        <p>The behavior of adjusting the image gamma was changed in November 2017. We apologize for any inconvenience caused.</p>
+                        <p>The behavior of adjusting the image gamma was changed in December 2017. We apologize for any inconvenience caused.</p>
                     </div>
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;gam=3"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;w=300&amp;gam=3"><img src="//$url/?url=$exampleImage&amp;w=300&amp;gam=3" alt=""/></a>

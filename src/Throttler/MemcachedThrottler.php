@@ -70,7 +70,7 @@ class MemcachedThrottler implements ThrottlerInterface
      * @param  string $prefix
      * @return void
      */
-    public function setPrefix($prefix)
+    public function setPrefix(string $prefix)
     {
         $this->prefix = !empty($prefix) ? $prefix . '_' : '';
     }
@@ -82,7 +82,7 @@ class MemcachedThrottler implements ThrottlerInterface
      *
      * @return bool
      */
-    public function isExceeded($ipAddress): bool
+    public function isExceeded(string $ipAddress): bool
     {
         if ($this->memcached->get($this->prefix . $ipAddress . ':lockout') !== false) {
             return true;
@@ -108,7 +108,7 @@ class MemcachedThrottler implements ThrottlerInterface
      *
      * @return int
      */
-    public function increment($ipAddress, $decayMinutes = 1): int
+    public function increment(string $ipAddress, $decayMinutes = 1): int
     {
         return (int)$this->memcached->increment($this->prefix . $ipAddress, 1, 1, time() + ($decayMinutes * 60));
     }
@@ -118,9 +118,9 @@ class MemcachedThrottler implements ThrottlerInterface
      *
      * @param string $ipAddress
      *
-     * @return mixed
+     * @return int
      */
-    public function attempts($ipAddress): int
+    public function attempts(string $ipAddress): int
     {
         return $this->memcached->get($this->prefix . $ipAddress);
     }
@@ -132,7 +132,7 @@ class MemcachedThrottler implements ThrottlerInterface
      *
      * @return bool true on success or false on failure.
      */
-    public function resetAttempts($ipAddress): bool
+    public function resetAttempts(string $ipAddress): bool
     {
         return $this->memcached->delete($this->prefix . $ipAddress);
     }
@@ -145,7 +145,7 @@ class MemcachedThrottler implements ThrottlerInterface
      *
      * @return int
      */
-    public function retriesLeft($ipAddress, $maxAttempts): int
+    public function retriesLeft(string $ipAddress, int $maxAttempts): int
     {
         $attempts = $this->attempts($ipAddress);
         return $attempts === 0 ? $maxAttempts : $maxAttempts - $attempts + 1;
@@ -158,7 +158,7 @@ class MemcachedThrottler implements ThrottlerInterface
      *
      * @return void
      */
-    public function clear($ipAddress)
+    public function clear(string $ipAddress)
     {
         $this->resetAttempts($ipAddress);
         $this->memcached->delete($this->prefix . $ipAddress . ':lockout');
@@ -171,7 +171,7 @@ class MemcachedThrottler implements ThrottlerInterface
      *
      * @return int
      */
-    public function availableIn($ipAddress): int
+    public function availableIn(string $ipAddress): int
     {
         return $this->memcached->get($this->prefix . $ipAddress . ':lockout') - time();
     }

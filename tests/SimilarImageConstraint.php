@@ -215,12 +215,12 @@ class SimilarImageConstraint extends Constraint
      *
      * See http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html
      *
-     * @param $hash1
-     * @param $hash2
+     * @param string $hash1
+     * @param string $hash2
      *
      * @return int the number of bits different between two hash values.
      */
-    private function dHashDistance($hash1, $hash2): int
+    private function dHashDistance(string $hash1, string $hash2): int
     {
         // Nibble lookup table to reduce computation time, see https://stackoverflow.com/a/25808559/1480019
         $nibbleLookup = [0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4];

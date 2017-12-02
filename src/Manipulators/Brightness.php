@@ -18,7 +18,7 @@ class Brightness extends BaseManipulator
      */
     public function run(Image $image): Image
     {
-        if (!$this->bri) {
+        if ($this->bri === null) {
             return $image;
         }
 
