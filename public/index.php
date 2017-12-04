@@ -551,6 +551,12 @@ if (!empty($_GET['url'])) {
                                 <td><a href="#height-h">info</a></td>
                             </tr>
                             <tr>
+                                <td>Device pixel ratio</td>
+                                <td><code>dpr</code></td>
+                                <td>Sets the output density of the image.</td>
+                                <td><a href="#dpr">info</a></td>
+                            </tr>
+                            <tr>
                                 <td>Orientation</td>
                                 <td><code>or</code></td>
                                 <td>Rotates the image.</td>
@@ -677,6 +683,11 @@ if (!empty($_GET['url'])) {
                     <p>Sets the height of the image, in pixels.</p>
                     <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;h=300"&gt;</code></pre>
                     <a href="//$url/?url=$exampleImage&amp;h=300"><img src="//$url/?url=$exampleImage&amp;h=300" alt=""/></a>
+                    <h3 id="dpr">Device pixel ratio <code>&amp;dpr=</code> <span class="new">New!</span></h3>
+                    <p>The device pixel ratio is used to easily convert between CSS pixels and device pixels. This makes it possible to display images at the correct pixel density on a variety of devices such as Apple devices with Retina Displays and Android devices. You must specify either a width, a height, or both for this parameter to work. Use values between <code>1</code> and <code>8</code>.</p>
+                    <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/115">Issue #115 - DPI support</a>.</p>
+                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;h=144&amp;dpr=2"&gt;</code></pre>
+                    <a href="//$url/?url=$exampleImage&amp;h=144&amp;dpr=2"><img src="//$url/?url=$exampleImage&amp;h=144&amp;dpr=2" alt=""/></a>
                 </section>
                 <section id="orientation" class="goto">
                     <h1>Orientation</h1>
@@ -738,9 +749,9 @@ if (!empty($_GET['url'])) {
                 <section id="shape" class="goto">
                     <h1>Shape</h1>
                     <h3 id="shape-shape">Shape <code>&amp;shape=</code></h3>
-                    <p>Crops the image to a specific shape. Use <code>strim</code> to also remove the remaining whitespace. More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/49">Issue #49 - Add circle effect to photos</a>.</p>
+                    <p>Crops the image to a specific shape. Use <code>&amp;strim</code> to also remove the remaining whitespace. More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/49">Issue #49 - Add circle effect to photos</a>.</p>
                     <div class="notices note">
-                        <p>Previously the <code>strim</code> parameter was enabled by default. In December 2017 it was changed to an optional parameter to be more consistent with other features.</p>
+                        <p>Previously the <code>&amp;strim</code> parameter was enabled by default. In December 2017 it was changed to an optional parameter to be more consistent with other features.</p>
                     </div>
                     <h4 id="shape-accepts">Accepts:</h4>
                     <ul>

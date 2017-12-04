@@ -4,7 +4,7 @@ namespace AndriesLouw\imagesweserv\Manipulators\Helpers;
 
 class Color
 {
-    /*
+    /**
      * The 140 color names supported by all modern browsers.
      *
      * @var array

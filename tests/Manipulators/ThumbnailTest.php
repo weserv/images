@@ -619,4 +619,12 @@ class ThumbnailTest extends ImagesweservTestCase
         $this->assertSame('fit', $this->manipulator->setParams(['t' => 'invalid'])->getFit());
         $this->assertSame('fit', $this->manipulator->setParams(['t' => null])->getFit());
     }
+
+    public function testGetDpr()
+    {
+        $this->assertSame(1.0, $this->manipulator->setParams(['dpr' => 'invalid'])->getDpr());
+        $this->assertSame(1.0, $this->manipulator->setParams(['dpr' => '-1'])->getDpr());
+        $this->assertSame(1.0, $this->manipulator->setParams(['dpr' => '9'])->getDpr());
+        $this->assertSame(2.0, $this->manipulator->setParams(['dpr' => '2'])->getDpr());
+    }
 }

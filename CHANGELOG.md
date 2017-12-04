@@ -9,10 +9,13 @@ Requires libvips v8.6.0.
 
 ### Note
 With the feedback that you've provided we can successfully close the following issues/enhancements: 
-[#13](https://github.com/andrieslouw/imagesweserv/issues/13), [#15](https://github.com/andrieslouw/imagesweserv/issues/15), [#37](https://github.com/andrieslouw/imagesweserv/issues/37), [#62](https://github.com/andrieslouw/imagesweserv/issues/62), [#68](https://github.com/andrieslouw/imagesweserv/issues/68), [#69](https://github.com/andrieslouw/imagesweserv/issues/69), [#70](https://github.com/andrieslouw/imagesweserv/issues/70), [#75](https://github.com/andrieslouw/imagesweserv/issues/75), [#76](https://github.com/andrieslouw/imagesweserv/issues/76), [#78](https://github.com/andrieslouw/imagesweserv/issues/78), [#80](https://github.com/andrieslouw/imagesweserv/issues/80), [#81](https://github.com/andrieslouw/imagesweserv/issues/81) and [#90](https://github.com/andrieslouw/imagesweserv/issues/90). 
+[#13](https://github.com/andrieslouw/imagesweserv/issues/13), [#15](https://github.com/andrieslouw/imagesweserv/issues/15), [#37](https://github.com/andrieslouw/imagesweserv/issues/37), [#62](https://github.com/andrieslouw/imagesweserv/issues/62), [#68](https://github.com/andrieslouw/imagesweserv/issues/68), [#69](https://github.com/andrieslouw/imagesweserv/issues/69), [#70](https://github.com/andrieslouw/imagesweserv/issues/70), [#75](https://github.com/andrieslouw/imagesweserv/issues/75), [#76](https://github.com/andrieslouw/imagesweserv/issues/76), [#78](https://github.com/andrieslouw/imagesweserv/issues/78), [#80](https://github.com/andrieslouw/imagesweserv/issues/80), [#81](https://github.com/andrieslouw/imagesweserv/issues/81), [#90](https://github.com/andrieslouw/imagesweserv/issues/90), [#106](https://github.com/andrieslouw/imagesweserv/issues/106) and [#115](https://github.com/andrieslouw/imagesweserv/issues/115). 
 Thanks for your support!
 
 ### Added
+#### Size
+- Device pixel ratio `&dpr=`. See [#115](https://github.com/andrieslouw/imagesweserv/issues/115) for more info.
+
 #### Transformation
 - Letterboxing `&t=letterbox`. See [#80](https://github.com/andrieslouw/imagesweserv/issues/80) for more info.
 

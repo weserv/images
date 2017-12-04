@@ -13,6 +13,7 @@ use Jcupitt\Vips\Size;
  * @property string $t
  * @property string|int $w
  * @property string|int $h
+ * @property string $dpr
  * @property string $a
  * @property string $tmpFileName
  * @property string $page
@@ -82,8 +83,6 @@ class Thumbnail extends BaseManipulator
         $this->w = (int)$this->w;
         $this->h = (int)$this->h;
 
-        $fit = $this->getFit();
-
         // Width and height should never be less than zero
         if ($this->w < 0) {
             $this->w = 0;
@@ -92,10 +91,12 @@ class Thumbnail extends BaseManipulator
             $this->h = 0;
         }
 
+        list($this->w, $this->h) = $this->applyDpr($this->w, $this->h, $this->getDpr());
+
         // Check if image size is greater then the maximum allowed image size after dimension is resolved
         $this->checkImageSize($image, $this->w, $this->h);
 
-        $image = $this->doThumbnail($image, $fit, $this->w, $this->h);
+        $image = $this->doThumbnail($image, $this->getFit(), $this->w, $this->h);
 
         return $image;
     }
@@ -135,6 +136,44 @@ class Thumbnail extends BaseManipulator
         }
 
         return 'fit';
+    }
+
+    /**
+     * Resolve the device pixel ratio.
+     *
+     * @return float The device pixel ratio.
+     */
+    public function getDpr(): float
+    {
+        if (!is_numeric($this->dpr)) {
+            return 1.0;
+        }
+
+        if ($this->dpr < 0 || $this->dpr > 8) {
+            return 1.0;
+        }
+
+        return (float)$this->dpr;
+    }
+
+    /**
+     * Apply the device pixel ratio.
+     *
+     * @param int $width The target image width.
+     * @param int $height The target image height.
+     * @param float $dpr The device pixel ratio.
+     *
+     * @return int[] The modified width and height.
+     */
+    public function applyDpr(int $width, int $height, float $dpr): array
+    {
+        $width *= $dpr;
+        $height *= $dpr;
+
+        return [
+            (int)$width,
+            (int)$height,
+        ];
     }
 
     /**
