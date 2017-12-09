@@ -53,6 +53,10 @@ class Crop extends BaseManipulator
 
                 $image = $image->crop($left, $top, $minWidth, $minHeight);
             }
+
+            // Update to actual image dimensions
+            $imageWidth = $minWidth;
+            $imageHeight = $minHeight;
         }
 
         $coordinates = $this->resolveCropCoordinates($imageWidth, $imageHeight);

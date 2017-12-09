@@ -328,7 +328,7 @@ class Thumbnail extends BaseManipulator
         $thumbnailOptions['height'] = $targetResizeHeight;
 
         if ($fit === 'absolute') {
-            $thumbnailOptions['size'] = 'force';
+            $thumbnailOptions['size'] = Size::FORCE;
         } else {
             $thumbnailOptions['size'] = $this->withoutEnlargement($fit) ? Size::DOWN : Size::BOTH;
         }
