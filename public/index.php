@@ -870,7 +870,7 @@ if (!empty($_GET['url'])) {
             </section>
             <section>
                 <h2 id="output" class="param">Output</h2><code>&amp;output=</code>
-                <p>Encodes the image to a specific format. Accepts <code>jpg</code>, <code>png</code>, <code>gif</code> or <code>webp</code>. If none is given, it will honor the origin image format.</p>
+                <p>Encodes the image to a specific format. Accepts <code>jpg</code>, <code>png</code>, <code>gif</code>, <code>tiff</code> or <code>webp</code>. If none is given, it will honor the origin image format.</p>
                 <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/62">Issue #62 - Format conversion</a>.</p>
                 <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;output=webp"&gt;</code></pre>
                 <a href="//$url/?url=$exampleImage&amp;w=300&amp;output=webp"><img src="//$url/?url=$exampleImage&amp;w=300&amp;output=webp" alt=""/></a>
