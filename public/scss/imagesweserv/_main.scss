@@ -1,21 +1,14 @@
 #body {
-  position: relative;
+  padding: 20px;
+  margin-bottom: 5rem;
   margin-left: $sidebar-width;
   min-height: 100%;
-}
-
-#body-inner {
-  margin-bottom: 5rem;
 }
 
 #footer {
   text-align: center;
   color: darken($sidebar-link, 10%);
   font-size: 13px;
-
-  p {
-    margin: 0;
-  }
 
   a {
     color: darken($sidebar-link, 10%);

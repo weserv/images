@@ -24,7 +24,7 @@ class Utils
     /**
      * Are pixel values in this image 16-bit integer?
      *
-     * @param  string $interpretation The VipsInterpretation
+     * @param string $interpretation The VipsInterpretation
      *
      * @return bool indicating if the pixel values in this image are 16-bit
      */
@@ -37,7 +37,7 @@ class Utils
     /**
      * Does this image have an embedded profile?
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
      *
      * @return bool indicating if this image have an embedded profile
      */
@@ -50,7 +50,7 @@ class Utils
      * Return the image alpha maximum. Useful for combining alpha bands. scRGB
      * images are 0 - 1 for image data, but the alpha is 0 - 255.
      *
-     * @param  string $interpretation The VipsInterpretation
+     * @param string $interpretation The VipsInterpretation
      *
      * @return int the image alpha maximum
      */
@@ -64,6 +64,8 @@ class Utils
      *
      * @param Image $image The source image.
      *
+     * @throws \Jcupitt\Vips\Exception
+     *
      * @return int EXIF Orientation
      */
     public static function exifOrientation(Image $image): int
@@ -75,190 +77,136 @@ class Utils
     }
 
     /**
-     * Calculate the angle of rotation and need-to-flip for the output image.
-     * Removes the EXIF orientation header if the image contains one.
+     * Resolve an explicit angle.
      *
-     * In order of priority:
-     *  1. Check the rotation and mirroring of the EXIF orientation header
-     *     and init the $rotate variable, $flip and the $flop variable.
-     *  2. Removes the EXIF orientation header if the image contains one.
-     *  3. Add explicitly requested angle (supports 90, 180, 270) to the $rotate variable
-     *     (e.g. if the image is already rotated 90 degrees due to EXIF orientation header and
-     *     the user wants also to rotate 90 degrees then we need to rotate 180 degrees).
-     *  4. If the rotation is 360 degrees then add no rotation.
-     *  5. Subtract 360 degrees if the rotation is higher than 270
-     *     (this ensures that we have a valid rotation).
-     *  6. If there's no EXIF orientation header and no explicitly requested angle
-     *     then default the $rotate variable to zero, i.e. no rotation.
+     * If an angle is provided, it is converted to a valid 90/180/270deg rotation.
+     * For example, `-450` will produce a 270deg rotation.
      *
-     * @param  array $params Image manipulation params.
-     * @param  Image $image The source image.
+     * @param string|int $angle Angle of rotation, must be a multiple of 90.
+     *
+     * @return int rotation
+     */
+    public static function resolveAngleRotation($angle): int
+    {
+        if (!is_numeric($angle)) {
+            return 0;
+        }
+
+        // Check if is not a multiple of 90
+        if ($angle % 90 !== 0) {
+            return 0;
+        }
+
+        // Calculate the rotation for the given angle that is a multiple of 90
+        $angle %= 360;
+
+        if ($angle < 0) {
+            $angle += 360;
+        }
+
+        return $angle;
+    }
+
+    /**
+     * Calculate the angle of rotation and need-to-flip for the given exif orientation
+     * and parameters
+     *
+     * @param Image $image The source image.
+     * @param  array $params Parameters array
+     *
+     * @throws \Jcupitt\Vips\Exception
      *
      * @return array [rotation, flip, flop]
      */
-    public static function calculateRotationAndFlip(array $params, Image $image): array
+    public static function resolveRotationAndFlip(Image $image, array $params): array
     {
-        $angle = 0;
-        if (isset($params['or']) && (
-                $params['or'] === '90' ||
-                $params['or'] === '180' ||
-                $params['or'] === '270')
-        ) {
-            $angle = (int)$params['or'];
-        }
-
-        $rotate = 0;
-        $flip = false;
-        $flop = false;
+        $rotate = isset($params['or']) ? self::resolveAngleRotation($params['or']) : 0;
+        $flip = isset($params['flip']) || array_key_exists('flip', $params);
+        $flop = isset($params['flop']) || array_key_exists('flop', $params);
 
         $exifOrientation = self::exifOrientation($image);
-
-        // First auto-rotate the image if the image has the EXIF orientation header.
-        // We could use `$image->autorot();` if it's supports the the various mirror modes.
-        // Currently it doesn't support that so we need to check it by our self.
         switch ($exifOrientation) {
             case 6:
-                $rotate = 90;
+                $rotate += 90;
                 break;
             case 3:
-                $rotate = 180;
+                $rotate += 180;
                 break;
             case 8:
-                $rotate = 270;
+                $rotate += 270;
                 break;
             case 2: // flop 1
                 $flop = true;
                 break;
             case 7: // flip 6
                 $flip = true;
-                $rotate = 90;
+                $rotate += 90;
                 break;
             case 4: // flop 3
                 $flop = true;
-                $rotate = 180;
+                $rotate += 180;
                 break;
             case 5: // flip 8
                 $flip = true;
-                $rotate = 270;
+                $rotate += 270;
                 break;
         }
 
-        // Remove EXIF Orientation from image, if required.
-        if ($exifOrientation !== 0) {
-            $image->remove(self::VIPS_META_ORIENTATION);
-        }
-
-        // Add explicitly requested angle (supports 90, 180, 270) to the $rotate variable.
-        if ($angle === 90 || $angle === 180 || $angle === 270) {
-            $rotate += $angle;
-        }
-
-        // If the rotation is 360 degrees then add no rotation.
-        if ($rotate === 360) {
-            $rotate = 0;
-        }
-
-        // Subtract 360 degrees if the rotation is higher than 270.
-        if ($rotate > 270) {
-            $rotate -= 360;
-        }
+        $rotate %= 360;
 
         return [$rotate, $flip, $flop];
     }
 
     /**
-     * Convert a number range to another range, maintaining ratio
-     *
-     * @param int $value
-     * @param int $in_min
-     * @param int $in_max
-     * @param int $out_min
-     * @param int $out_max
-     *
-     * @return float
-     */
-    public static function mapToRange(int $value, int $in_min, int $in_max, int $out_min, int $out_max): float
-    {
-        return (float)($value - $in_min) * ($out_max - $out_min) / ($in_max - $in_min) + $out_min;
-    }
-
-    /**
      * Determine image extension from the name of the load operation
      *
-     * @param string|null $loader The name of the load operation
+     * @param string $loader The name of the load operation
      *
-     * @return string image type
+     * @return string image extension
      */
-    public static function determineImageExtension($loader)
+    public static function determineImageExtension(string $loader): string
     {
+        $extension = 'unknown';
+
         switch ($loader) {
-            case 'VipsForeignLoadJpegFile':
-                return 'jpg';
-            case 'VipsForeignLoadPng':
-                return 'png';
-            case 'VipsForeignLoadWebpFile':
-                return 'webp';
-            case 'VipsForeignLoadTiffFile':
-                return 'tiff';
-            case 'VipsForeignLoadGifFile':
-                return 'gif';
-            case 'VipsForeignLoadSvgFile':
-                return 'svg';
-            case 'VipsForeignLoadPdfFile':
-                return 'pdf';
-            case 'VipsForeignLoadRaw':
-                return 'raw';
-            case 'VipsForeignLoadMagickFile':
-                // Not a extension
-                return 'magick';
-            case 'VipsForeignLoadOpenexr':
-                return 'exr';
-            case 'VipsForeignLoadMat':
-                return 'mat';
-            case 'VipsForeignLoadRad':
-                return 'hdr';
-            case 'VipsForeignLoadPpm':
-                return 'ppm';
-            case 'VipsForeignLoadFits':
-                return 'fits';
-            case 'VipsForeignLoadVips':
-                return 'v';
-            case 'VipsForeignLoadAnalyze':
-                return 'img';
-            case 'VipsForeignLoadCsv':
-                return 'csv';
-            case 'VipsForeignLoadMatrix':
-                return 'txt';
-            default:
-                return 'unknown';
+            case 'jpegload':
+                $extension = 'jpg';
+                break;
+            case 'pngload':
+                $extension = 'png';
+                break;
+            case 'webpload':
+                $extension = 'webp';
+                break;
+            case 'tiffload':
+                $extension = 'tiff';
+                break;
+            case 'gifload':
+                $extension = 'gif';
+                break;
         }
+
+        return $extension;
     }
 
     /**
-     * http://stackoverflow.com/questions/5501427/php-filesize-mb-kb-conversion
+     * https://stackoverflow.com/questions/2510434/format-bytes-to-kilobytes-megabytes-gigabytes
      *
      * @param int $bytes
+     * @param int $precision
      *
      * @return string
      */
-    public static function formatSizeUnits(int $bytes): string
+    public static function formatBytes(int $bytes, int $precision = 2): string
     {
-        if ($bytes >= 1073741824) {
-            return number_format($bytes / 1073741824, 2) . ' GB';
-        }
-        if ($bytes >= 1048576) {
-            return number_format($bytes / 1048576, 2) . ' MB';
-        }
-        if ($bytes >= 1024) {
-            return number_format($bytes / 1024, 2) . ' KB';
-        }
-        if ($bytes > 1) {
-            return $bytes . ' bytes';
-        }
-        if ($bytes === 1) {
-            return '1 byte';
-        }
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
-        return '0 bytes';
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, \count($units) - 1);
+
+        $bytes /= 1024 ** $pow;
+
+        return round($bytes, $precision) . ' ' . $units[$pow];
     }
 }

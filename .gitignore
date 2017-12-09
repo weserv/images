@@ -1,4 +1,17 @@
+# Composer
 vendor
+
+# IntelliJ
 .idea
-/cronjob.php
+
+# SASS cache files
+.sass-cache
+
+# PHPUnit
+/phpunit.xml
+
+# User-specific stuff
+/cronjob-redis.php
+/cronjob-memcached.php
 /config.php
+/GenerateExpectedFixtures.php

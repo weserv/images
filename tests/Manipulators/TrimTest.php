@@ -1,23 +1,36 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Manipulators;
+namespace AndriesLouw\imagesweserv\Test\Manipulators;
 
+use AndriesLouw\imagesweserv\Api\Api;
+use AndriesLouw\imagesweserv\Client;
+use AndriesLouw\imagesweserv\Manipulators\Trim;
+use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
 use Jcupitt\Vips\Image;
-use Mockery;
-use PHPUnit\Framework\TestCase;
+use Mockery\MockInterface;
 
-class TrimTest extends TestCase
+class TrimTest extends ImagesweservTestCase
 {
+    /**
+     * @var Client|MockInterface
+     */
+    private $client;
+
+    /**
+     * @var Api
+     */
+    private $api;
+
+    /**
+     * @var Trim
+     */
     private $manipulator;
 
     public function setUp()
     {
+        $this->client = $this->getMockery(Client::class);
+        $this->api = new Api($this->client, $this->getManipulators());
         $this->manipulator = new Trim();
-    }
-
-    public function tearDown()
-    {
-        Mockery::close();
     }
 
     public function testCreateInstance()
@@ -25,81 +38,115 @@ class TrimTest extends TestCase
         $this->assertInstanceOf(Trim::class, $this->manipulator);
     }
 
-    public function testRun()
+    public function testTrim()
     {
-        $image = Mockery::mock('Jcupitt\Vips\Image[more, __get]', [''], function ($mock) {
-            $mock->shouldReceive('__get')
-                ->with('bands')
-                ->andReturn(3)
-                ->times(10);
-
-            $mock->shouldReceive('__get')
-                ->with('width')
-                ->andReturn(100)
-                ->twice();
-
-            $mock->shouldReceive('__get')
-                ->with('height')
-                ->andReturn(100)
-                ->twice();
-
-            $mock->shouldReceive('getpoint')
-                ->with(0, 0)
-                ->andReturn([0])
-                ->once();
-
-            $mock->shouldReceive('rank')
-                ->with(Mockery::any(), Mockery::any(), Mockery::any())
-                ->andReturnSelf()
-                ->once();
-
-            $mock->shouldReceive('linear')
-                ->with(1, [0], [])
-                ->andReturnSelf()
-                ->once();
-
-            $mock->shouldReceive('abs')
-                ->andReturnSelf()
-                ->once();
-
-            $mock->shouldReceive('more')
-                ->with(10)
-                ->andReturnSelf()
-                ->once();
-
-            $mock->shouldReceive('project')
-                ->andReturnSelf()
-                ->once();
-
-            $mock->shouldReceive('profile')
-                ->andReturnSelf()
-                ->times(4);
-
-            $mock->shouldReceive('flip')
-                ->andReturnSelf()
-                ->twice();
-
-            $mock->shouldReceive('min')
-                ->andReturn(0)
-                ->times(4);
-
-            $mock->shouldReceive('extract_band')
-                ->with(Mockery::any())
-                ->andReturnSelf();
-
-            $mock->shouldReceive('crop')
-                ->with(0, 0, 100, 100)
-                ->andReturnSelf();
-        });
-
+        $testImage = $this->inputPngOverlayLayer1;
+        $expectedImage = $this->expectedDir . '/alpha-layer-1-fill-trim-resize.png';
         $params = [
-            'trim' => '10',
-            'hasAlpha' => false,
-            'is16Bit' => false,
-            'isPremultiplied' => false,
+            'w' => '450',
+            'h' => '322',
+            't' => 'square',
+            'trim' => '25'
         ];
 
-        $this->assertInstanceOf(Image::class, $this->manipulator->setParams($params)->run($image));
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
+
+        $this->assertEquals(450, $image->width);
+        $this->assertEquals(322, $image->height);
+        $this->assertTrue($image->hasAlpha());
+
+        $this->assertSimilarImage($expectedImage, $image);
+    }
+
+    public function testTrim16bitWithTransparency()
+    {
+        $testImage = $this->inputPngWithTransparency16bit;
+        $expectedImage = $this->expectedDir . '/trim-16bit-rgba.png';
+        $params = [
+            'w' => '32',
+            'h' => '32',
+            't' => 'square',
+            'trim' => '10'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
+
+        $this->assertEquals(4, $image->bands);
+        $this->assertEquals(32, $image->width);
+        $this->assertEquals(32, $image->height);
+        $this->assertTrue($image->hasAlpha());
+        $this->assertSimilarImage($expectedImage, $image);
+    }
+
+    public function testTrimSkipShrinkOnLoad()
+    {
+        $testImage = $this->inputJpgOverlayLayer2;
+        $expectedImage = $this->expectedDir . '/alpha-layer-2-trim-resize.jpg';
+        $params = [
+            'w' => '300',
+            'trim' => '10'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        // @var Image $image
+        $image = $this->api->run($uri, $params);
+
+        $this->assertEquals(300, $image->width);
+        $this->assertEquals(300, $image->height);
+        $this->assertFalse($image->hasAlpha());
+        $this->assertSimilarImage($expectedImage, $image);
+    }
+
+    /**
+     * @expectedException \PHPUnit\Framework\Error\Warning
+     */
+    public function testAggressiveTrimTriggersError()
+    {
+        $testImage = $this->inputPngOverlayLayer0;
+        $params = [
+            'trim' => '200'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        $this->api->run($uri, $params);
+    }
+
+    public function testAggressiveTrimReturnsOriginalImage()
+    {
+        $testImage = $this->inputPngOverlayLayer0;
+        $params = [
+            'trim' => '200'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        /** @var Image $image */
+        $image = @$this->api->run($uri, $params);
+
+        // Check if dimensions is unchanged
+        $this->assertEquals(2048, $image->width);
+        $this->assertEquals(1536, $image->height);
+
+        // Check if the image is unchanged
+        $this->assertSimilarImage($testImage, $image);
     }
 
     public function testGetTrim()

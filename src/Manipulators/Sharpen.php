@@ -8,7 +8,6 @@ use Jcupitt\Vips\Interpretation;
 
 /**
  * @property string $sharp
- * @property bool $hasAlpha
  * @property bool $isPremultiplied
  * @property string $accessMethod
  */
@@ -17,7 +16,9 @@ class Sharpen extends BaseManipulator
     /**
      * Perform sharpen image manipulation.
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
+     *
+     * @throws \Jcupitt\Vips\Exception
      *
      * @return Image The manipulated image.
      */
@@ -27,10 +28,8 @@ class Sharpen extends BaseManipulator
             return $image;
         }
 
-        if ($this->hasAlpha && !$this->isPremultiplied) {
-            // Premultiply image alpha channel before sharpen transformation to avoid
-            // dark fringing around bright pixels
-            // See: http://entropymine.com/imageworsener/resizealpha/
+        if (!$this->isPremultiplied && $image->hasAlpha()) {
+            // Premultiply image alpha channel before sharpen transformation
             $image = $image->premultiply();
             $this->isPremultiplied = true;
         }
@@ -45,32 +44,37 @@ class Sharpen extends BaseManipulator
     /**
      * Resolve sharpen amount.
      *
-     * @return array The resolved sharpen amount.
+     * @return float[] The resolved sharpen amount.
+     *
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function getSharpen(): array
     {
         $sharpPieces = explode(',', $this->sharp);
-        $sharpenFlat = 1;
-        $sharpenJagged = 2;
+        $sharpenFlat = 1.0;
+        $sharpenJagged = 2.0;
         $sharpenSigma = -1.0;
 
+        // Control over flat areas
         if (isset($sharpPieces[0])) {
-            $flat = (int)$sharpPieces[0];
+            $flat = (float)$sharpPieces[0];
             if ($flat > 0 && $flat <= 10000) {
                 $sharpenFlat = $flat;
             }
         }
 
+        // Control over jagged areas
         if (isset($sharpPieces[1])) {
-            $jagged = (int)$sharpPieces[1];
+            $jagged = (float)$sharpPieces[1];
             if ($jagged > 0 && $jagged <= 10000) {
                 $sharpenJagged = $jagged;
             }
         }
 
+        // Specific sigma
         if (isset($sharpPieces[2])) {
             $sigma = (float)$sharpPieces[2];
-            if ($sigma >= 0.01 && $sigma <= 10000) {
+            if ($sigma > 0 && $sigma <= 10000) {
                 $sharpenSigma = $sigma;
             }
         }
@@ -81,25 +85,24 @@ class Sharpen extends BaseManipulator
     /**
      * Sharpen flat and jagged areas. Use sigma of -1.0 for fast sharpen.
      *
-     * @param  Image $image The source image.
-     * @param  float $sigma Sharpening mask to apply in pixels, but comes at a performance cost. (Default: -1)
-     * @param  int $flat Sharpening to apply to flat areas. (Default: 1.0)
-     * @param  int $jagged Sharpening to apply to jagged areas. (Default: 2.0)
+     * @param Image $image The source image.
+     * @param float $sigma Sharpening mask to apply in pixels, but comes at a performance cost. (Default: -1)
+     * @param float $flat Sharpening to apply to flat areas. (Default: 1.0)
+     * @param float $jagged Sharpening to apply to jagged areas. (Default: 2.0)
+     *
+     * @throws \Jcupitt\Vips\Exception
      *
      * @return Image The manipulated image.
      */
-    public function sharpen($image, $sigma, $flat, $jagged): Image
+    public function sharpen(Image $image, float $sigma, float $flat, float $jagged): Image
     {
         if ($sigma === -1.0) {
             // Fast, mild sharpen
-            $matrix = Image::newFromArray(
-                [
-                    [-1.0, -1.0, -1.0],
-                    [-1.0, 32, -1.0],
-                    [-1.0, -1.0, -1.0]
-                ],
-                24.0
-            );
+            $matrix = Image::newFromArray([
+                [-1.0, -1.0, -1.0],
+                [-1.0, 32, -1.0],
+                [-1.0, -1.0, -1.0]
+            ], 24.0);
 
             return $image->conv($matrix);
         }
@@ -111,7 +114,6 @@ class Sharpen extends BaseManipulator
         }
 
         if ($this->accessMethod === Access::SEQUENTIAL) {
-            // TODO Figure out how many scanline(s) ('tile_height') it will need.
             $image = $image->linecache([
                 'tile_height' => 10,
                 'access' => Access::SEQUENTIAL,
@@ -119,12 +121,10 @@ class Sharpen extends BaseManipulator
             ]);
         }
 
-        return $image->sharpen(
-            [
-                'sigma' => $sigma,
-                'm1' => $flat,
-                'm2' => $jagged
-            ]
-        )->colourspace($oldInterpretation);
+        return $image->sharpen([
+            'sigma' => $sigma,
+            'm1' => $flat,
+            'm2' => $jagged
+        ])->colourspace($oldInterpretation);
     }
 }

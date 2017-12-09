@@ -1,0 +1,35 @@
+version: "2"
+checks:
+  method-lines:
+    config:
+      threshold: 100
+  argument-count:
+    enabled: false
+  method-complexity:
+    config:
+      threshold: 10
+  complex-logic:
+    config:
+      threshold: 10
+plugins:
+  duplication:
+    enabled: true
+    config:
+      languages:
+        php:
+          mass_threshold: 90
+  fixme:
+    enabled: true
+    config:
+      strings:
+      - TODO
+      - FIXME
+      - BUG
+  phpmd:
+    enabled: true
+    config:
+      rulesets: phpmd.xml
+exclude_patterns:
+- "config/"
+- "public/"
+- "tests/"

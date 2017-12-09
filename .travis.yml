@@ -7,17 +7,20 @@ dist: trusty
 php:
   - 7.0.13
   - 7.1
+  - 7.2
 
 env:
   global:
-    - VIPS_VERSION_MAJOR=8
-    - VIPS_VERSION_MINOR=5
-    - VIPS_VERSION_MICRO=7
+    - VIPS_VERSION=8.6.0
+    - VIPS_TAR_VERSION=$VIPS_VERSION
+    - VIPS_WARNING=0
     - PATH=$HOME/vips/bin:$PATH
     - LD_LIBRARY_PATH=$HOME/vips/lib:$LD_LIBRARY_PATH
     - PKG_CONFIG_PATH=$HOME/vips/lib/pkgconfig:$PKG_CONFIG_PATH
     - PYTHONPATH=$HOME/vips/lib/python2.7/site-packages:$PYTHONPATH
     - GI_TYPELIB_PATH=$HOME/vips/lib/girepository-1.0:$GI_TYPELIB_PATH
+    - CC_TEST_REPORTER_ID=d7d9e0ca223ad571f837ce20b4da80e054a5cbc833b41145b9bc97e496a1910b
+    - GIT_COMMITTED_AT=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then git log -1 --pretty=format:%ct; else git log -1 --skip 1 --pretty=format:%ct; fi)
 
 cache:
   apt: true
@@ -28,7 +31,10 @@ cache:
 addons:
   apt:
     packages:
-      - gobject-introspection
+      - libexpat1-dev
+      - liblcms2-dev
+      - libmagickwand-dev
+      - libopenexr-dev
       - libcfitsio3-dev
       - libfftw3-dev
       - libgif-dev
@@ -39,21 +45,31 @@ addons:
       - liborc-0.4-dev
       - libpango1.0-dev
       - libpoppler-glib-dev
+      - librsvg2-dev
       - libwebp-dev
+      - libglib2.0-dev
 
 before_install:
-  - bash install-vips.sh 
-    --disable-debug 
-    --disable-dependency-tracking 
-    --disable-introspection 
-    --disable-static 
-    --enable-gtk-doc-html=no 
-    --enable-gtk-doc=no 
-    --enable-pyvips8=no 
-    --without-orc 
+  - bash install-vips.sh
+    --disable-debug
+    --disable-dependency-tracking
+    --disable-introspection
+    --disable-static
+    --enable-gtk-doc-html=no
+    --enable-gtk-doc=no
+    --enable-pyvips8=no
+    --without-orc
     --without-python
   - yes '' | pecl install vips
 
 install: composer install --prefer-dist
 
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+
 script: composer test
+
+after_success:
+  # Send test coverage to Code Climate
+  - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./cc-test-reporter after-build -t clover --exit-code $TRAVIS_TEST_RESULT; fi

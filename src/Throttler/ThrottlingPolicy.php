@@ -2,10 +2,10 @@
 
 namespace AndriesLouw\imagesweserv\Throttler;
 
-use Cloudflare\Exception\AuthenticationException;
-use Cloudflare\Exception\UnauthorizedException;
-use Cloudflare\Zone\Firewall\AccessRules;
+use Cloudflare\API\Adapter\ResponseException;
+use Cloudflare\API\Endpoints\AccessRules;
 use DateTime;
+use GuzzleHttp\Exception\RequestException;
 
 class ThrottlingPolicy
 {
@@ -17,12 +17,21 @@ class ThrottlingPolicy
     protected $config;
 
     /**
+     * AccessRules instance.
+     *
+     * @var AccessRules
+     */
+    protected $accessRules;
+
+    /**
      * Create a new ThrottlerPolicy instance.
      *
+     * @param AccessRules $accessRules
      * @param array $config
      */
-    public function __construct(array $config)
+    public function __construct(AccessRules $accessRules, array $config)
     {
+        $this->accessRules = $accessRules;
         $this->config = array_merge([
             'ban_time' => 60, // If exceed, ban for 60 minutes
             'cloudflare' => [
@@ -48,9 +57,9 @@ class ThrottlingPolicy
     /**
      * Is the CloudFlare provider enabled?
      *
-     * @return string
+     * @return bool
      */
-    public function isCloudFlareEnabled(): string
+    public function isCloudFlareEnabled(): bool
     {
         return $this->config['cloudflare']['enabled'];
     }
@@ -58,66 +67,61 @@ class ThrottlingPolicy
     /**
      * Ban or challenge (such as a CAPTCHA) at CloudFlare
      *
-     * @param string $ip
+     * @param string $ipAddress
      *
-     * @return string|bool CloudFlare rule id or false if the ban was unsuccessful
+     * @return bool indicating if the ban was successful
      */
-    public function banAtCloudFlare(string $ip)
+    public function banAtCloudFlare(string $ipAddress): bool
     {
         try {
-            // Create a connection to the CloudFlare API
-            $accessRule = new AccessRules($this->config['cloudflare']['email'],
-                $this->config['cloudflare']['auth_key']);
+            $config = new \Cloudflare\API\Configurations\AccessRules();
+            $config->setIP($ipAddress);
 
             // Ban
             // We're removing the ban with a cronjob if the ban time has exceeded
-            $response = $accessRule->create($this->config['cloudflare']['zone_id'], $this->config['cloudflare']['mode'],
-                [
-                    'target' => 'ip',
-                    'value' => $ip
-                ], 'Banned until ' . date(DateTime::ATOM, time() + ($this->config['ban_time'] * 60)));
+            $success = $this->accessRules->createRule(
+                $this->config['cloudflare']['zone_id'],
+                $this->config['cloudflare']['mode'],
+                $config,
+                'Banned until ' . date(DateTime::ATOM, time() + ($this->config['ban_time'] * 60))
+            );
 
-            if ($response->success) {
-                $blockRuleId = $response->result->id;
+            // Log it
+            trigger_error("Blocked: $ipAddress at CloudFlare. Success: $success", E_USER_WARNING);
 
-                // Log it
-                trigger_error("Blocked: $ip rule id: $blockRuleId", E_USER_WARNING);
-
-                return $blockRuleId;
-            }
-        } catch (AuthenticationException $e) {
-            trigger_error('AuthenticationException. Message: ' . $e->getMessage(), E_USER_WARNING);
-        } catch (UnauthorizedException $e) {
-            trigger_error('UnauthorizedException. Message: ' . $e->getMessage(), E_USER_WARNING);
+            return $success;
+        } catch (ResponseException $e) {
+            trigger_error('ResponseException. Message: ' . $e->getMessage(), E_USER_WARNING);
+        } catch (RequestException $e) {
+            trigger_error('RequestException. Message: ' . $e->getMessage(), E_USER_WARNING);
         }
+
         return false;
     }
 
     /**
-     * Unban a rule id by CloudFlare
+     * Unban a rule id from CloudFlare
      *
      * @param string $blockRuleId
+     *
      * @return bool indicating if the unban was successful
      */
     public function unbanAtCloudFlare(string $blockRuleId): bool
     {
         try {
-            // Create a connection to the CloudFlare API
-            $accessRule = new AccessRules($this->config['cloudflare']['email'],
-                $this->config['cloudflare']['auth_key']);
-
             // Unban
-            $response = $accessRule->delete_rule($this->config['cloudflare']['zone_id'], $blockRuleId);
+            $success = $this->accessRules->deleteRule($this->config['cloudflare']['zone_id'], $blockRuleId);
 
             // Log it
-            trigger_error("Removed rule id: $blockRuleId from CloudFlare", E_USER_WARNING);
+            trigger_error("Removed rule id: $blockRuleId from CloudFlare. Success: $success", E_USER_WARNING);
 
-            return $response->success;
-        } catch (AuthenticationException $e) {
-            trigger_error('AuthenticationException. Message: ' . $e->getMessage(), E_USER_WARNING);
-        } catch (UnauthorizedException $e) {
-            trigger_error('UnauthorizedException. Message: ' . $e->getMessage(), E_USER_WARNING);
+            return $success;
+        } catch (ResponseException $e) {
+            trigger_error('ResponseException. Message: ' . $e->getMessage(), E_USER_WARNING);
+        } catch (RequestException $e) {
+            trigger_error('RequestException. Message: ' . $e->getMessage(), E_USER_WARNING);
         }
+
         return false;
     }
 }

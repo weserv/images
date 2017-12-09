@@ -2,20 +2,20 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
+use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Image;
 
 /**
- * @property string $trim
- * @property bool $hasAlpha
- * @property bool $isPremultiplied
- * @property bool $is16Bit
+ * @property string|bool $trim
  */
 class Trim extends BaseManipulator
 {
     /**
      * Perform trim image manipulation.
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
+     *
+     * @throws \Jcupitt\Vips\Exception
      *
      * @return Image The manipulated image.
      */
@@ -23,15 +23,8 @@ class Trim extends BaseManipulator
     {
         // Make sure that trimming is required
         if (!isset($this->trim) || $image->width < 3 || $image->height < 3) {
+            $this->trim = false;
             return $image;
-        }
-
-        if ($this->hasAlpha && !$this->isPremultiplied) {
-            // Premultiply image alpha channel before trim transformation to avoid
-            // dark fringing around bright pixels
-            // See: http://entropymine.com/imageworsener/resizealpha/
-            $image = $image->premultiply();
-            $this->isPremultiplied = true;
         }
 
         $trim = $this->getTrim();
@@ -64,48 +57,46 @@ class Trim extends BaseManipulator
     /**
      * Perform trim image manipulation.
      *
-     * @param  Image $image The source image.
-     * @param  int $sensitivity Trim sensitivity
+     * @param Image $image The source image.
+     * @param int $sensitivity Trim sensitivity
+     *
+     * @throws \Jcupitt\Vips\Exception
      *
      * @return Image The manipulated image.
      */
     public function getTrimmedImage(Image $image, int $sensitivity): Image
     {
-        // find the value of the pixel at (0, 0) ... we will search for all pixels
+        // Find the value of the pixel at (0, 0), `find_trim` search for all pixels
         // significantly different from this
-        $background = $image->getpoint(0, 0);
+        if ($image->hasAlpha()) {
+            // If the image has alpha, we'll need to flatten before `getpoint`
+            // to get a correct background value.
+            $background = $image->flatten()->getpoint(0, 0);
+        } else {
+            $background = $image->getpoint(0, 0);
+        }
 
         // Scale up 8-bit values to match 16-bit input image
-        $multiplier = $this->is16Bit ? 256 : 1;
+        $multiplier = Utils::is16Bit($image->interpretation) ? 256 : 1;
 
-        // we need to smooth the image, subtract the background from every pixel, take
-        // the absolute value of the difference, then threshold
-        $mask = $image->median(3)->subtract($background)->abs()->more($sensitivity * $multiplier);
+        // Background / object threshold
+        $threshold = $sensitivity * $multiplier;
 
-        // sum mask rows and columns, then search for the first non-zero sum in each
-        // direction
-        $project = $mask->project();
+        // Search for the bounding box of the non-background area
+        $trim = $image->find_trim([
+            'threshold' => $threshold,
+            'background' => $background
+        ]);
 
-        $profileLeft = $project['columns']->profile();
-        $profileRight = $project['columns']->fliphor()->profile();
-        $profileTop = $project['rows']->profile();
-        $profileBottom = $project['rows']->flipver()->profile();
-
-        $left = (int)floor($profileLeft['rows']->min());
-        $right = $project['columns']->width - (int)floor($profileRight['rows']->min());
-        $top = (int)floor($profileTop['columns']->min());
-        $bottom = $project['rows']->height - (int)floor($profileBottom['columns']->min());
-
-        $width = $right - $left;
-        $height = $bottom - $top;
-
-        if ($width <= 0 || $height <= 0) {
-            trigger_error(sprintf('Unexpected error while trimming. Sensitivity (%s) is too high.', $sensitivity),
-                E_USER_WARNING);
+        if ($trim['width'] === 0 || $trim['height'] === 0) {
+            trigger_error(
+                sprintf('Unexpected error while trimming. Sensitivity (%s) is too high.', $sensitivity),
+                E_USER_WARNING
+            );
             return $image;
         }
 
-        // and now crop the original image
-        return $image->crop($left, $top, $width, $height);
+        // And now crop the original image
+        return $image->crop($trim['left'], $trim['top'], $trim['width'], $trim['height']);
     }
 }

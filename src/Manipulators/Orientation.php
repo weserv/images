@@ -2,6 +2,7 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
+use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Image;
 
 /**
@@ -14,7 +15,9 @@ class Orientation extends BaseManipulator
     /**
      * Perform orientation image manipulation.
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
+     *
+     * @throws \Jcupitt\Vips\Exception
      *
      * @return Image The manipulated image.
      */
@@ -22,7 +25,8 @@ class Orientation extends BaseManipulator
     {
         // Rotate if required.
         if ($this->rotation !== 0) {
-            $image = $image->rot('d' . $this->rotation);
+            // Need to copy to memory, we have to stay seq.
+            $image = $image->copyMemory()->rot('d' . $this->rotation);
         }
 
         // Flip (mirror about Y axis) if required.
@@ -33,6 +37,11 @@ class Orientation extends BaseManipulator
         // Flop (mirror about X axis) if required.
         if ($this->flop) {
             $image = $image->fliphor();
+        }
+
+        // Remove EXIF Orientation from image, if any
+        if ($image->typeof(Utils::VIPS_META_ORIENTATION) !== 0) {
+            $image->remove(Utils::VIPS_META_ORIENTATION);
         }
 
         return $image;

@@ -7,7 +7,6 @@ use Jcupitt\Vips\Image;
 
 /**
  * @property string $blur
- * @property bool $hasAlpha
  * @property bool $isPremultiplied
  * @property string $accessMethod
  */
@@ -16,20 +15,20 @@ class Blur extends BaseManipulator
     /**
      * Perform blur image manipulation.
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
+     *
+     * @throws \Jcupitt\Vips\Exception
      *
      * @return Image The manipulated image.
      */
     public function run(Image $image): Image
     {
-        if (!$this->blur) {
+        if ($this->blur === null) {
             return $image;
         }
 
-        if ($this->hasAlpha && !$this->isPremultiplied) {
-            // Premultiply image alpha channel before blur transformation to avoid
-            // dark fringing around bright pixels
-            // See: http://entropymine.com/imageworsener/resizealpha/
+        if (!$this->isPremultiplied && $image->hasAlpha()) {
+            // Premultiply image alpha channel before blur transformation
             $image = $image->premultiply();
             $this->isPremultiplied = true;
         }
@@ -38,18 +37,14 @@ class Blur extends BaseManipulator
 
         if ($blur === -1.0) {
             // Fast, mild blur - averages neighbouring pixels
-            $blur = Image::newFromArray(
-                [
-                    [1.0, 1.0, 1.0],
-                    [1.0, 1.0, 1.0],
-                    [1.0, 1.0, 1.0]
-                ],
-                9.0
-            );
+            $blur = Image::newFromArray([
+                [1.0, 1.0, 1.0],
+                [1.0, 1.0, 1.0],
+                [1.0, 1.0, 1.0]
+            ], 9.0);
             $image = $image->conv($blur);
         } else {
             if ($this->accessMethod === Access::SEQUENTIAL) {
-                // TODO Figure out how many scanline(s) ('tile_height') it will need.
                 $image = $image->linecache([
                     'tile_height' => 10,
                     'access' => Access::SEQUENTIAL,
@@ -76,7 +71,6 @@ class Blur extends BaseManipulator
 
         if ($this->blur < 0.3 || $this->blur > 1000) {
             return -1.0;
-
         }
 
         return (float)$this->blur;

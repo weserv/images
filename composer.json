@@ -24,30 +24,39 @@
         }
     ],
     "require": {
-        "php": ">=7.0.11",
+        "php": ">=7.0.13",
         "ext-curl": "*",
-        "ext-vips": ">=1.0.7",
+        "ext-vips": ">=1.0.8",
+        "cloudflare/sdk": "^1.0",
         "guzzlehttp/guzzle": "^6.3",
-        "jamesryanbell/cloudflare": "^1.10",
         "jcupitt/vips": "1.0.x-dev",
-        "league/uri": "^5.0",
+        "league/uri": "^5.2",
         "predis/predis": "^1.1"
     },
     "require-dev": {
         "jakub-onderka/php-parallel-lint": "^0.9.2",
-        "mockery/mockery": "1.0.x-dev",
-        "phpunit/phpunit": "^6.2"
+        "mockery/mockery": "^1.0",
+        "phpunit/phpunit": "^6.5",
+        "squizlabs/php_codesniffer": "^3.1"
     },
     "autoload": {
         "psr-4": {
             "AndriesLouw\\imagesweserv\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "AndriesLouw\\imagesweserv\\Test\\": "tests/"
+        }
+    },
     "scripts": {
         "test": [
             "parallel-lint . --exclude vendor",
-            "phpunit"
-        ]
+            "phpunit",
+            "phpcs --standard=phpcs-ruleset.xml ."
+        ],
+        "post-install-cmd": "\\League\\Uri\\Installer\\ICANNSection::update",
+        "post-update-cmd": "\\League\\Uri\\Installer\\ICANNSection::update"
     },
     "config": {
         "preferred-install": "dist",

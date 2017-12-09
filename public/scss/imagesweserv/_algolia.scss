@@ -1,0 +1,28 @@
+// Docsearch overrides
+//
+// `!important` indicates overridden properties.
+.algolia-autocomplete {
+  display: block !important;
+  flex: 1;
+
+  // Menu container
+  .ds-dropdown-menu {
+    width: 100%;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, .1);
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .175);
+
+    @include breakpoint(mobile-only) {
+      width: 175%;
+    }
+
+    .ds-suggestions {
+      margin-top: 0 !important;
+    }
+  }
+
+  .algolia-docsearch-suggestion--category-header {
+    display: none !important;
+  }
+}

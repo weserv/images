@@ -1,19 +1,13 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Manipulators\Helpers;
+namespace AndriesLouw\imagesweserv\Test\Manipulators\Helpers;
 
-use Jcupitt\Vips\Image;
+use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
+use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
 use Jcupitt\Vips\Interpretation;
-use Mockery;
-use PHPUnit\Framework\TestCase;
 
-class UtilsTest extends TestCase
+class UtilsTest extends ImagesweservTestCase
 {
-    public function tearDown()
-    {
-        Mockery::close();
-    }
-
     public function testIs16Bit()
     {
         $this->assertTrue(Utils::is16Bit(Interpretation::RGB16));
@@ -28,37 +22,52 @@ class UtilsTest extends TestCase
         $this->assertSame(255, Utils::maximumImageAlpha(Interpretation::SRGB));
     }
 
-    public function testExifOrientation()
+    public function testResolveAngleRotation()
     {
-        $image = Mockery::mock(Image::class, function ($mock) {
-            $mock->shouldReceive('typeof')->with(Utils::VIPS_META_ORIENTATION)->andReturn(1, 0)->twice();
-            $mock->shouldReceive('get')->with(Utils::VIPS_META_ORIENTATION)->andReturn(6)->once();
-        });
-
-        // Rotate 90 degrees EXIF orientation
-        $this->assertSame(6, Utils::exifOrientation($image));
-
-        // No EXIF orientation
-        $this->assertSame(0, Utils::exifOrientation($image));
+        $this->assertSame(270, Utils::resolveAngleRotation('-3690'));
+        $this->assertSame(270, Utils::resolveAngleRotation('-450'));
+        $this->assertSame(270, Utils::resolveAngleRotation('-90'));
+        $this->assertSame(90, Utils::resolveAngleRotation('90'));
+        $this->assertSame(90, Utils::resolveAngleRotation('450'));
+        $this->assertSame(90, Utils::resolveAngleRotation('3690'));
+        $this->assertSame(180, Utils::resolveAngleRotation('-3780'));
+        $this->assertSame(180, Utils::resolveAngleRotation('-540'));
+        $this->assertSame(0, Utils::resolveAngleRotation('0'));
+        $this->assertSame(180, Utils::resolveAngleRotation('180'));
+        $this->assertSame(180, Utils::resolveAngleRotation('540'));
+        $this->assertSame(180, Utils::resolveAngleRotation('3780'));
+        $this->assertSame(0, Utils::resolveAngleRotation('invalid'));
+        $this->assertSame(0, Utils::resolveAngleRotation('91'));
     }
 
-    public function testCalculateRotationAndFlip()
+    public function testDetermineImageExtension()
     {
-        $image = Mockery::mock(Image::class, function ($mock) {
-            $mock->shouldReceive('typeof')->with(Utils::VIPS_META_ORIENTATION)->andReturn(1, 0)->twice();
-            $mock->shouldReceive('get')->with(Utils::VIPS_META_ORIENTATION)->andReturn(6)->once();
-            $mock->shouldReceive('remove')->with(Utils::VIPS_META_ORIENTATION)->once();
-        });
-
-        // Rotate 90 degrees EXIF orientation; auto rotate
-        $this->assertSame([90, false, false], Utils::calculateRotationAndFlip(['or' => '-1'], $image));
-
-        // No EXIF Orientation + user wants to rotate it 90 degrees
-        $this->assertSame([90, false, false], Utils::calculateRotationAndFlip(['or' => '90'], $image));
+        $this->assertSame('jpg', Utils::determineImageExtension('jpegload'));
+        $this->assertSame('png', Utils::determineImageExtension('pngload'));
+        $this->assertSame('webp', Utils::determineImageExtension('webpload'));
+        $this->assertSame('tiff', Utils::determineImageExtension('tiffload'));
+        $this->assertSame('gif', Utils::determineImageExtension('gifload'));
+        $this->assertSame('unknown', Utils::determineImageExtension('invalid'));
     }
 
-    public function testMapToRange()
+    public function testFormatBytes()
     {
-        $this->assertSame(127.5, Utils::mapToRange(50, 0, 100, 0, 255));
+        $base = 1024;
+        $pow2 = $base ** 2;
+        $pow3 = $base ** 3;
+        $pow4 = $base ** 4;
+
+        $this->assertSame('0 B', Utils::formatBytes(0));
+        $this->assertSame('1 B', Utils::formatBytes(1));
+        $this->assertSame('1023 B', Utils::formatBytes($base - 1));
+        $this->assertSame('1 KB', Utils::formatBytes($base));
+        $this->assertSame('1024 KB', Utils::formatBytes($pow2 - 1));
+        $this->assertSame('1 MB', Utils::formatBytes($pow2));
+        $this->assertSame('1024 MB', Utils::formatBytes($pow3 - 1));
+        $this->assertSame('1 GB', Utils::formatBytes($pow3));
+        $this->assertSame('1024 GB', Utils::formatBytes($pow4 - 1));
+        $this->assertSame('1 TB', Utils::formatBytes($pow4));
+        $this->assertSame('203.25 MB', Utils::formatBytes(213123123));
+        $this->assertSame('19.85 GB', Utils::formatBytes(21312312390));
     }
 }

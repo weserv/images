@@ -1,24 +1,36 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Manipulators;
+namespace AndriesLouw\imagesweserv\Test\Manipulators;
 
+use AndriesLouw\imagesweserv\Api\Api;
+use AndriesLouw\imagesweserv\Client;
+use AndriesLouw\imagesweserv\Manipulators\Filter;
+use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
 use Jcupitt\Vips\Image;
-use Jcupitt\Vips\Interpretation;
-use Mockery;
-use PHPUnit\Framework\TestCase;
+use Mockery\MockInterface;
 
-class FilterTest extends TestCase
+class FilterTest extends ImagesweservTestCase
 {
+    /**
+     * @var Client|MockInterface
+     */
+    private $client;
+
+    /**
+     * @var Api
+     */
+    private $api;
+
+    /**
+     * @var Filter
+     */
     private $manipulator;
 
     public function setUp()
     {
+        $this->client = $this->getMockery(Client::class);
+        $this->api = new Api($this->client, $this->getManipulators());
         $this->manipulator = new Filter();
-    }
-
-    public function tearDown()
-    {
-        Mockery::close();
     }
 
     public function testCreateInstance()
@@ -26,30 +38,211 @@ class FilterTest extends TestCase
         $this->assertInstanceOf(Filter::class, $this->manipulator);
     }
 
-    public function testRunGreyscaleFilter()
+    public function testGreyscaleFilter()
     {
-        $image = Mockery::mock(Image::class, function ($mock) {
-            $mock->shouldReceive('colourspace')->with(Interpretation::B_W)->andReturnSelf()->once();
-        });
+        $testImage = $this->inputJpg;
+        $expectedImage = $this->expectedDir . '/greyscale.jpg';
+        $params = [
+            'w' => '320',
+            'h' => '240',
+            't' => 'square',
+            'filt' => 'greyscale'
+        ];
 
-        $this->assertInstanceOf(Image::class, $this->manipulator->runGreyscaleFilter($image));
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
+
+        $this->assertEquals(1, $image->bands);
+        $this->assertEquals(320, $image->width);
+        $this->assertEquals(240, $image->height);
+        $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testRunSepiaFilter()
+    public function testSepiaFilterJpeg()
     {
-        $image = Mockery::mock(Image::class, function ($mock) {
-            $mock->shouldReceive('recomb')->with(Mockery::any())->andReturnSelf()->once();
-        });
+        $testImage = $this->inputJpg;
+        $expectedImage = $this->expectedDir . '/sepia.jpg';
+        $params = [
+            'w' => '320',
+            'h' => '240',
+            't' => 'square',
+            'filt' => 'sepia'
+        ];
 
-        $this->assertInstanceOf(Image::class, $this->manipulator->runSepiaFilter($image));
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
+
+        $this->assertEquals(320, $image->width);
+        $this->assertEquals(240, $image->height);
+        $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testRunNegateFilter()
+    public function testSepiaFilterPngTransparent()
     {
-        $image = Mockery::mock(Image::class, function ($mock) {
-            $mock->shouldReceive('invert')->andReturnSelf()->once();
-        });
+        $testImage = $this->inputPngOverlayLayer1;
+        $expectedImage = $this->expectedDir . '/sepia-trans.png';
+        $params = [
+            'w' => '320',
+            'h' => '240',
+            't' => 'square',
+            'filt' => 'sepia'
+        ];
 
-        $this->assertInstanceOf(Image::class, $this->manipulator->runNegateFilter($image));
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
+
+        $this->assertEquals(320, $image->width);
+        $this->assertEquals(240, $image->height);
+        $this->assertSimilarImage($expectedImage, $image);
+    }
+
+    public function testNegateFilterJpeg()
+    {
+        $testImage = $this->inputJpg;
+        $expectedImage = $this->expectedDir . '/negate.jpg';
+        $params = [
+            'w' => '320',
+            'h' => '240',
+            't' => 'square',
+            'filt' => 'negate'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
+
+        $this->assertEquals(320, $image->width);
+        $this->assertEquals(240, $image->height);
+        $this->assertSimilarImage($expectedImage, $image);
+    }
+
+    public function testNegateFilterPng()
+    {
+        $testImage = $this->inputPng;
+        $expectedImage = $this->expectedDir . '/negate.png';
+        $params = [
+            'w' => '320',
+            'h' => '240',
+            't' => 'square',
+            'filt' => 'negate'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
+
+        $this->assertEquals(320, $image->width);
+        $this->assertEquals(240, $image->height);
+        $this->assertSimilarImage($expectedImage, $image);
+    }
+
+    public function testNegateFilterPngTransparent()
+    {
+        $testImage = $this->inputPngWithTransparency;
+        $expectedImage = $this->expectedDir . '/negate-trans.png';
+        $params = [
+            'w' => '320',
+            'h' => '240',
+            't' => 'square',
+            'filt' => 'negate'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
+
+        $this->assertEquals(320, $image->width);
+        $this->assertEquals(240, $image->height);
+        $this->assertSimilarImage($expectedImage, $image);
+    }
+
+    public function testNegateFilterPngWithGreyAlpha()
+    {
+        $testImage = $this->inputPngWithGreyAlpha;
+        $expectedImage = $this->expectedDir . '/negate-alpha.png';
+        $params = [
+            'w' => '320',
+            'h' => '240',
+            't' => 'square',
+            'filt' => 'negate'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
+
+        $this->assertEquals(320, $image->width);
+        $this->assertEquals(240, $image->height);
+        $this->assertSimilarImage($expectedImage, $image);
+    }
+
+    public function testNegateFilterWebp()
+    {
+        $testImage = $this->inputWebP;
+        $expectedImage = $this->expectedDir . '/negate.webp';
+        $params = [
+            'w' => '320',
+            'h' => '240',
+            't' => 'square',
+            'filt' => 'negate'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
+
+        $this->assertEquals(320, $image->width);
+        $this->assertEquals(240, $image->height);
+        $this->assertSimilarImage($expectedImage, $image);
+    }
+
+    public function testNegateFilterWebpTransparent()
+    {
+        $testImage = $this->inputWebPWithTransparency;
+        $expectedImage = $this->expectedDir . '/negate-trans.webp';
+        $params = [
+            'w' => '320',
+            'h' => '240',
+            't' => 'square',
+            'filt' => 'negate'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+
+        /** @var Image $image */
+        $image = $this->api->run($uri, $params);
+
+        $this->assertEquals(320, $image->width);
+        $this->assertEquals(240, $image->height);
+        $this->assertSimilarImage($expectedImage, $image);
     }
 }

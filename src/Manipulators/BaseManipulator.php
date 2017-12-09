@@ -40,7 +40,7 @@ abstract class BaseManipulator implements ManipulatorInterface
     /**
      * Get a specific manipulation param.
      *
-     * @param  string $name The manipulation name.
+     * @param string $name The manipulation name.
      *
      * @return string|null The manipulation value.
      */
@@ -55,8 +55,8 @@ abstract class BaseManipulator implements ManipulatorInterface
     /**
      * Whether or not an item exists by key
      *
-     * @param   string $key
-     * @return  bool
+     * @param  string $key
+     * @return bool
      */
     public function __isset(string $key)
     {
@@ -77,7 +77,10 @@ abstract class BaseManipulator implements ManipulatorInterface
     /**
      * Perform the image manipulation.
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
+     *
+     * @throws \Jcupitt\Vips\Exception
+     * @throws \AndriesLouw\imagesweserv\Exception\ImageTooLargeException
      *
      * @return Image The manipulated image.
      */

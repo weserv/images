@@ -7,14 +7,15 @@ use Jcupitt\Vips\Interpretation;
 
 /**
  * @property string $filt
- * @property bool $hasAlpha
  */
 class Filter extends BaseManipulator
 {
     /**
      * Perform filter image manipulation.
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
+     *
+     * @throws \Jcupitt\Vips\Exception
      *
      * @return Image The manipulated image.
      */
@@ -38,7 +39,9 @@ class Filter extends BaseManipulator
     /**
      * Perform greyscale manipulation.
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
+     *
+     * @throws \Jcupitt\Vips\Exception
      *
      * @return Image The manipulated image.
      */
@@ -50,21 +53,21 @@ class Filter extends BaseManipulator
     /**
      * Perform sepia manipulation.
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
+     *
+     * @throws \Jcupitt\Vips\Exception
      *
      * @return Image The manipulated image.
      */
     public function runSepiaFilter(Image $image): Image
     {
-        $sepia = Image::newFromArray(
-            [
-                [0.3588, 0.7044, 0.1368],
-                [0.2990, 0.5870, 0.1140],
-                [0.2392, 0.4696, 0.0912]
-            ]
-        );
+        $sepia = Image::newFromArray([
+            [0.3588, 0.7044, 0.1368],
+            [0.2990, 0.5870, 0.1140],
+            [0.2392, 0.4696, 0.0912]
+        ]);
 
-        if ($this->hasAlpha) {
+        if ($image->hasAlpha()) {
             // Separate alpha channel
             $imageWithoutAlpha = $image->extract_band(0, ['n' => $image->bands - 1]);
             $alpha = $image->extract_band($image->bands - 1, ['n' => 1]);
@@ -77,12 +80,21 @@ class Filter extends BaseManipulator
     /**
      * Perform negate manipulation.
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
+     *
+     * @throws \Jcupitt\Vips\Exception
      *
      * @return Image The manipulated image.
      */
     public function runNegateFilter(Image $image): Image
     {
+        if ($image->hasAlpha()) {
+            // Separate alpha channel
+            $imageWithoutAlpha = $image->extract_band(0, ['n' => $image->bands - 1]);
+            $alpha = $image->extract_band($image->bands - 1, ['n' => 1]);
+            return $imageWithoutAlpha->invert()->bandjoin($alpha);
+        }
+
         return $image->invert();
     }
 }

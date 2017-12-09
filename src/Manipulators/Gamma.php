@@ -6,7 +6,6 @@ use Jcupitt\Vips\Image;
 
 /**
  * @property string $gam
- * @property bool $hasAlpha
  * @property bool $isPremultiplied
  */
 class Gamma extends BaseManipulator
@@ -14,7 +13,9 @@ class Gamma extends BaseManipulator
     /**
      * Perform gamma image manipulation.
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
+     *
+     * @throws \Jcupitt\Vips\Exception
      *
      * @return Image The manipulated image.
      */
@@ -24,23 +25,21 @@ class Gamma extends BaseManipulator
             return $image;
         }
 
-        if ($this->hasAlpha && !$this->isPremultiplied) {
-            // Premultiply image alpha channel before gamma transformation to avoid
-            // dark fringing around bright pixels
-            // See: http://entropymine.com/imageworsener/resizealpha/
-            $image = $image->premultiply();
-            $this->isPremultiplied = true;
-        }
-
         $gamma = $this->getGamma();
 
-        if ($this->hasAlpha) {
+        if ($image->hasAlpha()) {
+            if (!$this->isPremultiplied) {
+                // Premultiply image alpha channel before gamma transformation
+                $image = $image->premultiply();
+                $this->isPremultiplied = true;
+            }
+
             // Separate alpha channel
             $imageWithoutAlpha = $image->extract_band(0, ['n' => $image->bands - 1]);
             $alpha = $image->extract_band($image->bands - 1, ['n' => 1]);
-            $image = $imageWithoutAlpha->gamma(['exponent' => $gamma])->bandjoin($alpha);
+            $image = $imageWithoutAlpha->gamma(['exponent' => 1.0 / $gamma])->bandjoin($alpha);
         } else {
-            $image = $image->gamma(['exponent' => $gamma]);
+            $image = $image->gamma(['exponent' => 1.0 / $gamma]);
         }
 
         return $image;

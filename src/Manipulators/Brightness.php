@@ -2,41 +2,45 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
-use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Image;
 
 /**
  * @property string $bri
- * @property bool $hasAlpha
  */
 class Brightness extends BaseManipulator
 {
     /**
      * Perform brightness image manipulation.
      *
-     * @param  Image $image The source image.
+     * @param Image $image The source image.
+     *
+     * @throws \Jcupitt\Vips\Exception
      *
      * @return Image The manipulated image.
      */
     public function run(Image $image): Image
     {
-        if (!$this->bri) {
+        if ($this->bri === null) {
             return $image;
         }
 
-        $amount = $this->getBrightness();
+        $brightness = $this->getBrightness();
 
-        if ($amount !== 0) {
-            $amount = Utils::mapToRange($amount, -100, 100, -255, 255);
+        if ($brightness !== 0) {
+            // Map brightness from -100/100 to -255/255 range
+            $brightness *= 2.55;
 
             // Edit the brightness
-            if ($this->hasAlpha) {
+            if ($image->hasAlpha()) {
                 // Separate alpha channel
                 $imageWithoutAlpha = $image->extract_band(0, ['n' => $image->bands - 1]);
                 $alpha = $image->extract_band($image->bands - 1, ['n' => 1]);
-                $image = $imageWithoutAlpha->linear([1, 1, 1], [$amount, $amount, $amount])->bandjoin($alpha);
+                $image = $imageWithoutAlpha->linear(
+                    [1, 1, 1],
+                    [$brightness, $brightness, $brightness]
+                )->bandjoin($alpha);
             } else {
-                $image = $image->linear([1, 1, 1], [$amount, $amount, $amount]);
+                $image = $image->linear([1, 1, 1], [$brightness, $brightness, $brightness]);
             }
 
             /*$oldInterpretation = $image->interpretation;
@@ -44,7 +48,7 @@ class Brightness extends BaseManipulator
             $lch = $image->colourspace(Interpretation::LCH);
 
             // Edit the brightness
-            $image = $lch->add([$amount, 1, 1])->colourspace($oldInterpretation);*/
+            $image = $lch->add([$brightness, 1, 1])->colourspace($oldInterpretation);*/
         }
 
         return $image;
