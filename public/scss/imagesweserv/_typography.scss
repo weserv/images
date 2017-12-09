@@ -1,87 +1,90 @@
 // Headings
-h1, h2, h3 {
+h1, h2 {
   font-weight: $font-weight-regular;
   text-rendering: optimizeLegibility;
-  letter-spacing: -1px;
-  margin: .85rem 0 1.7rem;
+}
+
+h1.param,
+h2.param,
+h3.param {
+  display: inline-block;
+
+  + code {
+    margin-left: .5rem;
+  }
 }
 
 h1 {
   font-size: 2.15rem;
-
-  > .new {
-    margin-top: -.39165em;
-  }
+  margin-top: 2rem;
 }
 
 h2 {
-  font-size: 1.8rem;
+  font-size: 1.4rem;
+  margin-top: 1rem;
 }
 
 h3 {
-  font-size: 1.4rem;
-
-  > .new {
-    margin-top: -.29165em;
-  }
+  font-size: 1rem;
+  margin-top: 0.5rem;
 }
 
-// NOTES!!!!
+// Notes
 div.notices {
   margin: 2rem 0;
-  position: relative;
 
   p {
-    padding: 15px;
     display: block;
+    margin: 0;
+    padding: 15px;
     font-size: 1rem;
-    margin-top: 0;
-    margin-bottom: 0;
     color: $core-text;
+  }
 
-    &:first-child {
-      &:before, &:after {
-        position: absolute;
-        top: 2px;
-        color: $white;
-        left: 1rem;
-      }
+  .heading {
+    display: block;
+    padding-left: 15px;
+    font-size: 1rem;
+    color: $white;
+  }
+
+  &.info {
+    .heading {
+      background: #F0B37E;
+    }
+
+    p {
+      background: #FFF2DB;
     }
   }
 
-  &.info p {
-    border-top: 30px solid #F0B37E;
-    background: #FFF2DB;
+  &.warning {
+    .heading {
+      background: #F92F2F;
+    }
 
-    &:first-child:after {
-      content: 'Info';
+    p {
+      background: #FAE2E2;
     }
   }
 
-  &.warning p {
-    border-top: 30px solid #F92F2F;
-    background: #FAE2E2;
+  &.note {
+    .heading {
+      background: #6AB0DE;
+    }
 
-    &:first-child:after {
-      content: 'Warning';
+    p {
+      background: #E7F2FA;
     }
   }
 
-  &.note p {
-    border-top: 30px solid #6AB0DE;
-    background: #E7F2FA;
-
-    &:first-child:after {
-      content: 'Note';
+  &.tip {
+    .heading {
+      background: #5CB85C;
     }
-  }
 
-  &.tip p {
-    border-top: 30px solid #5CB85C;
-    background: #E6F9E6;
-
-    &:first-child:after {
-      content: 'Tip';
+    p {
+      background: #E6F9E6;
     }
   }
 }

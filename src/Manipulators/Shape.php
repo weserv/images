@@ -18,6 +18,8 @@ class Shape extends BaseManipulator
      *
      * @param Image $image The source image.
      *
+     * @throws \Jcupitt\Vips\Exception
+     *
      * @return Image The manipulated image.
      */
     public function run(Image $image): Image
@@ -275,6 +277,8 @@ class Shape extends BaseManipulator
      *
      * @param Image $mask
      * @param Image $dst
+     *
+     * @throws \Jcupitt\Vips\Exception
      *
      * @return Image
      */

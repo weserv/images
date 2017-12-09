@@ -15,6 +15,8 @@ class Filter extends BaseManipulator
      *
      * @param Image $image The source image.
      *
+     * @throws \Jcupitt\Vips\Exception
+     *
      * @return Image The manipulated image.
      */
     public function run(Image $image): Image
@@ -39,6 +41,8 @@ class Filter extends BaseManipulator
      *
      * @param Image $image The source image.
      *
+     * @throws \Jcupitt\Vips\Exception
+     *
      * @return Image The manipulated image.
      */
     public function runGreyscaleFilter(Image $image): Image
@@ -50,6 +54,8 @@ class Filter extends BaseManipulator
      * Perform sepia manipulation.
      *
      * @param Image $image The source image.
+     *
+     * @throws \Jcupitt\Vips\Exception
      *
      * @return Image The manipulated image.
      */
@@ -75,6 +81,8 @@ class Filter extends BaseManipulator
      * Perform negate manipulation.
      *
      * @param Image $image The source image.
+     *
+     * @throws \Jcupitt\Vips\Exception
      *
      * @return Image The manipulated image.
      */

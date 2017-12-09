@@ -236,12 +236,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/jcupitt/php-vips.git",
-                "reference": "fc415b0c9f41f46d4538007e8a60f524c57a7046"
+                "reference": "9951cabcb6109bc1127cc975c6c60a0ed8552e8a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jcupitt/php-vips/zipball/fc415b0c9f41f46d4538007e8a60f524c57a7046",
-                "reference": "fc415b0c9f41f46d4538007e8a60f524c57a7046",
+                "url": "https://api.github.com/repos/jcupitt/php-vips/zipball/9951cabcb6109bc1127cc975c6c60a0ed8552e8a",
+                "reference": "9951cabcb6109bc1127cc975c6c60a0ed8552e8a",
                 "shasum": ""
             },
             "require": {
@@ -285,7 +285,7 @@
                 "libvips",
                 "processing"
             ],
-            "time": "2017-11-23 15:14:00"
+            "time": "2017-12-08 16:16:39"
         },
         {
             "name": "league/uri",
@@ -356,16 +356,16 @@
         },
         {
             "name": "league/uri-components",
-            "version": "1.5.0",
+            "version": "1.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/uri-components.git",
-                "reference": "1b2e4ed0e6d7b1aff85ba5775652e23badc908ac"
+                "reference": "0af9cff1302a431cf404b3a1a8ac3febab642d8f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/uri-components/zipball/1b2e4ed0e6d7b1aff85ba5775652e23badc908ac",
-                "reference": "1b2e4ed0e6d7b1aff85ba5775652e23badc908ac",
+                "url": "https://api.github.com/repos/thephpleague/uri-components/zipball/0af9cff1302a431cf404b3a1a8ac3febab642d8f",
+                "reference": "0af9cff1302a431cf404b3a1a8ac3febab642d8f",
                 "shasum": ""
             },
             "require": {
@@ -422,7 +422,7 @@
                 "url",
                 "userinfo"
             ],
-            "time": "2017-12-01T11:49:21+00:00"
+            "time": "2017-12-05T11:49:24+00:00"
         },
         {
             "name": "league/uri-hostname-parser",
@@ -1526,16 +1526,16 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "5.2.4",
+            "version": "5.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "033ec97498cf530cc1be4199264cad568b19be26"
+                "reference": "661f34d0bd3f1a7225ef491a70a020ad23a057a1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/033ec97498cf530cc1be4199264cad568b19be26",
-                "reference": "033ec97498cf530cc1be4199264cad568b19be26",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/661f34d0bd3f1a7225ef491a70a020ad23a057a1",
+                "reference": "661f34d0bd3f1a7225ef491a70a020ad23a057a1",
                 "shasum": ""
             },
             "require": {
@@ -1551,7 +1551,6 @@
                 "theseer/tokenizer": "^1.1"
             },
             "require-dev": {
-                "ext-xdebug": "^2.5",
                 "phpunit/phpunit": "^6.0"
             },
             "suggest": {
@@ -1560,7 +1559,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "5.2.x-dev"
+                    "dev-master": "5.3.x-dev"
                 }
             },
             "autoload": {
@@ -1575,7 +1574,7 @@
             "authors": [
                 {
                     "name": "Sebastian Bergmann",
-                    "email": "sb@sebastian-bergmann.de",
+                    "email": "sebastian@phpunit.de",
                     "role": "lead"
                 }
             ],
@@ -1586,7 +1585,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2017-11-27T09:00:30+00:00"
+            "time": "2017-12-06T09:29:45+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -1776,16 +1775,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "6.5.1",
+            "version": "6.5.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "8eea3cfbfe3c8363f8111e24569bdb6ead71ea6e"
+                "reference": "882e886cc928a0abd3c61282b2a64026237d14a4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/8eea3cfbfe3c8363f8111e24569bdb6ead71ea6e",
-                "reference": "8eea3cfbfe3c8363f8111e24569bdb6ead71ea6e",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/882e886cc928a0abd3c61282b2a64026237d14a4",
+                "reference": "882e886cc928a0abd3c61282b2a64026237d14a4",
                 "shasum": ""
             },
             "require": {
@@ -1799,11 +1798,11 @@
                 "phar-io/version": "^1.0",
                 "php": "^7.0",
                 "phpspec/prophecy": "^1.7",
-                "phpunit/php-code-coverage": "^5.2.3",
+                "phpunit/php-code-coverage": "^5.3",
                 "phpunit/php-file-iterator": "^1.4.3",
                 "phpunit/php-text-template": "^1.2.1",
                 "phpunit/php-timer": "^1.0.9",
-                "phpunit/phpunit-mock-objects": "^5.0",
+                "phpunit/phpunit-mock-objects": "^5.0.4",
                 "sebastian/comparator": "^2.1",
                 "sebastian/diff": "^2.0",
                 "sebastian/environment": "^3.1",
@@ -1856,20 +1855,20 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2017-12-01T09:57:23+00:00"
+            "time": "2017-12-06T09:42:03+00:00"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
-            "version": "5.0.3",
+            "version": "5.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit-mock-objects.git",
-                "reference": "a58b8fc03ca12d8bf6122ea942bc72c99c7cda4a"
+                "reference": "16b50f4167e5e85e81ca8a3dd105d0a5fd32009a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit-mock-objects/zipball/a58b8fc03ca12d8bf6122ea942bc72c99c7cda4a",
-                "reference": "a58b8fc03ca12d8bf6122ea942bc72c99c7cda4a",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit-mock-objects/zipball/16b50f4167e5e85e81ca8a3dd105d0a5fd32009a",
+                "reference": "16b50f4167e5e85e81ca8a3dd105d0a5fd32009a",
                 "shasum": ""
             },
             "require": {
@@ -1915,7 +1914,7 @@
                 "mock",
                 "xunit"
             ],
-            "time": "2017-12-01T16:12:08+00:00"
+            "time": "2017-12-02T05:31:19+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",

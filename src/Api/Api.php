@@ -4,9 +4,12 @@ namespace AndriesLouw\imagesweserv\Api;
 
 use AndriesLouw\imagesweserv\Client;
 use AndriesLouw\imagesweserv\Exception\ImageNotReadableException;
+use AndriesLouw\imagesweserv\Exception\ImageNotValidException;
+use AndriesLouw\imagesweserv\Exception\ImageTooBigException;
 use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface;
+use GuzzleHttp\Exception\RequestException;
 use InvalidArgumentException;
 use Jcupitt\Vips\Access;
 use Jcupitt\Vips\BandFormat;
@@ -107,6 +110,14 @@ class Api implements ApiInterface
      * @throws ImageTooLargeException if the provided image is too large for
      *      processing.
      * @throws VipsException for errors that occur during the processing of a Image.
+     * @throws ImageNotValidException if the requested image is not a valid
+     *      image.
+     * @throws ImageTooBigException if the requested image is too big to be
+     *      downloaded.
+     * @throws RequestException for errors that occur during a transfer
+     *      or during the on_headers event.
+     * @throws \InvalidArgumentException if the redirect URI can not be
+     *      parsed (with parse_url).
      *
      * @return Image The image
      */
@@ -146,6 +157,7 @@ class Api implements ApiInterface
         list($params['rotation'], $params['flip'], $params['flop']) = Utils::resolveRotationAndFlip($image, $params);
 
         // Do our image manipulations
+        /* @var $manipulator ManipulatorInterface */
         foreach ($this->manipulators as $manipulator) {
             $manipulator->setParams($params);
 

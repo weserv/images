@@ -10,7 +10,7 @@
   }
 }
 
-.searchbox {
+.search-wrapper {
   margin-top: 0.5rem;
   position: relative;
 
@@ -25,18 +25,6 @@
     top: 3px;
   }
 
-  span {
-    color: rgba($white, 0.6);
-    position: absolute;
-    right: 10px;
-    top: 3px;
-    cursor: pointer;
-
-    &:hover {
-      color: rgba($white, 0.9);
-    }
-  }
-
   input {
     display: inline-block;
     color: $white;
@@ -45,7 +33,6 @@
     background: transparent;
     border: 0;
     padding: 0 25px 0 30px;
-    margin: 0;
     font-weight: $font-weight-regular;
 
     @include placeholder {

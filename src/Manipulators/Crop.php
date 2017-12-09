@@ -19,6 +19,8 @@ class Crop extends BaseManipulator
      *
      * @param Image $image The source image.
      *
+     * @throws \Jcupitt\Vips\Exception
+     *
      * @return Image The manipulated image.
      */
     public function run(Image $image): Image
@@ -87,7 +89,7 @@ class Crop extends BaseManipulator
 
         $coordinates = explode(',', $this->crop);
 
-        if (count($coordinates) !== 4
+        if (\count($coordinates) !== 4
             || (!is_numeric($coordinates[0]))
             || (!is_numeric($coordinates[1]))
             || (!is_numeric($coordinates[2]))

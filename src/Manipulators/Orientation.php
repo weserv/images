@@ -17,6 +17,8 @@ class Orientation extends BaseManipulator
      *
      * @param Image $image The source image.
      *
+     * @throws \Jcupitt\Vips\Exception
+     *
      * @return Image The manipulated image.
      */
     public function run(Image $image): Image

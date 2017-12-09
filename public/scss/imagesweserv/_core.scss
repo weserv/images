@@ -1,4 +1,7 @@
-*, *::before, *::after {
+* {
+  margin: 0;
+  padding: 0;
+  border: 0;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -10,8 +13,6 @@ body {
   font-family: $font-family-default;
   font-weight: $font-weight-light;
   line-height: 1.6;
-  margin: 0;
-  padding: 0;
 }
 
 a {
@@ -23,16 +24,14 @@ a {
   }
 }
 
-pre {
-  position: relative;
+p, ul, ol {
+  margin-top: 1rem;
+}
+
+ul, ol {
+  margin-left: 2.5rem;
 }
 
 b, strong, label, th {
   font-weight: $font-weight-bold;
-}
-
-// Fix for ScrollSpy, see: http://stackoverflow.com/a/12606867/1480019
-section.goto {
-  padding-top: 10px;
-  margin-top: -10px;
 }

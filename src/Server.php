@@ -3,11 +3,17 @@
 namespace AndriesLouw\imagesweserv;
 
 use AndriesLouw\imagesweserv\Api\ApiInterface;
+use AndriesLouw\imagesweserv\Exception\ImageNotReadableException;
+use AndriesLouw\imagesweserv\Exception\ImageNotValidException;
+use AndriesLouw\imagesweserv\Exception\ImageTooBigException;
+use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
 use AndriesLouw\imagesweserv\Exception\RateExceededException;
 use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use AndriesLouw\imagesweserv\Throttler\ThrottlerInterface;
+use GuzzleHttp\Exception\RequestException;
 use Jcupitt\Vips\Config;
 use Jcupitt\Vips\DebugLogger;
+use Jcupitt\Vips\Exception as VipsException;
 use Jcupitt\Vips\Image;
 
 /**
@@ -174,6 +180,19 @@ class Server
      * @param string $url Image URL
      * @param array $params Image manipulation params.
      *
+     * @throws ImageNotReadableException if the provided image is not readable.
+     * @throws ImageTooLargeException if the provided image is too large for
+     *      processing.
+     * @throws VipsException for errors that occur during the processing of a Image.
+     * @throws ImageNotValidException if the requested image is not a valid
+     *      image.
+     * @throws ImageTooBigException if the requested image is too big to be
+     *      downloaded.
+     * @throws RequestException for errors that occur during a transfer
+     *      or during the on_headers event.
+     * @throws \InvalidArgumentException if the redirect URI can not be
+     *      parsed (with parse_url).
+     *
      * @return Image The image
      */
     public function makeImage(string $url, array $params): Image
@@ -186,6 +205,8 @@ class Server
      *
      * @param Image $image The image
      * @param array $params Image manipulation params.
+     *
+     * @throws VipsException for errors that occur during the processing of a Image.
      *
      * @return array [
      * @type   string The formatted image,
@@ -244,6 +265,18 @@ class Server
      * @param array $params Image manipulation params.
      *
      * @throws RateExceededException if a user rate limit is exceeded
+     * @throws ImageNotReadableException if the provided image is not readable.
+     * @throws ImageTooLargeException if the provided image is too large for
+     *      processing.
+     * @throws VipsException for errors that occur during the processing of a Image.
+     * @throws ImageNotValidException if the requested image is not a valid
+     *      image.
+     * @throws ImageTooBigException if the requested image is too big to be
+     *      downloaded.
+     * @throws RequestException for errors that occur during a transfer
+     *      or during the on_headers event.
+     * @throws \InvalidArgumentException if the redirect URI can not be
+     *      parsed (with parse_url).
      *
      * @return void
      */

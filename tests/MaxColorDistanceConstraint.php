@@ -12,24 +12,32 @@ use SebastianBergmann\Diff\Differ;
  */
 class MaxColorDistanceConstraint extends Constraint
 {
-    /*
+    /**
      * The expected image
      * @var Image $expectedImage
      */
     protected $expectedImage;
 
-    /*
+    /**
      * Expected maximum color distance. Defaulting to 1.
      * @var int $acceptedDistance
      */
     protected $acceptedDistance;
 
-    /*
+    /**
      * The maximum color distance
      * @var float $maxColorDistance
      */
     protected $maxColorDistance;
 
+    /**
+     * MaxColorDistanceConstraint constructor.
+     *
+     * @param $image
+     * @param float $acceptedDistance
+     *
+     * @throws \Jcupitt\Vips\Exception
+     */
     public function __construct($image, float $acceptedDistance)
     {
         parent::__construct();
@@ -43,6 +51,8 @@ class MaxColorDistanceConstraint extends Constraint
      * constraint is met, false otherwise.
      *
      * @param mixed $other Value or object to evaluate.
+     *
+     * @throws \Jcupitt\Vips\Exception
      *
      * @return bool
      */
@@ -107,6 +117,8 @@ class MaxColorDistanceConstraint extends Constraint
      *
      * @throws \InvalidArgumentException if mismatched bands or
      *      mismatched dimensions
+     * @throws \Jcupitt\Vips\Exception
+     *
      * @return float the maximum color distance
      */
     private function calculateMaxColorDistance(Image $image1, Image $image2): float

@@ -73,6 +73,7 @@ class Thumbnail extends BaseManipulator
      *
      * @param Image $image The source image.
      *
+     * @throws \Jcupitt\Vips\Exception
      * @throws ImageTooLargeException if the provided image is too large for processing.
      *
      * @return Image The manipulated image.
@@ -217,6 +218,8 @@ class Thumbnail extends BaseManipulator
      * @param string $fit The fit.
      * @param int $width The width.
      * @param int $height The height.
+     *
+     * @throws \Jcupitt\Vips\Exception
      *
      * @return Image The manipulated image.
      *

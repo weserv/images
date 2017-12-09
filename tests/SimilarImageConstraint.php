@@ -13,36 +13,44 @@ use SebastianBergmann\Diff\Differ;
  */
 class SimilarImageConstraint extends Constraint
 {
-    /*
+    /**
      * The expected image
      * @var Image $expectedImage
      */
     protected $expectedImage;
 
-    /*
+    /**
      * Distance threshold. Defaulting to 5 (~7% threshold)
      * @var int $threshold
      */
     protected $threshold;
 
-    /*
+    /**
      * dHash distance.
      * @var int $distance
      */
     protected $distance;
 
-    /*
+    /**
      * Expected hash
      * @var string $expectedHash
      */
     protected $expectedHash;
 
-    /*
+    /**
      * Actual hash
      * @var string $actualHash
      */
     protected $actualHash;
 
+    /**
+     * SimilarImageConstraint constructor.
+     *
+     * @param $image
+     * @param int $threshold
+     *
+     * @throws \Jcupitt\Vips\Exception
+     */
     public function __construct($image, int $threshold)
     {
         parent::__construct();
@@ -56,6 +64,8 @@ class SimilarImageConstraint extends Constraint
      * constraint is met, false otherwise.
      *
      * @param mixed $other Value or object to evaluate.
+     *
+     * @throws \Jcupitt\Vips\Exception
      *
      * @return bool
      */
@@ -119,6 +129,8 @@ class SimilarImageConstraint extends Constraint
      *
      * @param Image $image
      *
+     * @throws \Jcupitt\Vips\Exception
+     *
      * @return Image
      */
     private function normalizeImage(Image $image): Image
@@ -171,6 +183,8 @@ class SimilarImageConstraint extends Constraint
      * http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html
      *
      * @param Image $image
+     *
+     * @throws \Jcupitt\Vips\Exception
      *
      * @return string
      */

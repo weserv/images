@@ -15,6 +15,8 @@ class Trim extends BaseManipulator
      *
      * @param Image $image The source image.
      *
+     * @throws \Jcupitt\Vips\Exception
+     *
      * @return Image The manipulated image.
      */
     public function run(Image $image): Image
@@ -57,6 +59,8 @@ class Trim extends BaseManipulator
      *
      * @param Image $image The source image.
      * @param int $sensitivity Trim sensitivity
+     *
+     * @throws \Jcupitt\Vips\Exception
      *
      * @return Image The manipulated image.
      */

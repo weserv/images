@@ -18,6 +18,8 @@ class Sharpen extends BaseManipulator
      *
      * @param Image $image The source image.
      *
+     * @throws \Jcupitt\Vips\Exception
+     *
      * @return Image The manipulated image.
      */
     public function run(Image $image): Image
@@ -87,6 +89,8 @@ class Sharpen extends BaseManipulator
      * @param float $sigma Sharpening mask to apply in pixels, but comes at a performance cost. (Default: -1)
      * @param float $flat Sharpening to apply to flat areas. (Default: 1.0)
      * @param float $jagged Sharpening to apply to jagged areas. (Default: 2.0)
+     *
+     * @throws \Jcupitt\Vips\Exception
      *
      * @return Image The manipulated image.
      */

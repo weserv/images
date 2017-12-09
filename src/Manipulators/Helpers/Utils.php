@@ -64,6 +64,8 @@ class Utils
      *
      * @param Image $image The source image.
      *
+     * @throws \Jcupitt\Vips\Exception
+     *
      * @return int EXIF Orientation
      */
     public static function exifOrientation(Image $image): int
@@ -110,8 +112,10 @@ class Utils
      * and parameters
      *
      * @param Image $image The source image.
-     *
      * @param  array $params Parameters array
+     *
+     * @throws \Jcupitt\Vips\Exception
+     *
      * @return array [rotation, flip, flop]
      */
     public static function resolveRotationAndFlip(Image $image, array $params): array
@@ -199,7 +203,7 @@ class Utils
 
         $bytes = max($bytes, 0);
         $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
-        $pow = min($pow, count($units) - 1);
+        $pow = min($pow, \count($units) - 1);
 
         $bytes /= 1024 ** $pow;
 

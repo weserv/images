@@ -5,9 +5,7 @@
 .new {
   display: inline-block;
   line-height: 1;
-  vertical-align: middle;
   margin-left: .5rem;
-  margin-right: .14285714em;
   background-color: $core-accent;
   border: 0 solid $core-accent;
   padding: .5833em .833em;
@@ -27,10 +25,6 @@
 
 #header strong {
   color: $core-accent;
-}
-
-.highlightable {
-  padding: 20px;
 }
 
 .dd-item .cen {

@@ -371,7 +371,7 @@ class CropTest extends ImagesweservTestCase
 
         $this->assertEquals(40, $image->width);
         $this->assertEquals(40, $image->height);
-        $this->assertSimilarImage($expectedImage, $image);
+        $this->assertSimilarImage($expectedImage, $image, 7);
     }
 
     public function testImageResizeCropAndExtract()

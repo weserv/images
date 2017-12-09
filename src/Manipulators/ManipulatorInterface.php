@@ -27,6 +27,9 @@ interface ManipulatorInterface
      *
      * @param Image $image The source image.
      *
+     * @throws \Jcupitt\Vips\Exception
+     * @throws \AndriesLouw\imagesweserv\Exception\ImageTooLargeException
+     *
      * @return Image The manipulated image.
      */
     public function run(Image $image): Image;

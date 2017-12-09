@@ -17,7 +17,7 @@ plugins:
     config:
       languages:
         php:
-          mass_threshold: 60
+          mass_threshold: 90
   fixme:
     enabled: true
     config:

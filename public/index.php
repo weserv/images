@@ -365,7 +365,7 @@ if (!empty($_GET['url'])) {
         $errorMessage = "$statusCode $reasonPhrase";
 
         if (!$isDnsError && isset($_GET['errorredirect'])) {
-            $host = isset($config['url']) ? (new Host($config['url']))->getRegisterableDomain() : 'weserv.nl';
+            $host = isset($config['url']) ? (new Host($config['url']))->getRegistrableDomain() : 'weserv.nl';
 
             try {
                 $uri = parseUrl($_GET['errorredirect']);
@@ -456,14 +456,13 @@ if (!empty($_GET['url'])) {
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Image cache &amp; resize proxy</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico"/>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.2/gh-fork-ribbon.min.css" integrity="sha384-jUHnRx457Q15HVKSx5g+6jqsItdcFcR0BBu729dDIMmTM4HT1sbXZuxxOpuiaM/p" crossorigin="anonymous" />
-    <!-- TODO: Implement Algolia DocSearch -->
-    <!-- <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/images-v3.css" /> -->
-    <link rel="stylesheet" href="//static.weserv.nl/images-v3c.css" integrity="sha384-m6zDiOevtGm3DYkqK31apUJ5oIjQdPY598x0L0ldq5idDHj6ILXI86LgP7C9UiQj" crossorigin="anonymous" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" href="//static.weserv.nl/images-v3d.css" integrity="sha384-fEHMtdq65tYjYhByCic8VIU71uMnMsa2p7gbfnM3oVrsRqStpQezE3bwA7/1Riwh" crossorigin="anonymous">
 	<!--[if lte IE 9]>
 	    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.2/gh-fork-ribbon.ie.min.css" />
 	    <script src="//static.weserv.nl/html5shiv-printshiv.min.js" type="text/javascript"></script>
@@ -477,12 +476,10 @@ if (!empty($_GET['url'])) {
                     <div id="weserv-logo">Images.<strong>weserv</strong>.nl</div>
                     <span>Image cache &amp; resize proxy</span>
                 </a>
-                <!-- TODO: Implement Algolia DocSearch -->
-                <!-- <div class="searchbox">
+                <div class="search-wrapper">
                     <label for="search-by"><i class="fa fa-search"></i></label>
-                    <input id="search-by" type="text" placeholder="Search Documentation" data-search-input="/s/q">
-                    <span data-search-clear><i class="fa fa-close"></i></span>
-                </div> -->
+                    <input id="search-by" type="text" placeholder="Search Documentation">
+                </div>
             </div>
         </div>
         <div class="scrollbar-inner">
@@ -494,7 +491,7 @@ if (!empty($_GET['url'])) {
                         <li class="dd-item"><a href="#size"><span>Size</span></a></li>
                         <li class="dd-item"><a href="#orientation"><span>Orientation</span></a></li>
                         <li class="dd-item"><a href="#trans"><span>Transformation</span></a></li>
-                        <li class="dd-item"><a href="#crop"><span>Crop position</span></a></li>
+                        <li class="dd-item"><a href="#crop-position"><span>Crop position</span></a></li>
                         <li class="dd-item"><a href="#shape"><span>Shape</span></a></li>
                         <li class="dd-item"><a href="#adjustments"><span>Adjustments</span></a></li>
                         <li class="dd-item"><a href="#effects"><span>Effects</span></a></li>
@@ -504,374 +501,435 @@ if (!empty($_GET['url'])) {
                 </li>
             </ul>
             <br />
-            <section id="footer">
+            <div id="footer">
                 <p><a href="https://github.com/andrieslouw/imagesweserv">Source code available on GitHub</a><br /><a href="//getgrav.org">Design inspired by Grav</a></p>
-            </section>
-        </div>
-    </nav>
-    <section id="body">
-        <div class="highlightable">
-            <div id="body-inner">
-                <section id="image-api" class="goto">
-                    <p>Images.<b>weserv</b>.nl is an image <b>cache</b> &amp; <b>resize</b> proxy. Our servers resize your image, cache it worldwide, and display it. <a class="github-fork-ribbon right-top" href="https://github.com/andrieslouw/imagesweserv/issues" data-ribbon="Feedback? Github!" title="Feedback? Github!">Feedback? GitHub!</a></p>
-                    <ul>
-                        <li>We don't support animated images (yet), but we do support GIF, JPEG, PNG, BMP, XBM, WebP and other filetypes, even transparent images.</li>
-                        <li>We do support IPv6, <a href="http://ipv6-test.com/validate.php?url=$url" rel="nofollow">serving dual stack</a>, and supporting <a href="https://$url/?url=ipv6.google.com/logos/logo.gif">IPv6-only origin hosts</a>.</li>
-                        <li>For secure connections over TLS/SSL, you can use <a href="https://$url/"><b>https</b>://$url/</a>. <br /><small class="sslnote">This can be very useful for embedding HTTP images on HTTPS websites. HTTPS origin hosts can be used by <a href="https://github.com/andrieslouw/imagesweserv/issues/33">prefixing the hostname with ssl:</a></small></li>
-                        <li>We're part of the <a href="https://www.cloudflare.com/">Cloudflare</a> community. Images are being cached and delivered straight from <a href="https://www.cloudflare.com/network">100+ global datacenters</a>. This ensures the fastest load times and best performance.</li>
-                        <li>On average, we resize 1 million (10<sup>6</sup>) images per hour, which generates around 25TB of outbound traffic per month.</li>
-                    </ul>
-                    <p>Requesting an image:</p>
-                    <ul>
-                        <li><code>?url=</code> (URL encoded) link to your image, without http://</li>
-                    </ul>
-                </section>
-                <section id="quick-reference" class="goto">
-                    <h1>Quick reference</h1>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>GET</th>
-                                <th>Description</th>
-                                <th>&nbsp;</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Width</td>
-                                <td><code>w</code></td>
-                                <td>Sets the width of the image, in pixels.</td>
-                                <td><a href="#width-w">info</a></td>
-                            </tr>
-                            <tr>
-                                <td>Height</td>
-                                <td><code>h</code></td>
-                                <td>Sets the height of the image, in pixels.</td>
-                                <td><a href="#height-h">info</a></td>
-                            </tr>
-                            <tr>
-                                <td>Device pixel ratio</td>
-                                <td><code>dpr</code></td>
-                                <td>Sets the output density of the image.</td>
-                                <td><a href="#dpr">info</a></td>
-                            </tr>
-                            <tr>
-                                <td>Orientation</td>
-                                <td><code>or</code></td>
-                                <td>Rotates the image.</td>
-                                <td><a href="#orientation-or">info</a></td>
-                            </tr>
-                            <tr>
-                                <td>Transformation</td>
-                                <td><code>t</code></td>
-                                <td>Sets how the image is fitted to its target dimensions.</td>
-                                <td><a href="#trans-fit">info</a></td>
-                            </tr>
-                            <tr>
-                                <td>Crop</td>
-                                <td><code>crop</code></td>
-                                <td>Crops the image to specific dimensions.</td>
-                                <td><a href="#crop-crop">info</a></td>
-                            </tr>
-                            <tr>
-                                <td>Crop alignment</td>
-                                <td><code>a</code></td>
-                                <td>Sets how the crop is aligned.</td>
-                                <td><a href="#crop-position">info</a></td>
-                            </tr>
-                            <tr>
-                                <td>Shape</td>
-                                <td><code>shape</code></td>
-                                <td>Crops the image to a specific shape.</td>
-                                <td><a href="#shape-shape">info</a></td>
-                            </tr>
-                            <tr>
-                                <td>Brightness</td>
-                                <td><code>bri</code></td>
-                                <td>Adjusts the image brightness.</td>
-                                <td><a href="#brightness-bri">info</a></td>
-                            </tr>
-                            <tr>
-                                <td>Contrast</td>
-                                <td><code>con</code></td>
-                                <td>Adjusts the image contrast.</td>
-                                <td><a href="#contrast-con">info</a></td>
-                            </tr>
-                            <tr>
-                                <td>Gamma</td>
-                                <td><code>gam</code></td>
-                                <td>Adjusts the image gamma.</td>
-                                <td><a href="#gamma-gam">info</a></td>
-                            </tr>
-                            <tr>
-                                <td>Sharpen</td>
-                                <td><code>sharp</code></td>
-                                <td>Sharpen the image.</td>
-                                <td><a href="#sharpen-sharp">info</a></td>
-                            </tr>
-                            <tr>
-                                <td>Trim</td>
-                                <td><code>trim</code></td>
-                                <td>Trim "boring" pixels from all edges.</td>
-                                <td><a href="#trim-trim">info</a></td>
-                            </tr>
-                            <tr>
-                                <td>Blur</td>
-                                <td><code>blur</code></td>
-                                <td>Adds a blur effect to the image.</td>
-                                <td><a href="#blur-blur">info</a></td>
-                            </tr>
-                            <tr>
-                                <td>Filter</td>
-                                <td><code>filt</code></td>
-                                <td>Applies a filter effect to the image.</td>
-                                <td><a href="#filter-filt">info</a></td>
-                            </tr>
-                            <tr>
-                                <td>Background</td>
-                                <td><code>bg</code></td>
-                                <td>Sets the background color of the image.</td>
-                                <td><a href="#background-bg">info</a></td>
-                            </tr>
-                            <tr>
-                                <td>Quality</td>
-                                <td><code>q</code></td>
-                                <td>Defines the quality of the image.</td>
-                                <td><a href="#quality-q">info</a></td>
-                            </tr>
-                            <tr>
-                                <td>Output</td>
-                                <td><code>output</code></td>
-                                <td>Encodes the image to a specific format.</td>
-                                <td><a href="#output-output">info</a></td>
-                            </tr>
-                            <tr>
-                                <td>Interlace / progressive</td>
-                                <td><code>il</code></td>
-                                <td>Adds interlacing to GIF and PNG. JPEG's become progressive.</td>
-                                <td><a href="#interlace-progressive-il">info</a></td>
-                            </tr>
-                            <tr>
-                                <td>Base64 (data URL)</td>
-                                <td><code>encoding</code></td>
-                                <td>Encodes the image to be used directly in the src= of the &lt;img&gt;-tag.</td>
-                                <td><a href="#base64-encoding">info</a></td>
-                            </tr>
-                            <tr>
-                                <td>Default image</td>
-                                <td><code>errorredirect</code></td>
-                                <td>Redirects to a default image when there is a problem loading an image.</td>
-                                <td><a href="#default">info</a></td>
-                            </tr>
-                            <tr>
-                                <td>Page</td>
-                                <td><code>page</code></td>
-                                <td>To load a given page.</td>
-                                <td><a href="#page">info</a></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </section>
-                <section id="size" class="goto">
-                    <h1>Size</h1>
-                    <h3 id="width-w">Width <code>&amp;w=</code></h3>
-                    <p>Sets the width of the image, in pixels.</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300"&gt;</code></pre>
-                    <a href="//$url/?url=$exampleImage&amp;w=300"><img src="//$url/?url=$exampleImage&amp;w=300" alt=""/></a>
-                    <h3 id="height-h">Height <code>&amp;h=</code></h3>
-                    <p>Sets the height of the image, in pixels.</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;h=300"&gt;</code></pre>
-                    <a href="//$url/?url=$exampleImage&amp;h=300"><img src="//$url/?url=$exampleImage&amp;h=300" alt=""/></a>
-                    <h3 id="dpr">Device pixel ratio <code>&amp;dpr=</code> <span class="new">New!</span></h3>
-                    <p>The device pixel ratio is used to easily convert between CSS pixels and device pixels. This makes it possible to display images at the correct pixel density on a variety of devices such as Apple devices with Retina Displays and Android devices. You must specify either a width, a height, or both for this parameter to work. Use values between <code>1</code> and <code>8</code>.</p>
-                    <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/115">Issue #115 - DPI support</a>.</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;h=144&amp;dpr=2"&gt;</code></pre>
-                    <a href="//$url/?url=$exampleImage&amp;h=144&amp;dpr=2"><img src="//$url/?url=$exampleImage&amp;h=144&amp;dpr=2" alt=""/></a>
-                </section>
-                <section id="orientation" class="goto">
-                    <h1>Orientation</h1>
-                    <h3 id="orientation-or">Orientation <code>&amp;or=</code> <span class="new">New!</span></h3>
-                    <p>Rotates the image. Accepts <code>auto</code>, <code>0</code>, <code>90</code>, <code>180</code> or <code>270</code>. Default is <code>auto</code>. The <code>auto</code> option uses Exif data to automatically orient images correctly.</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;h=300&amp;or=90"&gt;</code></pre>
-                    <a href="//$url/?url=$exampleImage&amp;h=300&amp;or=90"><img src="//$url/?url=$exampleImage&amp;h=300&amp;or=90" alt=""/></a>
-                </section>
-                <section id="trans" class="goto">
-                    <h1>Transformation <code>&amp;t=</code></h1>
-                    <p>Sets how the image is fitted to its target dimensions. Below are a couple of examples.</p>
-                    <h3 id="trans-fit">Fit <code>&amp;t=fit</code></h3>
-                    <p>Default. Resizes the image to fit within the width and height boundaries without cropping, distorting or altering the aspect ratio. <b>Will not</b> oversample the image if the requested size is larger than that of the original.</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=fit"&gt;</code></pre>
-                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=fit"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=fit" alt=""/></a>
-                    <h3 id="trans-fitup">Fitup <code>&amp;t=fitup</code></h3>
-                    <p>Resizes the image to fit within the width and height boundaries without cropping, distorting or altering the aspect ratio. <b>Will</b> increase the size of the image if it is smaller than the output size.</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=fitup"&gt;</code></pre>
-                    <h3 id="trans-square">Square <code>&amp;t=square</code></h3>
-                    <p>Resizes the image to fill the width and height boundaries and crops any excess image data. The resulting image will match the width and height constraints without distorting the image. <b>Will</b> increase the size of the image if it is smaller than the output size.</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square"&gt;</code></pre>
-                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square" alt=""/></a>
-                     <h3 id="trans-squaredown">Squaredown <code>&amp;t=squaredown</code></h3>
-                    <p>Resizes the image to fill the width and height boundaries and crops any excess image data. The resulting image will match the width and height constraints without distorting the image. <b>Will not</b> oversample the image if the requested size is larger than that of the original.</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=squaredown"&gt;</code></pre>
-                    <h3 id="trans-absolute">Absolute <code>&amp;t=absolute</code></h3>
-                    <p>Stretches the image to fit the constraining dimensions exactly. The resulting image will fill the dimensions, and will not maintain the aspect ratio of the input image.</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=absolute"&gt;</code></pre>
-                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=absolute"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=absolute" alt=""/></a>
-                    <h3 id="trans-letterbox">Letterbox <code>&amp;t=letterbox</code> <span class="new">New!</span></h3>
-                    <p>Resizes the image to fit within the width and height boundaries without cropping or distorting the image, and the remaining space is filled with the background color. The resulting image will match the constraining dimensions.</p>
-                    <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/80">Issue #80 - letterbox images that need to fit</a>.</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black"&gt;</code></pre>
-                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black" alt=""/></a>
-                </section>
-                <section id="crop" class="goto">
-                    <h1 id="crop-position">Crop position <code>&amp;a=</code></h1>
-                    <p>You can also set where the image is cropped by adding a crop position. Only works when <code>t=square</code>. Accepts <code>top</code>, <code>left</code>, <code>center</code>, <code>right</code> or <code>bottom</code>. Default is <code>center</code>. For more information, please see the suggestion on our GitHub issue tracker: <a href="https://github.com/andrieslouw/imagesweserv/issues/24">Issue #24 - Aligning</a>.</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=top"&gt;</code></pre>
-                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=top"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=top" alt=""/></a>
-                    <h3 id="crop-focal-point">Crop Focal Point <span class="new">New!</span></h3>
-                    <p>In addition to the crop position, you can be more specific about the exact crop position using a focal point. Only works when <code>t=square</code>. This is defined using two offset percentages: <code>crop-x%-y%</code>.</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-0-20"&gt;</code></pre>
-                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-0-20"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-0-20" alt=""/></a>
-                    <h3 id="crop-crop">Manual crop <code>&amp;crop=</code></h3>
-                    <p>Crops the image to specific dimensions after any other resize operations. Required format: <code>width,height,x,y</code>.</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;crop=300,300,680,500"&gt;</code></pre>
-                    <a href="//$url/?url=$exampleImage&amp;crop=300,300,680,500"><img src="//$url/?url=$exampleImage&amp;crop=300,300,680,500" alt=""/></a>
-                    <h3 id="crop-smartcrop">Smart crop <code>&amp;a=entropy</code> or <code>&amp;a=attention</code> <span class="new">New!</span></h3>
-                    <p>Crops the image down to specific dimensions by removing boring parts. Only works when <code>t=square</code>. More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/90">Issue #90 - Add support for smart crop</a>.</p>
-                    <h4 id="smartcrop-accepts">Accepts:</h4>
-                    <ul>
-                        <li><code>entropy</code>: focus on the region with the highest <a href="https://en.wikipedia.org/wiki/Entropy_%28information_theory%29">Shannon entropy</a>.</li>
-                        <li><code>attention</code>: focus on the region with the highest luminance frequency, colour saturation and presence of skin tones.</li>
-                    </ul>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleSmartcropImage&amp;w=300&amp;h=300&amp;t=square&amp;a=attention"&gt;</code></pre>
-                    <a href="//$url/?url=$exampleSmartcropImage&amp;w=300&amp;h=300&amp;t=square&amp;a=attention"><img src="//$url/?url=$exampleSmartcropImage&amp;w=300&amp;h=300&amp;t=square&amp;a=attention" alt=""/></a>
-                </section>
-                <section id="shape" class="goto">
-                    <h1>Shape</h1>
-                    <h3 id="shape-shape">Shape <code>&amp;shape=</code></h3>
-                    <p>Crops the image to a specific shape. Use <code>&amp;strim</code> to also remove the remaining whitespace. More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/49">Issue #49 - Add circle effect to photos</a>.</p>
-                    <div class="notices note">
-                        <p>Previously the <code>&amp;strim</code> parameter was enabled by default. In December 2017 it was changed to an optional parameter to be more consistent with other features.</p>
-                    </div>
-                    <h4 id="shape-accepts">Accepts:</h4>
-                    <ul>
-                        <li><code>circle</code></li>
-                        <li><code>ellipse</code></li>
-                        <li><code>triangle</code></li>
-                        <li><code>triangle-180</code>: Triangle tilted upside down</li>
-                        <li><code>pentagon</code></li>
-                        <li><code>pentagon-180</code>: Pentagon tilted upside down</li>
-                        <li><code>hexagon</code></li>
-                        <li><code>square</code>: Square tilted 45 degrees</li>
-                        <li><code>star</code>: 5-point star</li>
-                        <li><code>heart</code></li>
-                    </ul>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle"&gt;</code></pre>
-                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle" alt=""/></a>
-                </section>
-                <section id="adjustments" class="goto">
-                    <h1>Adjustments</h1>
-                    <h3 id="brightness-bri">Brightness <code>&amp;bri=</code> <span class="new">New!</span></h3>
-                    <p>Adjusts the image brightness. Use values between <code>-100</code> and <code>+100</code>, where <code>0</code> represents no change.</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;bri=-25"&gt;</code></pre>
-                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;bri=-25"><img src="//$url/?url=$exampleImage&amp;w=300&amp;bri=-25" alt=""/></a>
-                    <h3 id="contrast-con">Contrast <code>&amp;con=</code> <span class="new">New!</span></h3>
-                    <p>Adjusts the image contrast. Use values between <code>-100</code> and <code>+100</code>, where <code>0</code> represents no change.</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;con=25"&gt;</code></pre>
-                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;con=25"><img src="//$url/?url=$exampleImage&amp;w=300&amp;con=25" alt=""/></a>
-                    <h3 id="gamma-gam">Gamma <code>&amp;gam=</code> <span class="new">New!</span></h3>
-                    <p>Adjusts the image gamma. Use values between <code>1</code> and <code>3</code>. The default value is <code>2.2</code>, a suitable approximation for sRGB images.</p>
-                    <div class="notices note">
-                        <p>The behavior of adjusting the image gamma was changed in December 2017. We apologize for any inconvenience caused.</p>
-                    </div>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;gam=3"&gt;</code></pre>
-                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;gam=3"><img src="//$url/?url=$exampleImage&amp;w=300&amp;gam=3" alt=""/></a>
-                    <h3 id="sharpen-sharp">Sharpen <code>&amp;sharp=</code> <span class="new">New!</span></h3>
-                    <p>Sharpen the image. Required format: <code>f,j,r</code></p>
-                    <h4 id="sharpen-arguments">Arguments:</h4>
-                    <ul>
-                        <li>Flat <code>f</code> - Sharpening to apply to flat areas. (Default: 1.0)</li>
-                        <li>Jagged <code>j</code> - Sharpening to apply to jagged areas. (Default: 2.0)</li>
-                        <li>Radius <code>r</code> - Sharpening mask to apply in pixels, but comes at a performance cost. (optional)</li>
-                    </ul>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;sharp=5,5,3"&gt;</code></pre>
-                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;sharp=5,5,3"><img src="//$url/?url=$exampleImage&amp;w=300&amp;sharp=5,5,3" alt=""/></a>
-                    <h3 id="trim-trim">Trim <code>&amp;trim=</code></h3>
-                    <p>Trim "boring" pixels from all edges that contain values within a similarity of the top-left pixel. Trimming occurs before any resize operation. Use values between <code>1</code> and <code>254</code> to define a tolerance level to trim away similar color values. You also can specify just &trim, which defaults to a tolerance level of 10.</p>
-                    <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/39">Issue #39 - able to remove black/white whitespace</a>.</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleTransparentImage&amp;w=300&amp;trim=10"&gt;</code></pre>
-                    <a class="trimedges" href="//$url/?url=$exampleTransparentImage&amp;w=300&amp;trim=10"><img src="//$url/?url=$exampleTransparentImage&amp;w=300&amp;trim=10" alt=""/></a>
-                    <h3 id="background-bg">Background <code>&amp;bg=</code> <span class="new">New!</span></h3>
-                    <p>Sets the background color of the image. Supports a variety of color formats. In addition to the 140 color names supported by all modern browsers (listed <a href="//$url/colors.html">here</a>), it also accepts hexadecimal RGB and RBG alpha formats. More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/81">Issue #81 - Background setting</a>.</p>
-                    <h4 id="hexadecimal">Hexadecimal</h4>
-                    <ul>
-                        <li>3 digit RGB: <code>CCC</code></li>
-                        <li>4 digit ARGB (alpha): <code>5CCC</code></li>
-                        <li>6 digit RGB: <code>CCCCCC</code></li>
-                        <li>8 digit ARGB (alpha): <code>55CCCCCC</code></li>
-                    </ul>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleTransparentImage&amp;w=400&amp;bg=black"&gt;</code></pre>
-                    <a href="//$url/?url=$exampleTransparentImage&amp;w=400&amp;bg=black"><img src="//$url/?url=$exampleTransparentImage&amp;w=400&amp;bg=black" alt=""/></a>
-                </section>
-                <section id="effects" class="goto">
-                    <h1>Effects</h1>
-                    <h3 id="blur-blur">Blur <code>&amp;blur=</code> <span class="new">New!</span></h3>
-                    <p>Adds a blur effect to the image. Use values between <code>0</code> and <code>100</code>.</p>
-                    <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/69">Issue #69 - Allow blur transformation (with radius parameter)</a>.</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;blur=5"&gt;</code></pre>
-                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;blur=5"><img src="//$url/?url=$exampleImage&amp;w=300&amp;blur=5" alt=""/></a>
-                    <h3 id="filter-filt">Filter <code>&amp;filt=</code> <span class="new">New!</span></h3>
-                    <p>Applies a filter effect to the image. Accepts <code>greyscale</code>, <code>sepia</code> or <code>negate</code>.</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;filt=greyscale"&gt;</code></pre>
-                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;filt=greyscale"><img src="//$url/?url=$exampleImage&amp;w=300&amp;filt=greyscale" alt=""/></a>
-                </section>
-                <section id="encoding" class="goto">
-                    <h1>Encoding</h1>
-                    <h3 id="quality-q">Quality <code>&amp;q=</code></h3>
-                    <p>Defines the quality of the image. Use values between <code>0</code> and <code>100</code>. Defaults to <code>85</code>. Only relevant if the format is set to <code>jpg</code>.</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;q=20"&gt;</code></pre>
-                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;q=20"><img src="//$url/?url=$exampleImage&amp;w=300&amp;q=20" alt=""/></a>
-                    <h3 id="output-output">Output <code>&amp;output=</code></h3>
-                    <p>Encodes the image to a specific format. Accepts <code>jpg</code>, <code>png</code>, <code>gif</code> or <code>webp</code>. If none is given, it will honor the origin image format.</p>
-                    <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/62">Issue #62 - Format conversion</a>.</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;output=webp"&gt;</code></pre>
-                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;output=webp"><img src="//$url/?url=$exampleImage&amp;w=300&amp;output=webp" alt=""/></a>
-                    <h3 id="interlace-progressive-il">Interlace / progressive <code>&amp;il</code></h3>
-                    <p>Adds interlacing to GIF and PNG. JPEG's become progressive.</p>
-                    <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/50">Issue #50 - Add parameter to use progressive JPEGs</a>.</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;il"&gt;</code></pre>
-                    <a href="//$url/?url=$exampleImage&amp;w=300&amp;il"><img src="//$url/?url=$exampleImage&amp;w=300&amp;il" alt=""/></a>
-                    <h3 id="base64-encoding">Base64 (data URL) <code>&amp;encoding=base64</code></h3>
-                    <p>Encodes the image to be used directly in the src= of the <code>&lt;img&gt;</code>-tag. <a href="//$url/?url=$exampleImage&amp;crop=100,100,680,500&amp;encoding=base64">Use this link to see the output result</a>.</p>
-                    <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/59">Issue #59 - Return image base64 encoded</a>.</p>
-                    <pre><code>//$url/?url=$exampleImage&amp;crop=100,100,680,500&amp;encoding=base64</code></pre>
-                </section>
-                <section id="misc" class="goto">
-                    <h1>Miscellaneous</h1>
-                    <h3 id="default">Default image <code>&amp;errorredirect=</code> <span class="new">New!</span></h3>
-                    <p>If there is a problem loading an image, then a error is shown. However, there might be a need where instead of giving a broken image to the user, you want a default image to be delivered.</p>
-                    <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/37">Issue #37 - Return default image if the image's URL not found</a>.</p>
-                    <p>The URL must not include a <code>errorredirect</code> querystring (if it does, it will be ignored).</p>
-                    <pre><code class="language-html">&lt;img src="//$url/?url=example.org/noimage.jpg&amp;errorredirect=ssl:$url%2F%3Furl%3D$exampleImage%26w%3D300"&gt;</code></pre>
-                    <a href="//$url/?url=example.org/noimage.jpg&amp;errorredirect=ssl:$url%2F%3Furl%3D$exampleImage%26w%3D300"><img src="//$url/?url=example.org/noimage.jpg&amp;errorredirect=ssl:$url%2F%3Furl%3D$exampleImage%26w%3D300" alt=""/></a>
-                    <h3 id="page">Page <code>&amp;page=</code> <span class="new">New!</span></h3>
-                    <p>To load a given page (for an PDF, TIFF and multi-size ICO file). The value is numbered from zero.</p>
-                </section>
             </div>
         </div>
-    </section>
+    </nav>
+    <div id="body">
+        <section id="image-api">
+            <h1 style="display: none;">Documentation</h1><p>Images.<b>weserv</b>.nl is an image <b>cache</b> &amp; <b>resize</b> proxy. Our servers resize your image, cache it worldwide, and display it. <a class="github-fork-ribbon right-top" href="https://github.com/andrieslouw/imagesweserv/issues" data-ribbon="Feedback? Github!" title="Feedback? Github!">Feedback? GitHub!</a></p>
+            <ul>
+                <li>We don't support animated images (yet), but we do support GIF, JPEG, PNG, BMP, XBM, WebP and other filetypes, even transparent images.</li>
+                <li>We do support IPv6, <a href="http://ipv6-test.com/validate.php?url=$url" rel="nofollow">serving dual stack</a>, and supporting <a href="https://$url/?url=ipv6.google.com/logos/logo.gif">IPv6-only origin hosts</a>.</li>
+                <li>For secure connections over TLS/SSL, you can use <a href="https://$url/"><b>https</b>://$url/</a>. <br /><small class="sslnote">This can be very useful for embedding HTTP images on HTTPS websites. HTTPS origin hosts can be used by <a href="https://github.com/andrieslouw/imagesweserv/issues/33">prefixing the hostname with ssl:</a></small></li>
+                <li>We're part of the <a href="https://www.cloudflare.com/">Cloudflare</a> community. Images are being cached and delivered straight from <a href="https://www.cloudflare.com/network">100+ global datacenters</a>. This ensures the fastest load times and best performance.</li>
+                <li>On average, we resize 1 million (10<sup>6</sup>) images per hour, which generates around 25TB of outbound traffic per month.</li>
+            </ul>
+            <p>Requesting an image:</p>
+            <ul>
+                <li><code>?url=</code> (URL encoded) link to your image, without http://</li>
+            </ul>
+        </section>
+        <section>
+            <h1 id="quick-reference">Quick reference</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>GET</th>
+                        <th>Description</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Width</td>
+                        <td><code>w</code></td>
+                        <td>Sets the width of the image, in pixels.</td>
+                        <td><a href="#width">info</a></td>
+                    </tr>
+                    <tr>
+                        <td>Height</td>
+                        <td><code>h</code></td>
+                        <td>Sets the height of the image, in pixels.</td>
+                        <td><a href="#height">info</a></td>
+                    </tr>
+                    <tr>
+                        <td>Device pixel ratio</td>
+                        <td><code>dpr</code></td>
+                        <td>Sets the output density of the image.</td>
+                        <td><a href="#dpr">info</a></td>
+                    </tr>
+                    <tr>
+                        <td>Orientation</td>
+                        <td><code>or</code></td>
+                        <td>Rotates the image.</td>
+                        <td><a href="#orientation">info</a></td>
+                    </tr>
+                    <tr>
+                        <td>Transformation</td>
+                        <td><code>t</code></td>
+                        <td>Sets how the image is fitted to its target dimensions.</td>
+                        <td><a href="#trans">info</a></td>
+                    </tr>
+                    <tr>
+                        <td>Crop</td>
+                        <td><code>crop</code></td>
+                        <td>Crops the image to specific dimensions.</td>
+                        <td><a href="#manual-crop">info</a></td>
+                    </tr>
+                    <tr>
+                        <td>Crop alignment</td>
+                        <td><code>a</code></td>
+                        <td>Sets how the crop is aligned.</td>
+                        <td><a href="#crop-position">info</a></td>
+                    </tr>
+                    <tr>
+                        <td>Shape</td>
+                        <td><code>shape</code></td>
+                        <td>Crops the image to a specific shape.</td>
+                        <td><a href="#shape">info</a></td>
+                    </tr>
+                    <tr>
+                        <td>Brightness</td>
+                        <td><code>bri</code></td>
+                        <td>Adjusts the image brightness.</td>
+                        <td><a href="#brightness">info</a></td>
+                    </tr>
+                    <tr>
+                        <td>Contrast</td>
+                        <td><code>con</code></td>
+                        <td>Adjusts the image contrast.</td>
+                        <td><a href="#contrast">info</a></td>
+                    </tr>
+                    <tr>
+                        <td>Gamma</td>
+                        <td><code>gam</code></td>
+                        <td>Adjusts the image gamma.</td>
+                        <td><a href="#gamma">info</a></td>
+                    </tr>
+                    <tr>
+                        <td>Sharpen</td>
+                        <td><code>sharp</code></td>
+                        <td>Sharpen the image.</td>
+                        <td><a href="#sharpen">info</a></td>
+                    </tr>
+                    <tr>
+                        <td>Trim</td>
+                        <td><code>trim</code></td>
+                        <td>Trim "boring" pixels from all edges.</td>
+                        <td><a href="#trim">info</a></td>
+                    </tr>
+                    <tr>
+                        <td>Blur</td>
+                        <td><code>blur</code></td>
+                        <td>Adds a blur effect to the image.</td>
+                        <td><a href="#blur">info</a></td>
+                    </tr>
+                    <tr>
+                        <td>Filter</td>
+                        <td><code>filt</code></td>
+                        <td>Applies a filter effect to the image.</td>
+                        <td><a href="#filter">info</a></td>
+                    </tr>
+                    <tr>
+                        <td>Background</td>
+                        <td><code>bg</code></td>
+                        <td>Sets the background color of the image.</td>
+                        <td><a href="#background">info</a></td>
+                    </tr>
+                    <tr>
+                        <td>Quality</td>
+                        <td><code>q</code></td>
+                        <td>Defines the quality of the image.</td>
+                        <td><a href="#quality">info</a></td>
+                    </tr>
+                    <tr>
+                        <td>Output</td>
+                        <td><code>output</code></td>
+                        <td>Encodes the image to a specific format.</td>
+                        <td><a href="#output">info</a></td>
+                    </tr>
+                    <tr>
+                        <td>Interlace / progressive</td>
+                        <td><code>il</code></td>
+                        <td>Adds interlacing to GIF and PNG. JPEG's become progressive.</td>
+                        <td><a href="#interlace-progressive">info</a></td>
+                    </tr>
+                    <tr>
+                        <td>Base64 (data URL)</td>
+                        <td><code>encoding</code></td>
+                        <td>Encodes the image to be used directly in the src= of the &lt;img&gt;-tag.</td>
+                        <td><a href="#base64">info</a></td>
+                    </tr>
+                    <tr>
+                        <td>Default image</td>
+                        <td><code>errorredirect</code></td>
+                        <td>Redirects to a default image when there is a problem loading an image.</td>
+                        <td><a href="#default">info</a></td>
+                    </tr>
+                    <tr>
+                        <td>Page</td>
+                        <td><code>page</code></td>
+                        <td>To load a given page.</td>
+                        <td><a href="#page">info</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        <section>
+            <h1 id="size">Size</h1>
+            <section>
+                <h2 id="width" class="param">Width</h2><code>&amp;w=</code>
+                <p>Sets the width of the image, in pixels.</p>
+                <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300"&gt;</code></pre>
+                <a href="//$url/?url=$exampleImage&amp;w=300"><img src="//$url/?url=$exampleImage&amp;w=300" alt=""/></a>
+            </section>
+            <section>
+                <h2 id="height"  class="param">Height</h2><code>&amp;h=</code>
+                <p>Sets the height of the image, in pixels.</p>
+                <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;h=300"&gt;</code></pre>
+                <a href="//$url/?url=$exampleImage&amp;h=300"><img src="//$url/?url=$exampleImage&amp;h=300" alt=""/></a>
+            </section>
+            <section>
+                <h2 id="dpr" class="param">Device pixel ratio</h2><code>&amp;dpr=</code><span class="new">New!</span>
+                <p>The device pixel ratio is used to easily convert between CSS pixels and device pixels. This makes it possible to display images at the correct pixel density on a variety of devices such as Apple devices with Retina Displays and Android devices. You must specify either a width, a height, or both for this parameter to work. Use values between <code>1</code> and <code>8</code>.</p>
+                <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/115">Issue #115 - DPI support</a>.</p>
+                <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;h=144&amp;dpr=2"&gt;</code></pre>
+                <a href="//$url/?url=$exampleImage&amp;h=144&amp;dpr=2"><img src="//$url/?url=$exampleImage&amp;h=144&amp;dpr=2" alt=""/></a>
+            </section>
+        </section>
+        <section>
+            <h1 id="orientation" class="param">Orientation</h1><code>&amp;or=</code><span class="new">New!</span>
+            <p>Rotates the image. Accepts <code>auto</code>, <code>0</code>, <code>90</code>, <code>180</code> or <code>270</code>. Default is <code>auto</code>. The <code>auto</code> option uses Exif data to automatically orient images correctly.</p>
+            <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;h=300&amp;or=90"&gt;</code></pre>
+            <a href="//$url/?url=$exampleImage&amp;h=300&amp;or=90"><img src="//$url/?url=$exampleImage&amp;h=300&amp;or=90" alt=""/></a>
+        </section>
+        <section>
+            <h1 id="trans" class="param">Transformation</h1><code>&amp;t=</code>
+            <p>Sets how the image is fitted to its target dimensions. Below are a couple of examples.</p>
+            <section>
+                <h2 id="fit" class="param">Fit</h2><code>&amp;t=fit</code>
+                <p>Default. Resizes the image to fit within the width and height boundaries without cropping, distorting or altering the aspect ratio. <b>Will not</b> oversample the image if the requested size is larger than that of the original.</p>
+                <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=fit"&gt;</code></pre>
+                <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=fit"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=fit" alt=""/></a>
+            </section>
+            <section>
+                <h2 id="fitup" class="param">Fitup</h2><code>&amp;t=fitup</code>
+                <p>Resizes the image to fit within the width and height boundaries without cropping, distorting or altering the aspect ratio. <b>Will</b> increase the size of the image if it is smaller than the output size.</p>
+                <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=fitup"&gt;</code></pre>
+            </section>
+            <section>
+                <h2 id="square" class="param">Square</h2><code>&amp;t=square</code>
+                <p>Resizes the image to fill the width and height boundaries and crops any excess image data. The resulting image will match the width and height constraints without distorting the image. <b>Will</b> increase the size of the image if it is smaller than the output size.</p>
+                <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square"&gt;</code></pre>
+                <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square" alt=""/></a>
+            </section>
+            <section>
+                <h2 id="squaredown" class="param">Squaredown</h2><code>&amp;t=squaredown</code>
+                <p>Resizes the image to fill the width and height boundaries and crops any excess image data. The resulting image will match the width and height constraints without distorting the image. <b>Will not</b> oversample the image if the requested size is larger than that of the original.</p>
+                <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=squaredown"&gt;</code></pre>
+            </section>
+            <section>
+                <h2 id="absolute" class="param">Absolute</h2><code>&amp;t=absolute</code>
+                <p>Stretches the image to fit the constraining dimensions exactly. The resulting image will fill the dimensions, and will not maintain the aspect ratio of the input image.</p>
+                <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=absolute"&gt;</code></pre>
+                <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=absolute"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=absolute" alt=""/></a>
+            </section>
+            <section>
+                <h2 id="letterbox" class="param">Letterbox</h2><code>&amp;t=letterbox</code><span class="new">New!</span>
+                <p>Resizes the image to fit within the width and height boundaries without cropping or distorting the image, and the remaining space is filled with the background color. The resulting image will match the constraining dimensions.</p>
+                <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/80">Issue #80 - letterbox images that need to fit</a>.</p>
+                <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black"&gt;</code></pre>
+                <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black" alt=""/></a>
+            </section>
+        </section>
+        <section>
+            <h1 id="crop-position" class="param">Crop position</h1><code>&amp;a=</code>
+            <p>You can also set where the image is cropped by adding a crop position. Only works when <code>t=square</code>. Accepts <code>top</code>, <code>left</code>, <code>center</code>, <code>right</code> or <code>bottom</code>. Default is <code>center</code>. For more information, please see the suggestion on our GitHub issue tracker: <a href="https://github.com/andrieslouw/imagesweserv/issues/24">Issue #24 - Aligning</a>.</p>
+            <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=top"&gt;</code></pre>
+            <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=top"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=top" alt=""/></a>
+            <section>
+                <h2 id="focal-point" class="param">Crop Focal Point</h2><code>&amp;a=crop-x%-y%</code><span class="new">New!</span>
+                <p>In addition to the crop position, you can be more specific about the exact crop position using a focal point. Only works when <code>t=square</code>. This is defined using two offset percentages: <code>crop-x%-y%</code>.</p>
+                <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-0-20"&gt;</code></pre>
+                <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-0-20"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-0-20" alt=""/></a>
+            </section>
+            <section>
+                <h2 id="smartcrop" class="param">Smart crop</h2><code>&amp;a=entropy</code> or <code>&amp;a=attention</code><span class="new">New!</span>
+                <p>Crops the image down to specific dimensions by removing boring parts. Only works when <code>t=square</code>. More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/90">Issue #90 - Add support for smart crop</a>.</p>
+                <h3 id="smartcrop-accepts">Accepts:</h3>
+                <ul>
+                    <li><code>entropy</code>: focus on the region with the highest <a href="https://en.wikipedia.org/wiki/Entropy_%28information_theory%29">Shannon entropy</a>.</li>
+                    <li><code>attention</code>: focus on the region with the highest luminance frequency, colour saturation and presence of skin tones.</li>
+                </ul>
+                <pre><code class="language-html">&lt;img src="//$url/?url=$exampleSmartcropImage&amp;w=300&amp;h=300&amp;t=square&amp;a=attention"&gt;</code></pre>
+                <a href="//$url/?url=$exampleSmartcropImage&amp;w=300&amp;h=300&amp;t=square&amp;a=attention"><img src="//$url/?url=$exampleSmartcropImage&amp;w=300&amp;h=300&amp;t=square&amp;a=attention" alt=""/></a>
+            </section>
+            <section>
+                <h2 id="manual-crop" class="param">Manual crop</h2><code>&amp;crop=</code>
+                <p>Crops the image to specific dimensions after any other resize operations. Required format: <code>width,height,x,y</code>.</p>
+                <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;crop=300,300,680,500"&gt;</code></pre>
+                <a href="//$url/?url=$exampleImage&amp;crop=300,300,680,500"><img src="//$url/?url=$exampleImage&amp;crop=300,300,680,500" alt=""/></a>
+            </section>
+        </section>
+        <section>
+            <h1 id="shape" class="param">Shape</h1><code>&amp;shape=</code>
+            <p>Crops the image to a specific shape. Use <code>&amp;strim</code> to also remove the remaining whitespace. More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/49">Issue #49 - Add circle effect to photos</a>.</p>
+            <div class="notices note">
+                <div class="heading">Note</div>
+                <p>Previously the <code>&amp;strim</code> parameter was enabled by default. In December 2017 it was changed to an optional parameter to be more consistent with other features.</p>
+            </div>
+            <h2 id="shape-accepts">Accepts:</h2>
+            <ul>
+                <li><code>circle</code></li>
+                <li><code>ellipse</code></li>
+                <li><code>triangle</code></li>
+                <li><code>triangle-180</code>: Triangle tilted upside down</li>
+                <li><code>pentagon</code></li>
+                <li><code>pentagon-180</code>: Pentagon tilted upside down</li>
+                <li><code>hexagon</code></li>
+                <li><code>square</code>: Square tilted 45 degrees</li>
+                <li><code>star</code>: 5-point star</li>
+                <li><code>heart</code></li>
+            </ul>
+            <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle"&gt;</code></pre>
+            <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle" alt=""/></a>
+        </section>
+        <section>
+            <h1 id="adjustments">Adjustments</h1>
+            <section>
+                <h2 id="brightness" class="param">Brightness</h2><code>&amp;bri=</code><span class="new">New!</span>
+                <p>Adjusts the image brightness. Use values between <code>-100</code> and <code>+100</code>, where <code>0</code> represents no change.</p>
+                <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;bri=-25"&gt;</code></pre>
+                <a href="//$url/?url=$exampleImage&amp;w=300&amp;bri=-25"><img src="//$url/?url=$exampleImage&amp;w=300&amp;bri=-25" alt=""/></a>
+            </section>
+            <section>
+                <h2 id="contrast" class="param">Contrast</h2><code>&amp;con=</code><span class="new">New!</span>
+                <p>Adjusts the image contrast. Use values between <code>-100</code> and <code>+100</code>, where <code>0</code> represents no change.</p>
+                <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;con=25"&gt;</code></pre>
+                <a href="//$url/?url=$exampleImage&amp;w=300&amp;con=25"><img src="//$url/?url=$exampleImage&amp;w=300&amp;con=25" alt=""/></a>
+            </section>
+            <section>
+                <h2 id="gamma" class="param">Gamma</h2><code>&amp;gam=</code><span class="new">New!</span>
+                <p>Adjusts the image gamma. Use values between <code>1</code> and <code>3</code>. The default value is <code>2.2</code>, a suitable approximation for sRGB images.</p>
+                <div class="notices note">
+                    <div class="heading">Note</div>
+                    <p>The behavior of adjusting the image gamma was changed in December 2017. We apologize for any inconvenience caused.</p>
+                </div>
+                <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;gam=3"&gt;</code></pre>
+                <a href="//$url/?url=$exampleImage&amp;w=300&amp;gam=3"><img src="//$url/?url=$exampleImage&amp;w=300&amp;gam=3" alt=""/></a>
+            </section>
+            <section>
+                <h2 id="sharpen" class="param">Sharpen</h2><code>&amp;sharp=</code><span class="new">New!</span>
+                <p>Sharpen the image. Required format: <code>f,j,r</code></p>
+                <h3 id="sharpen-arguments">Arguments:</h3>
+                <ul>
+                    <li>Flat <code>f</code> - Sharpening to apply to flat areas. (Default: 1.0)</li>
+                    <li>Jagged <code>j</code> - Sharpening to apply to jagged areas. (Default: 2.0)</li>
+                    <li>Radius <code>r</code> - Sharpening mask to apply in pixels, but comes at a performance cost. (optional)</li>
+                </ul>
+                <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;sharp=5,5,3"&gt;</code></pre>
+                <a href="//$url/?url=$exampleImage&amp;w=300&amp;sharp=5,5,3"><img src="//$url/?url=$exampleImage&amp;w=300&amp;sharp=5,5,3" alt=""/></a>
+            </section>
+            <section>
+                <h2 id="trim" class="param">Trim</h2><code>&amp;trim=</code>
+                <p>Trim "boring" pixels from all edges that contain values within a similarity of the top-left pixel. Trimming occurs before any resize operation. Use values between <code>1</code> and <code>254</code> to define a tolerance level to trim away similar color values. You also can specify just &trim, which defaults to a tolerance level of 10.</p>
+                <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/39">Issue #39 - able to remove black/white whitespace</a>.</p>
+                <pre><code class="language-html">&lt;img src="//$url/?url=$exampleTransparentImage&amp;w=300&amp;trim=10"&gt;</code></pre>
+                <a class="trimedges" href="//$url/?url=$exampleTransparentImage&amp;w=300&amp;trim=10"><img src="//$url/?url=$exampleTransparentImage&amp;w=300&amp;trim=10" alt=""/></a>
+            </section>
+            <section>
+                <h2 id="background" class="param">Background</h2><code>&amp;bg=</code><span class="new">New!</span>
+                <p>Sets the background color of the image. Supports a variety of color formats. In addition to the 140 color names supported by all modern browsers (listed <a href="//$url/colors.html">here</a>), it also accepts hexadecimal RGB and RBG alpha formats. More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/81">Issue #81 - Background setting</a>.</p>
+                <h3 id="background-hexdec">Hexadecimal</h3>
+                <ul>
+                    <li>3 digit RGB: <code>CCC</code></li>
+                    <li>4 digit ARGB (alpha): <code>5CCC</code></li>
+                    <li>6 digit RGB: <code>CCCCCC</code></li>
+                    <li>8 digit ARGB (alpha): <code>55CCCCCC</code></li>
+                </ul>
+                <pre><code class="language-html">&lt;img src="//$url/?url=$exampleTransparentImage&amp;w=400&amp;bg=black"&gt;</code></pre>
+                <a href="//$url/?url=$exampleTransparentImage&amp;w=400&amp;bg=black"><img src="//$url/?url=$exampleTransparentImage&amp;w=400&amp;bg=black" alt=""/></a>
+            </section>
+        </section>
+        <section>
+            <h1 id="effects">Effects</h1>
+            <section>
+                <h2 id="blur" class="param">Blur</h2><code>&amp;blur=</code><span class="new">New!</span>
+                <p>Adds a blur effect to the image. Use values between <code>0</code> and <code>100</code>.</p>
+                <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/69">Issue #69 - Allow blur transformation (with radius parameter)</a>.</p>
+                <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;blur=5"&gt;</code></pre>
+                <a href="//$url/?url=$exampleImage&amp;w=300&amp;blur=5"><img src="//$url/?url=$exampleImage&amp;w=300&amp;blur=5" alt=""/></a>
+            </section>
+            <section>
+                <h2 id="filter" class="param">Filter</h2><code>&amp;filt=</code><span class="new">New!</span>
+                <p>Applies a filter effect to the image. Accepts <code>greyscale</code>, <code>sepia</code> or <code>negate</code>.</p>
+                <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;filt=greyscale"&gt;</code></pre>
+                <a href="//$url/?url=$exampleImage&amp;w=300&amp;filt=greyscale"><img src="//$url/?url=$exampleImage&amp;w=300&amp;filt=greyscale" alt=""/></a>
+            </section>
+        </section>
+        <section>
+            <h1 id="encoding">Encoding</h1>
+            <section>
+                <h2 id="quality" class="param">Quality</h2><code>&amp;q=</code>
+                <p>Defines the quality of the image. Use values between <code>0</code> and <code>100</code>. Defaults to <code>85</code>. Only relevant if the format is set to <code>jpg</code>.</p>
+                <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;q=20"&gt;</code></pre>
+                <a href="//$url/?url=$exampleImage&amp;w=300&amp;q=20"><img src="//$url/?url=$exampleImage&amp;w=300&amp;q=20" alt=""/></a>
+            </section>
+            <section>
+                <h2 id="output" class="param">Output</h2><code>&amp;output=</code>
+                <p>Encodes the image to a specific format. Accepts <code>jpg</code>, <code>png</code>, <code>gif</code> or <code>webp</code>. If none is given, it will honor the origin image format.</p>
+                <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/62">Issue #62 - Format conversion</a>.</p>
+                <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;output=webp"&gt;</code></pre>
+                <a href="//$url/?url=$exampleImage&amp;w=300&amp;output=webp"><img src="//$url/?url=$exampleImage&amp;w=300&amp;output=webp" alt=""/></a>
+            </section>
+            <section>
+                <h2 id="interlace-progressive" class="param">Interlace / progressive</h2><code>&amp;il</code>
+                <p>Adds interlacing to GIF and PNG. JPEG's become progressive.</p>
+                <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/50">Issue #50 - Add parameter to use progressive JPEGs</a>.</p>
+                <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;il"&gt;</code></pre>
+                <a href="//$url/?url=$exampleImage&amp;w=300&amp;il"><img src="//$url/?url=$exampleImage&amp;w=300&amp;il" alt=""/></a>
+            </section>
+            <section>
+                <h2 id="base64" class="param">Base64 (data URL)</h2><code>&amp;encoding=base64</code>
+                <p>Encodes the image to be used directly in the src= of the <code>&lt;img&gt;</code>-tag. <a href="//$url/?url=$exampleImage&amp;crop=100,100,680,500&amp;encoding=base64">Use this link to see the output result</a>.</p>
+                <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/59">Issue #59 - Return image base64 encoded</a>.</p>
+                <pre><code>//$url/?url=$exampleImage&amp;crop=100,100,680,500&amp;encoding=base64</code></pre>
+            </section>
+        </section>
+        <section>
+            <h1 id="misc">Miscellaneous</h1>
+            <section>
+                <h2 id="default" class="param">Default image</h2><code>&amp;errorredirect=</code><span class="new">New!</span>
+                <p>If there is a problem loading an image, then a error is shown. However, there might be a need where instead of giving a broken image to the user, you want a default image to be delivered.</p>
+                <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/37">Issue #37 - Return default image if the image's URL not found</a>.</p>
+                <p>The URL must not include a <code>errorredirect</code> querystring (if it does, it will be ignored).</p>
+                <pre><code class="language-html">&lt;img src="//$url/?url=example.org/noimage.jpg&amp;errorredirect=ssl:$url%2F%3Furl%3D$exampleImage%26w%3D300"&gt;</code></pre>
+                <a href="//$url/?url=example.org/noimage.jpg&amp;errorredirect=ssl:$url%2F%3Furl%3D$exampleImage%26w%3D300"><img src="//$url/?url=example.org/noimage.jpg&amp;errorredirect=ssl:$url%2F%3Furl%3D$exampleImage%26w%3D300" alt=""/></a>
+            </section>
+            <section>
+                <h2 id="page" class="param">Page</h2><code>&amp;page=</code><span class="new">New!</span>
+                <p>To load a given page (for an PDF, TIFF and multi-size ICO file). The value is numbered from zero.</p>
+            </section>
+        </section>
+    </div>
     <script src="//cdnjs.cloudflare.com/ajax/libs/gumshoe/3.5.0/js/gumshoe.min.js" integrity="sha384-p7piu74dRCJsfxPGT47BzozCizUhFdI8JIIY28ed/8Jna8iZmpT8O0VnDTBh29Xh" crossorigin="anonymous"></script>
-    <script type="text/javascript">
+    <script src="//cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script>
+        docsearch({
+            apiKey: '206416be8208020aafb1730fd2c7d813',
+            indexName: 'images_weserv',
+            inputSelector: '#search-by',
+            debug: false
+        });
+
         document.addEventListener('DOMContentLoaded', function () {
             var header = document.getElementById('image-api');
-            var active;
 
             gumshoe.init({
                 offset: -header.clientHeight,
                 callback: function nav(nav) {
-                    if (nav !== undefined && nav.target !== active) {
-                        window.history.replaceState(null, null, '#' + nav.target.id);
-                        active = nav.target;
+                    if (nav) {
+                        var title = document.title + ' - ' + nav.target.textContent;
+                        var hash = '#' + nav.target.id;
+                        var hasChild = window.location.hash ? nav.target.parentNode.querySelector(window.location.hash) != null : false;
+                        if (window.location.hash !== hash && !hasChild) {
+                            history.replaceState(null, title, window.location.pathname + hash);
+                        }
+                    } else {
+                         history.replaceState(null, null, window.location.pathname);
                     }
                 }
             });

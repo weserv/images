@@ -68,7 +68,7 @@ class Client
                 if (!empty($this->options['allowed_mime_types']) &&
                     !isset($this->options['allowed_mime_types'][$response->getHeaderLine('Content-Type')])) {
                     $supportedImages = array_pop($this->options['allowed_mime_types']);
-                    if (count($this->options['allowed_mime_types']) > 1) {
+                    if (\count($this->options['allowed_mime_types']) > 1) {
                         $supportedImages = implode(', ', $this->options['allowed_mime_types']) .
                             ' and ' . $supportedImages;
                     }
