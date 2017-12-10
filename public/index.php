@@ -928,8 +928,6 @@ if (!empty($_GET['url'])) {
                         if (window.location.hash !== hash && !hasChild) {
                             history.replaceState(null, title, window.location.pathname + hash);
                         }
-                    } else {
-                         history.replaceState(null, null, window.location.pathname);
                     }
                 }
             });
