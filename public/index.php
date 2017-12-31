@@ -28,7 +28,6 @@ use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
 use GuzzleHttp\Exception\RequestException;
 use Jcupitt\Vips\Exception as VipsException;
 use League\Uri\Components\HierarchicalPath as Path;
-use League\Uri\Components\Host;
 use League\Uri\Components\Query;
 use League\Uri\Http as HttpUri;
 
@@ -365,16 +364,11 @@ if (!empty($_GET['url'])) {
         $errorMessage = "$statusCode $reasonPhrase";
 
         if (!$isDnsError && isset($_GET['errorredirect'])) {
-            $host = isset($config['url']) ? (new Host($config['url']))->getRegistrableDomain() : 'weserv.nl';
-
             try {
                 $uri = parseUrl($_GET['errorredirect']);
-
-                $append = substr($uri->getHost(), -strlen($host)) === $host ? "&error=$statusCode" : '';
-
                 $sanitizedUri = sanitizeErrorRedirect($uri);
 
-                header('Location: ' . $sanitizedUri . $append);
+                header('Location: ' . $sanitizedUri);
             } catch (Exception $ignored) {
                 $message = sprintf($error['message'], $errorMessage);
 
