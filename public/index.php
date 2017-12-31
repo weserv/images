@@ -208,7 +208,7 @@ if (!empty($_GET['url'])) {
     // Create an PHP HTTP client
     $client = new AndriesLouw\imagesweserv\Client($tmpFileName, $clientConfig, $guzzleConfig);
 
-    // If config throttler is set, IP isn't on the throttler whitelist and Memcached is installed
+    // If config throttler is set and IP isn't on the throttler whitelist
     if (isset($config['throttler']) && !isset($config['throttler-whitelist'][$_SERVER['REMOTE_ADDR']])) {
         $policyConfig = $config['throttling-policy'];
 

@@ -230,7 +230,7 @@ class Server
         // Check if output is set and allowed
         if (isset($params['output']) && $this->isExtensionAllowed($params['output'])) {
             $extension = $params['output'];
-        } elseif (($hasAlpha && ($extension !== 'png' || $extension !== 'webp'))
+        } elseif (($hasAlpha && ($extension !== 'png' && $extension !== 'webp'))
             || !$this->isExtensionAllowed($extension)) {
             // We force the extension to PNG if:
             //  - The image has alpha and doesn't have the right extension to output alpha.

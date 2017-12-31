@@ -37,7 +37,7 @@
         "jakub-onderka/php-parallel-lint": "^0.9.2",
         "mockery/mockery": "^1.0",
         "phpunit/phpunit": "^6.5",
-        "squizlabs/php_codesniffer": "^3.1"
+        "squizlabs/php_codesniffer": "^3.2"
     },
     "autoload": {
         "psr-4": {
@@ -54,9 +54,7 @@
             "parallel-lint . --exclude vendor",
             "phpunit",
             "phpcs --standard=phpcs-ruleset.xml ."
-        ],
-        "post-install-cmd": "\\League\\Uri\\Installer\\ICANNSection::update",
-        "post-update-cmd": "\\League\\Uri\\Installer\\ICANNSection::update"
+        ]
     },
     "config": {
         "preferred-install": "dist",
