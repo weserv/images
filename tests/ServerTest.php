@@ -263,6 +263,36 @@ class ServerTest extends ImagesweservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
+    /**
+     * @runInSeparateProcess
+     */
+    public function testOutputImageForcePng()
+    {
+        $testImage = $this->inputJpg;
+        $params = [
+            'w' => '300',
+            'h' => '300',
+            't' => 'letterbox',
+            'bg' => 'transparent'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+        $this->throttler->shouldReceive('isExceeded')->with('127.0.0.1');
+
+        ob_start();
+        $this->server->outputImage($uri, $params);
+        $content = ob_get_clean();
+
+        $image = Image::newFromBuffer($content);
+
+        $this->assertEquals('pngload_buffer', $image->get('vips-loader'));
+        $this->assertEquals(300, $image->width);
+        $this->assertEquals(300, $image->height);
+        $this->assertTrue($image->hasAlpha());
+    }
+
     public function testGetBufferOptions()
     {
         $this->assertSame([

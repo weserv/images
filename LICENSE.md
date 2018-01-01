@@ -1,7 +1,7 @@
 BSD 3-Clause License
 ====================
 
-_Copyright © 2017, Andries Louw Wolthuizen_  
+_Copyright © 2018, Andries Louw Wolthuizen_  
 _All rights reserved._
 
 Redistribution and use in source and binary forms, with or without

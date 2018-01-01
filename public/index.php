@@ -10,7 +10,7 @@
  * @author    Kleis Auke Wolthuizen   <info@kleisauke.nl>
  * @license   http://opensource.org/licenses/bsd-license.php New BSD License
  * @link      images.weserv.nl
- * @copyright 2017
+ * @copyright 2018
  */
 
 error_reporting(E_ALL);
