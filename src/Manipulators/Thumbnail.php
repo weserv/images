@@ -34,6 +34,21 @@ class Thumbnail extends BaseManipulator
      */
     protected $maxImageSize;
 
+    /**
+     * Profile map to ensure that we use a device-
+     * independent color space for the images we process.
+     *
+     * @var array
+     */
+    protected $profileMap = [
+        // Default sRGB ICC profile from:
+        // https://packages.debian.org/sid/all/icc-profiles-free/filelist
+        Interpretation::SRGB => __DIR__ . '/../ICC/sRGB.icm',
+        // Convert to sRGB using default CMYK profile from:
+        // http://www.argyllcms.com/cmyk.icm
+        Interpretation::CMYK => __DIR__ . '/../ICC/cmyk.icm'
+    ];
+
     const VIPS_MAX_COORD = 10000000;
 
     /**
@@ -233,20 +248,20 @@ class Thumbnail extends BaseManipulator
             'linear' => false
         ];
 
-        // Ensure we're using a device-independent colour space
-        if (Utils::hasProfile($image)) {
-            // Convert to sRGB using embedded profile
-            // https://packages.debian.org/sid/all/icc-profiles-free/filelist
-            $thumbnailOptions['export_profile'] = __DIR__ . '/../ICC/sRGB.icm';
-            // Use "perceptual" intent to better match imagemagick.
-            $thumbnailOptions['intent'] = Intent::PERCEPTUAL;
-        } elseif ($image->interpretation === Interpretation::CMYK) {
-            // CMYK with no embedded profile, import using default CMYK profile
-            // http://www.argyllcms.com/cmyk.icm
-            $thumbnailOptions['import_profile'] = __DIR__ . '/../ICC/cmyk.icm';
-            // Always convert to sRGB
-            // https://packages.debian.org/sid/all/icc-profiles-free/filelist
-            $thumbnailOptions['export_profile'] = __DIR__ . '/../ICC/sRGB.icm';
+        $isCMYK = $image->interpretation === Interpretation::CMYK;
+        $embeddedProfile = Utils::hasProfile($image);
+
+        // Ensure we're using a device-independent color space
+        if ($embeddedProfile || (!$embeddedProfile && $isCMYK)) {
+            // Embedded profile; fallback in case the profile embedded in the image is broken.
+            // No embedded profile; import using default CMYK profile.
+            $thumbnailOptions['import_profile'] = $isCMYK ?
+                $this->profileMap[Interpretation::CMYK] :
+                $this->profileMap[Interpretation::SRGB];
+
+            // Convert to sRGB using embedded or import profile.
+            $thumbnailOptions['export_profile'] = $this->profileMap[Interpretation::SRGB];
+
             // Use "perceptual" intent to better match imagemagick.
             $thumbnailOptions['intent'] = Intent::PERCEPTUAL;
         }
