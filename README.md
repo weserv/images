@@ -37,6 +37,10 @@ We track support tickets, issues and feature requests using the [GitHub issue tr
 
 The BSD 3-Clause License. Please see [LICENSE.md](https://github.com/andrieslouw/imagesweserv/blob/3.x/LICENSE.md) for more information.
 
+## Privacy Policy
+
+Please see [Privacy-Policy.md](https://github.com/andrieslouw/imagesweserv/blob/3.x/Privacy-Policy.md) for more information.
+
 ## Last but not least
 This is made in Sneek with love and passion
 
