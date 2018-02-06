@@ -231,11 +231,12 @@ class Server
         if (isset($params['output']) && $this->isExtensionAllowed($params['output'])) {
             $extension = $params['output'];
         } elseif (($hasAlpha && ($extension !== 'png' && $extension !== 'webp'))
-            || !$this->isExtensionAllowed($extension)) {
+            || ($needsGif && $extension !== 'jpg') || !$this->isExtensionAllowed($extension)) {
             // We force the extension to PNG if:
             //  - The image has alpha and doesn't have the right extension to output alpha.
             //    (useful for shape masking and letterboxing)
             //  - The input extension is not allowed for output.
+            //  - GIF output is needed but extension isn't compatible with `imagecreatefromstring`
             $extension = 'png';
         }
 
@@ -518,6 +519,7 @@ class Server
     public function bufferToGif(string $buffer, bool $interlace, bool $hasAlpha): string
     {
         // Create GD image from string (suppress any warnings)
+        // Note: Only JPEG, PNG, GIF, BMP, WBMP, and GD2 images are supported.
         $gdImage = @imagecreatefromstring($buffer);
 
         // If image is valid
