@@ -11,7 +11,7 @@ php:
 
 env:
   global:
-    - VIPS_VERSION=8.6.2
+    - VIPS_VERSION=8.6.3
     - VIPS_TAR_VERSION=$VIPS_VERSION
     - VIPS_WARNING=0
     - PATH=$HOME/vips/bin:$PATH
