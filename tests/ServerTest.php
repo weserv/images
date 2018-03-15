@@ -202,6 +202,30 @@ class ServerTest extends ImagesweservTestCase
 
     /**
      * @runInSeparateProcess
+     * @requires extension xdebug
+     */
+    public function testFilename()
+    {
+        $testImage = $this->inputJpg;
+        $params = [
+            'filename' => 'test'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+        $this->throttler->shouldReceive('isExceeded')->with('127.0.0.1');
+
+        ob_start();
+        $this->server->outputImage($uri, $params);
+        $headers = xdebug_get_headers();
+        ob_end_clean();
+
+        $this->assertContains('Content-Disposition: inline; filename=test.jpg', $headers);
+    }
+
+    /**
+     * @runInSeparateProcess
      * @requires extension gd
      */
     public function testOutputImageAsGif()

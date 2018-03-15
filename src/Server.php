@@ -357,12 +357,20 @@ class Server
         } else {
             header("Content-type: $mimeType");
 
-            $friendlyName = "image.$extension";
+            $fileName = "image.$extension";
+
+            // https://tools.ietf.org/html/rfc2183
+            if (isset($params['filename']) &&
+                !empty($params['filename']) &&
+                ctype_alnum($params['filename']) &&
+                \strlen($params['filename'] . ".$extension") <= 78) {
+                $fileName = $params['filename'] . ".$extension";
+            }
 
             if (array_key_exists('download', $params)) {
-                header("Content-Disposition: attachment; filename=$friendlyName");
+                header("Content-Disposition: attachment; filename=$fileName");
             } else {
-                header("Content-Disposition: inline; filename=$friendlyName");
+                header("Content-Disposition: inline; filename=$fileName");
             }
 
             ob_start();

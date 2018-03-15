@@ -663,6 +663,12 @@ if (!empty($_GET['url'])) {
                         <td>To load a given page.</td>
                         <td><a href="#page">info</a></td>
                     </tr>
+                    <tr>
+                        <td>Filename</td>
+                        <td><code>filename</code></td>
+                        <td>To specify the filename.</td>
+                        <td><a href="#filename">info</a></td>
+                    </tr>
                 </tbody>
             </table>
         </section>
@@ -900,6 +906,11 @@ if (!empty($_GET['url'])) {
             <section>
                 <h2 id="page" class="param">Page</h2><code>&amp;page=</code><span class="new">New!</span>
                 <p>To load a given page (for an PDF, TIFF and multi-size ICO file). The value is numbered from zero.</p>
+            </section>
+            <section>
+                <h2 id="filename" class="param">Filename</h2><code>&amp;filename=</code><span class="new">New!</span>
+                <p>To specify the filename returned in the <code>Content-Disposition</code> header. The filename must only contain alphanumeric characters.</p>
+                <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/122">Issue #122 - Specify filename</a>.</p>
             </section>
         </section>
     </div>
