@@ -9,7 +9,7 @@ Requires libvips v8.6.0.
 
 ### Note
 With the feedback that you've provided we can successfully close the following issues/enhancements: 
-[#13](https://github.com/andrieslouw/imagesweserv/issues/13), [#15](https://github.com/andrieslouw/imagesweserv/issues/15), [#37](https://github.com/andrieslouw/imagesweserv/issues/37), [#62](https://github.com/andrieslouw/imagesweserv/issues/62), [#68](https://github.com/andrieslouw/imagesweserv/issues/68), [#69](https://github.com/andrieslouw/imagesweserv/issues/69), [#70](https://github.com/andrieslouw/imagesweserv/issues/70), [#75](https://github.com/andrieslouw/imagesweserv/issues/75), [#76](https://github.com/andrieslouw/imagesweserv/issues/76), [#78](https://github.com/andrieslouw/imagesweserv/issues/78), [#80](https://github.com/andrieslouw/imagesweserv/issues/80), [#81](https://github.com/andrieslouw/imagesweserv/issues/81), [#90](https://github.com/andrieslouw/imagesweserv/issues/90), [#106](https://github.com/andrieslouw/imagesweserv/issues/106), [#115](https://github.com/andrieslouw/imagesweserv/issues/115) and [#122](https://github.com/andrieslouw/imagesweserv/issues/122). 
+[#10](https://github.com/andrieslouw/imagesweserv/issues/10), [#13](https://github.com/andrieslouw/imagesweserv/issues/13), [#15](https://github.com/andrieslouw/imagesweserv/issues/15), [#37](https://github.com/andrieslouw/imagesweserv/issues/37), [#62](https://github.com/andrieslouw/imagesweserv/issues/62), [#68](https://github.com/andrieslouw/imagesweserv/issues/68), [#69](https://github.com/andrieslouw/imagesweserv/issues/69), [#70](https://github.com/andrieslouw/imagesweserv/issues/70), [#75](https://github.com/andrieslouw/imagesweserv/issues/75), [#76](https://github.com/andrieslouw/imagesweserv/issues/76), [#78](https://github.com/andrieslouw/imagesweserv/issues/78), [#80](https://github.com/andrieslouw/imagesweserv/issues/80), [#81](https://github.com/andrieslouw/imagesweserv/issues/81), [#90](https://github.com/andrieslouw/imagesweserv/issues/90), [#106](https://github.com/andrieslouw/imagesweserv/issues/106), [#115](https://github.com/andrieslouw/imagesweserv/issues/115), [#121](https://github.com/andrieslouw/imagesweserv/issues/121), and [#122](https://github.com/andrieslouw/imagesweserv/issues/122). 
 Thanks for your support!
 
 ### Added
@@ -20,7 +20,7 @@ Thanks for your support!
 - Letterboxing `&t=letterbox`. See [#80](https://github.com/andrieslouw/imagesweserv/issues/80) for more info.
 
 #### Orientation
-- Rotation `&or=`. Accepts `auto`, `0`, `90`, `180` or `270`. Default is `auto`. The `auto` option uses Exif data to automatically orient images correctly.
+- Rotation `&or=`. Accepts `auto` or if an angle is specified, it is converted to a valid `90`/`180`/`270` degree rotation. Default is `auto`. The `auto` option uses Exif data to automatically orient images correctly.
 
 #### Cropping
 - Smart crop `&a=entropy` or `&a=attention` (only works when `&t=square`). Crops the image down to specific dimensions by removing boring parts. Where:
@@ -61,9 +61,12 @@ Thanks for your support!
 
 #### Improvements
 - Image filename in HTTP header (`Content-Disposition: inline`). See [#78](https://github.com/andrieslouw/imagesweserv/issues/78).
+- The `&filename=` parameter to specify the filename returned in the `Content-Disposition` header. The filename must only contain alphanumeric characters. See [#122](https://github.com/andrieslouw/imagesweserv/issues/122).
 - Support for Cyrillic and Arabic characters. See [#13](https://github.com/andrieslouw/imagesweserv/issues/13).
 - The `&errorredirect=` parameter to redirect to a default image if the image URL is not found. The redirect URL must be formatted the same as the `?url=` parameter. See [#37](https://github.com/andrieslouw/imagesweserv/issues/37).
 - In order to load a given page (for an PDF, TIFF and multi-size ICO file) we've added the `&page=` parameter. The value is numbered from zero.
+- Support for non-standard ports. See [#10](https://github.com/andrieslouw/imagesweserv/issues/10).
+- Added a privacy policy. See [Privacy-Policy.md](Privacy-Policy.md).
 - Add support for Docker deployment. See the [Docker installation instructions](DOCKER.md).
 
 ### Changed

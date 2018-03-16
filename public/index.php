@@ -696,7 +696,7 @@ if (!empty($_GET['url'])) {
         </section>
         <section>
             <h1 id="orientation" class="param">Orientation</h1><code>&amp;or=</code><span class="new">New!</span>
-            <p>Rotates the image. Accepts <code>auto</code>, <code>0</code>, <code>90</code>, <code>180</code> or <code>270</code>. Default is <code>auto</code>. The <code>auto</code> option uses Exif data to automatically orient images correctly.</p>
+            <p>Rotates the image. Accepts <code>auto</code> or if an angle is specified, it is converted to a valid <code>90</code>/<code>180</code>/<code>270</code> degree rotation. For example, <code>-450</code> will produce a <code>270</code> degree rotation. Default is <code>auto</code>. The <code>auto</code> option uses Exif data to automatically orient images correctly.</p>
             <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;h=300&amp;or=90"&gt;</code></pre>
             <a href="//$url/?url=$exampleImage&amp;h=300&amp;or=90"><img src="//$url/?url=$exampleImage&amp;h=300&amp;or=90" alt=""/></a>
         </section>
