@@ -109,7 +109,7 @@ $error_messages = [
  * @param string $url
  *
  * @throws InvalidArgumentException if the URI is invalid
- * @throws League\Uri\Schemes\UriException if the URI is in an invalid state according to RFC3986
+ * @throws League\Uri\UriException if the URI is in an invalid state according to RFC3986
  *
  * @return HttpUri parsed URI
  */
@@ -151,7 +151,7 @@ function sanitizeErrorRedirect(HttpUri $errorUrl): string
     return $errorUrl->__toString();
 }
 
-if (!empty($_GET['url'])) {
+if (!empty($_GET['url']) && \is_string($_GET['url'])) {
     try {
         $uri = parseUrl($_GET['url']);
     } catch (Exception $e) {
@@ -311,7 +311,7 @@ if (!empty($_GET['url'])) {
         /**
          * Generate and output image.
          */
-        $server->outputImage($uri->__toString(), $_GET);
+        $server->outputImage($uri->__toString(), array_filter($_GET, '\is_string'));
     } catch (ImageTooLargeException $e) {
         $error = $error_messages['image_too_large'];
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
@@ -363,7 +363,7 @@ if (!empty($_GET['url'])) {
 
         $errorMessage = "$statusCode $reasonPhrase";
 
-        if (!$isDnsError && isset($_GET['errorredirect'])) {
+        if (!$isDnsError && !empty($_GET['errorredirect']) && \is_string($_GET['errorredirect'])) {
             try {
                 $uri = parseUrl($_GET['errorredirect']);
                 $sanitizedUri = sanitizeErrorRedirect($uri);
@@ -457,10 +457,10 @@ if (!empty($_GET['url'])) {
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
     <link rel="stylesheet" href="//static.weserv.nl/images-v3d.css" integrity="sha384-fEHMtdq65tYjYhByCic8VIU71uMnMsa2p7gbfnM3oVrsRqStpQezE3bwA7/1Riwh" crossorigin="anonymous">
-	<!--[if lte IE 9]>
-	    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.2/gh-fork-ribbon.ie.min.css" />
-	    <script src="//static.weserv.nl/html5shiv-printshiv.min.js" type="text/javascript"></script>
-	<![endif]-->
+    <!--[if lte IE 9]>
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.2/gh-fork-ribbon.ie.min.css" />
+        <script src="//static.weserv.nl/html5shiv-printshiv.min.js" type="text/javascript"></script>
+    <![endif]-->
 </head>
 <body>
     <nav id="sidebar">
