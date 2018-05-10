@@ -18,7 +18,9 @@ We collect information that your browser sends whenever you visit our Service ("
 Log Data is stored for 7 days, after which it is automatically deleted. Anonymized statistics may be shared to improve our service.
 
 ## Cookies
-We do not use "cookies" to collect information.
+Cookies are files with a small amount of data, which may include an anonymous unique identifier. Cookies are sent to your browser from a web site and transferred to your device. The law states that we can store cookies on your device if they are strictly necessary for the operation of this site. For all other types of cookies we need your permission.
+
+Our Service sents 1 cookie, `__cfduid`, which is used by Cloudflare to identify trusted web traffic. This cookie does not collect any personally identifiable information.
 
 ## Service Providers
 We may employ third party companies and individuals to facilitate our Service, to provide the Service on our behalf, to perform Service-related services or to assist us in analyzing how our Service is used. These third parties have access to your Personal Information only to perform these tasks on our behalf and are obligated not to disclose or use it for any other purpose.
