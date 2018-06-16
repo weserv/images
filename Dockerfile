@@ -7,34 +7,43 @@ MAINTAINER Kleis Auke Wolthuizen <info@kleisauke.nl>
 ENV TZ Europe/Amsterdam
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+# Configure NGINX repo
+RUN echo -e '\
+[nginx]\n\
+name=nginx repo\n\
+baseurl=http://nginx.org/packages/mainline/centos/7/$basearch/\n\
+gpgcheck=0\n\
+enabled=1' > /etc/yum.repos.d/nginx.repo
+
 # Install PHP, PHP extensions, composer, redis, supervisor and nginx
+# TODO: Remove php-gd once libvips 8.7 is released
 RUN yum update -y && \
     yum install -y epel-release yum-utils && \
     yum install -y https://rpms.remirepo.net/enterprise/remi-release-7.rpm && \
-    yum-config-manager --enable remi-php71 && \
+    yum-config-manager --enable remi-php72 remi && \
     yum install -y \
-               composer \
-               nginx \
-               php \
-               php-fpm \
-               php-gd \
-               php-intl \
-               php-opcache \
-               php-pecl-redis \
-               php-pecl-vips \
-               redis \
-               supervisor && \
+        composer \
+        nginx \
+        php \
+        php-fpm \
+        php-gd \
+        php-intl \
+        php-opcache \
+        php-pecl-redis \
+        php-pecl-vips \
+        redis \
+        supervisor && \
     yum clean all
 
 # Add nginx configurations
 ADD config/nginx.conf /etc/nginx/nginx.conf
 ADD config/imagesweserv.nginxconf /etc/nginx/sites-available/default.conf
-RUN mkdir /etc/nginx/sites-enabled \
-    && ln -s /etc/nginx/sites-available/default.conf /etc/nginx/sites-enabled/default.conf
+RUN mkdir /etc/nginx/sites-enabled && \
+    ln -s /etc/nginx/sites-available/default.conf /etc/nginx/sites-enabled/default.conf
 
 # Add PHP configurations
 ADD config/php.ini /etc/php.ini
-ADD config/www.conf /etc/php-fpm.d/www.conf
+ADD config/php-fpm.conf /etc/php-fpm.conf
 
 # Add Supervisor configuration
 ADD config/supervisord.conf /etc/supervisord.conf

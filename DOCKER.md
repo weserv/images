@@ -24,14 +24,11 @@ This document describes how to use images.weserv.nl with Docker.
         imagesweserv
     ```
 
-3. Update your system host file (add images.weserv.dev)
+3. Update your system host file (add images.weserv.local)
 
     ```bash
-    # UNIX only: get containers IP address and update host (replace IP according to your configuration)
-    $ docker network inspect bridge | grep Gateway
-
-    # unix only (on Windows, edit C:\Windows\System32\drivers\etc\hosts)
-    $ sudo echo "# 172.20.0.4 images.weserv.dev" >> /etc/hosts
+    # UNIX only: get containers IP address and update host (replace IP according to your configuration) (on Windows, edit C:\Windows\System32\drivers\etc\hosts)
+    $ sudo echo $(docker network inspect bridge | grep Gateway | grep -o -E '[0-9\.]+') "images.weserv.local" >> /etc/hosts
     ```
 
     **Note:** For **OS X**, please take a look [here](https://docs.docker.com/docker-for-mac/networking/) and for **Windows** read [this](https://docs.docker.com/docker-for-windows/#/step-4-explore-the-application-and-run-examples) (4th step).
@@ -57,7 +54,7 @@ $ docker run \
     --name=imagesweserv \
     imagesweserv
 ```
-then visit [images.weserv.dev](http://images.weserv.dev)  
+then visit [images.weserv.local](http://images.weserv.local)  
 
 ## Useful commands
 
@@ -75,11 +72,23 @@ $ docker inspect $(docker ps -f name=imagesweserv -q) | grep IPAddress
 # Access to redis-cli
 $ docker exec -it imagesweserv redis-cli
 
+# When you have reached the rate-limit (where 127.0.0.1 is your IP address)
+$ docker exec imagesweserv redis-cli DEL c_127.0.0.1:lockout
+
+# Make configuration changes available
+$ docker exec imagesweserv supervisorctl reread
+
+# Restarts the applications whose configuration has changed
+$ docker exec imagesweserv supervisorctl update
+
 # Access to logs
 $ docker logs imagesweserv
 
 # Check CPU consumption
 $ docker stats
+
+# Stop all containers
+$ docker stop $(docker ps -aq)
 
 # Delete all containers
 $ docker rm $(docker ps -aq)

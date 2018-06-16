@@ -1,7 +1,7 @@
 server {
     listen 80;
     listen [::]:80;
-    server_name images.weserv.dev;
+    server_name images.weserv.local;
 
     root /var/www/imagesweserv/public;
 
@@ -28,7 +28,7 @@ server {
         fastcgi_cache_valid 200 301 410 7d;
         fastcgi_cache_valid any 15m;
         fastcgi_cache_use_stale error timeout updating;
-        fastcgi_pass  unix:/var/run/php-fpm/php-fpm.sock;
+        fastcgi_pass  unix:/var/run/php-fpm.sock;
         fastcgi_index index.php;
         fastcgi_param HTTP_PROXY "";
         fastcgi_param HTTP_X_REQUEST_START "t=${msec}000";
