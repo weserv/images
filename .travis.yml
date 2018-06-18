@@ -19,7 +19,7 @@ env:
     - PKG_CONFIG_PATH=$HOME/vips/lib/pkgconfig:$PKG_CONFIG_PATH
     - PYTHONPATH=$HOME/vips/lib/python2.7/site-packages:$PYTHONPATH
     - GI_TYPELIB_PATH=$HOME/vips/lib/girepository-1.0:$GI_TYPELIB_PATH
-    - CC_TEST_REPORTER_ID=d7d9e0ca223ad571f837ce20b4da80e054a5cbc833b41145b9bc97e496a1910b
+    - CC_TEST_REPORTER_ID=d8ac431d589d9845a7ea17112dfd26de35f26f578714d0f467b2291ec3085fea
     - GIT_COMMITTED_AT=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then git log -1 --pretty=format:%ct; else git log -1 --skip 1 --pretty=format:%ct; fi)
 
 cache:
