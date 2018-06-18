@@ -497,20 +497,20 @@ if (!empty($_GET['url']) && \is_string($_GET['url'])) {
             <br />
             <div id="footer">
                 <p>
-                    <a href="https://github.com/andrieslouw/imagesweserv">Source code available on GitHub</a><br />
+                    <a href="https://github.com/weserv/images">Source code available on GitHub</a><br />
                     <a href="https://getgrav.org/">Design inspired by Grav</a><br />
-                    <a href="https://github.com/andrieslouw/imagesweserv/blob/3.x/Privacy-Policy.md">Privacy Policy</a>
+                    <a href="https://github.com/weserv/images/blob/3.x/Privacy-Policy.md">Privacy Policy</a>
                 </p>
             </div>
         </div>
     </nav>
     <div id="body">
         <section id="image-api">
-            <h1 style="display: none;">Documentation</h1><p>Images.<b>weserv</b>.nl is an image <b>cache</b> &amp; <b>resize</b> proxy. Our servers resize your image, cache it worldwide, and display it. <a class="github-fork-ribbon right-top" href="https://github.com/andrieslouw/imagesweserv/issues" data-ribbon="Feedback? Github!" title="Feedback? Github!">Feedback? GitHub!</a></p>
+            <h1 style="display: none;">Documentation</h1><p>Images.<b>weserv</b>.nl is an image <b>cache</b> &amp; <b>resize</b> proxy. Our servers resize your image, cache it worldwide, and display it. <a class="github-fork-ribbon right-top" href="https://github.com/weserv/images/issues" data-ribbon="Feedback? Github!" title="Feedback? Github!">Feedback? GitHub!</a></p>
             <ul>
                 <li>We don't support animated images (yet), but we do support GIF, JPEG, PNG, BMP, XBM, WebP and other filetypes, even transparent images.</li>
                 <li>We do support IPv6, <a href="http://ipv6-test.com/validate.php?url=$url" rel="nofollow">serving dual stack</a>, and supporting <a href="https://$url/?url=ipv6.google.com/logos/logo.gif">IPv6-only origin hosts</a>.</li>
-                <li>For secure connections over TLS/SSL, you can use <a href="https://$url/"><b>https</b>://$url/</a>. <br /><small class="sslnote">This can be very useful for embedding HTTP images on HTTPS websites. HTTPS origin hosts can be used by <a href="https://github.com/andrieslouw/imagesweserv/issues/33">prefixing the hostname with ssl:</a></small></li>
+                <li>For secure connections over TLS/SSL, you can use <a href="https://$url/"><b>https</b>://$url/</a>. <br /><small class="sslnote">This can be very useful for embedding HTTP images on HTTPS websites. HTTPS origin hosts can be used by <a href="https://github.com/weserv/images/issues/33">prefixing the hostname with ssl:</a></small></li>
                 <li>We're part of the <a href="https://www.cloudflare.com/">Cloudflare</a> community. Images are being cached and delivered straight from <a href="https://www.cloudflare.com/network/">150+ global datacenters</a>. This ensures the fastest load times and best performance.</li>
                 <li>On average, we resize 2 million (2&times;10<sup>6</sup>) images per hour, which generates around 100TB of outbound traffic per month.</li>
             </ul>
@@ -689,7 +689,7 @@ if (!empty($_GET['url']) && \is_string($_GET['url'])) {
             <section>
                 <h2 id="dpr" class="param">Device pixel ratio</h2><code>&amp;dpr=</code><span class="new">New!</span>
                 <p>The device pixel ratio is used to easily convert between CSS pixels and device pixels. This makes it possible to display images at the correct pixel density on a variety of devices such as Apple devices with Retina Displays and Android devices. You must specify either a width, a height, or both for this parameter to work. Use values between <code>1</code> and <code>8</code>.</p>
-                <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/115">Issue #115 - DPI support</a>.</p>
+                <p>More info: <a href="https://github.com/weserv/images/issues/115">Issue #115 - DPI support</a>.</p>
                 <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;h=144&amp;dpr=2"&gt;</code></pre>
                 <a href="//$url/?url=$exampleImage&amp;h=144&amp;dpr=2"><img src="//$url/?url=$exampleImage&amp;h=144&amp;dpr=2" alt=""/></a>
             </section>
@@ -734,14 +734,14 @@ if (!empty($_GET['url']) && \is_string($_GET['url'])) {
             <section>
                 <h2 id="letterbox" class="param">Letterbox</h2><code>&amp;t=letterbox</code><span class="new">New!</span>
                 <p>Resizes the image to fit within the width and height boundaries without cropping or distorting the image, and the remaining space is filled with the background color. The resulting image will match the constraining dimensions.</p>
-                <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/80">Issue #80 - letterbox images that need to fit</a>.</p>
+                <p>More info: <a href="https://github.com/weserv/images/issues/80">Issue #80 - letterbox images that need to fit</a>.</p>
                 <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black"&gt;</code></pre>
                 <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black" alt=""/></a>
             </section>
         </section>
         <section>
             <h1 id="crop-position" class="param">Crop position</h1><code>&amp;a=</code>
-            <p>You can also set where the image is cropped by adding a crop position. Only works when <code>t=square</code>. Accepts <code>top</code>, <code>left</code>, <code>center</code>, <code>right</code> or <code>bottom</code>. Default is <code>center</code>. For more information, please see the suggestion on our GitHub issue tracker: <a href="https://github.com/andrieslouw/imagesweserv/issues/24">Issue #24 - Aligning</a>.</p>
+            <p>You can also set where the image is cropped by adding a crop position. Only works when <code>t=square</code>. Accepts <code>top</code>, <code>left</code>, <code>center</code>, <code>right</code> or <code>bottom</code>. Default is <code>center</code>. For more information, please see the suggestion on our GitHub issue tracker: <a href="https://github.com/weserv/images/issues/24">Issue #24 - Aligning</a>.</p>
             <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=top"&gt;</code></pre>
             <a href="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=top"><img src="//$url/?url=$exampleImage&amp;w=300&amp;h=300&amp;t=square&amp;a=top" alt=""/></a>
             <section>
@@ -752,7 +752,7 @@ if (!empty($_GET['url']) && \is_string($_GET['url'])) {
             </section>
             <section>
                 <h2 id="smartcrop" class="param">Smart crop</h2><code>&amp;a=entropy</code> or <code>&amp;a=attention</code><span class="new">New!</span>
-                <p>Crops the image down to specific dimensions by removing boring parts. Only works when <code>t=square</code>. More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/90">Issue #90 - Add support for smart crop</a>.</p>
+                <p>Crops the image down to specific dimensions by removing boring parts. Only works when <code>t=square</code>. More info: <a href="https://github.com/weserv/images/issues/90">Issue #90 - Add support for smart crop</a>.</p>
                 <h3 id="smartcrop-accepts">Accepts:</h3>
                 <ul>
                     <li><code>entropy</code>: focus on the region with the highest <a href="https://en.wikipedia.org/wiki/Entropy_%28information_theory%29">Shannon entropy</a>.</li>
@@ -770,7 +770,7 @@ if (!empty($_GET['url']) && \is_string($_GET['url'])) {
         </section>
         <section>
             <h1 id="shape" class="param">Shape</h1><code>&amp;shape=</code>
-            <p>Crops the image to a specific shape. Use <code>&amp;strim</code> to also remove the remaining whitespace. More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/49">Issue #49 - Add circle effect to photos</a>.</p>
+            <p>Crops the image to a specific shape. Use <code>&amp;strim</code> to also remove the remaining whitespace. More info: <a href="https://github.com/weserv/images/issues/49">Issue #49 - Add circle effect to photos</a>.</p>
             <div class="notices note">
                 <div class="heading">Note</div>
                 <p>Previously the <code>&amp;strim</code> parameter was enabled by default. In December 2017 it was changed to an optional parameter to be more consistent with other features.</p>
@@ -830,13 +830,13 @@ if (!empty($_GET['url']) && \is_string($_GET['url'])) {
             <section>
                 <h2 id="trim" class="param">Trim</h2><code>&amp;trim=</code>
                 <p>Trim "boring" pixels from all edges that contain values within a similarity of the top-left pixel. Trimming occurs before any resize operation. Use values between <code>1</code> and <code>254</code> to define a tolerance level to trim away similar color values. You also can specify just &trim, which defaults to a tolerance level of 10.</p>
-                <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/39">Issue #39 - able to remove black/white whitespace</a>.</p>
+                <p>More info: <a href="https://github.com/weserv/images/issues/39">Issue #39 - able to remove black/white whitespace</a>.</p>
                 <pre><code class="language-html">&lt;img src="//$url/?url=$exampleTransparentImage&amp;w=300&amp;trim=10"&gt;</code></pre>
                 <a class="trimedges" href="//$url/?url=$exampleTransparentImage&amp;w=300&amp;trim=10"><img src="//$url/?url=$exampleTransparentImage&amp;w=300&amp;trim=10" alt=""/></a>
             </section>
             <section>
                 <h2 id="background" class="param">Background</h2><code>&amp;bg=</code><span class="new">New!</span>
-                <p>Sets the background color of the image. Supports a variety of color formats. In addition to the 140 color names supported by all modern browsers (listed <a href="//$url/colors.html">here</a>), it also accepts hexadecimal RGB and RBG alpha formats. More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/81">Issue #81 - Background setting</a>.</p>
+                <p>Sets the background color of the image. Supports a variety of color formats. In addition to the 140 color names supported by all modern browsers (listed <a href="//$url/colors.html">here</a>), it also accepts hexadecimal RGB and RBG alpha formats. More info: <a href="https://github.com/weserv/images/issues/81">Issue #81 - Background setting</a>.</p>
                 <h3 id="background-hexdec">Hexadecimal</h3>
                 <ul>
                     <li>3 digit RGB: <code>CCC</code></li>
@@ -853,7 +853,7 @@ if (!empty($_GET['url']) && \is_string($_GET['url'])) {
             <section>
                 <h2 id="blur" class="param">Blur</h2><code>&amp;blur=</code><span class="new">New!</span>
                 <p>Adds a blur effect to the image. Use values between <code>0</code> and <code>100</code>.</p>
-                <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/69">Issue #69 - Allow blur transformation (with radius parameter)</a>.</p>
+                <p>More info: <a href="https://github.com/weserv/images/issues/69">Issue #69 - Allow blur transformation (with radius parameter)</a>.</p>
                 <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;blur=5"&gt;</code></pre>
                 <a href="//$url/?url=$exampleImage&amp;w=300&amp;blur=5"><img src="//$url/?url=$exampleImage&amp;w=300&amp;blur=5" alt=""/></a>
             </section>
@@ -875,21 +875,21 @@ if (!empty($_GET['url']) && \is_string($_GET['url'])) {
             <section>
                 <h2 id="output" class="param">Output</h2><code>&amp;output=</code>
                 <p>Encodes the image to a specific format. Accepts <code>jpg</code>, <code>png</code>, <code>gif</code>, <code>tiff</code> or <code>webp</code>. If none is given, it will honor the origin image format.</p>
-                <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/62">Issue #62 - Format conversion</a>.</p>
+                <p>More info: <a href="https://github.com/weserv/images/issues/62">Issue #62 - Format conversion</a>.</p>
                 <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;output=webp"&gt;</code></pre>
                 <a href="//$url/?url=$exampleImage&amp;w=300&amp;output=webp"><img src="//$url/?url=$exampleImage&amp;w=300&amp;output=webp" alt=""/></a>
             </section>
             <section>
                 <h2 id="interlace-progressive" class="param">Interlace / progressive</h2><code>&amp;il</code>
                 <p>Adds interlacing to GIF and PNG. JPEG's become progressive.</p>
-                <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/50">Issue #50 - Add parameter to use progressive JPEGs</a>.</p>
+                <p>More info: <a href="https://github.com/weserv/images/issues/50">Issue #50 - Add parameter to use progressive JPEGs</a>.</p>
                 <pre><code class="language-html">&lt;img src="//$url/?url=$exampleImage&amp;w=300&amp;il"&gt;</code></pre>
                 <a href="//$url/?url=$exampleImage&amp;w=300&amp;il"><img src="//$url/?url=$exampleImage&amp;w=300&amp;il" alt=""/></a>
             </section>
             <section>
                 <h2 id="base64" class="param">Base64 (data URL)</h2><code>&amp;encoding=base64</code>
                 <p>Encodes the image to be used directly in the src= of the <code>&lt;img&gt;</code>-tag. <a href="//$url/?url=$exampleImage&amp;crop=100,100,680,500&amp;encoding=base64">Use this link to see the output result</a>.</p>
-                <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/59">Issue #59 - Return image base64 encoded</a>.</p>
+                <p>More info: <a href="https://github.com/weserv/images/issues/59">Issue #59 - Return image base64 encoded</a>.</p>
                 <pre><code>//$url/?url=$exampleImage&amp;crop=100,100,680,500&amp;encoding=base64</code></pre>
             </section>
         </section>
@@ -898,7 +898,7 @@ if (!empty($_GET['url']) && \is_string($_GET['url'])) {
             <section>
                 <h2 id="default" class="param">Default image</h2><code>&amp;errorredirect=</code><span class="new">New!</span>
                 <p>If there is a problem loading an image, then a error is shown. However, there might be a need where instead of giving a broken image to the user, you want a default image to be delivered.</p>
-                <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/37">Issue #37 - Return default image if the image's URL not found</a>.</p>
+                <p>More info: <a href="https://github.com/weserv/images/issues/37">Issue #37 - Return default image if the image's URL not found</a>.</p>
                 <p>The URL must not include a <code>errorredirect</code> querystring (if it does, it will be ignored).</p>
                 <pre><code class="language-html">&lt;img src="//$url/?url=example.org/noimage.jpg&amp;errorredirect=ssl:$url%2F%3Furl%3D$exampleImage%26w%3D300"&gt;</code></pre>
                 <a href="//$url/?url=example.org/noimage.jpg&amp;errorredirect=ssl:$url%2F%3Furl%3D$exampleImage%26w%3D300"><img src="//$url/?url=example.org/noimage.jpg&amp;errorredirect=ssl:$url%2F%3Furl%3D$exampleImage%26w%3D300" alt=""/></a>
@@ -910,7 +910,7 @@ if (!empty($_GET['url']) && \is_string($_GET['url'])) {
             <section>
                 <h2 id="filename" class="param">Filename</h2><code>&amp;filename=</code><span class="new">New!</span>
                 <p>To specify the filename returned in the <code>Content-Disposition</code> header. The filename must only contain alphanumeric characters.</p>
-                <p>More info: <a href="https://github.com/andrieslouw/imagesweserv/issues/122">Issue #122 - Specify filename</a>.</p>
+                <p>More info: <a href="https://github.com/weserv/images/issues/122">Issue #122 - Specify filename</a>.</p>
             </section>
         </section>
     </div>

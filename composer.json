@@ -1,5 +1,5 @@
 {
-    "name": "andrieslouw/imagesweserv",
+    "name": "weserv/images",
     "type": "project",
     "version": "3.0.0",
     "license": "BSD-3-Clause",
@@ -12,7 +12,7 @@
         "editing",
         "proxy"
     ],
-    "homepage": "https://github.com/andrieslouw/imagesweserv",
+    "homepage": "https://github.com/weserv/images",
     "authors": [
         {
             "name": "Andries Louw Wolthuizen",

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <ruleset name="PMD ruleset for images.weserv.nl"
-         xmlns="https://github.com/andrieslouw/imagesweserv"
+         xmlns="https://github.com/weserv/images"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://pmd.sf.net/ruleset/1.0.0 http://pmd.sf.net/ruleset_xml_schema.xsd"
          xsi:noNamespaceSchemaLocation="http://pmd.sf.net/ruleset_xml_schema.xsd">
