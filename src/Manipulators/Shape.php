@@ -1,8 +1,8 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Manipulators;
+namespace Weserv\Images\Manipulators;
 
-use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
+use Weserv\Images\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Access;
 use Jcupitt\Vips\Image;
 
@@ -218,7 +218,7 @@ class Shape extends BaseManipulator
     }
 
     /**
-     * Inspired by this JSFiddle: http://jsfiddle.net/tohan/8vwjn4cx/
+     * Inspired by this JSFiddle: https://jsfiddle.net/tohan/8vwjn4cx/
      * modified to support SVG paths
      *
      * @param float $midX midX

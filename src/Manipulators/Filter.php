@@ -1,6 +1,6 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Manipulators;
+namespace Weserv\Images\Manipulators;
 
 use Jcupitt\Vips\Image;
 use Jcupitt\Vips\Interpretation;

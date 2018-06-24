@@ -1,6 +1,6 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Throttler;
+namespace Weserv\Images\Throttler;
 
 /**
  * A limiter implements logic to determine if any limits have been exceeded

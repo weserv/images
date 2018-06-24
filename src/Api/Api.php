@@ -1,14 +1,14 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Api;
+namespace Weserv\Images\Api;
 
-use AndriesLouw\imagesweserv\Client;
-use AndriesLouw\imagesweserv\Exception\ImageNotReadableException;
-use AndriesLouw\imagesweserv\Exception\ImageNotValidException;
-use AndriesLouw\imagesweserv\Exception\ImageTooBigException;
-use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
-use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
-use AndriesLouw\imagesweserv\Manipulators\ManipulatorInterface;
+use Weserv\Images\Client;
+use Weserv\Images\Exception\ImageNotReadableException;
+use Weserv\Images\Exception\ImageNotValidException;
+use Weserv\Images\Exception\ImageTooBigException;
+use Weserv\Images\Exception\ImageTooLargeException;
+use Weserv\Images\Manipulators\Helpers\Utils;
+use Weserv\Images\Manipulators\ManipulatorInterface;
 use GuzzleHttp\Exception\RequestException;
 use InvalidArgumentException;
 use Jcupitt\Vips\Access;

@@ -1,14 +1,14 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Test\Throttler;
+namespace Weserv\Images\Test\Throttler;
 
-use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
-use AndriesLouw\imagesweserv\Throttler\RedisThrottler;
-use AndriesLouw\imagesweserv\Throttler\ThrottlingPolicy;
+use Weserv\Images\Test\ImagesWeservTestCase;
+use Weserv\Images\Throttler\RedisThrottler;
+use Weserv\Images\Throttler\ThrottlingPolicy;
 use Mockery\MockInterface;
 use Predis\ClientInterface;
 
-class RedisThrottlerTest extends ImagesweservTestCase
+class RedisThrottlerTest extends ImagesWeservTestCase
 {
     /**
      * Redis instance.

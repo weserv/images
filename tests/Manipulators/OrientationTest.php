@@ -1,16 +1,16 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Test\Manipulators;
+namespace Weserv\Images\Test\Manipulators;
 
-use AndriesLouw\imagesweserv\Api\Api;
-use AndriesLouw\imagesweserv\Client;
-use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
-use AndriesLouw\imagesweserv\Manipulators\Orientation;
-use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
+use Weserv\Images\Api\Api;
+use Weserv\Images\Client;
+use Weserv\Images\Manipulators\Helpers\Utils;
+use Weserv\Images\Manipulators\Orientation;
+use Weserv\Images\Test\ImagesWeservTestCase;
 use Jcupitt\Vips\Image;
 use Mockery\MockInterface;
 
-class OrientationTest extends ImagesweservTestCase
+class OrientationTest extends ImagesWeservTestCase
 {
     /**
      * @var Client|MockInterface $client

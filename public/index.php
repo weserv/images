@@ -5,11 +5,11 @@
  * PHP version 7
  *
  * @category  Images
- * @package   Imagesweserv
+ * @package   Weserv\Images
  * @author    Andries Louw Wolthuizen <info@andrieslouw.nl>
  * @author    Kleis Auke Wolthuizen   <info@kleisauke.nl>
- * @license   http://opensource.org/licenses/bsd-license.php New BSD License
- * @link      images.weserv.nl
+ * @license   https://opensource.org/licenses/bsd-license.php New BSD License
+ * @link      https://images.weserv.nl
  * @copyright 2018
  */
 
@@ -19,12 +19,12 @@ ini_set('display_errors', 0);
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use AndriesLouw\imagesweserv\Exception\ImageNotReadableException;
-use AndriesLouw\imagesweserv\Exception\ImageNotValidException;
-use AndriesLouw\imagesweserv\Exception\ImageTooBigException;
-use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
-use AndriesLouw\imagesweserv\Exception\RateExceededException;
-use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
+use Weserv\Images\Exception\ImageNotReadableException;
+use Weserv\Images\Exception\ImageNotValidException;
+use Weserv\Images\Exception\ImageTooBigException;
+use Weserv\Images\Exception\ImageTooLargeException;
+use Weserv\Images\Exception\RateExceededException;
+use Weserv\Images\Manipulators\Helpers\Utils;
 use GuzzleHttp\Exception\RequestException;
 use Jcupitt\Vips\Exception as VipsException;
 use League\Uri\Components\HierarchicalPath as Path;
@@ -206,7 +206,7 @@ if (!empty($_GET['url']) && \is_string($_GET['url'])) {
     $guzzleConfig = $config['guzzle'] ?? [];
 
     // Create an PHP HTTP client
-    $client = new AndriesLouw\imagesweserv\Client($tmpFileName, $clientConfig, $guzzleConfig);
+    $client = new Weserv\Images\Client($tmpFileName, $clientConfig, $guzzleConfig);
 
     // If config throttler is set and IP isn't on the throttler whitelist
     if (isset($config['throttler']) && !isset($config['throttler-whitelist'][$_SERVER['REMOTE_ADDR']])) {
@@ -221,7 +221,7 @@ if (!empty($_GET['url']) && \is_string($_GET['url'])) {
         // Firewall access rules
         $accessRules = new Cloudflare\API\Endpoints\AccessRules($adapter);
 
-        $throttlingPolicy = new AndriesLouw\imagesweserv\Throttler\ThrottlingPolicy(
+        $throttlingPolicy = new Weserv\Images\Throttler\ThrottlingPolicy(
             $accessRules,
             $policyConfig
         );
@@ -248,7 +248,7 @@ if (!empty($_GET['url']) && \is_string($_GET['url'])) {
             }*/
 
             // Create an new Memcached throttler instance
-            $throttler = new AndriesLouw\imagesweserv\Throttler\MemcachedThrottler(
+            $throttler = new Weserv\Images\Throttler\MemcachedThrottler(
                 $memcached,
                 $throttlingPolicy,
                 $config['throttler']
@@ -257,7 +257,7 @@ if (!empty($_GET['url']) && \is_string($_GET['url'])) {
             $redis = new Predis\Client($config['redis']);
 
             // Create an new Redis throttler instance
-            $throttler = new AndriesLouw\imagesweserv\Throttler\RedisThrottler(
+            $throttler = new Weserv\Images\Throttler\RedisThrottler(
                 $redis,
                 $throttlingPolicy,
                 $config['throttler']
@@ -267,26 +267,26 @@ if (!empty($_GET['url']) && \is_string($_GET['url'])) {
 
     // Set manipulators
     $manipulators = [
-        new AndriesLouw\imagesweserv\Manipulators\Trim(),
-        new AndriesLouw\imagesweserv\Manipulators\Thumbnail(71000000),
-        new AndriesLouw\imagesweserv\Manipulators\Orientation(),
-        new AndriesLouw\imagesweserv\Manipulators\Crop(),
-        new AndriesLouw\imagesweserv\Manipulators\Letterbox(),
-        new AndriesLouw\imagesweserv\Manipulators\Shape,
-        new AndriesLouw\imagesweserv\Manipulators\Brightness(),
-        new AndriesLouw\imagesweserv\Manipulators\Contrast(),
-        new AndriesLouw\imagesweserv\Manipulators\Gamma(),
-        new AndriesLouw\imagesweserv\Manipulators\Sharpen(),
-        new AndriesLouw\imagesweserv\Manipulators\Filter(),
-        new AndriesLouw\imagesweserv\Manipulators\Blur(),
-        new AndriesLouw\imagesweserv\Manipulators\Background(),
+        new Weserv\Images\Manipulators\Trim(),
+        new Weserv\Images\Manipulators\Thumbnail(71000000),
+        new Weserv\Images\Manipulators\Orientation(),
+        new Weserv\Images\Manipulators\Crop(),
+        new Weserv\Images\Manipulators\Letterbox(),
+        new Weserv\Images\Manipulators\Shape,
+        new Weserv\Images\Manipulators\Brightness(),
+        new Weserv\Images\Manipulators\Contrast(),
+        new Weserv\Images\Manipulators\Gamma(),
+        new Weserv\Images\Manipulators\Sharpen(),
+        new Weserv\Images\Manipulators\Filter(),
+        new Weserv\Images\Manipulators\Blur(),
+        new Weserv\Images\Manipulators\Background(),
     ];
 
     // Set API
-    $api = new AndriesLouw\imagesweserv\Api\Api($client, $manipulators);
+    $api = new Weserv\Images\Api\Api($client, $manipulators);
 
     // Setup server
-    $server = new AndriesLouw\imagesweserv\Server(
+    $server = new Weserv\Images\Server(
         $api,
         $throttler ?? null
     );

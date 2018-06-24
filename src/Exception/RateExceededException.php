@@ -1,6 +1,6 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Exception;
+namespace Weserv\Images\Exception;
 
 /**
  * Exception when a user rate limit is exceeded

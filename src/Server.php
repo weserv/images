@@ -1,15 +1,15 @@
 <?php
 
-namespace AndriesLouw\imagesweserv;
+namespace Weserv\Images;
 
-use AndriesLouw\imagesweserv\Api\ApiInterface;
-use AndriesLouw\imagesweserv\Exception\ImageNotReadableException;
-use AndriesLouw\imagesweserv\Exception\ImageNotValidException;
-use AndriesLouw\imagesweserv\Exception\ImageTooBigException;
-use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
-use AndriesLouw\imagesweserv\Exception\RateExceededException;
-use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
-use AndriesLouw\imagesweserv\Throttler\ThrottlerInterface;
+use Weserv\Images\Api\ApiInterface;
+use Weserv\Images\Exception\ImageNotReadableException;
+use Weserv\Images\Exception\ImageNotValidException;
+use Weserv\Images\Exception\ImageTooBigException;
+use Weserv\Images\Exception\ImageTooLargeException;
+use Weserv\Images\Exception\RateExceededException;
+use Weserv\Images\Manipulators\Helpers\Utils;
+use Weserv\Images\Throttler\ThrottlerInterface;
 use GuzzleHttp\Exception\RequestException;
 use Jcupitt\Vips\Config;
 use Jcupitt\Vips\DebugLogger;

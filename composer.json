@@ -41,12 +41,12 @@
     },
     "autoload": {
         "psr-4": {
-            "AndriesLouw\\imagesweserv\\": "src/"
+            "Weserv\\Images\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "AndriesLouw\\imagesweserv\\Test\\": "tests/"
+            "Weserv\\Images\\Test\\": "tests/"
         }
     },
     "scripts": {

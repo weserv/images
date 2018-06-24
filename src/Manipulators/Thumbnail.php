@@ -1,9 +1,9 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Manipulators;
+namespace Weserv\Images\Manipulators;
 
-use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
-use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
+use Weserv\Images\Exception\ImageTooLargeException;
+use Weserv\Images\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Image;
 use Jcupitt\Vips\Intent;
 use Jcupitt\Vips\Interpretation;
@@ -45,7 +45,7 @@ class Thumbnail extends BaseManipulator
         // https://packages.debian.org/sid/all/icc-profiles-free/filelist
         Interpretation::SRGB => __DIR__ . '/../ICC/sRGB.icm',
         // Convert to sRGB using default CMYK profile from:
-        // http://www.argyllcms.com/cmyk.icm
+        // https://www.argyllcms.com/cmyk.icm
         Interpretation::CMYK => __DIR__ . '/../ICC/cmyk.icm'
     ];
 

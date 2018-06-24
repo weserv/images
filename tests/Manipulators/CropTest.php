@@ -1,15 +1,15 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Test\Manipulators;
+namespace Weserv\Images\Test\Manipulators;
 
-use AndriesLouw\imagesweserv\Api\Api;
-use AndriesLouw\imagesweserv\Client;
-use AndriesLouw\imagesweserv\Manipulators\Crop;
-use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
+use Weserv\Images\Api\Api;
+use Weserv\Images\Client;
+use Weserv\Images\Manipulators\Crop;
+use Weserv\Images\Test\ImagesWeservTestCase;
 use Jcupitt\Vips\Image;
 use Mockery\MockInterface;
 
-class CropTest extends ImagesweservTestCase
+class CropTest extends ImagesWeservTestCase
 {
     /**
      * @var Client|MockInterface $client

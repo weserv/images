@@ -1,15 +1,15 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Test\Exception;
+namespace Weserv\Images\Test\Exception;
 
-use AndriesLouw\imagesweserv\Client;
-use AndriesLouw\imagesweserv\Exception\ImageTooBigException;
-use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
+use Weserv\Images\Client;
+use Weserv\Images\Exception\ImageTooBigException;
+use Weserv\Images\Test\ImagesWeservTestCase;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 
-class ImageTooBigExceptionTest extends ImagesweservTestCase
+class ImageTooBigExceptionTest extends ImagesWeservTestCase
 {
     /**
      * @var string
@@ -30,7 +30,7 @@ class ImageTooBigExceptionTest extends ImagesweservTestCase
     /**
      * Test can construct and throw an exception.
      *
-     * @expectedException \AndriesLouw\imagesweserv\Exception\ImageTooBigException
+     * @expectedException \Weserv\Images\Exception\ImageTooBigException
      */
     public function testThrowException()
     {
@@ -38,7 +38,7 @@ class ImageTooBigExceptionTest extends ImagesweservTestCase
     }
 
     /**
-     * @expectedException        \AndriesLouw\imagesweserv\Exception\ImageTooBigException
+     * @expectedException        \Weserv\Images\Exception\ImageTooBigException
      * @expectedExceptionMessage 2 KB
      */
     public function testImageTooBigException()

@@ -1,8 +1,8 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Manipulators;
+namespace Weserv\Images\Manipulators;
 
-use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
+use Weserv\Images\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Image;
 
 /**

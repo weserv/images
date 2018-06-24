@@ -1,18 +1,18 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Test\Exception;
+namespace Weserv\Images\Test\Exception;
 
-use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
-use AndriesLouw\imagesweserv\Manipulators\Thumbnail;
-use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
+use Weserv\Images\Exception\ImageTooLargeException;
+use Weserv\Images\Manipulators\Thumbnail;
+use Weserv\Images\Test\ImagesWeservTestCase;
 use Mockery;
 
-class ImageTooLargeExceptionTest extends ImagesweservTestCase
+class ImageTooLargeExceptionTest extends ImagesWeservTestCase
 {
     /**
      * Test can construct and throw an exception.
      *
-     * @expectedException \AndriesLouw\imagesweserv\Exception\ImageTooLargeException
+     * @expectedException \Weserv\Images\Exception\ImageTooLargeException
      */
     public function testThrowException()
     {
@@ -20,7 +20,7 @@ class ImageTooLargeExceptionTest extends ImagesweservTestCase
     }
 
     /**
-     * @expectedException        \AndriesLouw\imagesweserv\Exception\ImageTooLargeException
+     * @expectedException        \Weserv\Images\Exception\ImageTooLargeException
      * @expectedExceptionMessage Image is too large for processing. Width x Height should be less than 70 megapixels.
      */
     public function testImageNotReadableException()

@@ -1,12 +1,12 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Test\Manipulators\Helpers;
+namespace Weserv\Images\Test\Manipulators\Helpers;
 
-use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
-use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
+use Weserv\Images\Manipulators\Helpers\Utils;
+use Weserv\Images\Test\ImagesWeservTestCase;
 use Jcupitt\Vips\Interpretation;
 
-class UtilsTest extends ImagesweservTestCase
+class UtilsTest extends ImagesWeservTestCase
 {
     public function testIs16Bit()
     {

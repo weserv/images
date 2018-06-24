@@ -1,11 +1,11 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Api;
+namespace Weserv\Images\Api;
 
-use AndriesLouw\imagesweserv\Exception\ImageNotReadableException;
-use AndriesLouw\imagesweserv\Exception\ImageNotValidException;
-use AndriesLouw\imagesweserv\Exception\ImageTooBigException;
-use AndriesLouw\imagesweserv\Exception\ImageTooLargeException;
+use Weserv\Images\Exception\ImageNotReadableException;
+use Weserv\Images\Exception\ImageNotValidException;
+use Weserv\Images\Exception\ImageTooBigException;
+use Weserv\Images\Exception\ImageTooLargeException;
 use GuzzleHttp\Exception\RequestException;
 use Jcupitt\Vips\Exception as VipsException;
 use Jcupitt\Vips\Image;

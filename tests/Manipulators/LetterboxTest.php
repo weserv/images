@@ -1,16 +1,16 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Test\Manipulators;
+namespace Weserv\Images\Test\Manipulators;
 
-use AndriesLouw\imagesweserv\Api\Api;
-use AndriesLouw\imagesweserv\Client;
-use AndriesLouw\imagesweserv\Manipulators\Letterbox;
-use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
+use Weserv\Images\Api\Api;
+use Weserv\Images\Client;
+use Weserv\Images\Manipulators\Letterbox;
+use Weserv\Images\Test\ImagesWeservTestCase;
 use Jcupitt\Vips\Image;
 use Jcupitt\Vips\Interpretation;
 use Mockery\MockInterface;
 
-class LetterboxTest extends ImagesweservTestCase
+class LetterboxTest extends ImagesWeservTestCase
 {
     /**
      * @var Client|MockInterface

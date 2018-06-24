@@ -1,14 +1,14 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Test\Throttler;
+namespace Weserv\Images\Test\Throttler;
 
-use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
-use AndriesLouw\imagesweserv\Throttler\MemcachedThrottler;
-use AndriesLouw\imagesweserv\Throttler\ThrottlingPolicy;
+use Weserv\Images\Test\ImagesWeservTestCase;
+use Weserv\Images\Throttler\MemcachedThrottler;
+use Weserv\Images\Throttler\ThrottlingPolicy;
 use Memcached;
 use Mockery\MockInterface;
 
-class MemcachedThrottlerTest extends ImagesweservTestCase
+class MemcachedThrottlerTest extends ImagesWeservTestCase
 {
     /**
      * Memcached instance.

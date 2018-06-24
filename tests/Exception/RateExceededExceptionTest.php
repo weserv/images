@@ -1,20 +1,20 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Test\Exception;
+namespace Weserv\Images\Test\Exception;
 
-use AndriesLouw\imagesweserv\Api\Api;
-use AndriesLouw\imagesweserv\Client;
-use AndriesLouw\imagesweserv\Exception\RateExceededException;
-use AndriesLouw\imagesweserv\Server;
-use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
-use AndriesLouw\imagesweserv\Throttler\ThrottlerInterface;
+use Weserv\Images\Api\Api;
+use Weserv\Images\Client;
+use Weserv\Images\Exception\RateExceededException;
+use Weserv\Images\Server;
+use Weserv\Images\Test\ImagesWeservTestCase;
+use Weserv\Images\Throttler\ThrottlerInterface;
 
-class RateExceededExceptionTest extends ImagesweservTestCase
+class RateExceededExceptionTest extends ImagesWeservTestCase
 {
     /**
      * Test can construct and throw an exception.
      *
-     * @expectedException \AndriesLouw\imagesweserv\Exception\RateExceededException
+     * @expectedException \Weserv\Images\Exception\RateExceededException
      */
     public function testThrowException()
     {
@@ -22,7 +22,7 @@ class RateExceededExceptionTest extends ImagesweservTestCase
     }
 
     /**
-     * @expectedException        \AndriesLouw\imagesweserv\Exception\RateExceededException
+     * @expectedException        \Weserv\Images\Exception\RateExceededException
      * @expectedExceptionMessage There are an unusual number of requests coming from this IP address.
      */
     public function testRateExceededException()

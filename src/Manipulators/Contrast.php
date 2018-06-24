@@ -1,6 +1,6 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Manipulators;
+namespace Weserv\Images\Manipulators;
 
 use Jcupitt\Vips\BandFormat;
 use Jcupitt\Vips\Image;
@@ -87,7 +87,7 @@ class Contrast extends BaseManipulator
         /**
          * The sigmoidal equation, see
          *
-         * http://www.imagemagick.org/Usage/color_mods/#sigmoidal
+         * https://www.imagemagick.org/Usage/color_mods/#sigmoidal
          *
          * and
          *

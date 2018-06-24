@@ -44,4 +44,4 @@ Please see [Privacy-Policy.md](https://github.com/weserv/images/blob/3.x/Privacy
 ## Last but not least
 This is made in Sneek with love and passion
 
-[![Made in Sneek](http://kleisauke.nl/made-in-sneek-resized.png)](https://en.wikipedia.org/wiki/Sneek)
+[![Made in Sneek](https://kleisauke.nl/made-in-sneek-resized.png)](https://en.wikipedia.org/wiki/Sneek)

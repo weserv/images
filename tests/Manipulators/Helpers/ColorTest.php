@@ -1,11 +1,11 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Test\Manipulators\Helpers;
+namespace Weserv\Images\Test\Manipulators\Helpers;
 
-use AndriesLouw\imagesweserv\Manipulators\Helpers\Color;
-use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
+use Weserv\Images\Manipulators\Helpers\Color;
+use Weserv\Images\Test\ImagesWeservTestCase;
 
-class ColorTest extends ImagesweservTestCase
+class ColorTest extends ImagesWeservTestCase
 {
     public function testThreeDigitColorCode()
     {

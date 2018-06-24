@@ -1,15 +1,15 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Test\Manipulators;
+namespace Weserv\Images\Test\Manipulators;
 
-use AndriesLouw\imagesweserv\Api\Api;
-use AndriesLouw\imagesweserv\Client;
-use AndriesLouw\imagesweserv\Manipulators\Contrast;
-use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
+use Weserv\Images\Api\Api;
+use Weserv\Images\Client;
+use Weserv\Images\Manipulators\Contrast;
+use Weserv\Images\Test\ImagesWeservTestCase;
 use Jcupitt\Vips\Image;
 use Mockery\MockInterface;
 
-class ContrastTest extends ImagesweservTestCase
+class ContrastTest extends ImagesWeservTestCase
 {
     /**
      * @var Client|MockInterface

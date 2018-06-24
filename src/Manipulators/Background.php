@@ -1,8 +1,8 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Manipulators;
+namespace Weserv\Images\Manipulators;
 
-use AndriesLouw\imagesweserv\Manipulators\Helpers\Color;
+use Weserv\Images\Manipulators\Helpers\Color;
 use Jcupitt\Vips\BandFormat;
 use Jcupitt\Vips\BlendMode;
 use Jcupitt\Vips\Image;

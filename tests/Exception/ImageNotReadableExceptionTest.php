@@ -1,18 +1,18 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Test\Exception;
+namespace Weserv\Images\Test\Exception;
 
-use AndriesLouw\imagesweserv\Api\Api;
-use AndriesLouw\imagesweserv\Client;
-use AndriesLouw\imagesweserv\Exception\ImageNotReadableException;
-use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
+use Weserv\Images\Api\Api;
+use Weserv\Images\Client;
+use Weserv\Images\Exception\ImageNotReadableException;
+use Weserv\Images\Test\ImagesWeservTestCase;
 
-class ImageNotReadableExceptionTest extends ImagesweservTestCase
+class ImageNotReadableExceptionTest extends ImagesWeservTestCase
 {
     /**
      * Test can construct and throw an exception.
      *
-     * @expectedException \AndriesLouw\imagesweserv\Exception\ImageNotReadableException
+     * @expectedException \Weserv\Images\Exception\ImageNotReadableException
      */
     public function testThrowException()
     {
@@ -20,7 +20,7 @@ class ImageNotReadableExceptionTest extends ImagesweservTestCase
     }
 
     /**
-     * @expectedException        \AndriesLouw\imagesweserv\Exception\ImageNotReadableException
+     * @expectedException        \Weserv\Images\Exception\ImageNotReadableException
      * @expectedExceptionMessage Image not readable. Is it a valid image?
      */
     public function testImageNotReadableException()

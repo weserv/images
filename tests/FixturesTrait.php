@@ -1,6 +1,6 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Test;
+namespace Weserv\Images\Test;
 
 trait FixturesTrait
 {
@@ -25,14 +25,14 @@ trait FixturesTrait
     public $inputJpgWithPortraitExif7 = __DIR__ . '/fixtures/Portrait_7.jpg'; // https://github.com/recurser/exif-orientation-examples
     public $inputJpgWithPortraitExif8 = __DIR__ . '/fixtures/Portrait_8.jpg'; // https://github.com/recurser/exif-orientation-examples
 
-    public $inputJpg = __DIR__ . '/fixtures/2569067123_aca715a2ee_o.jpg'; // http://www.flickr.com/photos/grizdave/2569067123/
+    public $inputJpg = __DIR__ . '/fixtures/2569067123_aca715a2ee_o.jpg'; // https://www.flickr.com/photos/grizdave/2569067123/
     public $inputJpgWithGammaHoliness = __DIR__ . '/fixtures/gamma_dalai_lama_gray.jpg'; // http://www.4p8.com/eric.brasseur/gamma.html
-    public $inputJpgWithCmykProfile = __DIR__ . '/fixtures/Channel_digital_image_CMYK_color.jpg'; // http://en.wikipedia.org/wiki/File:Channel_digital_image_CMYK_color.jpg
+    public $inputJpgWithCmykProfile = __DIR__ . '/fixtures/Channel_digital_image_CMYK_color.jpg'; // https://en.wikipedia.org/wiki/File:Channel_digital_image_CMYK_color.jpg
     public $inputJpgWithCmykNoProfile = __DIR__ . '/fixtures/Channel_digital_image_CMYK_color_no_profile.jpg';
     public $inputJpg320x240 = __DIR__ . '/fixtures/320x240.jpg'; // http://www.andrewault.net/2010/01/26/create-a-test-pattern-video-with-perl/
     public $inputJpgOverlayLayer2 = __DIR__ . '/fixtures/alpha-layer-2-ink.jpg';
 
-    public $inputPng = __DIR__ . '/fixtures/50020484-00001.png'; // http://c.searspartsdirect.com/lis_png/PLDM/50020484-00001.png
+    public $inputPng = __DIR__ . '/fixtures/50020484-00001.png'; // https://c.searspartsdirect.com/lis_png/PLDM/50020484-00001.png
     public $inputPngWithTransparency = __DIR__ . '/fixtures/blackbug.png'; // public domain
     public $inputPngWithGreyAlpha = __DIR__ . '/fixtures/grey-8bit-alpha.png';
     public $inputPngWithOneColor = __DIR__ . '/fixtures/2x2_fdcce6.png';
@@ -40,9 +40,9 @@ trait FixturesTrait
     public $inputPngOverlayLayer0 = __DIR__ . '/fixtures/alpha-layer-0-background.png';
     public $inputPngOverlayLayer1 = __DIR__ . '/fixtures/alpha-layer-1-fill.png';
 
-    public $inputWebP = __DIR__ . '/fixtures/4.webp'; // http://www.gstatic.com/webp/gallery/4.webp
-    public $inputWebPWithTransparency = __DIR__ . '/fixtures/5_webp_a.webp'; // http://www.gstatic.com/webp/gallery3/5_webp_a.webp
-    public $inputTiff = __DIR__ . '/fixtures/G31D.TIF'; // http://www.fileformat.info/format/tiff/sample/e6c9a6e5253348f4aef6d17b534360ab/index.htm
+    public $inputWebP = __DIR__ . '/fixtures/4.webp'; // https://www.gstatic.com/webp/gallery/4.webp
+    public $inputWebPWithTransparency = __DIR__ . '/fixtures/5_webp_a.webp'; // https://www.gstatic.com/webp/gallery3/5_webp_a.webp
+    public $inputTiff = __DIR__ . '/fixtures/G31D.TIF'; // https://www.fileformat.info/format/tiff/sample/e6c9a6e5253348f4aef6d17b534360ab/index.htm
     public $inputTiffCielab = __DIR__ . '/fixtures/cielab-dagams.tiff'; // https://github.com/lovell/sharp/issues/646
-    public $inputSvg = __DIR__ . '/fixtures/check.svg'; // http://dev.w3.org/SVG/tools/svgweb/samples/svg-files/check.svg
+    public $inputSvg = __DIR__ . '/fixtures/check.svg'; // https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/check.svg
 }

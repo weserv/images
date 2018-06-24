@@ -1,20 +1,20 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Test;
+namespace Weserv\Images\Test;
 
-use AndriesLouw\imagesweserv\Manipulators\Background;
-use AndriesLouw\imagesweserv\Manipulators\Blur;
-use AndriesLouw\imagesweserv\Manipulators\Brightness;
-use AndriesLouw\imagesweserv\Manipulators\Contrast;
-use AndriesLouw\imagesweserv\Manipulators\Crop;
-use AndriesLouw\imagesweserv\Manipulators\Filter;
-use AndriesLouw\imagesweserv\Manipulators\Gamma;
-use AndriesLouw\imagesweserv\Manipulators\Letterbox;
-use AndriesLouw\imagesweserv\Manipulators\Orientation;
-use AndriesLouw\imagesweserv\Manipulators\Shape;
-use AndriesLouw\imagesweserv\Manipulators\Sharpen;
-use AndriesLouw\imagesweserv\Manipulators\Thumbnail;
-use AndriesLouw\imagesweserv\Manipulators\Trim;
+use Weserv\Images\Manipulators\Background;
+use Weserv\Images\Manipulators\Blur;
+use Weserv\Images\Manipulators\Brightness;
+use Weserv\Images\Manipulators\Contrast;
+use Weserv\Images\Manipulators\Crop;
+use Weserv\Images\Manipulators\Filter;
+use Weserv\Images\Manipulators\Gamma;
+use Weserv\Images\Manipulators\Letterbox;
+use Weserv\Images\Manipulators\Orientation;
+use Weserv\Images\Manipulators\Shape;
+use Weserv\Images\Manipulators\Sharpen;
+use Weserv\Images\Manipulators\Thumbnail;
+use Weserv\Images\Manipulators\Trim;
 use Jcupitt\Vips\Image;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
@@ -24,7 +24,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @requires extension vips
  */
-class ImagesweservTestCase extends TestCase
+class ImagesWeservTestCase extends TestCase
 {
     use MockeryPHPUnitIntegration;
     use FixturesTrait;

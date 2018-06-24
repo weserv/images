@@ -1,16 +1,16 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Test\Throttler;
+namespace Weserv\Images\Test\Throttler;
 
-use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
-use AndriesLouw\imagesweserv\Throttler\ThrottlingPolicy;
+use Weserv\Images\Test\ImagesWeservTestCase;
+use Weserv\Images\Throttler\ThrottlingPolicy;
 use Cloudflare\API\Adapter\ResponseException;
 use Cloudflare\API\Endpoints\AccessRules;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
 use Mockery\MockInterface;
 
-class ThrottlingPolicyTest extends ImagesweservTestCase
+class ThrottlingPolicyTest extends ImagesWeservTestCase
 {
     /**
      * AccessRules instance.

@@ -1,16 +1,16 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Test;
+namespace Weserv\Images\Test;
 
-use AndriesLouw\imagesweserv\Api\Api;
-use AndriesLouw\imagesweserv\Api\ApiInterface;
-use AndriesLouw\imagesweserv\Client;
-use AndriesLouw\imagesweserv\Server;
-use AndriesLouw\imagesweserv\Throttler\ThrottlerInterface;
+use Weserv\Images\Api\Api;
+use Weserv\Images\Api\ApiInterface;
+use Weserv\Images\Client;
+use Weserv\Images\Server;
+use Weserv\Images\Throttler\ThrottlerInterface;
 use Jcupitt\Vips\Image;
 use Mockery\MockInterface;
 
-class ServerTest extends ImagesweservTestCase
+class ServerTest extends ImagesWeservTestCase
 {
     /**
      * @var Client|MockInterface $client

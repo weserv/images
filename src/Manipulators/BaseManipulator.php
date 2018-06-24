@@ -1,6 +1,6 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Manipulators;
+namespace Weserv\Images\Manipulators;
 
 use Jcupitt\Vips\Image;
 
@@ -80,7 +80,7 @@ abstract class BaseManipulator implements ManipulatorInterface
      * @param Image $image The source image.
      *
      * @throws \Jcupitt\Vips\Exception
-     * @throws \AndriesLouw\imagesweserv\Exception\ImageTooLargeException
+     * @throws \Weserv\Images\Exception\ImageTooLargeException
      *
      * @return Image The manipulated image.
      */

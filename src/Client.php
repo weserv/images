@@ -1,10 +1,10 @@
 <?php
 
-namespace AndriesLouw\imagesweserv;
+namespace Weserv\Images;
 
-use AndriesLouw\imagesweserv\Exception\ImageNotValidException;
-use AndriesLouw\imagesweserv\Exception\ImageTooBigException;
-use AndriesLouw\imagesweserv\Manipulators\Helpers\Utils;
+use Weserv\Images\Exception\ImageNotValidException;
+use Weserv\Images\Exception\ImageTooBigException;
+use Weserv\Images\Manipulators\Helpers\Utils;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;

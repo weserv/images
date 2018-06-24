@@ -1,15 +1,15 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Test;
+namespace Weserv\Images\Test;
 
-use AndriesLouw\imagesweserv\Client;
+use Weserv\Images\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 
-class ClientTest extends ImagesweservTestCase
+class ClientTest extends ImagesWeservTestCase
 {
     /**
      * @var Client

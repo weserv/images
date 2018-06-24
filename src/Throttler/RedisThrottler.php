@@ -1,6 +1,6 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Throttler;
+namespace Weserv\Images\Throttler;
 
 use Predis\ClientInterface;
 

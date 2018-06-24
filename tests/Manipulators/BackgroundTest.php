@@ -1,15 +1,15 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Test\Manipulators;
+namespace Weserv\Images\Test\Manipulators;
 
-use AndriesLouw\imagesweserv\Api\Api;
-use AndriesLouw\imagesweserv\Client;
-use AndriesLouw\imagesweserv\Manipulators\Background;
-use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
+use Weserv\Images\Api\Api;
+use Weserv\Images\Client;
+use Weserv\Images\Manipulators\Background;
+use Weserv\Images\Test\ImagesWeservTestCase;
 use Jcupitt\Vips\Image;
 use Mockery\MockInterface;
 
-class BackgroundTest extends ImagesweservTestCase
+class BackgroundTest extends ImagesWeservTestCase
 {
     /**
      * @var Client|MockInterface

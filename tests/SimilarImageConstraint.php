@@ -1,6 +1,6 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Test;
+namespace Weserv\Images\Test;
 
 use Jcupitt\Vips\Access;
 use Jcupitt\Vips\Image;

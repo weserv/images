@@ -1,15 +1,15 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Test\Exception;
+namespace Weserv\Images\Test\Exception;
 
-use AndriesLouw\imagesweserv\Client;
-use AndriesLouw\imagesweserv\Exception\ImageNotValidException;
-use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
+use Weserv\Images\Client;
+use Weserv\Images\Exception\ImageNotValidException;
+use Weserv\Images\Test\ImagesWeservTestCase;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 
-class ImageNotValidExceptionTest extends ImagesweservTestCase
+class ImageNotValidExceptionTest extends ImagesWeservTestCase
 {
     /**
      * @var string
@@ -30,7 +30,7 @@ class ImageNotValidExceptionTest extends ImagesweservTestCase
     /**
      * Test can construct and throw an exception.
      *
-     * @expectedException \AndriesLouw\imagesweserv\Exception\ImageNotValidException
+     * @expectedException \Weserv\Images\Exception\ImageNotValidException
      */
     public function testThrowException()
     {
@@ -38,7 +38,7 @@ class ImageNotValidExceptionTest extends ImagesweservTestCase
     }
 
     /**
-     * @expectedException \AndriesLouw\imagesweserv\Exception\ImageNotValidException
+     * @expectedException \Weserv\Images\Exception\ImageNotValidException
      */
     public function testImageNotValidException()
     {

@@ -1,16 +1,16 @@
 <?php
 
-namespace AndriesLouw\imagesweserv\Test\Manipulators;
+namespace Weserv\Images\Test\Manipulators;
 
-use AndriesLouw\imagesweserv\Api\Api;
-use AndriesLouw\imagesweserv\Client;
-use AndriesLouw\imagesweserv\Manipulators\Thumbnail;
-use AndriesLouw\imagesweserv\Test\ImagesweservTestCase;
+use Weserv\Images\Api\Api;
+use Weserv\Images\Client;
+use Weserv\Images\Manipulators\Thumbnail;
+use Weserv\Images\Test\ImagesWeservTestCase;
 use Jcupitt\Vips\Image;
 use Jcupitt\Vips\Interpretation;
 use Mockery\MockInterface;
 
-class ThumbnailTest extends ImagesweservTestCase
+class ThumbnailTest extends ImagesWeservTestCase
 {
     /**
      * @var Client|MockInterface

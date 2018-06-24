@@ -1,15 +1,15 @@
-# Change Log
+# Changelog
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [3.0.0] - Unreleased
 
-Requires libvips v8.6.0.
+Requires libvips v8.6+.
 
 ### Note
 With the feedback that you've provided we can successfully close the following issues/enhancements: 
-[#10](https://github.com/weserv/images/issues/10), [#13](https://github.com/weserv/images/issues/13), [#15](https://github.com/weserv/images/issues/15), [#37](https://github.com/weserv/images/issues/37), [#62](https://github.com/weserv/images/issues/62), [#68](https://github.com/weserv/images/issues/68), [#69](https://github.com/weserv/images/issues/69), [#70](https://github.com/weserv/images/issues/70), [#75](https://github.com/weserv/images/issues/75), [#76](https://github.com/weserv/images/issues/76), [#78](https://github.com/weserv/images/issues/78), [#80](https://github.com/weserv/images/issues/80), [#81](https://github.com/weserv/images/issues/81), [#90](https://github.com/weserv/images/issues/90), [#106](https://github.com/weserv/images/issues/106), [#115](https://github.com/weserv/images/issues/115), [#121](https://github.com/weserv/images/issues/121), and [#122](https://github.com/weserv/images/issues/122). 
+[#10](https://github.com/weserv/images/issues/10), [#13](https://github.com/weserv/images/issues/13), [#15](https://github.com/weserv/images/issues/15), [#37](https://github.com/weserv/images/issues/37), [#62](https://github.com/weserv/images/issues/62), [#68](https://github.com/weserv/images/issues/68), [#69](https://github.com/weserv/images/issues/69), [#70](https://github.com/weserv/images/issues/70), [#75](https://github.com/weserv/images/issues/75), [#76](https://github.com/weserv/images/issues/76), [#78](https://github.com/weserv/images/issues/78), [#80](https://github.com/weserv/images/issues/80), [#81](https://github.com/weserv/images/issues/81), [#90](https://github.com/weserv/images/issues/90), [#106](https://github.com/weserv/images/issues/106), [#115](https://github.com/weserv/images/issues/115), [#121](https://github.com/weserv/images/issues/121), [#122](https://github.com/weserv/images/issues/122), [#133](https://github.com/weserv/images/issues/133), and [#137](https://github.com/weserv/images/issues/137). 
 Thanks for your support!
 
 ### Added
@@ -95,7 +95,7 @@ This version was never used in production, it's only used for testing purposes a
 
 ### Added
 - Add CHANGELOG.md based on [’Keep a CHANGELOG’](https://github.com/olivierlacan/keep-a-changelog).
-- Composer ready and [PSR-2](http://www.php-fig.org/psr/psr-2/) compliant.
+- Composer ready and [PSR-2](https://www.php-fig.org/psr/psr-2/) compliant.
 - Used the [Intervention Image](http://image.intervention.io/) library for image handling and manipulation.
 - Used the [Guzzle](https://github.com/guzzle/guzzle) library for sending HTTP requests.
 
@@ -104,7 +104,7 @@ This version was never used in production, it's only used for testing purposes a
 The start of our image proxy. See for more details [here](https://github.com/weserv/images/wiki/About-this-service-and-why-it-is-free).
 
 ### Added / Changed / Fixed
-We never kept a change log from 2007 till 2015.
+We never kept a changelog from 2007 till 2015.
 For a quick overview what we've added, changed or fixed in the past see our [completed label](https://github.com/weserv/images/issues?utf8=%E2%9C%93&q=label%3Acompleted%20no%3Amilestone) on our issue tracker. Or take a look at our [1.x branch](https://github.com/weserv/images/tree/1.x).
 
 [3.0.0]: https://github.com/weserv/images/compare/HEAD...3.x
