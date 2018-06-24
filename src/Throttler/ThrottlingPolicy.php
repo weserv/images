@@ -27,7 +27,7 @@ class ThrottlingPolicy
      * Create a new ThrottlerPolicy instance.
      *
      * @param AccessRules $accessRules
-     * @param array $config
+     * @param mixed[] $config
      */
     public function __construct(AccessRules $accessRules, array $config)
     {

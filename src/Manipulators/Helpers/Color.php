@@ -186,14 +186,14 @@ class Color
      *
      * @param string|null $value The color value.
      */
-    public function __construct($value)
+    public function __construct(?string $value)
     {
         $valueLower = strtolower($value);
         if (isset(self::$colors[$valueLower])) {
             $value = self::$colors[$valueLower];
         }
 
-        list($this->alpha, $this->red, $this->green, $this->blue) = $this->parse($value);
+        [$this->alpha, $this->red, $this->green, $this->blue] = $this->parse($value);
     }
 
     /**
@@ -211,7 +211,7 @@ class Color
      *
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
-    public function parse($color): array
+    public function parse(?string $color): array
     {
         // Default to transparent
         $default = [0, 0, 0, 0];
@@ -257,7 +257,7 @@ class Color
     /**
      * Format color to RGBA array.
      *
-     * @return array The formatted RGBA color.
+     * @return int[] The formatted RGBA color.
      */
     public function toRGBA(): array
     {

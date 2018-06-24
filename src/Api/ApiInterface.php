@@ -16,7 +16,7 @@ interface ApiInterface
      * Perform image manipulations.
      *
      * @param string $url Source URL
-     * @param array $params The manipulation params
+     * @param mixed[] $params The manipulation params
      *
      * @throws ImageNotReadableException if the provided image is not readable.
      * @throws ImageTooLargeException if the provided image is too large for

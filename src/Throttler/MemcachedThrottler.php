@@ -39,7 +39,7 @@ class MemcachedThrottler implements ThrottlerInterface
      *
      * @param Memcached $memcached
      * @param ThrottlingPolicy $policy
-     * @param array $config
+     * @param mixed[] $config
      */
     public function __construct(Memcached $memcached, ThrottlingPolicy $policy, array $config)
     {
@@ -68,9 +68,10 @@ class MemcachedThrottler implements ThrottlerInterface
      * Set the cache key prefix.
      *
      * @param  string $prefix
+     *
      * @return void
      */
-    public function setPrefix(string $prefix)
+    public function setPrefix(string $prefix): void
     {
         $this->prefix = !empty($prefix) ? $prefix . '_' : '';
     }
@@ -158,7 +159,7 @@ class MemcachedThrottler implements ThrottlerInterface
      *
      * @return void
      */
-    public function clear(string $ipAddress)
+    public function clear(string $ipAddress): void
     {
         $this->resetAttempts($ipAddress);
         $this->memcached->delete($this->prefix . $ipAddress . ':lockout');

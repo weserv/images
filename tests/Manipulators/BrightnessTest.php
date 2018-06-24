@@ -33,12 +33,12 @@ class BrightnessTest extends ImagesWeservTestCase
         $this->manipulator = new Brightness();
     }
 
-    public function testCreateInstance()
+    public function testCreateInstance(): void
     {
         $this->assertInstanceOf(Brightness::class, $this->manipulator);
     }
 
-    public function testBrightnessIncrease()
+    public function testBrightnessIncrease(): void
     {
         $testImage = $this->inputJpg;
         $expectedImage = $this->expectedDir . '/brightness-increase.jpg';
@@ -61,7 +61,7 @@ class BrightnessTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testBrightnessDecrease()
+    public function testBrightnessDecrease(): void
     {
         $testImage = $this->inputJpg;
         $expectedImage = $this->expectedDir . '/brightness-decrease.jpg';
@@ -84,7 +84,7 @@ class BrightnessTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testBrightnessPngTransparent()
+    public function testBrightnessPngTransparent(): void
     {
         $testImage = $this->inputPngOverlayLayer1;
         $expectedImage = $this->expectedDir . '/brightness-trans.png';
@@ -107,7 +107,7 @@ class BrightnessTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testGetBrightness()
+    public function testGetBrightness(): void
     {
         $this->assertSame(50, $this->manipulator->setParams(['bri' => '50'])->getBrightness());
         $this->assertSame(50, $this->manipulator->setParams(['bri' => 50])->getBrightness());

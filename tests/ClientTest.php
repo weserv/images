@@ -2,7 +2,7 @@
 
 namespace Weserv\Images\Test;
 
-use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
@@ -46,24 +46,24 @@ class ClientTest extends ImagesWeservTestCase
         unlink($this->tempFile);
     }
 
-    public function testCreateInstance()
+    public function testCreateInstance(): void
     {
         $this->assertInstanceOf(Client::class, $this->client);
     }
 
-    public function testSetClient()
+    public function testSetClient(): void
     {
-        $client = $this->getMockery(ClientInterface::class);
+        $client = $this->getMockery(GuzzleClient::class);
         $this->client->setClient($client);
-        $this->assertInstanceOf(ClientInterface::class, $this->client->getClient());
+        $this->assertInstanceOf(GuzzleClient::class, $this->client->getClient());
     }
 
-    public function testGetClient()
+    public function testGetClient(): void
     {
-        $this->assertInstanceOf(ClientInterface::class, $this->client->getClient());
+        $this->assertInstanceOf(GuzzleClient::class, $this->client->getClient());
     }
 
-    public function testGetOptions()
+    public function testGetOptions(): void
     {
         $this->assertSame($this->options, $this->client->getOptions());
     }
@@ -71,12 +71,12 @@ class ClientTest extends ImagesWeservTestCase
     /**
      * @expectedException \GuzzleHttp\Exception\RequestException
      */
-    public function testInvalidRedirectURI()
+    public function testInvalidRedirectURI(): void
     {
         $this->client->get('http://test');
     }
 
-    public function testUserAgent()
+    public function testUserAgent(): void
     {
         $mock = new MockHandler([
             new Response(200)
@@ -93,7 +93,7 @@ class ClientTest extends ImagesWeservTestCase
         $this->assertSame($this->options['user_agent'], end($history)['request']->getHeaderLine('User-Agent'));
     }
 
-    public function testTempFile()
+    public function testTempFile(): void
     {
         $mock = new MockHandler([
             new Response(200)

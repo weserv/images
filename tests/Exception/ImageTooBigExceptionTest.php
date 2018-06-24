@@ -32,7 +32,7 @@ class ImageTooBigExceptionTest extends ImagesWeservTestCase
      *
      * @expectedException \Weserv\Images\Exception\ImageTooBigException
      */
-    public function testThrowException()
+    public function testThrowException(): void
     {
         throw new ImageTooBigException();
     }
@@ -41,7 +41,7 @@ class ImageTooBigExceptionTest extends ImagesWeservTestCase
      * @expectedException        \Weserv\Images\Exception\ImageTooBigException
      * @expectedExceptionMessage 2 KB
      */
-    public function testImageTooBigException()
+    public function testImageTooBigException(): void
     {
         $mock = new MockHandler([
             new Response(200, ['Content-Length' => 2048])

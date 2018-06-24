@@ -16,7 +16,6 @@ gpgcheck=0\n\
 enabled=1' > /etc/yum.repos.d/nginx.repo
 
 # Install PHP, PHP extensions, composer, redis, supervisor and nginx
-# TODO: Remove php-gd once libvips 8.7 is released
 RUN yum update -y && \
     yum install -y epel-release yum-utils && \
     yum install -y https://rpms.remirepo.net/enterprise/remi-release-7.rpm && \
@@ -26,7 +25,6 @@ RUN yum update -y && \
         nginx \
         php \
         php-fpm \
-        php-gd \
         php-intl \
         php-opcache \
         php-pecl-redis \

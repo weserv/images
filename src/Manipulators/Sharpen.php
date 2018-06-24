@@ -34,7 +34,7 @@ class Sharpen extends BaseManipulator
             $this->isPremultiplied = true;
         }
 
-        list($flat, $jagged, $sigma) = $this->getSharpen();
+        [$flat, $jagged, $sigma] = $this->getSharpen();
 
         $image = $this->sharpen($image, $sigma, $flat, $jagged);
 

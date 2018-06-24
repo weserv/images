@@ -14,7 +14,7 @@ class ImageNotReadableExceptionTest extends ImagesWeservTestCase
      *
      * @expectedException \Weserv\Images\Exception\ImageNotReadableException
      */
-    public function testThrowException()
+    public function testThrowException(): void
     {
         throw new ImageNotReadableException();
     }
@@ -23,7 +23,7 @@ class ImageNotReadableExceptionTest extends ImagesWeservTestCase
      * @expectedException        \Weserv\Images\Exception\ImageNotReadableException
      * @expectedExceptionMessage Image not readable. Is it a valid image?
      */
-    public function testImageNotReadableException()
+    public function testImageNotReadableException(): void
     {
         $client = $this->getMockery(Client::class);
         $api = new Api($client, $this->getManipulators());

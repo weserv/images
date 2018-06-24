@@ -5,13 +5,13 @@ language: php
 dist: trusty
 
 php:
-  - 7.0.13
   - 7.1
   - 7.2
 
 env:
   global:
-    - VIPS_VERSION=8.6.4
+    - VIPS_VERSION=8.7.0
+    - VIPS_PRE_VERSION=alpha2
     - VIPS_TAR_VERSION=$VIPS_VERSION
     - VIPS_WARNING=0
     - PATH=$HOME/vips/bin:$PATH

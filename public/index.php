@@ -2,7 +2,7 @@
 /**
  * Source code of images.weserv.nl, to be used on your own server(s).
  *
- * PHP version 7
+ * PHP version 7.1+
  *
  * @category  Images
  * @package   Weserv\Images
@@ -19,6 +19,7 @@ ini_set('display_errors', 0);
 
 require __DIR__ . '/../vendor/autoload.php';
 
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Jcupitt\Vips\Exception as VipsException;
 use League\Uri\Components\HierarchicalPath as Path;
@@ -33,7 +34,7 @@ use Weserv\Images\Manipulators\Helpers\Utils;
 
 // See for an example: config.example.php
 /** @noinspection PhpIncludeInspection */
-$config = @include(__DIR__ . '/../config.php') ?: [];
+$config = @include (__DIR__ . '/../config.php') ?: [];
 
 $error_messages = [
     'invalid_url' => [
@@ -340,26 +341,31 @@ if (!empty($_GET['url']) && \is_string($_GET['url'])) {
         trigger_error(sprintf($error['log'], $uri->__toString()), E_USER_WARNING);
 
         echo sprintf($error['message'], $imageSize, $maxImageSize);
-    } catch (RequestException $e) {
-        $curlHandler = $e->getHandlerContext();
-        $response = $e->getResponse();
-        $hasResponse = $response !== null && $e->hasResponse();
+    } catch (GuzzleException $e) {
+        $hasResponse = false;
+        $isDnsError = false;
 
-        $isDnsError = (isset($curlHandler['errno']) && $curlHandler['errno'] === CURLE_COULDNT_RESOLVE_HOST) ||
-            ($hasResponse && strpos($response->getHeaderLine('X-Squid-Error'), 'ERR_DNS_FAIL') !== false);
+        $statusCode = $e->getCode();
+        $reasonPhrase = $e->getMessage();
+
+        if ($e instanceof RequestException) {
+            $curlHandler = $e->getHandlerContext();
+            $response = $e->getResponse();
+            $hasResponse = $response !== null && $e->hasResponse();
+
+            $isDnsError = (isset($curlHandler['errno']) && $curlHandler['errno'] === CURLE_COULDNT_RESOLVE_HOST) ||
+                ($hasResponse && strpos($response->getHeaderLine('X-Squid-Error'), 'ERR_DNS_FAIL') !== false);
+
+            if ($hasResponse) {
+                $statusCode = $response->getStatusCode();
+                $reasonPhrase = $response->getReasonPhrase();
+            }
+        }
 
         $error = $isDnsError ? $error_messages['dns_error'] : $error_messages['curl_error'];
 
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $error['header']);
         header('Content-type: ' . $error['content-type']);
-
-        $statusCode = $e->getCode();
-        $reasonPhrase = $e->getMessage();
-
-        if ($hasResponse) {
-            $statusCode = $response->getStatusCode();
-            $reasonPhrase = $response->getReasonPhrase();
-        }
 
         $errorMessage = "$statusCode $reasonPhrase";
 

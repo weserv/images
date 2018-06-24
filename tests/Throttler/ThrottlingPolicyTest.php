@@ -49,17 +49,17 @@ class ThrottlingPolicyTest extends ImagesWeservTestCase
         $this->policy = new ThrottlingPolicy($this->accessRules, $this->config);
     }
 
-    public function testGetBanTime()
+    public function testGetBanTime(): void
     {
         $this->assertEquals($this->config['ban_time'], $this->policy->getBanTime());
     }
 
-    public function testIsCloudFlareEnabled()
+    public function testIsCloudFlareEnabled(): void
     {
         $this->assertEquals($this->config['cloudflare']['enabled'], $this->policy->isCloudFlareEnabled());
     }
 
-    public function testBanAtCloudFlare()
+    public function testBanAtCloudFlare(): void
     {
         $ipAddress = '127.0.0.1';
 
@@ -74,7 +74,7 @@ class ThrottlingPolicyTest extends ImagesWeservTestCase
         $this->assertTrue($successful);
     }
 
-    public function testUnbanAtCloudFlare()
+    public function testUnbanAtCloudFlare(): void
     {
         $blockRuleId = '92f17202ed8bd63d69a66b86a49a8f6b';
 
@@ -90,7 +90,7 @@ class ThrottlingPolicyTest extends ImagesWeservTestCase
     /**
      * @expectedException \PHPUnit\Framework\Error\Warning
      */
-    public function testResponseExceptionBan()
+    public function testResponseExceptionBan(): void
     {
         $ipAddress = '127.0.0.1';
 
@@ -107,7 +107,7 @@ class ThrottlingPolicyTest extends ImagesWeservTestCase
     /**
      * @expectedException \PHPUnit\Framework\Error\Warning
      */
-    public function testResponseExceptionUnban()
+    public function testResponseExceptionUnban(): void
     {
         $blockRuleId = '92f17202ed8bd63d69a66b86a49a8f6b';
 
@@ -122,7 +122,7 @@ class ThrottlingPolicyTest extends ImagesWeservTestCase
     /**
      * @expectedException \PHPUnit\Framework\Error\Warning
      */
-    public function testUnauthorizedExceptionBan()
+    public function testUnauthorizedExceptionBan(): void
     {
         $ipAddress = '127.0.0.1';
         $zoneID = $this->config['cloudflare']['zone_id'];
@@ -144,7 +144,7 @@ class ThrottlingPolicyTest extends ImagesWeservTestCase
     /**
      * @expectedException \PHPUnit\Framework\Error\Warning
      */
-    public function testUnauthorizedExceptionUnban()
+    public function testUnauthorizedExceptionUnban(): void
     {
         $blockRuleId = '92f17202ed8bd63d69a66b86a49a8f6b';
         $zoneID = $this->config['cloudflare']['zone_id'];
@@ -161,7 +161,7 @@ class ThrottlingPolicyTest extends ImagesWeservTestCase
         $this->policy->unbanAtCloudFlare($blockRuleId);
     }
 
-    public function testReturnFalseOnExceptionBan()
+    public function testReturnFalseOnExceptionBan(): void
     {
         $ipAddress = '127.0.0.1';
         $zoneID = $this->config['cloudflare']['zone_id'];
@@ -181,7 +181,7 @@ class ThrottlingPolicyTest extends ImagesWeservTestCase
         $this->assertFalse($successful);
     }
 
-    public function testReturnFalseOnExceptionUnban()
+    public function testReturnFalseOnExceptionUnban(): void
     {
         $blockRuleId = '92f17202ed8bd63d69a66b86a49a8f6b';
         $zoneID = $this->config['cloudflare']['zone_id'];

@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [3.0.0] - Unreleased
 
-Requires libvips v8.6+.
+Requires libvips 8.7+ and PHP 7.1+.
 
 ### Note
 With the feedback that you've provided we can successfully close the following issues/enhancements: 

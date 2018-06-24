@@ -33,12 +33,12 @@ class ShapeTest extends ImagesWeservTestCase
         $this->manipulator = new Shape();
     }
 
-    public function testCreateInstance()
+    public function testCreateInstance(): void
     {
         $this->assertInstanceOf(Shape::class, $this->manipulator);
     }
 
-    public function testCircleShape()
+    public function testCircleShape(): void
     {
         $testImage = $this->inputJpg;
         $expectedImage = $this->expectedDir . '/shape-circle.jpg';
@@ -61,7 +61,7 @@ class ShapeTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testCircleShapeTrim()
+    public function testCircleShapeTrim(): void
     {
         $testImage = $this->inputJpg;
         $expectedImage = $this->expectedDir . '/shape-circle-trim.jpg';
@@ -85,7 +85,7 @@ class ShapeTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testEllipseShape()
+    public function testEllipseShape(): void
     {
         $testImage = $this->inputJpg;
         $expectedImage = $this->expectedDir . '/shape-ellipse.jpg';
@@ -108,7 +108,7 @@ class ShapeTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testTriangleShape()
+    public function testTriangleShape(): void
     {
         $testImage = $this->inputJpg;
         $expectedImage = $this->expectedDir . '/shape-triangle.jpg';
@@ -131,7 +131,7 @@ class ShapeTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testTriangle180Shape()
+    public function testTriangle180Shape(): void
     {
         $testImage = $this->inputJpg;
         $expectedImage = $this->expectedDir . '/shape-triangle-180.jpg';
@@ -154,7 +154,7 @@ class ShapeTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testPentagonShape()
+    public function testPentagonShape(): void
     {
         $testImage = $this->inputJpg;
         $expectedImage = $this->expectedDir . '/shape-pentagon.jpg';
@@ -177,7 +177,7 @@ class ShapeTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testPentagon180Shape()
+    public function testPentagon180Shape(): void
     {
         $testImage = $this->inputJpg;
         $expectedImage = $this->expectedDir . '/shape-pentagon-180.jpg';
@@ -200,7 +200,7 @@ class ShapeTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testHexagonShape()
+    public function testHexagonShape(): void
     {
         $testImage = $this->inputJpg;
         $expectedImage = $this->expectedDir . '/shape-hexagon-180.jpg';
@@ -223,7 +223,7 @@ class ShapeTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testSquareShape()
+    public function testSquareShape(): void
     {
         $testImage = $this->inputJpg;
         $expectedImage = $this->expectedDir . '/shape-square.jpg';
@@ -246,7 +246,7 @@ class ShapeTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testStarShape()
+    public function testStarShape(): void
     {
         $testImage = $this->inputJpg;
         $expectedImage = $this->expectedDir . '/shape-star.jpg';
@@ -269,7 +269,7 @@ class ShapeTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testHeartShape()
+    public function testHeartShape(): void
     {
         $testImage = $this->inputJpg;
         $expectedImage = $this->expectedDir . '/shape-heart.jpg';
@@ -292,7 +292,7 @@ class ShapeTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testShapePngTransparent()
+    public function testShapePngTransparent(): void
     {
         $testImage = $this->inputPngOverlayLayer0;
         $expectedImage = $this->expectedDir . '/shape-star-trans.png';
@@ -318,7 +318,7 @@ class ShapeTest extends ImagesWeservTestCase
     /**
      * PNG with 2 channels
      */
-    public function testShapePng2Channels()
+    public function testShapePng2Channels(): void
     {
         $testImage = $this->inputPngWithGreyAlpha;
         $expectedImage = $this->expectedDir . '/shape-2channel.png';
@@ -342,7 +342,7 @@ class ShapeTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testGetShape()
+    public function testGetShape(): void
     {
         $this->assertSame('circle', $this->manipulator->setParams(['shape' => 'circle'])->getShape());
         $this->assertSame('ellipse', $this->manipulator->setParams(['shape' => 'ellipse'])->getShape());

@@ -2,7 +2,7 @@
 
 namespace Weserv\Images\Api;
 
-use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\GuzzleException;
 use InvalidArgumentException;
 use Jcupitt\Vips\Access;
 use Jcupitt\Vips\BandFormat;
@@ -22,7 +22,7 @@ class Api implements ApiInterface
     /**
      * Collection of manipulators.
      *
-     * @var array
+     * @var ManipulatorInterface[]
      */
     protected $manipulators;
 
@@ -37,7 +37,7 @@ class Api implements ApiInterface
      * Create API instance.
      *
      * @param Client $client The Guzzle
-     * @param array $manipulators Collection of manipulators.
+     * @param ManipulatorInterface[] $manipulators Collection of manipulators.
      * @throws \InvalidArgumentException if there's a manipulator which not extends
      *      ManipulatorInterface
      */
@@ -64,7 +64,7 @@ class Api implements ApiInterface
      *
      * @return void
      */
-    public function setClient(Client $client)
+    public function setClient(Client $client): void
     {
         $this->client = $client;
     }
@@ -72,7 +72,7 @@ class Api implements ApiInterface
     /**
      * Get the manipulators.
      *
-     * @return array Collection of manipulators.
+     * @return ManipulatorInterface[] Collection of manipulators.
      */
     public function getManipulators(): array
     {
@@ -82,14 +82,14 @@ class Api implements ApiInterface
     /**
      * Set the manipulators.
      *
-     * @param array $manipulators Collection of manipulators.
+     * @param ManipulatorInterface[] $manipulators Collection of manipulators.
      *
      * @throws InvalidArgumentException if there's a manipulator which not extends
      *      ManipulatorInterface
      *
      * @return void
      */
-    public function setManipulators(array $manipulators)
+    public function setManipulators(array $manipulators): void
     {
         foreach ($manipulators as $manipulator) {
             if (!($manipulator instanceof ManipulatorInterface)) {
@@ -114,10 +114,11 @@ class Api implements ApiInterface
      *      image.
      * @throws ImageTooBigException if the requested image is too big to be
      *      downloaded.
-     * @throws RequestException for errors that occur during a transfer
+     * @throws GuzzleException for errors that occur during a transfer
      *      or during the on_headers event.
      * @throws \InvalidArgumentException if the redirect URI can not be
      *      parsed (with parse_url).
+     * @throws \Throwable if the requested image is too big or not valid.
      *
      * @return Image The image
      */
@@ -154,7 +155,7 @@ class Api implements ApiInterface
         $params['isPremultiplied'] = false;
 
         // Calculate the angle of rotation and need-to-flip for the given exif orientation and parameters
-        list($params['rotation'], $params['flip'], $params['flop']) = Utils::resolveRotationAndFlip($image, $params);
+        [$params['rotation'], $params['flip'], $params['flop']] = Utils::resolveRotationAndFlip($image, $params);
 
         // Do our image manipulations
         /* @var $manipulator ManipulatorInterface */
@@ -179,9 +180,9 @@ class Api implements ApiInterface
     /**
      * Get the options to pass on to the load operation.
      *
-     * @param array $params Parameters array (by reference)
+     * @param mixed[] $params Parameters array (by reference)
      *
-     * @return array Any options to pass on to the load operation.
+     * @return mixed[] Any options to pass on to the load operation.
      */
     public function getLoadOptions(array &$params): array
     {
@@ -203,6 +204,11 @@ class Api implements ApiInterface
             // Useful for the thumbnail operator
             $params['tmpFileName'] .= '[page=' . $loadOptions['page'] . ']';
         }
+
+        // TODO: Support for animated GIF?
+        /*if ($params['loader'] === 'VipsForeignLoadGifFile') {
+            $loadOptions['n'] = -1;
+        }*/
 
         return $loadOptions;
     }
