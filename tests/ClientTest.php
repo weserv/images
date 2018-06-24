@@ -2,12 +2,12 @@
 
 namespace Weserv\Images\Test;
 
-use Weserv\Images\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
+use Weserv\Images\Client;
 
 class ClientTest extends ImagesWeservTestCase
 {

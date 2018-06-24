@@ -2,6 +2,11 @@
 
 namespace Weserv\Images;
 
+use GuzzleHttp\Exception\RequestException;
+use Jcupitt\Vips\Config;
+use Jcupitt\Vips\DebugLogger;
+use Jcupitt\Vips\Exception as VipsException;
+use Jcupitt\Vips\Image;
 use Weserv\Images\Api\ApiInterface;
 use Weserv\Images\Exception\ImageNotReadableException;
 use Weserv\Images\Exception\ImageNotValidException;
@@ -10,11 +15,6 @@ use Weserv\Images\Exception\ImageTooLargeException;
 use Weserv\Images\Exception\RateExceededException;
 use Weserv\Images\Manipulators\Helpers\Utils;
 use Weserv\Images\Throttler\ThrottlerInterface;
-use GuzzleHttp\Exception\RequestException;
-use Jcupitt\Vips\Config;
-use Jcupitt\Vips\DebugLogger;
-use Jcupitt\Vips\Exception as VipsException;
-use Jcupitt\Vips\Image;
 
 /**
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)

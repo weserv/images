@@ -2,13 +2,6 @@
 
 namespace Weserv\Images\Api;
 
-use Weserv\Images\Client;
-use Weserv\Images\Exception\ImageNotReadableException;
-use Weserv\Images\Exception\ImageNotValidException;
-use Weserv\Images\Exception\ImageTooBigException;
-use Weserv\Images\Exception\ImageTooLargeException;
-use Weserv\Images\Manipulators\Helpers\Utils;
-use Weserv\Images\Manipulators\ManipulatorInterface;
 use GuzzleHttp\Exception\RequestException;
 use InvalidArgumentException;
 use Jcupitt\Vips\Access;
@@ -16,6 +9,13 @@ use Jcupitt\Vips\BandFormat;
 use Jcupitt\Vips\Config;
 use Jcupitt\Vips\Exception as VipsException;
 use Jcupitt\Vips\Image;
+use Weserv\Images\Client;
+use Weserv\Images\Exception\ImageNotReadableException;
+use Weserv\Images\Exception\ImageNotValidException;
+use Weserv\Images\Exception\ImageTooBigException;
+use Weserv\Images\Exception\ImageTooLargeException;
+use Weserv\Images\Manipulators\Helpers\Utils;
+use Weserv\Images\Manipulators\ManipulatorInterface;
 
 class Api implements ApiInterface
 {

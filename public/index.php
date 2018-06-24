@@ -19,17 +19,17 @@ ini_set('display_errors', 0);
 
 require __DIR__ . '/../vendor/autoload.php';
 
+use GuzzleHttp\Exception\RequestException;
+use Jcupitt\Vips\Exception as VipsException;
+use League\Uri\Components\HierarchicalPath as Path;
+use League\Uri\Components\Query;
+use League\Uri\Http as HttpUri;
 use Weserv\Images\Exception\ImageNotReadableException;
 use Weserv\Images\Exception\ImageNotValidException;
 use Weserv\Images\Exception\ImageTooBigException;
 use Weserv\Images\Exception\ImageTooLargeException;
 use Weserv\Images\Exception\RateExceededException;
 use Weserv\Images\Manipulators\Helpers\Utils;
-use GuzzleHttp\Exception\RequestException;
-use Jcupitt\Vips\Exception as VipsException;
-use League\Uri\Components\HierarchicalPath as Path;
-use League\Uri\Components\Query;
-use League\Uri\Http as HttpUri;
 
 // See for an example: config.example.php
 /** @noinspection PhpIncludeInspection */

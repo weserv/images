@@ -2,6 +2,9 @@
 
 namespace Weserv\Images\Test;
 
+use Jcupitt\Vips\Image;
+use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
+use PHPUnit\Framework\TestCase;
 use Weserv\Images\Manipulators\Background;
 use Weserv\Images\Manipulators\Blur;
 use Weserv\Images\Manipulators\Brightness;
@@ -15,9 +18,6 @@ use Weserv\Images\Manipulators\Shape;
 use Weserv\Images\Manipulators\Sharpen;
 use Weserv\Images\Manipulators\Thumbnail;
 use Weserv\Images\Manipulators\Trim;
-use Jcupitt\Vips\Image;
-use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
-use PHPUnit\Framework\TestCase;
 
 /**
  * A base test case with some custom expectations.

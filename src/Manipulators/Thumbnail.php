@@ -2,12 +2,12 @@
 
 namespace Weserv\Images\Manipulators;
 
-use Weserv\Images\Exception\ImageTooLargeException;
-use Weserv\Images\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Image;
 use Jcupitt\Vips\Intent;
 use Jcupitt\Vips\Interpretation;
 use Jcupitt\Vips\Size;
+use Weserv\Images\Exception\ImageTooLargeException;
+use Weserv\Images\Manipulators\Helpers\Utils;
 
 /**
  * @property string $t

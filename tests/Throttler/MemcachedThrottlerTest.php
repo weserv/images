@@ -2,11 +2,11 @@
 
 namespace Weserv\Images\Test\Throttler;
 
+use Memcached;
+use Mockery\MockInterface;
 use Weserv\Images\Test\ImagesWeservTestCase;
 use Weserv\Images\Throttler\MemcachedThrottler;
 use Weserv\Images\Throttler\ThrottlingPolicy;
-use Memcached;
-use Mockery\MockInterface;
 
 class MemcachedThrottlerTest extends ImagesWeservTestCase
 {

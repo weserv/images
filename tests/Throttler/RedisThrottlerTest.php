@@ -2,11 +2,11 @@
 
 namespace Weserv\Images\Test\Throttler;
 
+use Mockery\MockInterface;
+use Predis\ClientInterface;
 use Weserv\Images\Test\ImagesWeservTestCase;
 use Weserv\Images\Throttler\RedisThrottler;
 use Weserv\Images\Throttler\ThrottlingPolicy;
-use Mockery\MockInterface;
-use Predis\ClientInterface;
 
 class RedisThrottlerTest extends ImagesWeservTestCase
 {

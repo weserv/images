@@ -2,13 +2,13 @@
 
 namespace Weserv\Images\Api;
 
+use GuzzleHttp\Exception\RequestException;
+use Jcupitt\Vips\Exception as VipsException;
+use Jcupitt\Vips\Image;
 use Weserv\Images\Exception\ImageNotReadableException;
 use Weserv\Images\Exception\ImageNotValidException;
 use Weserv\Images\Exception\ImageTooBigException;
 use Weserv\Images\Exception\ImageTooLargeException;
-use GuzzleHttp\Exception\RequestException;
-use Jcupitt\Vips\Exception as VipsException;
-use Jcupitt\Vips\Image;
 
 interface ApiInterface
 {

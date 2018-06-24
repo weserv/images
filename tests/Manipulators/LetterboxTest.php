@@ -2,13 +2,13 @@
 
 namespace Weserv\Images\Test\Manipulators;
 
+use Jcupitt\Vips\Image;
+use Jcupitt\Vips\Interpretation;
+use Mockery\MockInterface;
 use Weserv\Images\Api\Api;
 use Weserv\Images\Client;
 use Weserv\Images\Manipulators\Letterbox;
 use Weserv\Images\Test\ImagesWeservTestCase;
-use Jcupitt\Vips\Image;
-use Jcupitt\Vips\Interpretation;
-use Mockery\MockInterface;
 
 class LetterboxTest extends ImagesWeservTestCase
 {

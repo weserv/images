@@ -2,12 +2,12 @@
 
 namespace Weserv\Images\Test\Exception;
 
-use Weserv\Images\Client;
-use Weserv\Images\Exception\ImageTooBigException;
-use Weserv\Images\Test\ImagesWeservTestCase;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
+use Weserv\Images\Client;
+use Weserv\Images\Exception\ImageTooBigException;
+use Weserv\Images\Test\ImagesWeservTestCase;
 
 class ImageTooBigExceptionTest extends ImagesWeservTestCase
 {

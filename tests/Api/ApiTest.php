@@ -2,12 +2,12 @@
 
 namespace Weserv\Images\Test\Api;
 
+use Jcupitt\Vips\Access;
+use Mockery\MockInterface;
 use Weserv\Images\Api\Api;
 use Weserv\Images\Client;
 use Weserv\Images\Manipulators\ManipulatorInterface;
 use Weserv\Images\Test\ImagesWeservTestCase;
-use Jcupitt\Vips\Access;
-use Mockery\MockInterface;
 
 class ApiTest extends ImagesWeservTestCase
 {

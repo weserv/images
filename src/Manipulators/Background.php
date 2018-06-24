@@ -2,10 +2,10 @@
 
 namespace Weserv\Images\Manipulators;
 
-use Weserv\Images\Manipulators\Helpers\Color;
 use Jcupitt\Vips\BandFormat;
 use Jcupitt\Vips\BlendMode;
 use Jcupitt\Vips\Image;
+use Weserv\Images\Manipulators\Helpers\Color;
 
 /**
  * @property string $bg

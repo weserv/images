@@ -2,12 +2,12 @@
 
 namespace Weserv\Images\Test\Manipulators;
 
+use Jcupitt\Vips\Image;
+use Mockery\MockInterface;
 use Weserv\Images\Api\Api;
 use Weserv\Images\Client;
 use Weserv\Images\Manipulators\Crop;
 use Weserv\Images\Test\ImagesWeservTestCase;
-use Jcupitt\Vips\Image;
-use Mockery\MockInterface;
 
 class CropTest extends ImagesWeservTestCase
 {

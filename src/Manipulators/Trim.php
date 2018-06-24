@@ -2,8 +2,8 @@
 
 namespace Weserv\Images\Manipulators;
 
-use Weserv\Images\Manipulators\Helpers\Utils;
 use Jcupitt\Vips\Image;
+use Weserv\Images\Manipulators\Helpers\Utils;
 
 /**
  * @property string|bool $trim

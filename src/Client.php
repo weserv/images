@@ -2,13 +2,13 @@
 
 namespace Weserv\Images;
 
-use Weserv\Images\Exception\ImageNotValidException;
-use Weserv\Images\Exception\ImageTooBigException;
-use Weserv\Images\Manipulators\Helpers\Utils;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
+use Weserv\Images\Exception\ImageNotValidException;
+use Weserv\Images\Exception\ImageTooBigException;
+use Weserv\Images\Manipulators\Helpers\Utils;
 
 class Client
 {

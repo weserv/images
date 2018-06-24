@@ -2,13 +2,13 @@
 
 namespace Weserv\Images\Test;
 
+use Jcupitt\Vips\Image;
+use Mockery\MockInterface;
 use Weserv\Images\Api\Api;
 use Weserv\Images\Api\ApiInterface;
 use Weserv\Images\Client;
 use Weserv\Images\Server;
 use Weserv\Images\Throttler\ThrottlerInterface;
-use Jcupitt\Vips\Image;
-use Mockery\MockInterface;
 
 class ServerTest extends ImagesWeservTestCase
 {

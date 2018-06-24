@@ -2,9 +2,9 @@
 
 namespace Weserv\Images\Test\Manipulators\Helpers;
 
+use Jcupitt\Vips\Interpretation;
 use Weserv\Images\Manipulators\Helpers\Utils;
 use Weserv\Images\Test\ImagesWeservTestCase;
-use Jcupitt\Vips\Interpretation;
 
 class UtilsTest extends ImagesWeservTestCase
 {

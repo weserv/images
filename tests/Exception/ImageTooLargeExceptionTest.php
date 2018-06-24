@@ -2,10 +2,10 @@
 
 namespace Weserv\Images\Test\Exception;
 
+use Mockery;
 use Weserv\Images\Exception\ImageTooLargeException;
 use Weserv\Images\Manipulators\Thumbnail;
 use Weserv\Images\Test\ImagesWeservTestCase;
-use Mockery;
 
 class ImageTooLargeExceptionTest extends ImagesWeservTestCase
 {
