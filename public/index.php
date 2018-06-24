@@ -34,7 +34,7 @@ use Weserv\Images\Manipulators\Helpers\Utils;
 
 // See for an example: config.example.php
 /** @noinspection PhpIncludeInspection */
-$config = @include (__DIR__ . '/../config.php') ?: [];
+$config = @include(__DIR__ . '/../config.php') ?: [];
 
 $error_messages = [
     'invalid_url' => [
