@@ -162,7 +162,6 @@ class CropTest extends ImagesweservTestCase
 
             $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-
             /** @var Image $image */
             $image = $this->api->run($uri, $params);
 

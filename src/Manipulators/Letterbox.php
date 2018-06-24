@@ -2,7 +2,6 @@
 
 namespace AndriesLouw\imagesweserv\Manipulators;
 
-use AndriesLouw\imagesweserv\Manipulators\Helpers\Color;
 use Jcupitt\Vips\Extend;
 use Jcupitt\Vips\Image;
 
@@ -32,29 +31,12 @@ class Letterbox extends BaseManipulator
         $height = $this->h;
 
         if (($image->width !== $width || $image->height !== $height) && $this->t === 'letterbox') {
-            // Default to transparent
-            $backgroundColor = [0, 0, 0, 0];
-
-            if ($this->bg !== null) {
-                $backgroundColor = (new Color($this->bg))->toRGBA();
-            }
-
-            // Create background colour
-            $background = [
-                $backgroundColor[0],
-                $backgroundColor[1],
-                $backgroundColor[2]
-            ];
-
-            $hasAlpha = $image->hasAlpha();
-
-            // Add alpha channel to background colour
-            if ($hasAlpha || $backgroundColor[3] < 255) {
-                $background[] = $backgroundColor[3];
-            }
+            // Always letterbox with a transparent background;
+            // the background manipulator will handle the background color.
+            $background = [0, 0, 0, 0];
 
             // Add non-transparent alpha channel, if required
-            if (!$hasAlpha && $backgroundColor[3] < 255) {
+            if (!$image->hasAlpha()) {
                 $result = $image->newFromImage(255);
                 $image = $image->bandjoin($result);
             }

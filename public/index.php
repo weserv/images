@@ -449,16 +449,16 @@ if (!empty($_GET['url']) && \is_string($_GET['url'])) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Image cache &amp; resize proxy</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico"/>
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.2/gh-fork-ribbon.min.css" integrity="sha384-jUHnRx457Q15HVKSx5g+6jqsItdcFcR0BBu729dDIMmTM4HT1sbXZuxxOpuiaM/p" crossorigin="anonymous" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.2/gh-fork-ribbon.min.css" integrity="sha384-jUHnRx457Q15HVKSx5g+6jqsItdcFcR0BBu729dDIMmTM4HT1sbXZuxxOpuiaM/p" crossorigin="anonymous">
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css">
     <link rel="stylesheet" href="//static.weserv.nl/images-v3d.css" integrity="sha384-fEHMtdq65tYjYhByCic8VIU71uMnMsa2p7gbfnM3oVrsRqStpQezE3bwA7/1Riwh" crossorigin="anonymous">
     <!--[if lte IE 9]>
-        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.2/gh-fork-ribbon.ie.min.css" />
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.2/gh-fork-ribbon.ie.min.css">
         <script src="//static.weserv.nl/html5shiv-printshiv.min.js" type="text/javascript"></script>
     <![endif]-->
 </head>
@@ -914,7 +914,7 @@ if (!empty($_GET['url']) && \is_string($_GET['url'])) {
             </section>
         </section>
     </div>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/gumshoe/3.5.0/js/gumshoe.min.js" integrity="sha384-p7piu74dRCJsfxPGT47BzozCizUhFdI8JIIY28ed/8Jna8iZmpT8O0VnDTBh29Xh" crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/gumshoe/3.5.1/js/gumshoe.min.js" integrity="sha384-FoThb3jd5WP5FOlZTJjhjrN9LHoCTPQV9syukPgH4P+NUfvdZfgpHwH/VsQOlx4b" crossorigin="anonymous"></script>
     <script src="//cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
     <script>
         docsearch({

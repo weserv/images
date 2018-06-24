@@ -131,7 +131,7 @@ class LetterboxTest extends ImagesweservTestCase
             'w' => '50',
             'h' => '50',
             't' => 'letterbox',
-            'bg' => 'black'
+            'bg' => 'white'
         ];
 
         $uri = basename($testImage);
@@ -141,7 +141,7 @@ class LetterboxTest extends ImagesweservTestCase
         /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals(4, $image->bands);
+        $this->assertEquals(3, $image->bands);
         $this->assertEquals(50, $image->width);
         $this->assertEquals(50, $image->height);
         $this->assertSimilarImage($expectedImage, $image);
@@ -158,7 +158,7 @@ class LetterboxTest extends ImagesweservTestCase
             'w' => '32',
             'h' => '16',
             't' => 'letterbox',
-            'bg' => 'black'
+            'bg' => 'white'
         ];
 
         $uri = basename($testImage);
@@ -168,7 +168,7 @@ class LetterboxTest extends ImagesweservTestCase
         /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals(4, $image->bands);
+        $this->assertEquals(3, $image->bands);
         $this->assertEquals(32, $image->width);
         $this->assertEquals(16, $image->height);
         $this->assertSimilarImage($expectedImage, $image);

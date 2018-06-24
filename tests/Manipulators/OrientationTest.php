@@ -119,7 +119,6 @@ class OrientationTest extends ImagesweservTestCase
                 // Check if the EXIF orientation header is removed
                 $this->assertEquals(0, $image->typeof(Utils::VIPS_META_ORIENTATION));
 
-
                 $this->assertSimilarImage($expectedImage, $image);
             }
         }

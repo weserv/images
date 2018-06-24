@@ -90,7 +90,6 @@ class RedisThrottlerTest extends ImagesweservTestCase
         $this->assertTrue($this->throttler->isExceeded($ipAddress));
     }
 
-
     public function testIsNotExceeded()
     {
         $ipAddress = '127.0.0.1';
@@ -110,7 +109,6 @@ class RedisThrottlerTest extends ImagesweservTestCase
 
         $this->redis->shouldReceive('incr')->with($prefix . $ipAddress)->andReturn(1);
         $this->redis->shouldReceive('expireat')->with($prefix . $ipAddress, \Mockery::any());
-
 
         $this->assertEquals(1, $this->throttler->increment($ipAddress, $this->config['minutes']));
     }

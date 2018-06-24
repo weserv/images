@@ -97,7 +97,6 @@ class MemcachedThrottlerTest extends ImagesweservTestCase
         $this->assertTrue($this->throttler->isExceeded($ipAddress));
     }
 
-
     public function testIsNotExceeded()
     {
         $ipAddress = '127.0.0.1';

@@ -9,7 +9,6 @@ use Jcupitt\Vips\Image;
 
 /**
  * @property string $bg
- * @property string $t
  * @property bool $isPremultiplied
  */
 class Background extends BaseManipulator
@@ -29,9 +28,8 @@ class Background extends BaseManipulator
     {
         // Skip this manipulator if:
         // - There's no bg parameter.
-        // - Letterboxing is required.
         // - The image doesn't have an alpha channel.
-        if ($this->bg === null || $this->t === 'letterbox' || !$image->hasAlpha()) {
+        if ($this->bg === null || !$image->hasAlpha()) {
             return $image;
         }
 
@@ -98,7 +96,6 @@ class Background extends BaseManipulator
                 'background' => $backgroundColor
             ]);
         }
-
 
         return $image;
     }

@@ -186,7 +186,6 @@ class Client
             throw $e;
         }
 
-
         return $this->fileName;
     }
 }

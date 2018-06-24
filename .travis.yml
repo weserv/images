@@ -11,7 +11,7 @@ php:
 
 env:
   global:
-    - VIPS_VERSION=8.6.3
+    - VIPS_VERSION=8.6.4
     - VIPS_TAR_VERSION=$VIPS_VERSION
     - VIPS_WARNING=0
     - PATH=$HOME/vips/bin:$PATH
@@ -32,34 +32,25 @@ addons:
   apt:
     packages:
       - libexpat1-dev
+      - gettext
+      - libglib2.0-dev
+      - liborc-0.4-dev
+      - libfftw3-dev
       - liblcms2-dev
       - libmagickwand-dev
       - libopenexr-dev
       - libcfitsio3-dev
-      - libfftw3-dev
       - libgif-dev
-      - libgs-dev
       - libgsf-1-dev
       - libmatio-dev
       - libopenslide-dev
-      - liborc-0.4-dev
       - libpango1.0-dev
       - libpoppler-glib-dev
       - librsvg2-dev
       - libwebp-dev
-      - libglib2.0-dev
 
 before_install:
   - bash install-vips.sh
-    --disable-debug
-    --disable-dependency-tracking
-    --disable-introspection
-    --disable-static
-    --enable-gtk-doc-html=no
-    --enable-gtk-doc=no
-    --enable-pyvips8=no
-    --without-orc
-    --without-python
   - yes '' | pecl install vips
 
 install: composer install --prefer-dist
