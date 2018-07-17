@@ -5,15 +5,14 @@
 [![Source Code](https://img.shields.io/badge/source-weserv/images-blue.svg)](https://github.com/weserv/images)
 [![Software License](https://img.shields.io/badge/license-BSD3-brightgreen.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![Build Status](https://travis-ci.org/weserv/images.svg?branch=3.x)](https://travis-ci.org/weserv/images)
-[![Test Coverage](https://codeclimate.com/github/weserv/images/badges/coverage.svg)](https://codeclimate.com/github/weserv/images/coverage)
 
-Source code of images.weserv.nl, to be used on your own server(s). Images.weserv.nl leverages powerful libraries like [php-vips](https://github.com/jcupitt/php-vips) (for image handling and manipulation), [Guzzle](https://github.com/guzzle/guzzle) (for sending HTTP requests) and [URI](https://github.com/thephpleague/uri) (to create and manage URIs).
+Source code of images.weserv.nl, to be used on your own server(s). Images.weserv.nl leverages powerful libraries like [lua-vips](https://github.com/jcupitt/lua-vips) (for image handling and manipulation) and [lua-resty-http](https://github.com/pintsized/lua-resty-http) (for sending HTTP requests).
 
 ## Technologies used
 
-- Linux, [nginx](https://github.com/nginx/nginx), [libvips](https://github.com/jcupitt/libvips) and [PHP](https://github.com/php/php-src) (without these technologies, this project would never have been possible)
+- Linux, [nginx](https://github.com/nginx/nginx), [libvips](https://github.com/jcupitt/libvips) and [OpenResty](https://github.com/openresty/) (without these technologies, this project would never have been possible)
 - [Cloudflare](https://www.cloudflare.com/) (for caching and IP-blocking)
-- [Memcached](https://github.com/memcached/memcached)/[Redis](https://github.com/antirez/redis) (for rate limiting)
+- [Redis](https://github.com/antirez/redis) (for rate limiting)
 - [OpenDNS](https://www.opendns.com/) (for DNS-filtering)
 
 ## Documentation

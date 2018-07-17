@@ -4,10 +4,10 @@ This document describes how to use images.weserv.nl with Docker.
 
 ## Installation
 
-1. Create a `config.php` from the `config.example.php` file. Adapt it according to your needs.
+1. Create a `app/config.lua` from the `app/config.example.lua` file. Adapt it according to your needs.
 
     ```bash
-    cp config.example.php config.php
+    cp app/config.example.lua app/config.lua
     ```
 
 2. Build/run containers with (with and without detached mode)
@@ -16,6 +16,7 @@ This document describes how to use images.weserv.nl with Docker.
     $ docker build . -t imagesweserv
     $ docker run \
         -v $(pwd):/var/www/imagesweserv \
+        -v $(pwd)/config/nginx/conf.d:/etc/nginx/conf.d/ \
         -v $(pwd)/logs/supervisor:/var/log/supervisor \
         -v /dev/shm:/dev/shm \
         -p 80:80 \
@@ -33,13 +34,7 @@ This document describes how to use images.weserv.nl with Docker.
 
     **Note:** For **OS X**, please take a look [here](https://docs.docker.com/docker-for-mac/networking/) and for **Windows** read [this](https://docs.docker.com/docker-for-windows/#/step-4-explore-the-application-and-run-examples) (4th step).
 
-4. Install images.weserv.nl
-
-    ```bash
-    $ docker exec imagesweserv composer install
-    ```
-
-5. Enjoy :-)
+4. Enjoy :-)
 
 ## Usage
 
@@ -47,6 +42,7 @@ Just run:
 ```bash
 $ docker run \
     -v $(pwd):/var/www/imagesweserv \
+    -v $(pwd)/config/nginx/conf.d:/etc/nginx/conf.d/ \
     -v $(pwd)/logs/supervisor:/var/log/supervisor \
     -v /dev/shm:/dev/shm \
     -p 80:80 \
@@ -62,8 +58,14 @@ then visit [images.weserv.local](http://images.weserv.local)
 # bash commands
 $ docker exec -it imagesweserv bash
 
-# Composer (e.g. composer update)
-$ docker exec imagesweserv composer update
+# Fancy command-line utilities for OpenResty.
+$ docker exec -it imagesweserv resty
+
+# Check nginx configuration for correct syntax
+$ docker exec imagesweserv nginx -t
+
+# Reload the nginx configuration file
+$ docker exec imagesweserv nginx -s reload
 
 # Retrieve an IP Address
 $ docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -f name=imagesweserv -q)

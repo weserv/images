@@ -1,36 +1,38 @@
 sudo: false
 
-language: php
+language: generic
 
 dist: trusty
 
-php:
-  - 7.0.13
-  - 7.1
-  - 7.2
-
 env:
   global:
-    - VIPS_VERSION=8.6.4
+    - NEEDED_MODULES="lua-vips lua-resty-http lua-resty-template luacov-coveralls"
+    - LUAROCKS_VERSION=2.4.4
+    - VIPS_VERSION=8.7.0
+    - VIPS_PRE_VERSION=alpha2
     - VIPS_TAR_VERSION=$VIPS_VERSION
     - VIPS_WARNING=0
-    - PATH=$HOME/vips/bin:$PATH
+    - TEST_COVERAGE=1
+    - LUA_PATH="?;?.lua;$HOME/luarocks/share/lua/5.1/?.lua"
     - LD_LIBRARY_PATH=$HOME/vips/lib:$LD_LIBRARY_PATH
     - PKG_CONFIG_PATH=$HOME/vips/lib/pkgconfig:$PKG_CONFIG_PATH
-    - PYTHONPATH=$HOME/vips/lib/python2.7/site-packages:$PYTHONPATH
-    - GI_TYPELIB_PATH=$HOME/vips/lib/girepository-1.0:$GI_TYPELIB_PATH
-    - CC_TEST_REPORTER_ID=d8ac431d589d9845a7ea17112dfd26de35f26f578714d0f467b2291ec3085fea
-    - GIT_COMMITTED_AT=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then git log -1 --pretty=format:%ct; else git log -1 --skip 1 --pretty=format:%ct; fi)
+    - PATH=$HOME/vips/bin:$HOME/luarocks/bin:/usr/local/openresty/luajit/bin:/usr/local/openresty/nginx/sbin:/usr/local/openresty/bin:$PATH
 
 cache:
   apt: true
   directories:
-    - $HOME/.composer/cache
     - $HOME/vips
+    - $HOME/luarocks
 
 addons:
   apt:
+    sources:
+      - sourceline: 'deb http://openresty.org/package/ubuntu trusty main'
+        key_url: 'https://openresty.org/package/pubkey.gpg'
     packages:
+      - openresty
+      - openresty-resty
+      - libtest-nginx-perl
       - libexpat1-dev
       - gettext
       - libglib2.0-dev
@@ -50,17 +52,16 @@ addons:
       - libwebp-dev
 
 before_install:
-  - bash install-vips.sh
-  - yes '' | pecl install vips
+  - bash .travis/install-vips.sh
+  - bash .travis/install-luarocks.sh
+    --with-lua=/usr/local/openresty/luajit/
+    --lua-suffix=jit-2.1.0-beta3
+    --with-lua-include=/usr/local/openresty/luajit/include/luajit-2.1
 
-install: composer install --prefer-dist
+install:
+  - cp app/config.example.lua app/config.lua
+  - if [[ ! -z ${NEEDED_MODULES} ]]; then for i in ${NEEDED_MODULES}; do luarocks install "$i"; done fi
 
-before_script:
-  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-  - chmod +x ./cc-test-reporter
+script: prove -r t
 
-script: composer test
-
-after_success:
-  # Send test coverage to Code Climate
-  - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./cc-test-reporter after-build -t clover --exit-code $TRAVIS_TEST_RESULT; fi
+after_success: luacov-coveralls --dryrun

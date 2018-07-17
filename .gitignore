@@ -1,5 +1,5 @@
-# Composer
-vendor
+# Compiled Lua sources
+luac.out
 
 # IntelliJ
 .idea
@@ -7,11 +7,5 @@ vendor
 # SASS cache files
 .sass-cache
 
-# PHPUnit
-/phpunit.xml
-
 # User-specific stuff
-/cronjob-redis.php
-/cronjob-memcached.php
-/config.php
-/GenerateExpectedFixtures.php
+/app/config.lua

@@ -13,10 +13,6 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
-# PHP files
-[*.php]
-max_line_length = 120
-
 # Web files
 [*.{htm,html,js,css,scss}]
 indent_size = 2
@@ -44,6 +40,3 @@ insert_final_newline = ignore
 indent_size = 2
 insert_final_newline = false
 
-# Composer files
-[{composer.json,composer.lock}]
-indent_size = 4

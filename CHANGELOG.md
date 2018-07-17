@@ -3,9 +3,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.0.0] - Unreleased
+## [4.0.0] - started 2018-07-17
 
-Requires libvips v8.6+.
+Requires libvips 8.7+ and OpenResty 1.13.6.2+.
+
+### Note
+Rewrote the complete code base to Lua and switched to [OpenResty](https://openresty.org/en/), which turns [Nginx](http://nginx.org/) and [LuaJIT](http://luajit.org/luajit.html) into a full-fledged scriptable web platform.
+
+#### Why?
+Because it's robust and fast. One of the core benefits of OpenResty is that it is fully asynchronous and that our code can be written directly inside Nginx without using PHP-FPM and FastCGI.
+
+The amazing just-in-time (JIT) compilation and the integrated foreign function interface (FFI) in LuaJIT have also been motives to move away from PHP.
+
+## [3.0.0] - started 2017-01-01
+
+Requires libvips 8.7+ and PHP 7.1+.
 
 ### Note
 With the feedback that you've provided we can successfully close the following issues/enhancements: 
@@ -89,7 +101,7 @@ Thanks for your support!
 | :------ | :-------------- |
 | `circle` | `shape=circle` |
 
-## [2.0.0] - 2015-12-27
+## [2.0.0] - started 2015-12-27
 ### Note
 This version was never used in production, it's only used for testing purposes and it was a beginning to re-write the entire image proxy (which is in production since 2007).
 
@@ -99,7 +111,7 @@ This version was never used in production, it's only used for testing purposes a
 - Used the [Intervention Image](http://image.intervention.io/) library for image handling and manipulation.
 - Used the [Guzzle](https://github.com/guzzle/guzzle) library for sending HTTP requests.
 
-## [1.0.0] - 2007-09-10
+## [1.0.0] - started 2007-09-10
 ### Note
 The start of our image proxy. See for more details [here](https://github.com/weserv/images/wiki/About-this-service-and-why-it-is-free).
 
@@ -107,6 +119,7 @@ The start of our image proxy. See for more details [here](https://github.com/wes
 We never kept a changelog from 2007 till 2015.
 For a quick overview what we've added, changed or fixed in the past see our [completed label](https://github.com/weserv/images/issues?utf8=%E2%9C%93&q=label%3Acompleted%20no%3Amilestone) on our issue tracker. Or take a look at our [1.x branch](https://github.com/weserv/images/tree/1.x).
 
+[4.0.0]: https://github.com/weserv/images/compare/3.x...4.x
 [3.0.0]: https://github.com/weserv/images/compare/HEAD...3.x
 [2.0.0]: https://github.com/weserv/images/compare/HEAD...78d8b32
 [1.0.0]: https://github.com/weserv/images/tree/1.x
