@@ -4,11 +4,12 @@ local math = math
 local string = string
 local tonumber = tonumber
 
+--- Server module.
+-- @module server
 local server = {}
 server.__index = server
 
--- Is the extension allowed to pass on to the selected save operation?
---
+--- Is the extension allowed to pass on to the selected save operation?
 -- @param extension The extension.
 -- @return Boolean indicating the extension is allowed.
 function server.is_extension_allowed(extension)
@@ -19,10 +20,8 @@ function server.is_extension_allowed(extension)
             extension == 'webp'
 end
 
--- Resolve the quality for the provided extension.
---
+--- Resolve the quality for the provided extension.
 -- For a PNG image it returns the zlib compression level.
---
 -- @param params Parameters array.
 -- @param extension Image extension.
 -- @return The resolved quality.
@@ -54,9 +53,8 @@ function server.resolve_quality(params, extension)
     return quality
 end
 
--- Get the options for a specified extension to pass on to
+--- Get the options for a specified extension to pass on to
 -- the selected save operation.
---
 -- @param params Parameters array.
 -- @param extension Image extension.
 -- @return Any options to pass on to the selected save operation.
@@ -65,59 +63,50 @@ function server.get_buffer_options(params, extension)
 
     if extension == 'jpg' then
         -- Strip all metadata (EXIF, XMP, IPTC)
-        buffer_options['strip'] = true
+        buffer_options.strip = true
         -- Set quality (default is 85)
-        buffer_options['Q'] = server.resolve_quality(params, extension)
+        buffer_options.Q = server.resolve_quality(params, extension)
         -- Use progressive (interlace) scan, if necessary
-        buffer_options['interlace'] = params.il ~= nil
+        buffer_options.interlace = params.il ~= nil
         -- Enable libjpeg's Huffman table optimiser
-        buffer_options['optimize_coding'] = true
-    end
-
-    if extension == 'png' then
+        buffer_options.optimize_coding = true
+    elseif extension == 'png' then
         -- Use progressive (interlace) scan, if necessary
-        buffer_options['interlace'] = params.il ~= nil
+        buffer_options.interlace = params.il ~= nil
         -- zlib compression level (default is 6)
-        buffer_options['compression'] = server.resolve_quality(params, extension)
+        buffer_options.compression = server.resolve_quality(params, extension)
         -- Use adaptive row filtering (default is none)
         if params.filter ~= nil then
             -- VIPS_FOREIGN_PNG_FILTER_ALL
-            buffer_options['filter'] = 0xF8
+            buffer_options.filter = 0xF8
         else
             -- VIPS_FOREIGN_PNG_FILTER_NONE
-            buffer_options['filter'] = 0x08
+            buffer_options.filter = 0x08
         end
-    end
-
-    if extension == 'webp' then
+    elseif extension == 'webp' then
         -- Strip all metadata (EXIF, XMP, IPTC)
-        buffer_options['strip'] = true
+        buffer_options.strip = true
         -- Set quality (default is 85)
-        buffer_options['Q'] = server.resolve_quality(params, extension)
+        buffer_options.Q = server.resolve_quality(params, extension)
         -- Set quality of alpha layer to 100
-        buffer_options['alpha_q'] = 100
-    end
-
-    if extension == 'tiff' then
+        buffer_options.alpha_q = 100
+    elseif extension == 'tiff' then
         -- Strip all metadata (EXIF, XMP, IPTC)
-        buffer_options['strip'] = true
+        buffer_options.strip = true
         -- Set quality (default is 85)
-        buffer_options['Q'] = server.resolve_quality(params, extension)
+        buffer_options.Q = server.resolve_quality(params, extension)
         -- Set the tiff compression
-        buffer_options['compression'] = 'jpeg'
-    end
-
-    if extension == 'gif' then
+        buffer_options.compression = 'jpeg'
+    elseif extension == 'gif' then
         -- Set the format option to hint the file type.
-        buffer_options['format'] = extension
+        buffer_options.format = extension
     end
 
     return buffer_options
 end
 
--- Determines the appropriate mime type (from list of hardcoded values)
+--- Determines the appropriate mime type (from list of hardcoded values)
 -- using the provided extension.
---
 -- @param extension Image extension.
 -- @return The mime type.
 function server.extension_to_mime_type(extension)
@@ -126,17 +115,16 @@ function server.extension_to_mime_type(extension)
         jpg = 'image/jpeg',
         png = 'image/png',
         webp = 'image/webp',
-        tiff = 'image/tiff'
+        tiff = 'image/tiff',
     }
 
     return mime_types[extension]
 end
 
--- Output the final image.
---
+--- Output the final image.
 -- @param image The final image.
 -- @param args The URL query arguments.
-function server.output_image(image, args)
+function server.output(image, args)
     -- Determine image extension from the libvips loader
     local extension = utils.determine_image_extension(args.loader)
 
@@ -149,7 +137,7 @@ function server.output_image(image, args)
             or not server.is_extension_allowed(extension) then
         -- We force the extension to PNG if:
         -- - The image has alpha and doesn't have the right extension to output alpha.
-        --   (useful for shape masking and letterboxing)
+        --   (useful for masking and letterboxing)
         -- - The input extension is not allowed for output.
         extension = 'png'
     end
@@ -160,7 +148,6 @@ function server.output_image(image, args)
     local mime_type = server.extension_to_mime_type(extension)
 
     local max_age = 60 * 60 * 24 * 31 -- 31 days
-    ngx.status = ngx.HTTP_OK
     ngx.header['Expires'] = ngx.http_time(ngx.time() + max_age)
     ngx.header['Cache-Control'] = 'max-age=' .. max_age
 

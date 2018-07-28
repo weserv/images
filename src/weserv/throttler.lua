@@ -2,11 +2,12 @@ local ngx = ngx
 local string = string
 local setmetatable = setmetatable
 
+--- Throttler module.
+-- @module throttler
 local throttler = {}
 throttler.__index = throttler
 
--- Instantiate a throttler object.
---
+--- Instantiate a throttler object.
 -- @param redis Redis instance.
 -- @param policy Throttling policy.
 -- @param config Throttler config.
@@ -19,8 +20,7 @@ local function new(redis, policy, config)
     return setmetatable(self, throttler)
 end
 
--- Determine if any rate limits have been exceeded.
---
+--- Determine if any rate limits have been exceeded.
 -- @param ip_address The IP address.
 -- @return Boolean indicating if the rate limit have been exceeded.
 function throttler:is_exceeded(ip_address)
@@ -37,9 +37,10 @@ function throttler:is_exceeded(ip_address)
             self.policy:ban_at_cloudflare(ip_address)
         end
 
-        local ok, err = self.redis:set(string.format("%s_%s:lockout", self.config.prefix, ip_address), expires, 'ex', ttl)
+        local ok, set_err = self.redis:set(string.format("%s_%s:lockout", self.config.prefix, ip_address),
+            expires, 'ex', ttl)
         if not ok then
-            ngx.log(ngx.ERR, string.format("Failed to set lockout key (for %s)", ip_address), err)
+            ngx.log(ngx.ERR, string.format("Failed to set lockout key (for %s)", ip_address), set_err)
         end
 
         self:reset_attempts(ip_address)
@@ -49,58 +50,55 @@ function throttler:is_exceeded(ip_address)
     return false
 end
 
--- Increment the counter for a given ip address for a given decay time.
---
+--- Increment the counter for a given ip address for a given decay time.
 -- @param ip_address The IP address.
 -- @param decay_minutes Decay time in minutes.
 -- @return Value after increment.
 function throttler:increment(ip_address, decay_minutes)
-    local value, err = self.redis:incr(string.format("%s_%s", self.config.prefix, ip_address))
+    local value, incr_err = self.redis:incr(string.format("%s_%s", self.config.prefix, ip_address))
     if not value then
-        ngx.log(ngx.ERR, string.format("Failed to increment (for %s)", ip_address), err)
+        ngx.log(ngx.ERR, string.format("Failed to increment (for %s)", ip_address), incr_err)
         return -1
     end
 
     -- Check if this increment is new, and if so set expires time
     if value == 1 then
-        local res, err = self.redis:expire(string.format("%s_%s", self.config.prefix, ip_address), decay_minutes * 60)
+        local ttl = decay_minutes * 60
+        local res, expire_err = self.redis:expire(string.format("%s_%s", self.config.prefix, ip_address), ttl)
         if not res then
-            ngx.log(ngx.ERR, string.format("Failed to set expiry (for %s) to %d", ip_address, decay_minutes * 60), err)
+            ngx.log(ngx.ERR, string.format("Failed to set expiry (for %s) to %d", ip_address, ttl), expire_err)
         end
     end
     return value
 end
 
--- Get the number of attempts for the given ip address.
---
+--- Get the number of attempts for the given ip address.
 -- @param ip_address The IP address.
 -- @return Number of attempts for the given ip address.
 function throttler:attempts(ip_address)
-    local attempts, err = self.redis:get(string.format("%s_%s", self.config.prefix, ip_address))
+    local attempts, get_err = self.redis:get(string.format("%s_%s", self.config.prefix, ip_address))
     if not attempts then
-        ngx.log(ngx.ERR, string.format("Failed to get number of attempts (for %s)", ip_address), err)
+        ngx.log(ngx.ERR, string.format("Failed to get number of attempts (for %s)", ip_address), get_err)
         return -1
     end
 
     return attempts
 end
 
--- Reset the number of attempts for the given ip address.
---
+--- Reset the number of attempts for the given ip address.
 -- @param ip_address The IP address.
 -- @return true on success, false otherwise.
 function throttler:reset_attempts(ip_address)
-    local res, err = self.redis:del(string.format("%s_%s", self.config.prefix, ip_address))
+    local res, del_err = self.redis:del(string.format("%s_%s", self.config.prefix, ip_address))
     if not res then
-        ngx.log(ngx.ERR, string.format("Failed to reset number of attempts (for %s)", ip_address), err)
+        ngx.log(ngx.ERR, string.format("Failed to reset number of attempts (for %s)", ip_address), del_err)
         return false
     end
 
     return true
 end
 
--- Get the number of retries left for the given ip address.
---
+--- Get the number of retries left for the given ip address.
 -- @param ip_address The IP address.
 -- @param max_attempts How many attempts maximum?
 -- @return Number of retries left for the given ip address.
@@ -112,26 +110,27 @@ function throttler:retries_left(ip_address, max_attempts)
     return max_attempts - attempts + 1
 end
 
--- Clear the hits and lockout for the given ip address.
---
+--- Clear the hits and lockout for the given ip address.
 -- @param ip_address The IP address.
 -- @return Number of retries left for the given ip address.
+-- @return true on success, false otherwise.
 function throttler:clear(ip_address)
-    self:reset_attempts(ip_address)
-    local res, err = self.redis:del(string.format("%s_%s:lockout", self.config.prefix, ip_address))
+    local success = self:reset_attempts(ip_address)
+    local res, del_err = self.redis:del(string.format("%s_%s:lockout", self.config.prefix, ip_address))
     if not res then
-        ngx.log(ngx.ERR, string.format("Failed to delete lockout key (for %s)", ip_address), err)
+        ngx.log(ngx.ERR, string.format("Failed to delete lockout key (for %s)", ip_address), del_err)
+        return false
     end
+    return success
 end
 
--- Get the number of seconds until the ip address is accessible again.
---
+--- Get the number of seconds until the ip address is accessible again.
 -- @param ip_address The IP address.
 -- @return Number of seconds until the ip address is accessible again.
 function throttler:available_in(ip_address)
-    local expires, err = self.redis:get(string.format("%s_%s:lockout", self.config.prefix, ip_address))
+    local expires, get_err = self.redis:get(string.format("%s_%s:lockout", self.config.prefix, ip_address))
     if not expires then
-        ngx.log(ngx.ERR, string.format("Failed to get expires time (for %s)", ip_address), err)
+        ngx.log(ngx.ERR, string.format("Failed to get expires time (for %s)", ip_address), get_err)
         return -1
     end
     return expires - ngx.time()

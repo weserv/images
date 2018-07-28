@@ -1,9 +1,12 @@
-local ffi = require("ffi")
+local ffi = require "ffi"
 local ngx = ngx
 local tonumber = tonumber
 local string = string
 
+--- Utils module
+-- @module utils
 local utils = {}
+utils.__index = utils
 
 -- The orientation tag for this image. An int from 1 - 8 using the standard
 -- exif/tiff meanings.
@@ -15,26 +18,22 @@ local VIPS_META_ORIENTATION = 'orientation'
 -- vips_icc_transform() operations.
 local VIPS_META_ICC_NAME = 'icc-profile-data'
 
--- Are pixel values in this image 16-bit integer?
---
+--- Are pixel values in this image 16-bit integer?
 -- @param interpretation The VipsInterpretation
 -- @return Boolean indicating if the pixel values in this image are 16-bit
 function utils.is_16_bit(interpretation)
     return interpretation == 'rgb16' or interpretation == 'grey16'
 end
 
---  Does this image have an embedded profile?
---
+--- Does this image have an embedded profile?
 -- @param image The source image.
 -- @return Boolean indicating if this image have an embedded profile.
 function utils.has_profile(image)
     return image:get_typeof(VIPS_META_ICC_NAME) ~= 0
 end
 
--- Does this image have an alpha channel?
---
--- Uses colour space interpretation with number of channels to guess
--- this.
+--- Does this image have an alpha channel?
+-- Uses colour space interpretation with number of channels to guess this.
 -- @return Boolean indicating if this image has an alpha channel.
 function utils.has_alpha(image)
     return image:bands() == 2 or
@@ -43,53 +42,22 @@ function utils.has_alpha(image)
             image:bands() > 4
 end
 
--- Return the image alpha maximum. Useful for combining alpha bands. scRGB
+--- Return the image alpha maximum. Useful for combining alpha bands. scRGB
 -- images are 0 - 1 for image data, but the alpha is 0 - 255.
---
 -- @param interpretation The VipsInterpretation.
 -- @return The image alpha maximum.
 function utils.maximum_image_alpha(interpretation)
-    if utils.is_16_bit(interpretation) then
-        return 65535
-    else
-        return 255
-    end
+    return utils.is_16_bit(interpretation) and 65535 or 255
 end
 
--- Get EXIF Orientation of image, if any.
---
+--- Get EXIF Orientation of image, if any.
 -- @param image The source image.
 -- @return EXIF Orientation.
 function utils.exif_orientation(image)
-    if image:get_typeof(VIPS_META_ORIENTATION) ~= 0 then
-        return image:get(VIPS_META_ORIENTATION)
-    else
-        return 0
-    end
+    return image:get_typeof(VIPS_META_ORIENTATION) ~= 0 and image:get(VIPS_META_ORIENTATION) or 0
 end
 
--- Find the name of the load operation vips will use to load a file, for
--- example "VipsForeignLoadJpegFile". You can use this to work out what
--- options to pass to new_from_file().
---
--- @param filename The file to test.
--- @return The name of the load operation, or nil on failure.
-function utils.find_load(filename)
-    local vips = ffi.load("vips")
-    ffi.cdef [[
-    const char* vips_foreign_find_load (const char* name);
-    ]]
-
-    local name = vips.vips_foreign_find_load(filename)
-    if name == nil then
-        return nil
-    end
-
-    return ffi.string(name)
-end
-
--- Creates a file with a unique filename, in the specified directory.
---
+--- Creates a file with a unique filename, in the specified directory.
 -- @param dir The directory where the temporary filename will be created.
 -- @param prefix The prefix of the generated temporary filename.
 -- @return The new temporary filename (with path), or nil on failure.
@@ -117,8 +85,7 @@ function utils.tempname(dir, prefix)
     return tempname
 end
 
--- Clean URI.
---
+--- Clean URI.
 -- @param uri The URI.
 -- @return Cleaned URI.
 function utils.clean_uri(uri)
@@ -137,15 +104,14 @@ function utils.clean_uri(uri)
     return uri:gsub("[?&]errorredirect=[^&]+", "")
 end
 
--- Parse URI.
---
+--- Parse URI.
 -- @param uri The URI.
 -- @return Parsed URI.
 function utils.parse_uri(uri)
-    local m, err = ngx.re.match(uri, [[^(?:(http[s]?):)?//([^:/\?]+)(?::(\d+))?([^\?]*)\??(.*)]], 'jo')
+    local m = ngx.re.match(uri, [[^(?:(http[s]?):)?//([^:/\?]+)(?::(\d+))?([^\?]*)\??(.*)]], 'jo')
 
     if not m or not m[1] then
-        return nil, "Error 404: Server couldn't parse the ?url= that you were looking for, because it isn't a valid url."
+        return nil, "because it isn't a valid url."
     else
         if m[3] then
             m[3] = tonumber(m[3])
@@ -164,11 +130,9 @@ function utils.parse_uri(uri)
     end
 end
 
--- Resolve an explicit angle.
---
+--- Resolve an explicit angle.
 -- If an angle is provided, it is converted to a valid 90/180/270deg rotation.
 -- For example, `-450` will produce a 270deg rotation.
---
 -- @param angle Angle of rotation, must be a multiple of 90.
 -- @return The resolved rotation.
 function utils.resolve_angle_rotation(angle)
@@ -184,18 +148,11 @@ function utils.resolve_angle_rotation(angle)
     end
 
     -- Calculate the rotation for the given angle that is a multiple of 90
-    angle = angle % 360
-
-    if angle < 0 then
-        angle = angle + 360
-    end
-
-    return angle
+    return angle % 360
 end
 
--- Calculate the angle of rotation and need-to-flip for the given exif orientation
+--- Calculate the angle of rotation and need-to-flip for the given exif orientation
 -- and parameters.
---
 -- @param image The source image.
 -- @param params Parameters array.
 -- @return rotation, flip, flop
@@ -229,8 +186,7 @@ function utils.resolve_rotation_and_flip(image, params)
     return rotate, flip, flop
 end
 
--- Determine image extension from the name of the load operation.
---
+--- Determine image extension from the name of the load operation.
 -- @param loader The name of the load operation.
 -- @return The image extension.
 function utils.determine_image_extension(loader)
@@ -246,13 +202,14 @@ function utils.determine_image_extension(loader)
         extension = 'tiff'
     elseif loader == 'VipsForeignLoadGifFile' then
         extension = 'gif'
+    elseif loader == 'VipsForeignLoadSvgFile' then
+        extension = 'svg'
     end
 
     return extension
 end
 
--- Convert bytes to human readable format.
---
+--- Convert bytes to human readable format.
 -- @param bytes The number of bytes.
 -- @return The readable format of the bytes.
 function utils.format_bytes(bytes)
@@ -262,17 +219,15 @@ function utils.format_bytes(bytes)
     local terabyte = gigabyte * 1024
 
     if bytes >= 0 and bytes < kilobyte then
-        return bytes .. " Bytes"
-    elseif bytes >= kilobyte and bytes < megabyte then
-        return string.format("%.2f KB", bytes / kilobyte)
-    elseif bytes >= megabyte and bytes < gigabyte then
-        return string.format("%.2f MB", bytes / megabyte)
-    elseif bytes >= gigabyte and bytes < terabyte then
-        return string.format("%.2f GB", bytes / gigabyte)
-    elseif bytes >= terabyte then
-        return string.format("%.2f TB", bytes / terabyte)
-    else
         return bytes .. ' B'
+    elseif bytes >= kilobyte and bytes < megabyte then
+        return string.format("%.2f", bytes / kilobyte):gsub("%.?0+$", "") .. ' KB'
+    elseif bytes >= megabyte and bytes < gigabyte then
+        return string.format("%.2f", bytes / megabyte):gsub("%.?0+$", "") .. ' MB'
+    elseif bytes >= gigabyte and bytes < terabyte then
+        return string.format("%.2f", bytes / gigabyte):gsub("%.?0+$", "") .. ' GB'
+    elseif bytes >= terabyte then
+        return string.format("%.2f", bytes / terabyte):gsub("%.?0+$", "") .. ' TB'
     end
 end
 

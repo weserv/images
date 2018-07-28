@@ -6,20 +6,18 @@ dist: trusty
 
 env:
   global:
-    - NEEDED_MODULES="lua-vips lua-resty-http lua-resty-template luacov-coveralls"
     - LUAROCKS_VERSION=2.4.4
     - VIPS_VERSION=8.7.0
-    - VIPS_PRE_VERSION=alpha2
+    - VIPS_PRE_VERSION=rc1
     - VIPS_TAR_VERSION=$VIPS_VERSION
     - VIPS_WARNING=0
     - TEST_COVERAGE=1
-    - LUA_PATH="?;?.lua;$HOME/luarocks/share/lua/5.1/?.lua"
+    - JOBS=2
     - LD_LIBRARY_PATH=$HOME/vips/lib:$LD_LIBRARY_PATH
     - PKG_CONFIG_PATH=$HOME/vips/lib/pkgconfig:$PKG_CONFIG_PATH
     - PATH=$HOME/vips/bin:$HOME/luarocks/bin:/usr/local/openresty/luajit/bin:/usr/local/openresty/nginx/sbin:/usr/local/openresty/bin:$PATH
 
 cache:
-  apt: true
   directories:
     - $HOME/vips
     - $HOME/luarocks
@@ -32,7 +30,6 @@ addons:
     packages:
       - openresty
       - openresty-resty
-      - libtest-nginx-perl
       - libexpat1-dev
       - gettext
       - libglib2.0-dev
@@ -52,16 +49,19 @@ addons:
       - libwebp-dev
 
 before_install:
-  - bash .travis/install-vips.sh
-  - bash .travis/install-luarocks.sh
+  - bash .ci/install-vips.sh
+  - bash .ci/install-luarocks.sh
     --with-lua=/usr/local/openresty/luajit/
     --lua-suffix=jit-2.1.0-beta3
     --with-lua-include=/usr/local/openresty/luajit/include/luajit-2.1
+  - eval `luarocks path`
 
 install:
   - cp app/config.example.lua app/config.lua
-  - if [[ ! -z ${NEEDED_MODULES} ]]; then for i in ${NEEDED_MODULES}; do luarocks install "$i"; done fi
+  - make dev
 
-script: prove -r t
+script:
+  - .ci/run_tests.sh
 
-after_success: luacov-coveralls --dryrun
+after_success:
+  - luacov-coveralls

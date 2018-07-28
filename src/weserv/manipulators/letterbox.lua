@@ -1,9 +1,13 @@
 local utils = require "weserv.helpers.utils"
 local math = math
 
+--- Letterbox manipulator
+-- @module letterbox
 local manipulator = {}
 
--- Perform letterbox image manipulation.
+--- Perform letterbox image manipulation.
+-- @param image The source image.
+-- @param args The URL query arguments.
 function manipulator:process(image, args)
     local width, height = args.w, args.h
     local image_width, image_height = image:width(), image:height()
@@ -24,7 +28,7 @@ function manipulator:process(image, args)
 
         image = image:embed(left, top, width, height, {
             extend = 'background',
-            ['background'] = background
+            background = background
         })
     end
 

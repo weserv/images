@@ -7,23 +7,27 @@ local tonumber = tonumber
 
 -- Profile map to ensure that we use a device-
 -- independent color space for the images we process.
+local root_dir = (ngx.get_phase() == 'content' and ngx.var.weserv_root ~= nil) and ngx.var.weserv_root or '.'
 local profile_map = {
     -- Default sRGB ICC profile from:
     -- https://packages.debian.org/sid/all/icc-profiles-free/filelist
-    srgb = ngx.var.weserv_root .. '/src/weserv/ICC/sRGB.icm',
+    srgb = root_dir .. '/src/weserv/ICC/sRGB.icm',
     -- Convert to sRGB using default CMYK profile from:
     -- https://www.argyllcms.com/cmyk.icm
-    cmyk = ngx.var.weserv_root .. '/src/weserv/ICC/cmyk.icm',
+    cmyk = root_dir .. '/src/weserv/ICC/cmyk.icm',
 }
 
 local VIPS_MAX_COORD = 10000000
 local MAX_IMAGE_SIZE = 71000000
 
--- Resolve device pixel ratio.
---
+--- Thumbnail manipulator
+-- @module thumbnail
+local manipulator = {}
+
+--- Resolve device pixel ratio.
 -- @param dpr The given device pixel ratio.
 -- @return The resolved fit.
-local function resolve_dpr(dpr)
+function manipulator.resolve_dpr(dpr)
     local pixel_ratio = tonumber(dpr)
 
     -- Pixel ratio may not be nil and needs to be in the range of 0 - 8
@@ -34,11 +38,10 @@ local function resolve_dpr(dpr)
     return 1.0
 end
 
--- Resolve dimension.
---
--- @param dpr The given dimension.
+--- Resolve dimension.
+-- @param dim The given dimension.
 -- @return The resolved dimension.
-local function resolve_dimension(dim)
+function manipulator.resolve_dimension(dim)
     local dimension = tonumber(dim)
 
     -- Dimension may not be nil and not less than 0
@@ -49,11 +52,10 @@ local function resolve_dimension(dim)
     return 0
 end
 
--- Resolve fit.
---
+--- Resolve fit.
 -- @param t The given fit.
 -- @return The resolved fit.
-local function resolve_fit(t)
+function manipulator.resolve_fit(t)
     if t == 'fit' or
             t == 'fitup' or
             t == 'square' or
@@ -70,31 +72,30 @@ local function resolve_fit(t)
     return 'fit'
 end
 
--- Indicating if we should not enlarge the output image.
---
+--- Indicating if we should not enlarge the output image.
 -- @param fit The resolved fit.
 -- @return bool
-local function without_enlargement(fit)
+function manipulator.without_enlargement(fit)
     return fit == 'fit' or fit == 'squaredown'
 end
 
-local manipulator = {}
-
--- Perform thumbnail image manipulation.
+--- Perform thumbnail image manipulation.
+-- @param image The source image.
+-- @param args The URL query arguments.
 function manipulator:process(image, args)
     if image:width() * image:height() > MAX_IMAGE_SIZE then
         return nil, {
             status = ngx.HTTP_BAD_REQUEST,
-            message = 'Image is too large for processing. Width x height should be less than 70 megapixels.'
+            message = 'Image is too large for processing. Width x height should be less than 71 megapixels.',
         }
     end
 
     -- Resolve target dimensions
-    args.w = resolve_dimension(args.w)
-    args.h = resolve_dimension(args.h)
+    args.w = manipulator.resolve_dimension(args.w)
+    args.h = manipulator.resolve_dimension(args.h)
 
     -- Resolve the device pixel ratio.
-    local dpr = resolve_dpr(args.dpr)
+    local dpr = manipulator.resolve_dpr(args.dpr)
 
     -- Apply the device pixel ratio.
     args.w = args.w * dpr
@@ -102,7 +103,7 @@ function manipulator:process(image, args)
 
     local thumbnail_options = {
         auto_rotate = false,
-        linear = false
+        linear = false,
     }
 
     local is_cmyk = image:interpretation() == 'cmyk'
@@ -113,16 +114,16 @@ function manipulator:process(image, args)
         -- Embedded profile; fallback in case the profile embedded in the image is broken.
         -- No embedded profile; import using default CMYK profile.
         if is_cmyk then
-            thumbnail_options['import_profile'] = profile_map.cmyk
+            thumbnail_options.import_profile = profile_map.cmyk
         else
-            thumbnail_options['import_profile'] = profile_map.srgb
+            thumbnail_options.import_profile = profile_map.srgb
         end
 
         -- Convert to sRGB using embedded or import profile.
-        thumbnail_options['export_profile'] = profile_map.srgb
+        thumbnail_options.export_profile = profile_map.srgb
 
         -- Use "perceptual" intent to better match imagemagick.
-        thumbnail_options['intent'] = 'perceptual'
+        thumbnail_options.intent = 'perceptual'
     end
 
     local input_width = image:width()
@@ -139,7 +140,7 @@ function manipulator:process(image, args)
     local target_resize_width = args.w
     local target_resize_height = args.h
 
-    local fit = resolve_fit(args.t)
+    local fit = manipulator.resolve_fit(args.t)
 
     local check_max_image_size = true
 
@@ -205,25 +206,25 @@ function manipulator:process(image, args)
     end
 
     -- Assign settings
-    thumbnail_options['height'] = target_resize_height
+    thumbnail_options.height = target_resize_height
 
     if fit == 'absolute' then
-        thumbnail_options['size'] = 'force'
-    elseif without_enlargement(fit) then
-        thumbnail_options['size'] = 'down'
+        thumbnail_options.size = 'force'
+    elseif manipulator.without_enlargement(fit) then
+        thumbnail_options.size = 'down'
 
         -- No need to check max image size because
         -- the operation will only downsize.
         check_max_image_size = false
     else
-        thumbnail_options['size'] = 'both'
+        thumbnail_options.size = 'both'
     end
 
     -- targetResizeWidth and targetResizeWidth aren't reliable anymore.
     if check_max_image_size and args.w * args.h > MAX_IMAGE_SIZE then
         return nil, {
             status = ngx.HTTP_BAD_REQUEST,
-            message = 'Image is too large for processing. Width x height should be less than 70 megapixels.'
+            message = 'Image is too large for processing. Width x height should be less than 71 megapixels.',
         }
     end
 
@@ -234,7 +235,8 @@ function manipulator:process(image, args)
     if args.trim ~= nil or args.gam ~= nil then
         image = image:thumbnail_image(target_resize_width, thumbnail_options)
     else
-        image = vips.Image.thumbnail(args.tmp_file_name .. args.embedded_options, target_resize_width, thumbnail_options)
+        image = vips.Image.thumbnail(args.tmp_file_name .. args.string_options,
+            target_resize_width, thumbnail_options)
     end
 
     return self:next(image, args)

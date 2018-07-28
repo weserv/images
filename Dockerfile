@@ -7,7 +7,7 @@ MAINTAINER Kleis Auke Wolthuizen <info@kleisauke.nl>
 ENV TZ Europe/Amsterdam
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Install openresty (+ command-line utility), nginx testing framework, libvips, redis, and supervisor
+# Install openresty (+ command-line utility), libvips, redis, and supervisor
 RUN yum update -y && \
     yum install -y epel-release yum-utils && \
     yum install -y https://rpms.remirepo.net/enterprise/remi-release-7.rpm && \
@@ -17,7 +17,6 @@ RUN yum update -y && \
     yum install -y \
         openresty \
         openresty-resty \
-        perl-Test-Nginx \
         vips \
         redis \
         supervisor && \
@@ -31,12 +30,8 @@ RUN curl -L https://luarocks.github.io/luarocks/releases/luarocks-2.4.4.tar.gz |
         --with-lua=/usr/local/openresty/luajit/ \
         --lua-suffix=jit-2.1.0-beta3 \
         --with-lua-include=/usr/local/openresty/luajit/include/luajit-2.1 && \
-    make build && \
+    make build -j$(nproc) && \
     make install
-
-# Install needed rocks
-ENV NEEDED_MODULES "lua-vips lua-resty-http lua-resty-template luacov-coveralls"
-RUN if [[ ! -z ${NEEDED_MODULES} ]]; then for i in ${NEEDED_MODULES}; do /usr/local/openresty/luajit/bin/luarocks install "$i"; done fi
 
 # Add nginx configuration
 ADD config/nginx/nginx.conf /usr/local/openresty/nginx/conf/nginx.conf

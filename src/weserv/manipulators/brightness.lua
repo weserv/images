@@ -1,11 +1,14 @@
 local utils = require "weserv.helpers.utils"
 local tonumber = tonumber
 
--- Resolve brightness amount.
---
+--- Brightness manipulator
+-- @module brightness
+local manipulator = {}
+
+--- Resolve brightness amount.
 -- @param bri The given brightness.
 -- @return The resolved brightness amount.
-local function resolve_brightness(bri)
+function manipulator.resolve_brightness(bri)
     local brightness = tonumber(bri)
 
     -- Brightness may not be nil and needs to be in the range of -100 - 100
@@ -16,15 +19,15 @@ local function resolve_brightness(bri)
     return 0
 end
 
-local manipulator = {}
-
--- Perform brightness image manipulation.
+--- Perform brightness image manipulation.
+-- @param image The source image.
+-- @param args The URL query arguments.
 function manipulator:process(image, args)
     if args.bri == nil then
         return self:next(image, args)
     end
 
-    local brightness = resolve_brightness(args.bri)
+    local brightness = manipulator.resolve_brightness(args.bri)
 
     if brightness ~= 0 then
         -- Map brightness from -100/100 to -255/255 range

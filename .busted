@@ -1,0 +1,6 @@
+return {
+  default = {
+    helper = "./spec/helpers.lua",
+    coverage = os.getenv("TEST_COVERAGE") == "1"
+  }
+}

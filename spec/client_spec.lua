@@ -1,0 +1,363 @@
+local match = require "luassert.match"
+
+describe("client", function()
+    local old_ngx = _G.ngx
+    local old_http = package.loaded["resty.http"]
+    local old_utils = package.loaded["weserv.helpers.utils"]
+    local stubbed_http
+    local client
+
+    local default_config = {
+        user_agent = 'Mozilla/5.0 (compatible; ImageFetcher/8.0; +http://images.weserv.nl/)',
+        timeouts = {
+            connect = 5000,
+            send = 5000,
+            read = 10000,
+        },
+        max_image_size = 0,
+        max_redirects = 10,
+        allowed_mime_types = {}
+    }
+
+    local errors = {}
+
+    local reader_co = coroutine.create(function(max_chunk_size)
+        coroutine.yield('Chunk 1 ' .. max_chunk_size .. "\n")
+        coroutine.yield('Chunk 2 ' .. max_chunk_size .. "\n")
+        coroutine.yield('Chunk 3 ' .. max_chunk_size .. "\n")
+        coroutine.yield(nil)
+    end)
+
+    local body_reader = function(...)
+        if coroutine.status(reader_co) == "suspended" then
+            return select(2, coroutine.resume(reader_co, ...))
+        else
+            return nil, "can't resume a " .. coroutine.status(reader_co) .. " coroutine"
+        end
+    end
+
+    local response = {
+        status = 200,
+        headers = {},
+        body_reader = body_reader
+    }
+
+    local tempname = true
+
+    setup(function()
+        local stubbed_ngx = {
+            -- luacheck: globals ngx._logs
+            _logs = {},
+        }
+        stubbed_ngx.log = function(...)
+            stubbed_ngx._logs[#stubbed_ngx._logs + 1] = table.concat({ ... }, " ")
+        end
+
+        -- Busted requires explicit _G to access the global environment
+        _G.ngx = setmetatable(stubbed_ngx, { __index = old_ngx })
+
+        stubbed_http = {
+            set_timeouts = function(_, _, _, _) end,
+            connect = function(_, _, _)
+                if errors.connect ~= nil then
+                    return nil, errors.connect
+                end
+
+                return 1, nil
+            end,
+            ssl_handshake = function(_, _, _, _)
+                if errors.ssl_handshake ~= nil then
+                    return nil, errors.ssl_handshake
+                end
+
+                return 1, nil
+            end,
+            request = function(_, _)
+                if errors.request ~= nil then
+                    return nil, errors.request
+                end
+
+                return response, nil
+            end,
+            set_keepalive = function(_)
+                if errors.keepalive ~= nil then
+                    return nil, errors.keepalive
+                end
+
+                return 1, nil
+            end,
+        }
+        spy.on(stubbed_http, "set_timeouts")
+        spy.on(stubbed_http, "connect")
+        spy.on(stubbed_http, "ssl_handshake")
+        spy.on(stubbed_http, "request")
+        spy.on(stubbed_http, "set_keepalive")
+
+        package.loaded["resty.http"] = {
+            new = function()
+                return stubbed_http
+            end
+        }
+
+        package.loaded["weserv.helpers.utils"] = setmetatable({
+            tempname = function(dir, prefix)
+                if not tempname then
+                    return nil
+                end
+
+                return old_utils.tempname(dir, prefix)
+            end
+        }, { __index = old_utils })
+
+        client = require("weserv.client").new(default_config)
+    end)
+
+    teardown(function()
+        _G.ngx = old_ngx
+        package.loaded["resty.http"] = old_http
+        package.loaded["weserv.helpers.utils"] = old_utils
+    end)
+
+    after_each(function()
+        -- Clear logs, errors, call history and response after each test
+        _G.ngx._logs = {}
+        tempname = true
+        errors = {}
+        stubbed_http.set_timeouts:clear()
+        stubbed_http.connect:clear()
+        stubbed_http.ssl_handshake:clear()
+        stubbed_http.request:clear()
+        stubbed_http.set_keepalive:clear()
+        response = {
+            status = 200,
+            headers = {},
+            body_reader = body_reader
+        }
+    end)
+
+    it("test config", function()
+        assert.are.same(default_config, client.config)
+    end)
+
+    describe("test request", function()
+        it("connects to host and writes to file", function()
+            local res, _ = client:request('https://ory.weserv.nl/lichtenstein.jpg?foo=bar')
+
+            assert.spy(stubbed_http.set_timeouts).was_called_with(match._, default_config.timeouts.connect,
+                default_config.timeouts.send, default_config.timeouts.read)
+            assert.spy(stubbed_http.connect).was_called_with(match._, 'ory.weserv.nl', 443)
+            assert.spy(stubbed_http.ssl_handshake).was_called_with(match._, nil, 'ory.weserv.nl', false)
+            assert.spy(stubbed_http.request).was_called_with(match._, match.is_same({
+                headers = {
+                    ['User-Agent'] = default_config.user_agent
+                },
+                path = '/lichtenstein.jpg',
+                query = 'foo=bar',
+                ssl_verify = false,
+            }))
+            assert.spy(stubbed_http.set_keepalive).was.called()
+
+            local tmpfile_start = '/dev/shm/imo_'
+            assert.True(res.tmpfile:sub(1, #tmpfile_start) == tmpfile_start)
+
+            local f = assert(io.open(res.tmpfile, "r"))
+            local t = f:read("*all")
+            f:close()
+
+            assert.equal("Chunk 1 8192\nChunk 2 8192\nChunk 3 8192\n", t)
+            assert(os.remove(res.tmpfile))
+        end)
+
+        it("invalid uri", function()
+            local res, err = client:request('foobar')
+
+            assert.truthy(err:find("isn't a valid url"))
+            assert.falsy(res)
+
+            -- Don't log invalid uris
+            assert.equal(0, #ngx._logs)
+        end)
+
+        it("connect error", function()
+            errors.connect = 'timeout'
+
+            local res, err = client:request('https://ory.weserv.nl/lichtenstein.jpg?foo=bar')
+
+            assert.truthy(err:find("Operation timed out"))
+            assert.falsy(res)
+
+            assert.spy(stubbed_http.connect).was.called()
+            assert.spy(stubbed_http.ssl_handshake).was_not_called()
+            assert.spy(stubbed_http.request).was_not_called()
+            assert.spy(stubbed_http.set_keepalive).was_not_called()
+
+            -- Don't log connect errors
+            assert.equal(0, #ngx._logs)
+        end)
+
+        it("ssl handshake error", function()
+            errors.ssl_handshake = 'timeout'
+
+            local res, err = client:request('https://ory.weserv.nl/lichtenstein.jpg?foo=bar')
+
+            assert.truthy(err:find("Failed to do SSL handshake"))
+            assert.falsy(res)
+
+            assert.spy(stubbed_http.connect).was.called()
+            assert.spy(stubbed_http.ssl_handshake).was.called()
+            assert.spy(stubbed_http.request).was_not.called()
+            assert.spy(stubbed_http.set_keepalive).was_not.called()
+
+            -- Log ssl handshake errors
+            assert.equal(1, #ngx._logs)
+        end)
+
+        it("request error", function()
+            errors.request = 'timeout'
+
+            local res, err = client:request('https://ory.weserv.nl/lichtenstein.jpg?foo=bar')
+
+            assert.truthy(err:find("Operation timed out"))
+            assert.falsy(res)
+
+            assert.spy(stubbed_http.connect).was.called()
+            assert.spy(stubbed_http.ssl_handshake).was.called()
+            assert.spy(stubbed_http.request).was.called()
+            assert.spy(stubbed_http.set_keepalive).was_not.called()
+
+            -- Don't log request errors
+            assert.equal(0, #ngx._logs)
+        end)
+
+        it("keepalive error", function()
+            errors.keepalive = 'timeout'
+
+            local res, err = client:request('https://ory.weserv.nl/lichtenstein.jpg?foo=bar')
+
+            assert.truthy(err:find("Failed to set keepalive"))
+            assert.falsy(res)
+
+            assert.spy(stubbed_http.connect).was.called()
+            assert.spy(stubbed_http.ssl_handshake).was.called()
+            assert.spy(stubbed_http.request).was.called()
+            assert.spy(stubbed_http.set_keepalive).was.called()
+
+            -- Log keepalive errors
+            assert.equal(1, #ngx._logs)
+        end)
+
+        it("max redirects error", function()
+            response.status = 302
+            response.headers['Location'] = 'https://ory.weserv.nl/lichtenstein2.jpg'
+
+            local res, err = client:request('https://ory.weserv.nl/lichtenstein.jpg')
+
+            assert.equal(string.format("Will not follow more than %d redirects", default_config.max_redirects), err)
+            assert.falsy(res)
+
+            assert.spy(stubbed_http.request).was.called(default_config.max_redirect)
+            assert.spy(stubbed_http.request).was.called_with(match._, match.contains({
+                headers = {
+                    ['Referer'] = 'https://ory.weserv.nl/lichtenstein.jpg'
+                }
+            }))
+        end)
+
+        it("non 200 status", function()
+            response.status = 500
+
+            local res, err = client:request('https://ory.weserv.nl/lichtenstein.jpg')
+
+            assert.truthy(err:find("The requested URL returned error: 500"))
+            assert.falsy(res)
+        end)
+
+        it("no body", function()
+            response.body_reader = nil
+
+            local res, err = client:request('https://ory.weserv.nl/lichtenstein.jpg')
+
+            assert.truthy(err:find("No body to be read"))
+            assert.falsy(res)
+        end)
+
+        it("generate unique file error", function()
+            tempname = false
+
+            local res, err = client:request('https://ory.weserv.nl/lichtenstein.jpg')
+
+            assert.truthy(err:find("Unable to generate a unique file"))
+            assert.falsy(res)
+
+            -- Log unique file errors
+            assert.equal(1, #ngx._logs)
+        end)
+
+        it("read error", function()
+            response.body_reader = function(_)
+                return nil, 'timeout'
+            end
+
+            local res, _ = client:request('https://ory.weserv.nl/lichtenstein.jpg')
+
+            -- Log read errors
+            assert.equal(1, #ngx._logs)
+
+            local f = assert(io.open(res.tmpfile, "r"))
+            local t = f:read("*all")
+            f:close()
+
+            -- Empty file
+            assert.equal("", t)
+            assert(os.remove(res.tmpfile))
+        end)
+    end)
+
+    describe("test is valid response", function()
+        it("allowed mime types", function()
+            local new_client = require("weserv.client").new({
+                user_agent = 'Mozilla/5.0 (compatible; ImageFetcher/8.0; +http://images.weserv.nl/)',
+                timeouts = {
+                    connect = 5000,
+                    send = 5000,
+                    read = 10000,
+                },
+                max_image_size = 0,
+                max_redirects = 10,
+                allowed_mime_types = {
+                    ['image/jpeg'] = 'jpg',
+                }
+            })
+            local valid, invalid_err = new_client:is_valid_response({
+                headers = {
+                    ['Content-Type'] = 'image/png'
+                },
+            })
+
+            assert.truthy(invalid_err:find("The request image is not a valid %(supported%) image"))
+            assert.falsy(valid)
+        end)
+
+        it("max image size", function()
+            local new_client = require("weserv.client").new({
+                user_agent = 'Mozilla/5.0 (compatible; ImageFetcher/8.0; +http://images.weserv.nl/)',
+                timeouts = {
+                    connect = 5000,
+                    send = 5000,
+                    read = 10000,
+                },
+                max_image_size = 1024,
+                max_redirects = 10,
+                allowed_mime_types = {}
+            })
+            local valid, invalid_err = new_client:is_valid_response({
+                headers = {
+                    ['Content-Length'] = '2048'
+                },
+            })
+
+            assert.truthy(invalid_err:find("The image is too big to be downloaded"))
+            assert.falsy(valid)
+        end)
+    end)
+end)

@@ -4,7 +4,8 @@
 [![Author](https://img.shields.io/badge/author-kleisauke-blue.svg)](https://github.com/kleisauke)
 [![Source Code](https://img.shields.io/badge/source-weserv/images-blue.svg)](https://github.com/weserv/images)
 [![Software License](https://img.shields.io/badge/license-BSD3-brightgreen.svg)](https://opensource.org/licenses/BSD-3-Clause)
-[![Build Status](https://travis-ci.org/weserv/images.svg?branch=3.x)](https://travis-ci.org/weserv/images)
+[![Build Status](https://travis-ci.org/weserv/images.svg?branch=4.x)](https://travis-ci.org/weserv/images)
+[![Coverage Status](https://coveralls.io/repos/github/weserv/images/badge.svg?branch=4.x)](https://coveralls.io/github/weserv/images?branch=4.x)
 
 Source code of images.weserv.nl, to be used on your own server(s). Images.weserv.nl leverages powerful libraries like [lua-vips](https://github.com/jcupitt/lua-vips) (for image handling and manipulation) and [lua-resty-http](https://github.com/pintsized/lua-resty-http) (for sending HTTP requests).
 
@@ -34,11 +35,11 @@ We track support tickets, issues and feature requests using the [GitHub issue tr
 
 ## License
 
-The BSD 3-Clause License. Please see [LICENSE.md](https://github.com/weserv/images/blob/3.x/LICENSE.md) for more information.
+The BSD 3-Clause License. Please see [LICENSE.md](LICENSE.md) for more information.
 
 ## Privacy Policy
 
-Please see [Privacy-Policy.md](https://github.com/weserv/images/blob/3.x/Privacy-Policy.md) for more information.
+Please see [Privacy-Policy.md](Privacy-Policy.md) for more information.
 
 ## Last but not least
 This is made in Sneek with love and passion

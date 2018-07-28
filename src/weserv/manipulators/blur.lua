@@ -2,11 +2,14 @@ local vips = require "vips"
 local utils = require "weserv.helpers.utils"
 local tonumber = tonumber
 
--- Resolve blur amount.
---
+--- Blur manipulator
+-- @module blur
+local manipulator = {}
+
+--- Resolve blur amount.
 -- @param blur The given blur.
 -- @return The resolved blur amount.
-local function resolve_blur(blur)
+function manipulator.resolve_blur(blur)
     local blur_amount = tonumber(blur)
 
     -- Contrast may not be nil and needs to be in the range of 0.3 - 1000
@@ -17,9 +20,9 @@ local function resolve_blur(blur)
     return -1.0
 end
 
-local manipulator = {}
-
--- Perform blur image manipulation.
+--- Perform blur image manipulation.
+-- @param image The source image.
+-- @param args The URL query arguments.
 function manipulator:process(image, args)
     if args.blur == nil then
         return self:next(image, args)
@@ -31,7 +34,7 @@ function manipulator:process(image, args)
         args.is_premultiplied = true
     end
 
-    local blur = resolve_blur(args.blur)
+    local blur = manipulator.resolve_blur(args.blur)
 
     if blur == -1.0 then
         -- Fast, mild blur - averages neighbouring pixels
@@ -47,7 +50,7 @@ function manipulator:process(image, args)
             image = image:linecache({
                 tile_height = 10,
                 access = 'sequential',
-                threaded = true
+                threaded = true,
             })
         end
 

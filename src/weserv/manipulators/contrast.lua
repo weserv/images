@@ -2,11 +2,14 @@ local vips = require "vips"
 local math = math
 local tonumber = tonumber
 
--- Resolve contrast amount.
---
+--- Contrast manipulator
+-- @module contrast
+local manipulator = {}
+
+--- Resolve contrast amount.
 -- @param con The given contrast.
 -- @return The resolved contrast amount.
-local function resolve_contrast(con)
+function manipulator.resolve_contrast(con)
     local contrast = tonumber(con)
 
     -- Contrast may not be nil and needs to be in the range of -100 - 100
@@ -17,7 +20,7 @@ local function resolve_contrast(con)
     return 0
 end
 
--- *magick's sigmoidal non-linearity contrast control
+--- *magick's sigmoidal non-linearity contrast control
 -- equivalent in libvips
 --
 -- This is a standard contrast adjustment technique: grey values are put through
@@ -26,16 +29,15 @@ end
 --
 -- This will apply to RGB. And takes no account of image gamma, and applies the
 -- contrast boost to R, G and B bands, thereby also boosting colourfulness.
---
 -- @param image The source image.
 -- @param contrast Strength of the contrast (typically 3-20).
-local function sigmoid(image, contrast)
+function manipulator.sigmoid(image, contrast)
     -- If true increase the contrast, if false decrease the contrast.
     local sharpen = contrast > 0
 
     -- Midpoint of the contrast (typically 0.5).
     local midpoint = 0.5
-    local contrast = math.abs(contrast)
+    local contrast_abs = math.abs(contrast)
 
     local ushort = image:format() == 'ushort'
 
@@ -70,18 +72,18 @@ local function sigmoid(image, contrast)
     --
     -- ie. there should be an extra α in the second term
     if sharpen then
-        local x = (1 + (((lut * -1) + midpoint) * contrast):exp()) ^ -1
+        local x = (1 + (((lut * -1) + midpoint) * contrast_abs):exp()) ^ -1
         local min = x:min()
         local max = x:max()
 
         result = (x - min) / (max - min)
 
     else
-        local min = 1 / (1 + math.exp(contrast * midpoint))
-        local max = 1 / (1 + math.exp(contrast * (midpoint - 1)))
+        local min = 1 / (1 + math.exp(contrast_abs * midpoint))
+        local max = 1 / (1 + math.exp(contrast_abs * (midpoint - 1)))
         local x = lut * (max - min) + min
 
-        result = midpoint + (((((x * -1) + 1) / x):log() / contrast) * -1)
+        result = midpoint + (((((x * -1) + 1) / x):log() / contrast_abs) * -1)
     end
 
     -- Rescale back to 0 - 255 or 0 - 65535
@@ -94,21 +96,21 @@ local function sigmoid(image, contrast)
     return image:maplut(result)
 end
 
-local manipulator = {}
-
---  Perform contrast image manipulation.
+--- Perform contrast image manipulation.
+-- @param image The source image.
+-- @param args The URL query arguments.
 function manipulator:process(image, args)
     if args.con == nil then
         return self:next(image, args)
     end
 
-    local contrast = resolve_contrast(args.con)
+    local contrast = manipulator.resolve_contrast(args.con)
 
     if contrast ~= 0 then
         -- Map contrast from -100/100 to -30/30 range
         contrast = contrast * 0.3
 
-        image = sigmoid(image, contrast)
+        image = manipulator.sigmoid(image, contrast)
     end
 
     return self:next(image, args)

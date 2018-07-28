@@ -146,20 +146,20 @@ local colors = {
     white = 'FFFFFF',
     whitesmoke = 'F5F5F5',
     yellow = 'FFFF00',
-    yellowgreen = '9ACD32'
+    yellowgreen = '9ACD32',
 }
 
+--- Color helper module
+-- @module color
 local color_helper = {}
 color_helper.__index = color_helper
 
--- Try to convert a string to a decimal ARGB sequence.
---
+--- Try to convert a string to a decimal ARGB sequence.
 -- Allowed formats:
 -- [#]RGB
 -- [#]ARGB
 -- [#]RRGGBB
 -- [#]AARRGGBB
---
 -- @param color Hex color representation
 -- @return a decimal ARGB sequence
 function color_helper.parse(color)
@@ -218,8 +218,7 @@ function color_helper.parse(color)
     return unpack(result)
 end
 
--- Instantiate a Color helper object.
---
+--- Instantiate a Color helper object.
 -- @param value The color value.
 local function new(value)
     if value ~= nil then
@@ -235,22 +234,26 @@ local function new(value)
     return setmetatable(self, color_helper)
 end
 
--- Format color to RGBA table.
---
+--- Format color to RGBA table.
 -- The formatted RGBA color.
 function color_helper:to_rgba()
     return { self.red, self.green, self.blue, self.alpha }
 end
 
--- Indicates if this color is completely transparent.
---
+function color_helper:to_rgba_string()
+    return 'rgba(' .. self.red .. ',' ..
+            self.green .. ',' ..
+            self.blue .. ',' ..
+            string.format("%.2f", self.alpha * 0.00392156862) .. ')'
+end
+
+--- Indicates if this color is completely transparent.
 -- @return Boolean indicating if the color is transparent.
 function color_helper:is_transparent()
     return self.alpha == 0
 end
 
--- Indicates if this color has an alpha channel.
---
+--- Indicates if this color has an alpha channel.
 -- @return Boolean indicating if the color has an alpha channel.
 function color_helper:has_alpha_channel()
     return self.alpha < 255

@@ -2,20 +2,20 @@ local vips = require "vips"
 local unpack = unpack
 local tonumber = tonumber
 
--- Resolve sharpen amount.
---
+--- Sharpen manipulator
+-- @module sharpen
+local manipulator = {}
+
+--- Resolve sharpen amount.
 -- @param sharp The given sharpen.
 -- @return The resolved sharpen amount.
-local function resolve_sharpen(sharp)
-    local sharpen = {
-        1.0, -- Flat
-        2.0, -- Jagged
-        -1.0 -- Sigma
-    }
+function manipulator.resolve_sharpen(sharp)
+    -- Flat, jagged, sigma
+    local sharpen = { 1.0, 2.0, -1.0 }
 
     -- Tables starts from one in Lua
     local count = 1
-    for p in sharp:gmatch('([^,%D]+)') do
+    for p in sharp:gmatch('[^,]+') do
         if count >= 4 then
             return unpack(sharpen)
         end
@@ -33,15 +33,14 @@ local function resolve_sharpen(sharp)
     return unpack(sharpen)
 end
 
--- Sharpen flat and jagged areas. Use sigma of -1.0 for fast sharpen.
---
+--- Sharpen flat and jagged areas. Use sigma of -1.0 for fast sharpen.
 -- @param image The source image.
 -- @param sigma Sharpening mask to apply in pixels, but comes at a performance cost. (Default: -1)
 -- @param flat Sharpening to apply to flat areas. (Default: 1.0)
 -- @param jagged Sharpening to apply to jagged areas. (Default: 2.0)
 -- @param access_method libvips access method.
--- @return Image The manipulated image.
-local function sharpen(image, sigma, flat, jagged, access_method)
+-- @return The manipulated image.
+function manipulator.sharpen(image, sigma, flat, jagged, access_method)
     if sigma == -1.0 then
         -- Fast, mild sharpen
         local matrix = vips.Image.new_from_array({
@@ -64,28 +63,28 @@ local function sharpen(image, sigma, flat, jagged, access_method)
         image = image:linecache({
             tile_height = 10,
             access = 'sequential',
-            threaded = true
+            threaded = true,
         })
     end
 
     return image:sharpen({
-        ['sigma'] = sigma,
+        sigma = sigma,
         m1 = flat,
         m2 = jagged
     }):colourspace(old_interpretation)
 end
 
-local manipulator = {}
-
--- Perform sharpen image manipulation.
+--- Perform sharpen image manipulation.
+-- @param image The source image.
+-- @param args The URL query arguments.
 function manipulator:process(image, args)
     if args.sharp == nil then
         return self:next(image, args)
     end
 
-    local flat, jagged, sigma = resolve_sharpen(args.sharp)
+    local flat, jagged, sigma = manipulator.resolve_sharpen(args.sharp)
 
-    image = sharpen(image, sigma, flat, jagged, args.access_method)
+    image = manipulator.sharpen(image, sigma, flat, jagged, args.access_method)
 
     return self:next(image, args)
 end

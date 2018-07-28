@@ -1,6 +1,10 @@
 # Compiled Lua sources
 luac.out
 
+# LuaCov
+luacov.stats.out
+luacov.report.out
+
 # IntelliJ
 .idea
 
@@ -9,3 +13,4 @@ luac.out
 
 # User-specific stuff
 /app/config.lua
+generate-expected-fixtures.lua

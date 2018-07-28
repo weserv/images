@@ -35,10 +35,9 @@
                 <ul class="nav inner" data-gumshoe>
                     <li class="dd-item"><a href="#quick-reference"><span>Quick reference</span></a></li>
                     <li class="dd-item"><a href="#size"><span>Size</span></a></li>
-                    <li class="dd-item"><a href="#orientation"><span>Orientation</span></a></li>
                     <li class="dd-item"><a href="#trans"><span>Transformation</span></a></li>
-                    <li class="dd-item"><a href="#crop-position"><span>Crop position</span></a></li>
-                    <li class="dd-item"><a href="#shape"><span>Shape</span></a></li>
+                    <li class="dd-item"><a href="#crop"><span>Crop</span></a></li>
+                    <li class="dd-item"><a href="#mask"><span>Masking</span></a></li>
                     <li class="dd-item"><a href="#adjustments"><span>Adjustments</span></a></li>
                     <li class="dd-item"><a href="#effects"><span>Effects</span></a></li>
                     <li class="dd-item"><a href="#encoding"><span>Encoding</span></a></li>
@@ -51,7 +50,7 @@
             <p>
                 <a href="https://github.com/weserv/images">Source code available on GitHub</a><br />
                 <a href="https://getgrav.org/">Design inspired by Grav</a><br />
-                <a href="https://github.com/weserv/images/blob/3.x/Privacy-Policy.md">Privacy Policy</a>
+                <a href="https://github.com/weserv/images/blob/4.x/Privacy-Policy.md">Privacy Policy</a>
             </p>
         </div>
     </div>
@@ -102,12 +101,6 @@
                 <td><a href="#dpr">info</a></td>
             </tr>
             <tr>
-                <td>Orientation</td>
-                <td><code>or</code></td>
-                <td>Rotates the image.</td>
-                <td><a href="#orientation">info</a></td>
-            </tr>
-            <tr>
                 <td>Transformation</td>
                 <td><code>t</code></td>
                 <td>Sets how the image is fitted to its target dimensions.</td>
@@ -126,10 +119,28 @@
                 <td><a href="#crop-position">info</a></td>
             </tr>
             <tr>
-                <td>Shape</td>
-                <td><code>shape</code></td>
-                <td>Crops the image to a specific shape.</td>
-                <td><a href="#shape">info</a></td>
+                <td>Masking</td>
+                <td><code>mask</code></td>
+                <td>Sets the mask type from a predefined list.</td>
+                <td><a href="#mask">info</a></td>
+            </tr>
+            <tr>
+                <td>Mask trim</td>
+                <td><code>mtrim</code></td>
+                <td>Removes the remaining whitespace from the mask.</td>
+                <td><a href="#mask-trim">info</a></td>
+            </tr>
+            <tr>
+                <td>Mask background</td>
+                <td><code>mbg</code></td>
+                <td>Sets the background color of the mask.</td>
+                <td><a href="#mask-bg">info</a></td>
+            </tr>
+            <tr>
+                <td>Orientation</td>
+                <td><code>or</code></td>
+                <td>Rotates the image.</td>
+                <td><a href="#orientation">info</a></td>
             </tr>
             <tr>
                 <td>Brightness</td>
@@ -226,149 +237,166 @@
     </section>
     <section>
         <h1 id="size">Size</h1>
+        <p>Controls how the image needs to be resized. You can use both <code>&amp;w=</code> and <code>&amp;h=</code> parameters or only one of them: the other dimension is automatically updated.</p>
         <section>
             <h2 id="width" class="param">Width</h2><code>&amp;w=</code>
             <p>Sets the width of the image, in pixels.</p>
-            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300"&gt;</code></pre>
-            <a href="//{{url}}/?url={{example_image}}&amp;w=300"><img src="//{{url}}/?url={{example_image}}&amp;w=300" alt=""/></a>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_image}}&amp;w=300{{args}}"><img src="//{{url}}/?url={{example_image}}&amp;w=300{{args}}" alt=""/></a>
         </section>
         <section>
             <h2 id="height"  class="param">Height</h2><code>&amp;h=</code>
             <p>Sets the height of the image, in pixels.</p>
-            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;h=300"&gt;</code></pre>
-            <a href="//{{url}}/?url={{example_image}}&amp;h=300"><img src="//{{url}}/?url={{example_image}}&amp;h=300" alt=""/></a>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;h=300{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_image}}&amp;h=300{{args}}"><img src="//{{url}}/?url={{example_image}}&amp;h=300{{args}}" alt=""/></a>
         </section>
         <section>
             <h2 id="dpr" class="param">Device pixel ratio</h2><code>&amp;dpr=</code><span class="new">New!</span>
             <p>The device pixel ratio is used to easily convert between CSS pixels and device pixels. This makes it possible to display images at the correct pixel density on a variety of devices such as Apple devices with Retina Displays and Android devices. You must specify either a width, a height, or both for this parameter to work. Use values between <code>1</code> and <code>8</code>.</p>
             <p>More info: <a href="https://github.com/weserv/images/issues/115">Issue #115 - DPI support</a>.</p>
-            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;h=144&amp;dpr=2"&gt;</code></pre>
-            <a href="//{{url}}/?url={{example_image}}&amp;h=144&amp;dpr=2"><img src="//{{url}}/?url={{example_image}}&amp;h=144&amp;dpr=2" alt=""/></a>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;h=144&amp;dpr=2{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_image}}&amp;h=144&amp;dpr=2{{args}}"><img src="//{{url}}/?url={{example_image}}&amp;h=144&amp;dpr=2{{args}}" alt=""/></a>
         </section>
     </section>
     <section>
-        <h1 id="orientation" class="param">Orientation</h1><code>&amp;or=</code><span class="new">New!</span>
-        <p>Rotates the image. Accepts <code>auto</code> or if an angle is specified, it is converted to a valid <code>90</code>/<code>180</code>/<code>270</code> degree rotation. For example, <code>-450</code> will produce a <code>270</code> degree rotation. Default is <code>auto</code>. The <code>auto</code> option uses Exif data to automatically orient images correctly.</p>
-        <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;h=300&amp;or=90"&gt;</code></pre>
-        <a href="//{{url}}/?url={{example_image}}&amp;h=300&amp;or=90"><img src="//{{url}}/?url={{example_image}}&amp;h=300&amp;or=90" alt=""/></a>
-    </section>
-    <section>
-        <h1 id="trans" class="param">Transformation</h1><code>&amp;t=</code>
-        <p>Sets how the image is fitted to its target dimensions. Below are a couple of examples.</p>
+        <h1 id="trans">Transformation</h1>
+        <p>Controls how the image is fitted to its target dimensions. Below are a couple of examples.</p>
         <section>
             <h2 id="fit" class="param">Fit</h2><code>&amp;t=fit</code>
             <p>Default. Resizes the image to fit within the width and height boundaries without cropping, distorting or altering the aspect ratio. <b>Will not</b> oversample the image if the requested size is larger than that of the original.</p>
-            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=fit"&gt;</code></pre>
-            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=fit"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=fit" alt=""/></a>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=fit{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=fit{{args}}"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=fit{{args}}" alt=""/></a>
         </section>
         <section>
             <h2 id="fitup" class="param">Fitup</h2><code>&amp;t=fitup</code>
             <p>Resizes the image to fit within the width and height boundaries without cropping, distorting or altering the aspect ratio. <b>Will</b> increase the size of the image if it is smaller than the output size.</p>
-            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=fitup"&gt;</code></pre>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=fitup{{args}}"&gt;</code></pre>
         </section>
         <section>
             <h2 id="square" class="param">Square</h2><code>&amp;t=square</code>
             <p>Resizes the image to fill the width and height boundaries and crops any excess image data. The resulting image will match the width and height constraints without distorting the image. <b>Will</b> increase the size of the image if it is smaller than the output size.</p>
-            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=square"&gt;</code></pre>
-            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=square"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=square" alt=""/></a>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=square{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=square{{args}}"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=square{{args}}" alt=""/></a>
         </section>
         <section>
             <h2 id="squaredown" class="param">Squaredown</h2><code>&amp;t=squaredown</code>
             <p>Resizes the image to fill the width and height boundaries and crops any excess image data. The resulting image will match the width and height constraints without distorting the image. <b>Will not</b> oversample the image if the requested size is larger than that of the original.</p>
-            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=squaredown"&gt;</code></pre>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=squaredown{{args}}"&gt;</code></pre>
         </section>
         <section>
             <h2 id="absolute" class="param">Absolute</h2><code>&amp;t=absolute</code>
             <p>Stretches the image to fit the constraining dimensions exactly. The resulting image will fill the dimensions, and will not maintain the aspect ratio of the input image.</p>
-            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=absolute"&gt;</code></pre>
-            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=absolute"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=absolute" alt=""/></a>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=absolute{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=absolute{{args}}"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=absolute{{args}}" alt=""/></a>
         </section>
         <section>
-            <h2 id="letterbox" class="param">Letterbox</h2><code>&amp;t=letterbox</code><span class="new">New!</span>
+            <h2 id="letterbox" class="param">Letterbox</h2><code>&amp;t=letterbox</code>
             <p>Resizes the image to fit within the width and height boundaries without cropping or distorting the image, and the remaining space is filled with the background color. The resulting image will match the constraining dimensions.</p>
             <p>More info: <a href="https://github.com/weserv/images/issues/80">Issue #80 - letterbox images that need to fit</a>.</p>
-            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black"&gt;</code></pre>
-            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black" alt=""/></a>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black{{args}}"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=letterbox&amp;bg=black{{args}}" alt=""/></a>
         </section>
     </section>
     <section>
-        <h1 id="crop-position" class="param">Crop position</h1><code>&amp;a=</code>
-        <p>You can also set where the image is cropped by adding a crop position. Only works when <code>t=square</code>. Accepts <code>top</code>, <code>left</code>, <code>center</code>, <code>right</code> or <code>bottom</code>. Default is <code>center</code>. For more information, please see the suggestion on our GitHub issue tracker: <a href="https://github.com/weserv/images/issues/24">Issue #24 - Aligning</a>.</p>
-        <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=square&amp;a=top"&gt;</code></pre>
-        <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=square&amp;a=top"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=square&amp;a=top" alt=""/></a>
+        <h1 id="crop">Crop</h1>
+        <p>Controls how the image is aligned.</p>
         <section>
-            <h2 id="focal-point" class="param">Crop Focal Point</h2><code>&amp;a=crop-x%-y%</code><span class="new">New!</span>
-            <p>In addition to the crop position, you can be more specific about the exact crop position using a focal point. Only works when <code>t=square</code>. This is defined using two offset percentages: <code>crop-x%-y%</code>.</p>
-            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-0-20"&gt;</code></pre>
-            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-0-20"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-0-20" alt=""/></a>
+            <h2 id="crop-position" class="param">Crop position</h2><code>&amp;a=</code>
+            <p>You can set where the image is cropped by adding a crop position. Only works when <code>t=square</code>. Accepts <code>top</code>, <code>left</code>, <code>center</code>, <code>right</code> or <code>bottom</code>. Default is <code>center</code>. For more information, please see the suggestion on our GitHub issue tracker: <a href="https://github.com/weserv/images/issues/24">Issue #24 - Aligning</a>.</p>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=square&amp;a=top{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=square&amp;a=top{{args}}"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=square&amp;a=top{{args}}" alt=""/></a>
         </section>
         <section>
-            <h2 id="smartcrop" class="param">Smart crop</h2><code>&amp;a=entropy</code> or <code>&amp;a=attention</code><span class="new">New!</span>
+            <h2 id="crop-focal-point" class="param">Crop focal point</h2><code>&amp;a=crop-x%-y%</code>
+            <p>In addition to the crop position, you can be more specific about the exact crop position using a focal point. Only works when <code>t=square</code>. This is defined using two offset percentages: <code>crop-x%-y%</code>.</p>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-0-20{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-0-20{{args}}"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=square&amp;a=crop-0-20{{args}}" alt=""/></a>
+        </section>
+        <section>
+            <h2 id="smart-crop" class="param">Smart crop</h2><code>&amp;a=entropy</code> or <code>&amp;a=attention</code><span class="new">New!</span>
             <p>Crops the image down to specific dimensions by removing boring parts. Only works when <code>t=square</code>. More info: <a href="https://github.com/weserv/images/issues/90">Issue #90 - Add support for smart crop</a>.</p>
-            <h3 id="smartcrop-accepts">Accepts:</h3>
+            <h3 id="smart-crop-accepts">Accepts:</h3>
             <ul>
                 <li><code>entropy</code>: focus on the region with the highest <a href="https://en.wikipedia.org/wiki/Entropy_%28information_theory%29">Shannon entropy</a>.</li>
                 <li><code>attention</code>: focus on the region with the highest luminance frequency, colour saturation and presence of skin tones.</li>
             </ul>
-            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_smartcrop_image}}&amp;w=300&amp;h=300&amp;t=square&amp;a=attention"&gt;</code></pre>
-            <a href="//{{url}}/?url={{example_smartcrop_image}}&amp;w=300&amp;h=300&amp;t=square&amp;a=attention"><img src="//{{url}}/?url={{example_smartcrop_image}}&amp;w=300&amp;h=300&amp;t=square&amp;a=attention" alt=""/></a>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_smartcrop_image}}&amp;w=300&amp;h=300&amp;t=square&amp;a=attention{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_smartcrop_image}}&amp;w=300&amp;h=300&amp;t=square&amp;a=attention{{args}}"><img src="//{{url}}/?url={{example_smartcrop_image}}&amp;w=300&amp;h=300&amp;t=square&amp;a=attention{{args}}" alt=""/></a>
         </section>
         <section>
             <h2 id="manual-crop" class="param">Manual crop</h2><code>&amp;crop=</code>
             <p>Crops the image to specific dimensions after any other resize operations. Required format: <code>width,height,x,y</code>.</p>
-            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;crop=300,300,680,500"&gt;</code></pre>
-            <a href="//{{url}}/?url={{example_image}}&amp;crop=300,300,680,500"><img src="//{{url}}/?url={{example_image}}&amp;crop=300,300,680,500" alt=""/></a>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;crop=300,300,680,500{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_image}}&amp;crop=300,300,680,500{{args}}"><img src="//{{url}}/?url={{example_image}}&amp;crop=300,300,680,500{{args}}" alt=""/></a>
         </section>
     </section>
     <section>
-        <h1 id="shape" class="param">Shape</h1><code>&amp;shape=</code>
-        <p>Crops the image to a specific shape. Use <code>&amp;strim</code> to also remove the remaining whitespace. More info: <a href="https://github.com/weserv/images/issues/49">Issue #49 - Add circle effect to photos</a>.</p>
+        <h1 id="mask">Masking</h1>
+        <p>Controls the visible and non-visible area of the image.</p>
         <div class="notices note">
             <div class="heading">Note</div>
-            <p>Previously the <code>&amp;strim</code> parameter was enabled by default. In December 2017 it was changed to an optional parameter to be more consistent with other features.</p>
+            <p>Previously the <code>&amp;mask</code> and <code>&amp;mtrim</code> parameter were named as <code>&amp;shape</code> and <code>&amp;strim</code>. In July 2018 it was renamed to make room for new mask features.</p>
         </div>
-        <h2 id="shape-accepts">Accepts:</h2>
-        <ul>
-            <li><code>circle</code></li>
-            <li><code>ellipse</code></li>
-            <li><code>triangle</code></li>
-            <li><code>triangle-180</code>: Triangle tilted upside down</li>
-            <li><code>pentagon</code></li>
-            <li><code>pentagon-180</code>: Pentagon tilted upside down</li>
-            <li><code>hexagon</code></li>
-            <li><code>square</code>: Square tilted 45 degrees</li>
-            <li><code>star</code>: 5-point star</li>
-            <li><code>heart</code></li>
-        </ul>
-        <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle"&gt;</code></pre>
-        <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=square&amp;shape=circle" alt=""/></a>
+        <section>
+            <h2 id="mask-type" class="param">Mask type</h2><code>&amp;mask=</code>
+            <p>Sets the mask type from a predefined list of shapes. More info: <a href="https://github.com/weserv/images/issues/49">Issue #49 - Add circle effect to photos</a>.</p>
+            <h3 id="mask-accepts">Accepts:</h3>
+            <ul>
+                <li><code>circle</code></li>
+                <li><code>ellipse</code></li>
+                <li><code>triangle</code></li>
+                <li><code>triangle-180</code>: Triangle tilted upside down</li>
+                <li><code>pentagon</code></li>
+                <li><code>pentagon-180</code>: Pentagon tilted upside down</li>
+                <li><code>hexagon</code></li>
+                <li><code>square</code>: Square tilted 45 degrees</li>
+                <li><code>star</code>: 5-point star</li>
+                <li><code>heart</code></li>
+            </ul>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=square&amp;mask=circle{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=square&amp;mask=circle{{args}}"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=300&amp;t=square&amp;mask=circle{{args}}" alt=""/></a>
+        </section>
+        <section>
+            <h2 id="mask-trim" class="param">Mask trim</h2><code>&amp;mtrim</code>
+            <p>Removes the remaining whitespace from the mask.</p>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=900&amp;t=square&amp;a=crop-22-0&amp;mask=circle&amp;mtrim{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=900&amp;t=square&amp;a=crop-22-0&amp;mask=circle&amp;mtrim{{args}}"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;h=900&amp;t=square&amp;a=crop-22-0&amp;mask=circle&amp;mtrim{{args}}" alt=""/></a>
+        </section>
+        <section>
+            <h2 id="mask-bg" class="param">Mask background</h2><code>&amp;mbg=</code><span class="new">New!</span>
+            <p>Sets the background color of the mask. See <a href="#background">here</a> for the supported color formats.</p>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_transparent_image}}&amp;w=400&amp;bg=black&amp;mask=heart&amp;mbg=red{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_transparent_image}}&amp;w=400&amp;bg=black&amp;mask=heart&amp;mbg=red{{args}}"><img src="//{{url}}/?url={{example_transparent_image}}&amp;w=400&amp;bg=black&amp;mask=heart&amp;mbg=red{{args}}" alt=""/></a>
+        </section>
     </section>
     <section>
         <h1 id="adjustments">Adjustments</h1>
         <section>
-            <h2 id="brightness" class="param">Brightness</h2><code>&amp;bri=</code><span class="new">New!</span>
+            <h2 id="orientation" class="param">Orientation</h2><code>&amp;or=</code>
+            <p>Rotates the image. Accepts <code>auto</code> or if an angle is specified, it is converted to a valid <code>90</code>/<code>180</code>/<code>270</code> degree rotation. For example, <code>-450</code> will produce a <code>270</code> degree rotation. Default is <code>auto</code>. The <code>auto</code> option uses Exif data to automatically orient images correctly.</p>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;h=300&amp;or=90{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_image}}&amp;h=300&amp;or=90{{args}}"><img src="//{{url}}/?url={{example_image}}&amp;h=300&amp;or=90{{args}}" alt=""/></a>
+        </section>
+        <section>
+            <h2 id="brightness" class="param">Brightness</h2><code>&amp;bri=</code>
             <p>Adjusts the image brightness. Use values between <code>-100</code> and <code>+100</code>, where <code>0</code> represents no change.</p>
-            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;bri=-25"&gt;</code></pre>
-            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;bri=-25"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;bri=-25" alt=""/></a>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;bri=-25{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;bri=-25{{args}}"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;bri=-25{{args}}" alt=""/></a>
         </section>
         <section>
-            <h2 id="contrast" class="param">Contrast</h2><code>&amp;con=</code><span class="new">New!</span>
+            <h2 id="contrast" class="param">Contrast</h2><code>&amp;con=</code>
             <p>Adjusts the image contrast. Use values between <code>-100</code> and <code>+100</code>, where <code>0</code> represents no change.</p>
-            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;con=25"&gt;</code></pre>
-            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;con=25"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;con=25" alt=""/></a>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;con=25{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;con=25{{args}}"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;con=25{{args}}" alt=""/></a>
         </section>
         <section>
-            <h2 id="gamma" class="param">Gamma</h2><code>&amp;gam=</code><span class="new">New!</span>
+            <h2 id="gamma" class="param">Gamma</h2><code>&amp;gam=</code>
             <p>Adjusts the image gamma. Use values between <code>1</code> and <code>3</code>. The default value is <code>2.2</code>, a suitable approximation for sRGB images.</p>
-            <div class="notices note">
-                <div class="heading">Note</div>
-                <p>The behavior of adjusting the image gamma was changed in December 2017. We apologize for any inconvenience caused.</p>
-            </div>
-            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;gam=3"&gt;</code></pre>
-            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;gam=3"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;gam=3" alt=""/></a>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;gam=3{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;gam=3{{args}}"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;gam=3{{args}}" alt=""/></a>
         </section>
         <section>
-            <h2 id="sharpen" class="param">Sharpen</h2><code>&amp;sharp=</code><span class="new">New!</span>
+            <h2 id="sharpen" class="param">Sharpen</h2><code>&amp;sharp=</code>
             <p>Sharpen the image. Required format: <code>f,j,r</code></p>
             <h3 id="sharpen-arguments">Arguments:</h3>
             <ul>
@@ -376,18 +404,18 @@
                 <li>Jagged <code>j</code> - Sharpening to apply to jagged areas. (Default: 2.0)</li>
                 <li>Radius <code>r</code> - Sharpening mask to apply in pixels, but comes at a performance cost. (optional)</li>
             </ul>
-            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;sharp=5,5,3"&gt;</code></pre>
-            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;sharp=5,5,3"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;sharp=5,5,3" alt=""/></a>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;sharp=5,5,3{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;sharp=5,5,3{{args}}"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;sharp=5,5,3{{args}}" alt=""/></a>
         </section>
         <section>
             <h2 id="trim" class="param">Trim</h2><code>&amp;trim=</code>
             <p>Trim "boring" pixels from all edges that contain values within a similarity of the top-left pixel. Trimming occurs before any resize operation. Use values between <code>1</code> and <code>254</code> to define a tolerance level to trim away similar color values. You also can specify just &trim, which defaults to a tolerance level of 10.</p>
             <p>More info: <a href="https://github.com/weserv/images/issues/39">Issue #39 - able to remove black/white whitespace</a>.</p>
-            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_transparent_image}}&amp;w=300&amp;trim=10"&gt;</code></pre>
-            <a class="trimedges" href="//{{url}}/?url={{example_transparent_image}}&amp;w=300&amp;trim=10"><img src="//{{url}}/?url={{example_transparent_image}}&amp;w=300&amp;trim=10" alt=""/></a>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_transparent_image}}&amp;w=300&amp;trim=10{{args}}"&gt;</code></pre>
+            <a class="trimedges" href="//{{url}}/?url={{example_transparent_image}}&amp;w=300&amp;trim=10{{args}}"><img src="//{{url}}/?url={{example_transparent_image}}&amp;w=300&amp;trim=10{{args}}" alt=""/></a>
         </section>
         <section>
-            <h2 id="background" class="param">Background</h2><code>&amp;bg=</code><span class="new">New!</span>
+            <h2 id="background" class="param">Background</h2><code>&amp;bg=</code>
             <p>Sets the background color of the image. Supports a variety of color formats. In addition to the 140 color names supported by all modern browsers (listed <a href="//{{url}}/colors.html">here</a>), it also accepts hexadecimal RGB and RBG alpha formats. More info: <a href="https://github.com/weserv/images/issues/81">Issue #81 - Background setting</a>.</p>
             <h3 id="background-hexdec">Hexadecimal</h3>
             <ul>
@@ -396,24 +424,24 @@
                 <li>6 digit RGB: <code>CCCCCC</code></li>
                 <li>8 digit ARGB (alpha): <code>55CCCCCC</code></li>
             </ul>
-            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_transparent_image}}&amp;w=400&amp;bg=black"&gt;</code></pre>
-            <a href="//{{url}}/?url={{example_transparent_image}}&amp;w=400&amp;bg=black"><img src="//{{url}}/?url={{example_transparent_image}}&amp;w=400&amp;bg=black" alt=""/></a>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_transparent_image}}&amp;w=400&amp;bg=black{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_transparent_image}}&amp;w=400&amp;bg=black{{args}}"><img src="//{{url}}/?url={{example_transparent_image}}&amp;w=400&amp;bg=black{{args}}" alt=""/></a>
         </section>
     </section>
     <section>
         <h1 id="effects">Effects</h1>
         <section>
-            <h2 id="blur" class="param">Blur</h2><code>&amp;blur=</code><span class="new">New!</span>
+            <h2 id="blur" class="param">Blur</h2><code>&amp;blur=</code>
             <p>Adds a blur effect to the image. Use values between <code>0</code> and <code>100</code>.</p>
             <p>More info: <a href="https://github.com/weserv/images/issues/69">Issue #69 - Allow blur transformation (with radius parameter)</a>.</p>
-            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;blur=5"&gt;</code></pre>
-            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;blur=5"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;blur=5" alt=""/></a>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;blur=5{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;blur=5{{args}}"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;blur=5{{args}}" alt=""/></a>
         </section>
         <section>
-            <h2 id="filter" class="param">Filter</h2><code>&amp;filt=</code><span class="new">New!</span>
+            <h2 id="filter" class="param">Filter</h2><code>&amp;filt=</code>
             <p>Applies a filter effect to the image. Accepts <code>greyscale</code>, <code>sepia</code> or <code>negate</code>.</p>
-            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;filt=greyscale"&gt;</code></pre>
-            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;filt=greyscale"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;filt=greyscale" alt=""/></a>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;filt=greyscale{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;filt=greyscale{{args}}"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;filt=greyscale{{args}}" alt=""/></a>
         </section>
     </section>
     <section>
@@ -421,28 +449,28 @@
         <section>
             <h2 id="quality" class="param">Quality</h2><code>&amp;q=</code>
             <p>Defines the quality of the image. Use values between <code>0</code> and <code>100</code>. Defaults to <code>85</code>. Only relevant if the format is set to <code>jpg</code>.</p>
-            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;q=20"&gt;</code></pre>
-            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;q=20"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;q=20" alt=""/></a>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;q=20{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;q=20{{args}}"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;q=20{{args}}" alt=""/></a>
         </section>
         <section>
             <h2 id="output" class="param">Output</h2><code>&amp;output=</code>
             <p>Encodes the image to a specific format. Accepts <code>jpg</code>, <code>png</code>, <code>gif</code>, <code>tiff</code> or <code>webp</code>. If none is given, it will honor the origin image format.</p>
             <p>More info: <a href="https://github.com/weserv/images/issues/62">Issue #62 - Format conversion</a>.</p>
-            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;output=webp"&gt;</code></pre>
-            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;output=webp"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;output=webp" alt=""/></a>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;output=webp{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;output=webp{{args}}"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;output=webp{{args}}" alt=""/></a>
         </section>
         <section>
             <h2 id="interlace-progressive" class="param">Interlace / progressive</h2><code>&amp;il</code>
             <p>Adds interlacing to GIF and PNG. JPEG's become progressive.</p>
             <p>More info: <a href="https://github.com/weserv/images/issues/50">Issue #50 - Add parameter to use progressive JPEGs</a>.</p>
-            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;il"&gt;</code></pre>
-            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;il"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;il" alt=""/></a>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;il{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url={{example_image}}&amp;w=300&amp;il{{args}}"><img src="//{{url}}/?url={{example_image}}&amp;w=300&amp;il{{args}}" alt=""/></a>
         </section>
         <section>
             <h2 id="base64" class="param">Base64 (data URL)</h2><code>&amp;encoding=base64</code>
-            <p>Encodes the image to be used directly in the src= of the <code>&lt;img&gt;</code>-tag. <a href="//{{url}}/?url={{example_image}}&amp;crop=100,100,720,530&amp;encoding=base64">Use this link to see the output result</a>.</p>
+            <p>Encodes the image to be used directly in the src= of the <code>&lt;img&gt;</code>-tag. <a href="//{{url}}/?url={{example_image}}&amp;crop=100,100,720,530&amp;encoding=base64{{args}}">Use this link to see the output result</a>.</p>
             <p>More info: <a href="https://github.com/weserv/images/issues/59">Issue #59 - Return image base64 encoded</a>.</p>
-            <pre><code>//{{url}}/?url={{example_image}}&amp;crop=100,100,720,530&amp;encoding=base64</code></pre>
+            <pre><code>//{{url}}/?url={{example_image}}&amp;crop=100,100,720,530&amp;encoding=base64{{args}}</code></pre>
         </section>
     </section>
     <section>
@@ -452,8 +480,8 @@
             <p>If there is a problem loading an image, then a error is shown. However, there might be a need where instead of giving a broken image to the user, you want a default image to be delivered.</p>
             <p>More info: <a href="https://github.com/weserv/images/issues/37">Issue #37 - Return default image if the image's URL not found</a>.</p>
             <p>The URL must not include a <code>errorredirect</code> querystring (if it does, it will be ignored).</p>
-            <pre><code class="language-html">&lt;img src="//{{url}}/?url=example.org/noimage.jpg&amp;errorredirect=ssl:{{url}}%2F%3Furl%3D{{example_image}}%26w%3D300"&gt;</code></pre>
-            <a href="//{{url}}/?url=example.org/noimage.jpg&amp;errorredirect=ssl:{{url}}%2F%3Furl%3D{{example_image}}%26w%3D300"><img src="//{{url}}/?url=example.org/noimage.jpg&amp;errorredirect=ssl:{{url}}%2F%3Furl%3D{{example_image}}%26w%3D300" alt=""/></a>
+            <pre><code class="language-html">&lt;img src="//{{url}}/?url=example.org/noimage.jpg&amp;errorredirect=ssl:{{url}}%2F%3Furl%3D{{example_image}}%26w%3D300{{args}}"&gt;</code></pre>
+            <a href="//{{url}}/?url=example.org/noimage.jpg&amp;errorredirect=ssl:{{url}}%2F%3Furl%3D{{example_image}}%26w%3D300{{args}}"><img src="//{{url}}/?url=example.org/noimage.jpg&amp;errorredirect=ssl:{{url}}%2F%3Furl%3D{{example_image}}%26w%3D300{{args}}" alt=""/></a>
         </section>
         <section>
             <h2 id="page" class="param">Page</h2><code>&amp;page=</code><span class="new">New!</span>
@@ -467,6 +495,7 @@
     </section>
 </div>
 <script src="//cdnjs.cloudflare.com/ajax/libs/gumshoe/3.5.1/js/gumshoe.min.js" integrity="sha384-FoThb3jd5WP5FOlZTJjhjrN9LHoCTPQV9syukPgH4P+NUfvdZfgpHwH/VsQOlx4b" crossorigin="anonymous"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.1/anchor.min.js" integrity="sha384-gPgeI+yiPZ1Ssw8VtYeLi4OpdWFtB/vgP6FAh++h5FqTi9yWQtgYlagke6EFSch+" crossorigin="anonymous"></script>
 <script src="//cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
 <script>
     docsearch({
@@ -477,19 +506,12 @@
     });
     document.addEventListener('DOMContentLoaded', function () {
         var header = document.getElementById('image-api');
+
         gumshoe.init({
-            offset: -header.clientHeight,
-            callback: function nav(nav) {
-                if (nav) {
-                    var title = document.title + ' - ' + nav.target.textContent;
-                    var hash = '#' + nav.target.id;
-                    var hasChild = window.location.hash ? nav.target.parentNode.querySelector(window.location.hash) != null : false;
-                    if (window.location.hash !== hash && !hasChild) {
-                        history.replaceState(null, title, window.location.pathname + hash);
-                    }
-                }
-            }
+            offset: -header.clientHeight
         });
+
+        anchors.add('h1');
     });
     window.addEventListener('load', function () {
         gumshoe.setDistances();

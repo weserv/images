@@ -1,11 +1,14 @@
 local utils = require "weserv.helpers.utils"
 local tonumber = tonumber
 
--- Resolve gamma amount.
---
+--- Gamma manipulator
+-- @module gamma
+local manipulator = {}
+
+--- Resolve gamma amount.
 -- @param gam The given gamma.
 -- @return The resolved gamma amount.
-local function resolve_gamma(gam)
+function manipulator.resolve_gamma(gam)
     local gamma = tonumber(gam)
 
     -- Gamma may not be nil and needs to be in the range of 1.0 - 3.0
@@ -17,15 +20,15 @@ local function resolve_gamma(gam)
     return 2.2
 end
 
-local manipulator = {}
-
--- Perform gamma image manipulation.
+--- Perform gamma image manipulation.
+-- @param image The source image.
+-- @param args The URL query arguments.
 function manipulator:process(image, args)
     if args.gam == nil then
         return self:next(image, args)
     end
 
-    local gamma = resolve_gamma(args.gam)
+    local gamma = manipulator.resolve_gamma(args.gam)
 
     -- Edit the gamma
     if utils.has_alpha(image) then

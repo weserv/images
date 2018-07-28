@@ -1,0 +1,4 @@
+#!/usr/bin/env resty
+
+-- Busted command-line runner
+require 'busted.runner'({ standalone = false })

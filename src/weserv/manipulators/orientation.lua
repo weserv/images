@@ -1,6 +1,10 @@
+--- Orientation manipulator
+-- @module orientation
 local manipulator = {}
 
--- Perform orientation image manipulation.
+--- Perform orientation image manipulation.
+-- @param image The source image.
+-- @param args The URL query arguments.
 function manipulator:process(image, args)
     -- Rotate if required.
     if args.rotation ~= 0 then

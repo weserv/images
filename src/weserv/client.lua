@@ -11,13 +11,14 @@ local assert = assert
 local unpack = unpack
 local tonumber = tonumber
 local setmetatable = setmetatable
-local error_template = 'Error 410: Server couldn\'t parse the ?url= that you were looking for, ';
+local error_template = 'Error 404: Server couldn\'t parse the ?url= that you were looking for, '
 
+--- Client module.
+-- @module client
 local client = {}
 client.__index = client
 
--- Instantiate a client object.
---
+--- Instantiate a client object.
 -- @param config Client config.
 local function new(config)
     local self = {
@@ -26,11 +27,10 @@ local function new(config)
     return setmetatable(self, client)
 end
 
--- Remap errors.
---
+--- Remap errors.
 -- @param err Error to remap.
 -- @return New error
-function client:remap_error(err)
+function client.remap_error(err)
     local error_remap = {
         ['(3: Host not found)'] = 'because the hostname of the origin is unresolvable (DNS) or blocked by policy.',
         ['(110: Operation timed out)'] = 'error it got: The requested URL returned error: Operation timed out.',
@@ -48,52 +48,59 @@ function client:remap_error(err)
     return error_template .. new_err
 end
 
--- Check if the response is valid
---
+--- Check if the response is valid
 -- @param res The response.
--- @return true if valid, otherwise false with error
+-- @return true if valid, otherwise nil with error
 function client:is_valid_response(res)
-    if next(self.config.allowed_mime_types) ~= nil and self.config.allowed_mime_types[res.headers['Content-Type']] == nil then
+    if next(self.config.allowed_mime_types) ~= nil and
+            not self.config.allowed_mime_types[res.headers['Content-Type']] then
         local supported_images = {}
         for k, _ in pairs(self.config.allowed_mime_types) do
             supported_images[#supported_images + 1] = k
         end
 
-        return nil, string.format("The request image is not a valid (supported) image.\nAllowed mime types: %s", table.concat(supported_images, ", "))
+        local template = [[The request image is not a valid (supported) image.
+Allowed mime types: %s]]
+
+        return nil, string.format(template, table.concat(supported_images, ", "))
     end
 
     if self.config.max_image_size ~= 0 then
         local length = tonumber(res.headers['Content-Length'])
 
         if length ~= nil and length > self.config.max_image_size then
-            return nil, string.format("The image is too big to be downloaded.\nImage size: %s\nMax image size: %s", utils.format_bytes(length), utils.format_bytes(self.config.max_image_size))
+            local template = [[The image is too big to be downloaded.
+Image size: %s
+Max image size: %s]]
+
+            return nil, string.format(template,
+                utils.format_bytes(length),
+                utils.format_bytes(self.config.max_image_size))
         end
     end
 
     if res.status ~= ngx.HTTP_OK then
-        return nil, error_template .. 'error it got: The requested URL returned error:' .. res.status
+        return nil, error_template .. 'error it got: The requested URL returned error: ' .. res.status
     end
 
     return true
 end
 
--- Download content to a file.
---
+--- Download content to a file.
 -- @param uri The URI.
 -- @param addl_headers Additional headers to add.
 -- @param redirect_nr Count how many redirects we've followed.
 -- @return File name.
-function client:request_uri(uri, addl_headers, redirect_nr)
+function client:request(uri, addl_headers, redirect_nr)
     addl_headers = addl_headers or {}
     redirect_nr = redirect_nr or 1
 
-    if redirect_nr >= self.config.max_redirects then
+    if redirect_nr > self.config.max_redirects then
         return nil, string.format("Will not follow more than %d redirects", self.config.max_redirects)
     end
 
     local params = {
         headers = {
-            ['Accept-Encoding'] = 'gzip',
             ['User-Agent'] = self.config.user_agent
         },
         path = '',
@@ -105,22 +112,24 @@ function client:request_uri(uri, addl_headers, redirect_nr)
         params.headers[k] = v
     end
 
-    local parsed_uri, err = utils.parse_uri(uri)
+    local parsed_uri, uri_err = utils.parse_uri(uri)
     if not parsed_uri then
-        return nil, err
+        return nil, error_template .. uri_err
     end
 
     local scheme, host, port, path, query = unpack(parsed_uri)
-    params.path = path
+
+    -- Escape path sections of the URL, '/' should not be escaped
+    params.path = path:gsub("[^/]", ngx.escape_uri)
     params.query = query
 
     local httpc = http.new()
     httpc:set_timeouts(self.config.timeouts.connect, self.config.timeouts.send, self.config.timeouts.read)
 
-    local c, err = httpc:connect(host, port)
+    local c, connect_err = httpc:connect(host, port)
 
     if not c then
-        return nil, self:remap_error(err)
+        return nil, self.remap_error(connect_err)
     end
 
     if scheme == 'https' then
@@ -128,15 +137,17 @@ function client:request_uri(uri, addl_headers, redirect_nr)
         if params.ssl_verify == false then
             verify = false
         end
-        local ok, err = httpc:ssl_handshake(nil, host, verify)
+        local ok, handsake_err = httpc:ssl_handshake(nil, host, verify)
         if not ok then
+            ngx.log(ngx.ERR, 'Failed to do SSL handshake', handsake_err)
+
             return nil, error_template .. 'error it got: Failed to do SSL handshake.'
         end
     end
 
-    local res, err = httpc:request(params)
+    local res, request_err = httpc:request(params)
     if not res then
-        return nil, self:remap_error(err)
+        return nil, self.remap_error(request_err)
     end
 
     if res.status >= 300 and res.status <= 308 and res.headers['Location'] ~= nil then
@@ -145,12 +156,12 @@ function client:request_uri(uri, addl_headers, redirect_nr)
         }
 
         -- recursive call
-        return self:request_uri(res.headers['Location'], referer, redirect_nr + 1)
+        return self:request(res.headers['Location'], referer, redirect_nr + 1)
     end
 
-    local valid, err = self:is_valid_response(res)
+    local valid, invalid_err = self:is_valid_response(res)
     if not valid then
-        return nil, err
+        return nil, invalid_err
     end
 
     -- Now we can use the body_reader iterator,
@@ -159,12 +170,12 @@ function client:request_uri(uri, addl_headers, redirect_nr)
 
     if not reader then
         -- Most likely HEAD or 304 etc.
-        return nil, error_template .. 'error it got: No body to be read'
+        return nil, error_template .. 'error it got: No body to be read.'
     end
 
     -- Create a unique file (starting with 'imo_') in our shared memory.
     res.tmpfile = utils.tempname('/dev/shm', 'imo_')
-    if res.tmpfile == nil then
+    if not res.tmpfile then
         ngx.log(ngx.ERR, 'Unable to generate a unique file.')
 
         return nil, error_template .. 'error it got: Unable to generate a unique file.'
@@ -173,9 +184,9 @@ function client:request_uri(uri, addl_headers, redirect_nr)
     local f = assert(io.open(res.tmpfile, 'wb'))
 
     repeat
-        local chunk, err = reader(8192)
-        if err then
-            ngx.log(ngx.ERR, err)
+        local chunk, read_err = reader(8192)
+        if read_err then
+            ngx.log(ngx.ERR, read_err)
             break
         end
 
@@ -185,9 +196,9 @@ function client:request_uri(uri, addl_headers, redirect_nr)
     until not chunk
     f:close()
 
-    local ok, err = httpc:set_keepalive()
+    local ok, keepalive_err = httpc:set_keepalive()
     if not ok then
-        ngx.log(ngx.ERR, 'Failed to set keepalive', err)
+        ngx.log(ngx.ERR, 'Failed to set keepalive', keepalive_err)
         os.remove(res.tmpfile)
 
         return nil, error_template .. 'error it got: Failed to set keepalive.'

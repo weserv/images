@@ -1,9 +1,13 @@
 local color = require "weserv.helpers.color"
 local utils = require "weserv.helpers.utils"
 
+--- Background manipulator
+-- @module background
 local manipulator = {}
 
--- Perform background image manipulation.
+--- Perform background image manipulation.
+-- @param image The source image.
+-- @param args The URL query arguments.
 function manipulator:process(image, args)
     -- Skip this manipulator if:
     -- - There's no bg parameter.
@@ -63,7 +67,7 @@ function manipulator:process(image, args)
             args.is_premultiplied = false
         end
 
-        image = image:flatten({ ['background'] = background_color })
+        image = image:flatten({ background = background_color })
     end
 
     return self:next(image, args)
