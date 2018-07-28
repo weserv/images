@@ -161,7 +161,7 @@ function client:request(uri, addl_headers, redirect_nr)
 
             return nil, {
                 status = ngx.HTTP_NOT_FOUND,
-                message = 'Failed to do SSL handshake.'
+                message = 'Failed to do SSL handshake.',
             }
         end
     end
@@ -196,7 +196,7 @@ function client:request(uri, addl_headers, redirect_nr)
         -- Most likely HEAD or 204 etc.
         return nil, {
             status = ngx.HTTP_NOT_FOUND,
-            message = 'No body to be read.'
+            message = 'No body to be read.',
         }
     end
 
@@ -207,7 +207,7 @@ function client:request(uri, addl_headers, redirect_nr)
 
         return nil, {
             status = ngx.HTTP_INTERNAL_SERVER_ERROR,
-            message = 'Unable to generate a unique file.'
+            message = 'Unable to generate a unique file.',
         }
     end
 
@@ -233,7 +233,7 @@ function client:request(uri, addl_headers, redirect_nr)
 
         return nil, {
             status = ngx.HTTP_NOT_FOUND,
-            message = 'Failed to set keepalive.'
+            message = 'Failed to set keepalive.',
         }
     end
 
