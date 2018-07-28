@@ -86,12 +86,14 @@ describe("client", function()
 
                 return 1, nil
             end,
+            close = function(_) end
         }
         spy.on(stubbed_http, "set_timeouts")
         spy.on(stubbed_http, "connect")
         spy.on(stubbed_http, "ssl_handshake")
         spy.on(stubbed_http, "request")
         spy.on(stubbed_http, "set_keepalive")
+        spy.on(stubbed_http, "close")
 
         package.loaded["resty.http"] = {
             new = function()
@@ -229,6 +231,10 @@ describe("client", function()
             assert.spy(stubbed_http.request).was.called()
             assert.spy(stubbed_http.set_keepalive).was_not.called()
 
+            -- Make sure to always close the socket, otherwise it results in a `unread data
+            -- in buffer` error from set_keepalive for the next request.
+            assert.spy(stubbed_http.close).was.called()
+
             -- Don't log request errors
             assert.equal(0, #ngx._logs)
         end)
@@ -268,6 +274,7 @@ describe("client", function()
                     ['Referer'] = 'https://ory.weserv.nl/lichtenstein.jpg'
                 }
             }))
+            assert.spy(stubbed_http.close).was.called()
         end)
 
         it("non 200 status", function()
@@ -278,6 +285,8 @@ describe("client", function()
             assert.equal(404, err.status)
             assert.equal("The requested URL returned error: 500", err.message)
             assert.falsy(res)
+
+            assert.spy(stubbed_http.close).was.called()
         end)
 
         it("no body", function()
@@ -288,6 +297,8 @@ describe("client", function()
             assert.equal(404, err.status)
             assert.equal("No body to be read.", err.message)
             assert.falsy(res)
+
+            assert.spy(stubbed_http.close).was.called()
         end)
 
         it("generate unique file error", function()
@@ -301,6 +312,8 @@ describe("client", function()
 
             -- Log unique file errors
             assert.equal(1, #ngx._logs)
+
+            assert.spy(stubbed_http.close).was.called()
         end)
 
         it("read error", function()

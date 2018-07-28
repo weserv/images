@@ -168,6 +168,10 @@ function client:request(uri, addl_headers, redirect_nr)
 
     local res, request_err = httpc:request(params)
     if not res then
+        -- Always close the socket, otherwise it results in a `unread data
+        -- in buffer` error from set_keepalive for the next request.
+        httpc:close()
+
         return nil, {
             status = self.status_code(request_err),
             message = request_err
@@ -175,6 +179,8 @@ function client:request(uri, addl_headers, redirect_nr)
     end
 
     if res.status >= 300 and res.status <= 308 and res.headers['Location'] ~= nil then
+        httpc:close()
+
         local referer = {
             ['Referer'] = uri
         }
@@ -185,6 +191,8 @@ function client:request(uri, addl_headers, redirect_nr)
 
     local valid, invalid_err = self:is_valid_response(res)
     if not valid then
+        httpc:close()
+
         return nil, invalid_err
     end
 
@@ -193,6 +201,8 @@ function client:request(uri, addl_headers, redirect_nr)
     local reader = res.body_reader
 
     if not reader then
+        httpc:close()
+
         -- Most likely HEAD or 204 etc.
         return nil, {
             status = ngx.HTTP_NOT_FOUND,
@@ -203,6 +213,8 @@ function client:request(uri, addl_headers, redirect_nr)
     -- Create a unique file (starting with 'imo_') in our shared memory.
     res.tmpfile = utils.tempname('/dev/shm', 'imo_')
     if not res.tmpfile then
+        httpc:close()
+
         ngx.log(ngx.ERR, 'Unable to generate a unique file.')
 
         return nil, {
