@@ -169,9 +169,10 @@ describe("client", function()
         end)
 
         it("invalid uri", function()
-            local res, err = client:request('foobar')
+            local res, err = client:request('http:\\foobar')
 
-            assert.truthy(err:find("isn't a valid url"))
+            assert.equal(400, err.status)
+            assert.equal("Unable to parse URL", err.message)
             assert.falsy(res)
 
             -- Don't log invalid uris
@@ -183,7 +184,8 @@ describe("client", function()
 
             local res, err = client:request('https://ory.weserv.nl/lichtenstein.jpg?foo=bar')
 
-            assert.truthy(err:find("Operation timed out"))
+            assert.equal(408, err.status)
+            assert.equal('timeout', err.message)
             assert.falsy(res)
 
             assert.spy(stubbed_http.connect).was.called()
@@ -200,7 +202,8 @@ describe("client", function()
 
             local res, err = client:request('https://ory.weserv.nl/lichtenstein.jpg?foo=bar')
 
-            assert.truthy(err:find("Failed to do SSL handshake"))
+            assert.equal(404, err.status)
+            assert.equal('Failed to do SSL handshake.', err.message)
             assert.falsy(res)
 
             assert.spy(stubbed_http.connect).was.called()
@@ -217,7 +220,8 @@ describe("client", function()
 
             local res, err = client:request('https://ory.weserv.nl/lichtenstein.jpg?foo=bar')
 
-            assert.truthy(err:find("Operation timed out"))
+            assert.equal(408, err.status)
+            assert.equal('timeout', err.message)
             assert.falsy(res)
 
             assert.spy(stubbed_http.connect).was.called()
@@ -234,7 +238,8 @@ describe("client", function()
 
             local res, err = client:request('https://ory.weserv.nl/lichtenstein.jpg?foo=bar')
 
-            assert.truthy(err:find("Failed to set keepalive"))
+            assert.equal(404, err.status)
+            assert.equal("Failed to set keepalive.", err.message)
             assert.falsy(res)
 
             assert.spy(stubbed_http.connect).was.called()
@@ -252,7 +257,9 @@ describe("client", function()
 
             local res, err = client:request('https://ory.weserv.nl/lichtenstein.jpg')
 
-            assert.equal(string.format("Will not follow more than %d redirects", default_config.max_redirects), err)
+            assert.equal(404, err.status)
+            assert.equal(string.format("Will not follow more than %d redirects", default_config.max_redirects),
+                err.message)
             assert.falsy(res)
 
             assert.spy(stubbed_http.request).was.called(default_config.max_redirect)
@@ -268,7 +275,8 @@ describe("client", function()
 
             local res, err = client:request('https://ory.weserv.nl/lichtenstein.jpg')
 
-            assert.truthy(err:find("The requested URL returned error: 500"))
+            assert.equal(404, err.status)
+            assert.equal("The requested URL returned error: 500", err.message)
             assert.falsy(res)
         end)
 
@@ -277,7 +285,8 @@ describe("client", function()
 
             local res, err = client:request('https://ory.weserv.nl/lichtenstein.jpg')
 
-            assert.truthy(err:find("No body to be read"))
+            assert.equal(404, err.status)
+            assert.equal("No body to be read.", err.message)
             assert.falsy(res)
         end)
 
@@ -286,7 +295,8 @@ describe("client", function()
 
             local res, err = client:request('https://ory.weserv.nl/lichtenstein.jpg')
 
-            assert.truthy(err:find("Unable to generate a unique file"))
+            assert.equal(500, err.status)
+            assert.equal("Unable to generate a unique file.", err.message)
             assert.falsy(res)
 
             -- Log unique file errors
@@ -334,7 +344,9 @@ describe("client", function()
                 },
             })
 
-            assert.truthy(invalid_err:find("The request image is not a valid %(supported%) image"))
+            assert.equal(400, invalid_err.status)
+            assert.equal([[The request image is not a valid (supported) image.
+Allowed mime types: image/jpeg]], invalid_err.message)
             assert.falsy(valid)
         end)
 
@@ -356,7 +368,10 @@ describe("client", function()
                 },
             })
 
-            assert.truthy(invalid_err:find("The image is too big to be downloaded"))
+            assert.equal(400, invalid_err.status)
+            assert.equal([[The image is too big to be downloaded.
+Image size: 2 KB
+Max image size: 1 KB]], invalid_err.message)
             assert.falsy(valid)
         end)
     end)

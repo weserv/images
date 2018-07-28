@@ -224,7 +224,7 @@ function manipulator:process(image, args)
     if check_max_image_size and args.w * args.h > MAX_IMAGE_SIZE then
         return nil, {
             status = ngx.HTTP_BAD_REQUEST,
-            message = 'Image is too large for processing. Width x height should be less than 71 megapixels.',
+            message = 'Requested image dimensions are too large. Width x height should be less than 71 megapixels.',
         }
     end
 

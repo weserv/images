@@ -108,10 +108,10 @@ end
 -- @param uri The URI.
 -- @return Parsed URI.
 function utils.parse_uri(uri)
-    local m = ngx.re.match(uri, [[^(?:(http[s]?):)?//([^:/\?]+)(?::(\d+))?([^\?]*)\??(.*)]], 'jo')
+    local m = ngx.re.match(utils.clean_uri(uri), [[^(?:(http[s]?):)?//([^:/\?]+)(?::(\d+))?([^\?]*)\??(.*)]], 'jo')
 
     if not m or not m[1] then
-        return nil, "because it isn't a valid url."
+        return nil, "Unable to parse URL"
     else
         if m[3] then
             m[3] = tonumber(m[3])

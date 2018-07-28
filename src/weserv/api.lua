@@ -109,7 +109,7 @@ function api:process(tmpfile, args)
     if next(self.manipulators) == nil then
         return nil, {
             status = ngx.HTTP_INTERNAL_SERVER_ERROR,
-            message = '500 Internal Server Error - Attempted to run images.weserv.nl without any manipulator(s).',
+            message = 'Attempted to run images.weserv.nl without any manipulator(s).',
         }
     end
 
@@ -130,8 +130,8 @@ function api:process(tmpfile, args)
 
         -- No known loader is found, stop further processing
         return nil, {
-            status = ngx.HTTP_BAD_REQUEST,
-            message = '400 Bad Request - Invalid or unsupported image format. Is it a valid image?',
+            status = ngx.HTTP_NOT_FOUND,
+            message = 'Invalid or unsupported image format. Is it a valid image?',
         }
     end
 
@@ -150,8 +150,8 @@ function api:process(tmpfile, args)
         ngx.log(ngx.ERR, 'Image not readable', image_err, args.url)
 
         return nil, {
-            status = ngx.HTTP_BAD_REQUEST,
-            message = '400 Bad Request - Image not readable. Is it a valid image?',
+            status = ngx.HTTP_NOT_FOUND,
+            message = 'Image not readable. Is it a valid image?',
         }
     end
 

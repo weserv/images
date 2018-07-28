@@ -82,8 +82,8 @@ describe("utils", function()
             { unpack(utils.parse_uri('http://ory.weserv.nl?a=1&b=2')) })
         assert.are.same({ 'http', 'ory.weserv.nl', 443, '/', 'a=1&b=2' },
             { unpack(utils.parse_uri('http://ory.weserv.nl:443/?a=1&b=2')) })
-        assert.are.same({ nil, "because it isn't a valid url." },
-            { utils.parse_uri('//ory.weserv.nl') })
+        assert.are.same({ nil, "Unable to parse URL" },
+            { utils.parse_uri('http:\\ory.weserv.nl') })
     end)
 
     it("test resolve angle rotation", function()

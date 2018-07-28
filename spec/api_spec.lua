@@ -112,6 +112,7 @@ describe("api", function()
         local image, api_err = api:process('noimage.jpg', { url = 'http://example.org/noimage.jpg' })
         assert.falsy(image)
         assert.equal(500, api_err.status)
+        assert.equal('Attempted to run images.weserv.nl without any manipulator(s).', api_err.message)
     end)
 
     describe("test process", function()
@@ -124,8 +125,8 @@ describe("api", function()
                 url = 'http://example.org/does-not-exists.jpg'
             })
             assert.falsy(image)
-            assert.equal(400, api_err.status)
-            assert.truthy(api_err.message:find("Invalid or unsupported image format"))
+            assert.equal(404, api_err.status)
+            assert.equal('Invalid or unsupported image format. Is it a valid image?', api_err.message)
 
             -- Log invalid or unsupported errors
             assert.equal(1, #ngx._logs)
@@ -146,8 +147,8 @@ describe("api", function()
                 url = 'http://example.org/invalid.gif'
             })
             assert.falsy(image)
-            assert.equal(400, api_err.status)
-            assert.truthy(api_err.message:find("Image not readable"))
+            assert.equal(404, api_err.status)
+            assert.equal('Image not readable. Is it a valid image?', api_err.message)
             assert(os.remove(tmpfile))
 
             -- Log not readable errors

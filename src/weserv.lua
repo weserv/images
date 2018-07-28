@@ -1,7 +1,9 @@
 local utils = require "weserv.helpers.utils"
 local ngx = ngx
 local os = os
+local unpack = unpack
 local setmetatable = setmetatable
+local error_template = "Error %d: Server couldn't parse the ?url= that you were looking for, %s"
 
 --- Weserv module.
 -- @module weserv
@@ -32,26 +34,34 @@ end
 --- Start the app.
 -- @param args The URL query arguments.
 function weserv:run(args)
-    args.url = utils.clean_uri(args.url)
-
     local res, client_err = self.client:request(args.url)
 
     if not res then
-        if args.errorredirect ~= nil then
-            local redirect_uri = utils.clean_uri(args.errorredirect)
+        local parsed_redirect_uri = args.errorredirect ~= nil and utils.parse_uri(args.errorredirect) or false
 
-            local parsed_uri = utils.parse_uri(redirect_uri)
-            if not parsed_uri then
-                ngx.status = ngx.HTTP_NOT_FOUND
-                ngx.header['Content-Type'] = 'text/plain'
-                ngx.say(client_err)
-            else
-                ngx.redirect(redirect_uri)
+        -- Don't redirect if it's a DNS error.
+        if client_err.status ~= ngx.HTTP_GONE and parsed_redirect_uri then
+            local scheme, host, _, path, query = unpack(parsed_redirect_uri)
+            if query and query ~= "" then
+                path = path .. "?" .. query
             end
+
+            ngx.redirect(scheme .. '://' .. host .. path)
         else
-            ngx.status = ngx.HTTP_NOT_FOUND
             ngx.header['Content-Type'] = 'text/plain'
-            ngx.say(client_err)
+            if client_err.status == ngx.HTTP_GONE then
+                ngx.status = ngx.HTTP_GONE
+                ngx.say(error_template:format(client_err.status,
+                    'because the hostname of the origin is unresolvable (DNS) or blocked by policy.'))
+            elseif client_err.status == ngx.HTTP_REQUEST_TIMEOUT then
+                -- Don't send 408, otherwise the client may repeat that request.
+                ngx.status = ngx.HTTP_NOT_FOUND
+                ngx.say(error_template:format(ngx.HTTP_NOT_FOUND,
+                    'error it got: The requested URL returned error: Operation timed out.'))
+            else
+                ngx.status = client_err.status
+                ngx.say(error_template:format(client_err.status, 'error it got: ' .. client_err.message))
+            end
         end
     else
         local image, api_err = self.api:process(res.tmpfile, args)
@@ -62,7 +72,7 @@ function weserv:run(args)
         else
             ngx.status = api_err.status
             ngx.header['Content-Type'] = 'text/plain'
-            ngx.say(api_err.message)
+            ngx.say(error_template:format(api_err.status, 'error it got: ' .. api_err.message))
         end
 
         -- Remove the temporary file.

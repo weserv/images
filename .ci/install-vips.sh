@@ -15,7 +15,7 @@ if [ -d "$HOME/vips/bin" ]; then
 
     if [[ "$installed_version" == "$version" ]]; then
         echo "Using cached vips directory"
-        #exit 0
+        exit 0
     fi
 fi
 
