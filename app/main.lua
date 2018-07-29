@@ -10,7 +10,7 @@ local redis = require "resty.redis"
 local ngx = ngx
 local string = string
 
-local ip_address = ngx.var.remote_addr
+local ip_address = ngx.var.http_x_forwarded_for or ngx.var.remote_addr
 
 local redis_throttler
 
