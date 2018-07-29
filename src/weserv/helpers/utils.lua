@@ -3,6 +3,13 @@ local ngx = ngx
 local tonumber = tonumber
 local string = string
 
+-- Always call ffi.cdef() on the top-level scope of your own
+-- Lua module files.
+ffi.cdef [[
+    int close(int fd);
+    int mkstemp(uint8_t* template);
+]]
+
 --- Utils module
 -- @module utils
 local utils = {}
@@ -63,11 +70,6 @@ end
 -- @return The new temporary filename (with path), or nil on failure.
 function utils.tempname(dir, prefix)
     local C = ffi.C
-
-    ffi.cdef [[
-    int close(int fd);
-    int mkstemp(uint8_t* template);
-    ]]
 
     local template = dir .. '/' .. prefix .. 'XXXXXX'
     local tempname = ffi.new('uint8_t[?]', #template, template)

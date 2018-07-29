@@ -8,11 +8,7 @@ local config = require "config"
 local template = require "resty.template"
 local redis = require "resty.redis"
 local ngx = ngx
-local math = math
 local string = string
-
--- Should we use the old API?
-local old_api = math.random(1, 10) > 1
 
 local ip_address = ngx.var.remote_addr
 
@@ -36,8 +32,8 @@ if config.throttler ~= nil and config.throttler.whitelist[ip_address] == nil the
 end
 
 local args, args_err = ngx.req.get_uri_args()
-if (args.api == '3' or old_api) and args.api ~= '4' then
-    -- Internal redirection to the old api
+if args.api == '3' then
+    -- Internal redirection to the old api, if requested
     ngx.exec("/index.php", args)
     return;
 end
@@ -74,11 +70,6 @@ elseif args.url ~= nil and args.url ~= '' then
 else
     ngx.status = ngx.HTTP_OK
     ngx.header['Content-Type'] = 'text/html'
-    local template_config = config.template
 
-    if args.api == '4' then
-        template_config.args = '&api=4'
-    end
-
-    template.render('index.html', template_config)
+    template.render('index.html', config.template)
 end
