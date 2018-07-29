@@ -2,7 +2,6 @@ local vips = require "vips"
 local utils = require "weserv.helpers.utils"
 local ngx = ngx
 local math = math
-local string = string
 local tonumber = tonumber
 
 -- Profile map to ensure that we use a device-
@@ -65,7 +64,7 @@ function manipulator.resolve_fit(t)
         return t
     end
 
-    if t ~= nil and t:sub(1, string.len('crop')) == 'crop' then
+    if t ~= nil and t:sub(1, 4) == 'crop' then
         return 'crop'
     end
 

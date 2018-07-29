@@ -258,21 +258,38 @@ describe("client", function()
         end)
 
         it("max redirects error", function()
-            response.status = 302
-            response.headers['Location'] = 'https://ory.weserv.nl/lichtenstein2.jpg'
+            local redirect = 'https://ory.weserv.nl/lichtenstein%202.jpg?foo=bar'
 
-            local res, err = client:request('https://ory.weserv.nl/lichtenstein.jpg')
+            response.status = 302
+            response.headers['Location'] = redirect
+
+            local res, err = client:request('ory.weserv.nl/lichtenstein 2.jpg?foo=bar')
 
             assert.equal(404, err.status)
             assert.equal(string.format("Will not follow more than %d redirects", default_config.max_redirects),
                 err.message)
             assert.falsy(res)
 
-            assert.spy(stubbed_http.request).was.called(default_config.max_redirect)
-            assert.spy(stubbed_http.request).was.called_with(match._, match.contains({
+            assert.spy(stubbed_http.request).was.called(10)
+            assert.spy(stubbed_http.request).was.called_with(match._, match.same({
                 headers = {
-                    ['Referer'] = 'https://ory.weserv.nl/lichtenstein.jpg'
-                }
+                    ['User-Agent'] = default_config.user_agent
+                },
+                -- Must be properly escaped
+                path = '/lichtenstein%202.jpg',
+                query = 'foo=bar',
+                ssl_verify = false,
+            }))
+            assert.spy(stubbed_http.request).was.called_with(match._, match.same({
+                headers = {
+                    ['User-Agent'] = default_config.user_agent,
+                    -- Referer needs to be added
+                    ['Referer'] = 'http://ory.weserv.nl/lichtenstein%202.jpg?foo=bar'
+                },
+                -- Must be properly escaped
+                path = '/lichtenstein%202.jpg',
+                query = 'foo=bar',
+                ssl_verify = false,
             }))
             assert.spy(stubbed_http.close).was.called()
         end)

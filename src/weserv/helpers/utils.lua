@@ -92,13 +92,18 @@ end
 -- @return Cleaned URI.
 function utils.clean_uri(uri)
     -- Check for HTTPS origin hosts
-    if uri:sub(1, string.len('ssl:')) == 'ssl:' then
-        uri = 'https://' .. uri:sub(string.len('ssl:') + 1):gsub("^/*", "")
+    if uri:sub(1, 4) == 'ssl:' then
+        uri = 'https://' .. uri:sub(5):gsub("^/*", "")
     end
 
-    -- If the URI is schemaless (i.e. example.com), append 'http://'
-    if uri:sub(1, string.len('http:')) ~= 'http:' and
-            uri:sub(1, string.len('https:')) ~= 'https:' then
+    -- If the URI is schemaless (i.e. //example.com), append 'https:'
+    if uri:sub(1, 2) == '//' then
+        uri = 'https:' .. uri
+    end
+
+    -- If only host is given (i.e. example.com), append 'http://'
+    if uri:sub(1, 5) ~= 'http:' and
+            uri:sub(1, 6) ~= 'https:' then
         uri = 'http://' .. uri:gsub("^/*", "")
     end
 

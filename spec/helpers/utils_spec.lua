@@ -63,9 +63,9 @@ describe("utils", function()
             utils.clean_uri('ssl:ory.weserv.nl/lichtenstein.jpg'))
         assert.equal('http://ory.weserv.nl/lichtenstein.jpg',
             utils.clean_uri('ory.weserv.nl/lichtenstein.jpg'))
-        assert.equal('http://ory.weserv.nl/lichtenstein.jpg',
+        assert.equal('https://ory.weserv.nl/lichtenstein.jpg',
             utils.clean_uri('//ory.weserv.nl/lichtenstein.jpg'))
-        assert.equal('http://ory.weserv.nl/lichtenstein.jpg?test=test',
+        assert.equal('https://ory.weserv.nl/lichtenstein.jpg?test=test',
             utils.clean_uri('//ory.weserv.nl/lichtenstein.jpg?test=test&errorredirect=example.org'))
     end)
 

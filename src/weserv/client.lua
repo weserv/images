@@ -135,7 +135,9 @@ function client:request(uri, addl_headers, redirect_nr)
     local scheme, host, port, path, query = unpack(parsed_uri)
 
     -- Escape path sections of the URL, '/' should not be escaped
-    params.path = path:gsub("[^/]", ngx.escape_uri)
+    path = path:gsub("[^/]", ngx.escape_uri)
+
+    params.path = path
     params.query = query
 
     local httpc = http.new()
@@ -181,12 +183,16 @@ function client:request(uri, addl_headers, redirect_nr)
     if res.status >= 300 and res.status <= 308 and res.headers['Location'] ~= nil then
         httpc:close()
 
+        if query and query ~= "" then
+            path = path .. "?" .. query
+        end
+
         local referer = {
-            ['Referer'] = uri
+            ['Referer'] = scheme .. '://' .. host .. path
         }
 
         -- recursive call
-        return self:request(res.headers['Location'], referer, redirect_nr + 1)
+        return self:request(ngx.unescape_uri(res.headers['Location']), referer, redirect_nr + 1)
     end
 
     local valid, invalid_err = self:is_valid_response(res)

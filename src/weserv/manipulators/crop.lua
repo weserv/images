@@ -1,5 +1,4 @@
 local math = math
-local string = string
 local unpack = unpack
 local tonumber = tonumber
 
@@ -36,7 +35,7 @@ function manipulator.resolve_crop(crop)
     end
 
     -- Focal point
-    if crop:sub(1, string.len('crop-')) == 'crop-' then
+    if crop:sub(1, 5) == 'crop-' then
         local coordinates = {}
 
         -- Tables starts from one in Lua
@@ -165,7 +164,7 @@ function manipulator:process(image, args)
     local is_crop_needed = args.t ~= nil and
             (args.t == 'square' or
                     args.t == 'squaredown' or
-                    args.t:sub(1, string.len('crop')) == 'crop')
+                    args.t:sub(1, 4) == 'crop')
 
     if (image_width ~= width or image_height ~= height) and is_crop_needed then
         local min_width = math.min(image_width, width)
