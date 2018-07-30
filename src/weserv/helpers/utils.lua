@@ -1,7 +1,8 @@
 local ffi = require "ffi"
 local ngx = ngx
-local tonumber = tonumber
+local table = table
 local string = string
+local tonumber = tonumber
 
 -- Always call ffi.cdef() on the top-level scope of your own
 -- Lua module files.
@@ -111,6 +112,50 @@ function utils.clean_uri(uri)
     return uri:gsub("[?&]errorredirect=[^&]+", "")
 end
 
+--- Percent-encode characters from a URI path or query string.
+-- @param char The char to percent-encode.
+-- @return The percent-encoded char.
+function utils.percent_encode(char)
+    return string.format("%%%02X", string.byte(char))
+end
+
+--- Determines a "canonical" equivalent of a URI path.
+-- @param path The URI path to canonicalise.
+-- @return The canonicalised path.
+function utils.canonicalise_path(path)
+    local segments = {}
+    for segment in path:gmatch("/([^/]*)") do
+        if segment ~= "" and segment ~= "." then
+            segments[#segments + 1] = ngx.unescape_uri(segment):gsub("[^%w%-%._~]", utils.percent_encode)
+        end
+    end
+    local len = #segments
+    if len == 0 then
+        return "/"
+    end
+    -- If there was a slash on the end, keep it there.
+    if path:sub(-1, -1) == "/" then
+        len = len + 1
+        segments[len] = ""
+    end
+    segments[0] = ""
+    segments = table.concat(segments, "/", 0, len)
+    return segments
+end
+
+--- Determines a "canonical" equivalent of a query string.
+-- @param path The query string to canonicalise.
+-- @return The canonicalised query string.
+function utils.canonicalise_query_string(query)
+    local q = {}
+    for key, val in query:gmatch("([^&=]+)=?([^&]*)") do
+        key = ngx.unescape_uri(key):gsub("[^%w%-%._~]", utils.percent_encode)
+        val = ngx.unescape_uri(val):gsub("[^%w%-%._~]", utils.percent_encode)
+        q[#q + 1] = key .. "=" .. val
+    end
+    return table.concat(q, "&")
+end
+
 --- Parse URI.
 -- @param uri The URI.
 -- @return Parsed URI.
@@ -129,9 +174,9 @@ function utils.parse_uri(uri)
                 m[3] = 80
             end
         end
-        if not m[4] or '' == m[4] then
-            m[4] = '/'
-        end
+
+        m[4] = utils.canonicalise_path(m[4])
+        m[5] = utils.canonicalise_query_string(m[5])
 
         return m, nil
     end

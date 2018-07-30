@@ -82,6 +82,10 @@ describe("utils", function()
             { unpack(utils.parse_uri('http://ory.weserv.nl?a=1&b=2')) })
         assert.are.same({ 'http', 'ory.weserv.nl', 443, '/', 'a=1&b=2' },
             { unpack(utils.parse_uri('http://ory.weserv.nl:443/?a=1&b=2')) })
+        assert.are.same({ 'http', 'ory.weserv.nl', 443, '/sub/path/', '' },
+            { unpack(utils.parse_uri('http://ory.weserv.nl:443/sub/path/')) })
+        assert.equal('https://ory.weserv.nl',
+            utils.clean_uri('//ory.weserv.nl'))
         assert.are.same({ nil, "Unable to parse URL" },
             { utils.parse_uri('http:\\ory.weserv.nl') })
     end)

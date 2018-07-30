@@ -117,7 +117,6 @@ function client:request(uri, addl_headers, redirect_nr)
         },
         path = '',
         query = '',
-        ssl_verify = false,
     }
 
     for k, v in pairs(addl_headers) do
@@ -133,10 +132,6 @@ function client:request(uri, addl_headers, redirect_nr)
     end
 
     local scheme, host, port, path, query = unpack(parsed_uri)
-
-    -- Escape path sections of the URL, '/' should not be escaped
-    path = path:gsub("[^/]", ngx.escape_uri)
-
     params.path = path
     params.query = query
 
@@ -153,11 +148,7 @@ function client:request(uri, addl_headers, redirect_nr)
     end
 
     if scheme == 'https' then
-        local verify = true
-        if params.ssl_verify == false then
-            verify = false
-        end
-        local ok, handsake_err = httpc:ssl_handshake(nil, host, verify)
+        local ok, handsake_err = httpc:ssl_handshake(nil, host, false)
         if not ok then
             ngx.log(ngx.ERR, 'Failed to do SSL handshake', handsake_err)
 
@@ -192,7 +183,7 @@ function client:request(uri, addl_headers, redirect_nr)
         }
 
         -- recursive call
-        return self:request(ngx.unescape_uri(res.headers['Location']), referer, redirect_nr + 1)
+        return self:request(res.headers['Location'], referer, redirect_nr + 1)
     end
 
     local valid, invalid_err = self:is_valid_response(res)

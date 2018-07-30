@@ -155,7 +155,6 @@ describe("client", function()
                 },
                 path = '/lichtenstein.jpg',
                 query = 'foo=bar',
-                ssl_verify = false,
             }))
             assert.spy(stubbed_http.set_keepalive).was.called()
 
@@ -258,12 +257,17 @@ describe("client", function()
         end)
 
         it("max redirects error", function()
-            local redirect = 'https://ory.weserv.nl/lichtenstein%202.jpg?foo=bar'
+            -- RFC 3986 without the :/?* characters
+            local filename_encoded = "%23%5B%20%5D%40%21%24%26%27%28%29%20%2C%3B%3D"
+            -- RFC 3986 without the &= characters
+            local query_encoded = '%3A%2F%3F%23%5B%20%5D%40%21%24%27%28%29%2A%20%2C%3B'
+
+            local redirect = 'https://ory.weserv.nl/' .. filename_encoded .. '.jpg?foo=' .. query_encoded .. '&bar=foo'
 
             response.status = 302
             response.headers['Location'] = redirect
 
-            local res, err = client:request('ory.weserv.nl/lichtenstein 2.jpg?foo=bar')
+            local res, err = client:request("ory.weserv.nl/#[ ]@!$&'()+,;=.jpg?foo=:/?#[ ]@!$'()*+,;&bar=foo")
 
             assert.equal(404, err.status)
             assert.equal(string.format("Will not follow more than %d redirects", default_config.max_redirects),
@@ -275,21 +279,20 @@ describe("client", function()
                 headers = {
                     ['User-Agent'] = default_config.user_agent
                 },
-                -- Must be properly escaped
-                path = '/lichtenstein%202.jpg',
-                query = 'foo=bar',
-                ssl_verify = false,
+                -- Must be properly encoded
+                path = '/' .. filename_encoded .. '.jpg',
+                query = 'foo=' .. query_encoded .. '&bar=foo',
             }))
             assert.spy(stubbed_http.request).was.called_with(match._, match.same({
                 headers = {
                     ['User-Agent'] = default_config.user_agent,
                     -- Referer needs to be added
-                    ['Referer'] = 'http://ory.weserv.nl/lichtenstein%202.jpg?foo=bar'
+                    ['Referer'] = 'http://ory.weserv.nl/' .. filename_encoded .. '.jpg?foo=' ..
+                            query_encoded .. '&bar=foo'
                 },
-                -- Must be properly escaped
-                path = '/lichtenstein%202.jpg',
-                query = 'foo=bar',
-                ssl_verify = false,
+                -- Must be properly encoded
+                path = '/' .. filename_encoded .. '.jpg',
+                query = 'foo=' .. query_encoded .. '&bar=foo',
             }))
             assert.spy(stubbed_http.close).was.called()
         end)
