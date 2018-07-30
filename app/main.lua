@@ -58,7 +58,11 @@ elseif args.url ~= nil and args.url ~= '' then
     for key, val in pairs(args) do
         if type(val) == "table" then
             -- Use the first value if multiple occurrences of an argument key are given.
-            args[key] = val[1]
+            local value = val[1]
+            args[key] = type(value) == "boolean" and "" or value
+        elseif type(val) == "boolean" then
+            -- Treat boolean arguments as empty string values.
+            args[key] = ""
         end
     end
 
