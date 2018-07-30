@@ -45,6 +45,10 @@ return {
             host = '127.0.0.1',
             port = 6379,
             timeout = 1000, -- 1 sec
+            -- The max idle timeout (in ms) when the connection is in the pool
+            max_idle_timeout = 10000,
+            -- The maximal size of the pool for every nginx worker process
+            pool_size = 100
         },
         allowed_requests = 700, -- 700 allowed requests
         minutes = 3, --  In 3 minutes
