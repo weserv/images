@@ -88,6 +88,34 @@ describe("utils", function()
             utils.clean_uri('//ory.weserv.nl'))
         assert.are.same({ nil, "Unable to parse URL" },
             { utils.parse_uri('http:\\ory.weserv.nl') })
+        assert.are.same({
+            'https', 'ory.weserv.nl', 443,
+            "/-._~!$'()*%20,;=:#@",
+            "bar=foo"
+        }, {
+            unpack(utils.parse_uri("//ory.weserv.nl/-._~!$'()*+,;=:#@?bar=foo"))
+        })
+        assert.are.same({
+            'https', 'ory.weserv.nl', 443,
+            "/-._~!$'()*+,;=:/?#@",
+            "bar=foo"
+        }, {
+            unpack(utils.parse_uri("//ory.weserv.nl/%2D%2E%5F%7E%21%24%27%28%29%2A%2B%2C%3B%3D%3A%2F%3F%23%40?bar=foo"))
+        })
+        assert.are.same({
+            'https', 'ory.weserv.nl', 443,
+            "/",
+            "bar=-._~!$'()*%20,;=:/@"
+        }, {
+            unpack(utils.parse_uri("//ory.weserv.nl/?bar=-._~!$'()*+,;=:/@"))
+        })
+        assert.are.same({
+            'https', 'ory.weserv.nl', 443,
+            "/",
+            "bar=-._~!$'()*+,;=:/@"
+        }, {
+            unpack(utils.parse_uri("//ory.weserv.nl/?bar=%2D%2E%5F%7E%21%24%27%28%29%2A%2B%2C%3B%3D%3A%2F%40"))
+        })
     end)
 
     it("test resolve angle rotation", function()

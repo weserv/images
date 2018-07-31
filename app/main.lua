@@ -34,7 +34,7 @@ if config.throttler ~= nil and config.throttler.whitelist[ip_address] == nil the
         -- Put it into the connection pool
         ok, redis_err = red:set_keepalive(config.throttler.redis.max_idle_timeout, config.throttler.redis.pool_size)
         if not ok then
-            ngx.log("Failed to set keepalive: ", redis_err)
+            ngx.log(ngx.ERR, "Failed to set keepalive: ", redis_err)
         end
     end
 end
