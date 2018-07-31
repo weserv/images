@@ -126,7 +126,7 @@ function api:process(tmpfile, args)
 
     if args.loader == nil then
         -- Log image invalid or unsupported errors
-        ngx.log(ngx.ERR, 'Image invalid or unsupported', vips.verror.get())
+        ngx.log(ngx.ERR, 'Image invalid or unsupported: ', vips.verror.get())
 
         -- No known loader is found, stop further processing
         return nil, {
@@ -147,7 +147,7 @@ function api:process(tmpfile, args)
 
     if not success then
         -- Log image not readable errors
-        ngx.log(ngx.ERR, 'Image not readable', image_err, args.url)
+        ngx.log(ngx.ERR, 'Image not readable: ', image_err)
 
         return nil, {
             status = ngx.HTTP_NOT_FOUND,

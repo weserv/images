@@ -59,19 +59,19 @@ function policy:ban_at_cloudflare(ip_address)
     })
 
     if not res then
-        ngx.log(ngx.ERR, string.format("Failed to ban (for %s) at CloudFlare", ip_address), request_err)
+        ngx.log(ngx.ERR, string.format("Failed to ban (for %s) at CloudFlare: ", ip_address), request_err)
         return false
     end
 
     if res.status ~= ngx.HTTP_OK then
-        ngx.log(ngx.ERR, string.format("Failed to ban (for %s) at CloudFlare", ip_address), res.body)
+        ngx.log(ngx.ERR, string.format("Failed to ban (for %s) at CloudFlare: ", ip_address), res.body)
         return false
     end
 
     local response = cjson.decode(res.body)
     local success = response.result ~= cjson.null and response.result.id ~= cjson.null
     if not success then
-        ngx.log(ngx.ERR, string.format("Failed to ban (for %s) at CloudFlare", ip_address), res.body)
+        ngx.log(ngx.ERR, string.format("Failed to ban (for %s) at CloudFlare: ", ip_address), res.body)
         return false
     end
 
@@ -104,19 +104,19 @@ function policy:unban_at_cloudflare(identifier)
     })
 
     if not res then
-        ngx.log(ngx.ERR, string.format("Failed to unban (for identifier %s) at CloudFlare", identifier), request_err)
+        ngx.log(ngx.ERR, string.format("Failed to unban (for identifier %s) at CloudFlare: ", identifier), request_err)
         return false
     end
 
     if res.status ~= ngx.HTTP_OK then
-        ngx.log(ngx.ERR, string.format("Failed to unban (for identifier %s) at CloudFlare", identifier), res.body)
+        ngx.log(ngx.ERR, string.format("Failed to unban (for identifier %s) at CloudFlare: ", identifier), res.body)
         return false
     end
 
     local response = cjson.decode(res.body)
     local success = response.result ~= cjson.null and response.result.id ~= cjson.null
     if not success then
-        ngx.log(ngx.ERR, string.format("Failed to unban (for identifier %s) at CloudFlare", identifier), res.body)
+        ngx.log(ngx.ERR, string.format("Failed to unban (for identifier %s) at CloudFlare: ", identifier), res.body)
         return false
     end
 

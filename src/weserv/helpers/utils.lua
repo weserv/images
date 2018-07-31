@@ -1,3 +1,4 @@
+local punycode = require "weserv.helpers.punycode"
 local ffi = require "ffi"
 local ngx = ngx
 local table = table
@@ -130,18 +131,11 @@ end
 function utils.canonicalise_path(path)
     local segments = {}
     for segment in path:gmatch("/([^/]*)") do
-        if segment ~= "" and segment ~= "." then
-            segments[#segments + 1] = ngx.unescape_uri(segment):gsub(REGEX_DISALLOWED_CHARS, utils.percent_encode)
-        end
+        segments[#segments + 1] = ngx.unescape_uri(segment):gsub(REGEX_DISALLOWED_CHARS, utils.percent_encode)
     end
     local len = #segments
     if len == 0 then
         return "/"
-    end
-    -- If there was a slash on the end, keep it there.
-    if path:sub(-1, -1) == "/" then
-        len = len + 1
-        segments[len] = ""
     end
     segments[0] = ""
     segments = table.concat(segments, "/", 0, len)
@@ -165,11 +159,18 @@ end
 -- @param uri The URI.
 -- @return Parsed URI.
 function utils.parse_uri(uri)
-    local m = ngx.re.match(utils.clean_uri(uri), [[^(?:(http[s]?):)?//([^:/\?]+)(?::(\d+))?([^\?]*)\??(.*)]], 'jo')
+    local m = ngx.re.match(utils.clean_uri(uri), [[^(http[s]?)://([^:/\?]+)(?::(\d+))?([^\?]*)\??(.*)]], 'jo')
 
-    if not m or not m[1] then
+    if not m then
         return nil, "Unable to parse URL"
     else
+        local punycode_idn, err = punycode.domain_encode(m[2])
+        if not punycode_idn then
+            return nil, err
+        end
+
+        m[2] = punycode_idn
+
         if m[3] then
             m[3] = tonumber(m[3])
         else
