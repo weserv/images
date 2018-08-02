@@ -1,4 +1,4 @@
-local vips = require "vips"
+local vips = vips
 local unpack = unpack
 local tonumber = tonumber
 

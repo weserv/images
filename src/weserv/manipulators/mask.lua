@@ -1,4 +1,4 @@
-local vips = require "vips"
+local vips = vips
 local color = require "weserv.helpers.color"
 local utils = require "weserv.helpers.utils"
 local math = math

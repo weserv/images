@@ -1,4 +1,4 @@
-local vips = require "vips"
+local vips = vips
 local math = math
 local tonumber = tonumber
 

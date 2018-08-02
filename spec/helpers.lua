@@ -1,4 +1,4 @@
-local vips = require "vips"
+vips = require "vips"
 local utils = require "weserv.helpers.utils"
 local assert = require "luassert.assert"
 local say = require "say"

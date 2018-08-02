@@ -1,4 +1,4 @@
-local vips = require "vips"
+local vips = vips
 local utils = require "weserv.helpers.utils"
 
 --- Filter manipulator
