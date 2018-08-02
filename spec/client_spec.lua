@@ -165,7 +165,7 @@ describe("client", function()
             local t = f:read("*all")
             f:close()
 
-            assert.equal("Chunk 1 8192\nChunk 2 8192\nChunk 3 8192\n", t)
+            assert.equal("Chunk 1 65536\nChunk 2 65536\nChunk 3 65536\n", t)
             assert(os.remove(res.tmpfile))
         end)
 

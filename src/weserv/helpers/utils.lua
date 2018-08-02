@@ -9,7 +9,7 @@ local tonumber = tonumber
 -- Lua module files.
 ffi.cdef [[
     int close(int fd);
-    int mkstemp(uint8_t* template);
+    int mkstemp(char* template);
 ]]
 
 --- Utils module
@@ -78,8 +78,9 @@ end
 function utils.tempname(dir, prefix)
     local C = ffi.C
 
-    local template = dir .. '/' .. prefix .. 'XXXXXX'
-    local tempname = ffi.new('uint8_t[?]', #template, template)
+    local template = string.format("%s/%sXXXXXX", dir, prefix)
+    local tempname = ffi.new("char[?]", #template + 1) -- zero-initialized
+    ffi.copy(tempname, template) -- \x00 already at the end
 
     local holder = C.mkstemp(tempname)
     if holder == -1 then

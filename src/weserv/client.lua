@@ -150,7 +150,7 @@ function client:request(uri, addl_headers, redirect_nr)
     if scheme == 'https' then
         local ok, handsake_err = httpc:ssl_handshake(nil, host, false)
         if not ok then
-            ngx.log(ngx.ERR, 'Failed to do SSL handshake', handsake_err)
+            ngx.log(ngx.ERR, 'Failed to do SSL handshake: ', handsake_err)
 
             return nil, {
                 status = ngx.HTTP_NOT_FOUND,
@@ -223,10 +223,9 @@ function client:request(uri, addl_headers, redirect_nr)
     local f = assert(io.open(res.tmpfile, 'wb'))
 
     repeat
-        local chunk, read_err = reader(8192)
+        local chunk, read_err = reader(65536)
         if read_err then
             ngx.log(ngx.ERR, read_err)
-            break
         end
 
         if chunk then
