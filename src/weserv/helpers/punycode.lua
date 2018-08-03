@@ -1,4 +1,4 @@
-local bit = require 'bit'
+local bit = require "bit"
 local math = math
 local table = table
 local string = string
@@ -13,7 +13,7 @@ local skew = 38
 local damp = 700
 local initial_bias = 72
 local initial_n = 128 -- 0x80
-local delimiter = '-' -- 0x2D
+local delimiter = "-" -- 0x2D
 
 -- Highest positive signed 32-bit float value
 local max_int = 2147483647; -- aka. 0x7FFFFFFF or 2^31-1
@@ -28,7 +28,7 @@ punycode.__index = punycode
 function punycode.utf8_code(code, ...)
     local offset = { 0, 0x3000, 0xE0000, 0x3C00000 }
 
-    local num_bytes = select('#', ...)
+    local num_bytes = select("#", ...)
     for i = 1, num_bytes do
         local b = select(i, ...)
         code = bit.lshift(code, 6) + bit.band(b, 63)
@@ -42,7 +42,7 @@ end
 function punycode.to_ucs4(str)
     local out = {}
     -- https://stackoverflow.com/a/22954220/1480019
-    for c in str:gmatch('([%z\1-\127\194-\244][\128-\191]*)') do
+    for c in str:gmatch("([%z\1-\127\194-\244][\128-\191]*)") do
         out[#out + 1] = punycode.utf8_code(string.byte(c, 1, -1))
     end
 
@@ -162,7 +162,7 @@ function punycode.encode(input)
         n = n + 1
     end
 
-    return table.concat(codepoints, '')
+    return table.concat(codepoints, "")
 end
 
 --- Encode a IDN domain.
@@ -170,22 +170,22 @@ end
 -- If any encoding was required, the "xn--" prefix is added.
 function punycode.domain_encode(domain)
     local labels = {}
-    for label in domain:gmatch('([^.]+)%.?') do
+    for label in domain:gmatch("([^.]+)%.?") do
         -- Domain names can only consist of [a-zA-Z0-9-] and aren't allowed
         -- to start or end with a hyphen
         local first, last = label:sub(1, 1), label:sub(-1)
-        if first == '-' or last == '-' then
-            return nil, 'Invalid domain label'
+        if first == "-" or last == "-" then
+            return nil, "Invalid domain label"
         end
 
-        if label:match('^[a-zA-Z0-9-]+$') then
+        if label:match("^[a-zA-Z0-9-]+$") then
             labels[#labels + 1] = label
-        elseif label:sub(1, 1) ~= '-' and label:sub(2, 2) ~= '-' then
-            labels[#labels + 1] = 'xn--' .. punycode.encode(label)
+        elseif label:sub(1, 1) ~= "-" and label:sub(2, 2) ~= "-" then
+            labels[#labels + 1] = "xn--" .. punycode.encode(label)
         end
     end
 
-    return table.concat(labels, '.')
+    return table.concat(labels, ".")
 end
 
 return punycode

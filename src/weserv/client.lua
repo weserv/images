@@ -31,9 +31,9 @@ end
 -- @return Status code.
 function client.status_code(err)
     local error_codes = {
-        ['(3: Host not found)'] = ngx.HTTP_GONE,
-        ['(110: Operation timed out)'] = ngx.HTTP_REQUEST_TIMEOUT,
-        ['timeout'] = ngx.HTTP_REQUEST_TIMEOUT,
+        ["(3: Host not found)"] = ngx.HTTP_GONE,
+        ["(110: Operation timed out)"] = ngx.HTTP_REQUEST_TIMEOUT,
+        ["timeout"] = ngx.HTTP_REQUEST_TIMEOUT,
     }
 
     -- Default: HTTP 404 not found
@@ -54,7 +54,7 @@ end
 -- @return true if valid, otherwise nil with status code and error
 function client:is_valid_response(res)
     if next(self.config.allowed_mime_types) ~= nil and
-            not self.config.allowed_mime_types[res.headers['Content-Type']] then
+            not self.config.allowed_mime_types[res.headers["Content-Type"]] then
         local supported_images = {}
         for k, _ in pairs(self.config.allowed_mime_types) do
             supported_images[#supported_images + 1] = k
@@ -70,7 +70,7 @@ Allowed mime types: %s]]
     end
 
     if self.config.max_image_size ~= 0 then
-        local length = tonumber(res.headers['Content-Length'])
+        local length = tonumber(res.headers["Content-Length"])
 
         if length ~= nil and length > self.config.max_image_size then
             local error_template = [[The image is too big to be downloaded.
@@ -88,7 +88,7 @@ Max image size: %s]]
     if res.status ~= ngx.HTTP_OK then
         return nil, {
             status = ngx.HTTP_NOT_FOUND,
-            message = 'The requested URL returned error: ' .. res.status
+            message = "The requested URL returned error: " .. res.status
         }
     end
 
@@ -113,10 +113,10 @@ function client:request(uri, addl_headers, redirect_nr)
 
     local params = {
         headers = {
-            ['User-Agent'] = self.config.user_agent
+            ["User-Agent"] = self.config.user_agent
         },
-        path = '',
-        query = '',
+        path = "",
+        query = "",
     }
 
     for k, v in pairs(addl_headers) do
@@ -147,14 +147,14 @@ function client:request(uri, addl_headers, redirect_nr)
         }
     end
 
-    if scheme == 'https' then
+    if scheme == "https" then
         local ok, handsake_err = httpc:ssl_handshake(nil, host, false)
         if not ok then
-            ngx.log(ngx.ERR, 'Failed to do SSL handshake: ', handsake_err)
+            ngx.log(ngx.ERR, "Failed to do SSL handshake: ", handsake_err)
 
             return nil, {
                 status = ngx.HTTP_NOT_FOUND,
-                message = 'Failed to do SSL handshake.',
+                message = "Failed to do SSL handshake.",
             }
         end
     end
@@ -171,7 +171,7 @@ function client:request(uri, addl_headers, redirect_nr)
         }
     end
 
-    if res.status >= 300 and res.status <= 308 and res.headers['Location'] ~= nil then
+    if res.status >= 300 and res.status <= 308 and res.headers["Location"] ~= nil then
         httpc:close()
 
         if query and query ~= "" then
@@ -179,12 +179,12 @@ function client:request(uri, addl_headers, redirect_nr)
         end
 
         local referer = {
-            ['Referer'] = scheme .. '://' .. host .. path
+            ["Referer"] = scheme .. "://" .. host .. path
         }
 
         -- recursive call
         -- Note: Make sure that we unescape the redirect URI.
-        return self:request(ngx.unescape_uri(res.headers['Location']), referer, redirect_nr + 1)
+        return self:request(ngx.unescape_uri(res.headers["Location"]), referer, redirect_nr + 1)
     end
 
     local valid, invalid_err = self:is_valid_response(res)
@@ -204,7 +204,7 @@ function client:request(uri, addl_headers, redirect_nr)
         -- Most likely HEAD or 204 etc.
         return nil, {
             status = ngx.HTTP_NOT_FOUND,
-            message = 'No body to be read.',
+            message = "No body to be read.",
         }
     end
 
@@ -213,15 +213,15 @@ function client:request(uri, addl_headers, redirect_nr)
     if not res.tmpfile then
         httpc:close()
 
-        ngx.log(ngx.ERR, 'Unable to generate a unique file.')
+        ngx.log(ngx.ERR, "Unable to generate a unique file.")
 
         return nil, {
             status = ngx.HTTP_INTERNAL_SERVER_ERROR,
-            message = 'Unable to generate a unique file.',
+            message = "Unable to generate a unique file.",
         }
     end
 
-    local f = assert(io.open(res.tmpfile, 'wb'))
+    local f = assert(io.open(res.tmpfile, "wb"))
 
     repeat
         local chunk, read_err = reader(65536)
@@ -237,12 +237,12 @@ function client:request(uri, addl_headers, redirect_nr)
 
     local ok, keepalive_err = httpc:set_keepalive()
     if not ok then
-        ngx.log(ngx.ERR, 'Failed to set keepalive: ', keepalive_err)
+        ngx.log(ngx.ERR, "Failed to set keepalive: ", keepalive_err)
         os.remove(res.tmpfile)
 
         return nil, {
             status = ngx.HTTP_NOT_FOUND,
-            message = 'Failed to set keepalive.',
+            message = "Failed to set keepalive.",
         }
     end
 

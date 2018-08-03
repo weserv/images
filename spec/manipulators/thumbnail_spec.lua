@@ -27,40 +27,40 @@ describe("thumbnail manipulator", function()
 
     describe("test resolve", function()
         it("dpr", function()
-            assert.equal(1.0, manipulator.resolve_dpr('invalid'))
-            assert.equal(1.0, manipulator.resolve_dpr('-1'))
-            assert.equal(1.0, manipulator.resolve_dpr('9'))
-            assert.equal(2.0, manipulator.resolve_dpr('2'))
+            assert.equal(1.0, manipulator.resolve_dpr("invalid"))
+            assert.equal(1.0, manipulator.resolve_dpr("-1"))
+            assert.equal(1.0, manipulator.resolve_dpr("9"))
+            assert.equal(2.0, manipulator.resolve_dpr("2"))
         end)
 
         it("dimension", function()
-            assert.equal(0, manipulator.resolve_dimension('invalid'))
-            assert.equal(0, manipulator.resolve_dimension('-1'))
-            assert.equal(0, manipulator.resolve_dimension('0'))
-            assert.equal(100, manipulator.resolve_dimension('100'))
+            assert.equal(0, manipulator.resolve_dimension("invalid"))
+            assert.equal(0, manipulator.resolve_dimension("-1"))
+            assert.equal(0, manipulator.resolve_dimension("0"))
+            assert.equal(100, manipulator.resolve_dimension("100"))
         end)
 
         it("fit", function()
-            assert.equal('fit', manipulator.resolve_fit('fit'))
-            assert.equal('fitup', manipulator.resolve_fit('fitup'))
-            assert.equal('square', manipulator.resolve_fit('square'))
-            assert.equal('squaredown', manipulator.resolve_fit('squaredown'))
-            assert.equal('absolute', manipulator.resolve_fit('absolute'))
-            assert.equal('letterbox', manipulator.resolve_fit('letterbox'))
-            assert.equal('crop', manipulator.resolve_fit('crop-top-left'))
-            assert.equal('crop', manipulator.resolve_fit('crop-bottom-left'))
-            assert.equal('crop', manipulator.resolve_fit('crop-left'))
-            assert.equal('crop', manipulator.resolve_fit('crop-top-right'))
-            assert.equal('crop', manipulator.resolve_fit('crop-bottom-right'))
-            assert.equal('crop', manipulator.resolve_fit('crop-right'))
-            assert.equal('crop', manipulator.resolve_fit('crop-top'))
-            assert.equal('crop', manipulator.resolve_fit('crop-bottom'))
-            assert.equal('crop', manipulator.resolve_fit('crop-center'))
-            assert.equal('crop', manipulator.resolve_fit('crop-25-75'))
-            assert.equal('crop', manipulator.resolve_fit('crop-0-100'))
-            assert.equal('crop', manipulator.resolve_fit('crop-101-102'))
-            assert.equal('fit', manipulator.resolve_fit('invalid'))
-            assert.equal('fit', manipulator.resolve_fit(nil))
+            assert.equal("fit", manipulator.resolve_fit("fit"))
+            assert.equal("fitup", manipulator.resolve_fit("fitup"))
+            assert.equal("square", manipulator.resolve_fit("square"))
+            assert.equal("squaredown", manipulator.resolve_fit("squaredown"))
+            assert.equal("absolute", manipulator.resolve_fit("absolute"))
+            assert.equal("letterbox", manipulator.resolve_fit("letterbox"))
+            assert.equal("crop", manipulator.resolve_fit("crop-top-left"))
+            assert.equal("crop", manipulator.resolve_fit("crop-bottom-left"))
+            assert.equal("crop", manipulator.resolve_fit("crop-left"))
+            assert.equal("crop", manipulator.resolve_fit("crop-top-right"))
+            assert.equal("crop", manipulator.resolve_fit("crop-bottom-right"))
+            assert.equal("crop", manipulator.resolve_fit("crop-right"))
+            assert.equal("crop", manipulator.resolve_fit("crop-top"))
+            assert.equal("crop", manipulator.resolve_fit("crop-bottom"))
+            assert.equal("crop", manipulator.resolve_fit("crop-center"))
+            assert.equal("crop", manipulator.resolve_fit("crop-25-75"))
+            assert.equal("crop", manipulator.resolve_fit("crop-0-100"))
+            assert.equal("crop", manipulator.resolve_fit("crop-101-102"))
+            assert.equal("fit", manipulator.resolve_fit("invalid"))
+            assert.equal("fit", manipulator.resolve_fit(nil))
         end)
     end)
 
@@ -77,9 +77,9 @@ describe("thumbnail manipulator", function()
         it("output", function()
             local test_image = fixtures.input_jpg
             local image, api_err = api:process(test_image, {
-                w = '8500',
-                h = '8500',
-                t = 'absolute'
+                w = "8500",
+                h = "8500",
+                t = "absolute"
             })
 
             assert.falsy(image)
@@ -89,21 +89,21 @@ describe("thumbnail manipulator", function()
     end)
 
     it("test without enlargement", function()
-        assert.True(manipulator.without_enlargement('fit'))
-        assert.True(manipulator.without_enlargement('squaredown'))
-        assert.False(manipulator.without_enlargement('fitup'))
-        assert.False(manipulator.without_enlargement('square'))
-        assert.False(manipulator.without_enlargement('absolute'))
-        assert.False(manipulator.without_enlargement('letterbox'))
-        assert.False(manipulator.without_enlargement('invalid'))
+        assert.True(manipulator.without_enlargement("fit"))
+        assert.True(manipulator.without_enlargement("squaredown"))
+        assert.False(manipulator.without_enlargement("fitup"))
+        assert.False(manipulator.without_enlargement("square"))
+        assert.False(manipulator.without_enlargement("absolute"))
+        assert.False(manipulator.without_enlargement("letterbox"))
+        assert.False(manipulator.without_enlargement("invalid"))
         assert.False(manipulator.without_enlargement(nil))
     end)
 
     it("test fit", function()
         local test_image = fixtures.input_jpg
         local params = {
-            w = '320',
-            h = '240'
+            w = "320",
+            h = "240"
         }
 
         local image = api:process(test_image, params)
@@ -119,7 +119,7 @@ describe("thumbnail manipulator", function()
 
         it("width", function()
             local params = {
-                w = '320'
+                w = "320"
             }
 
             local image = api:process(test_image, params)
@@ -131,7 +131,7 @@ describe("thumbnail manipulator", function()
 
         it("height", function()
             local params = {
-                h = '320'
+                h = "320"
             }
 
             local image = api:process(test_image, params)
@@ -145,8 +145,8 @@ describe("thumbnail manipulator", function()
     it("test invalid height", function()
         local test_image = fixtures.input_jpg
         local params = {
-            w = '320',
-            h = '-100'
+            w = "320",
+            h = "-100"
         }
 
         local image = api:process(test_image, params)
@@ -170,8 +170,8 @@ describe("thumbnail manipulator", function()
     it("test fitup", function()
         local test_image = fixtures.input_jpg
         local params = {
-            w = '3000',
-            t = 'fitup'
+            w = "3000",
+            t = "fitup"
         }
 
         local image = api:process(test_image, params)
@@ -186,9 +186,9 @@ describe("thumbnail manipulator", function()
 
         it("normal", function()
             local params = {
-                w = '320',
-                h = '240',
-                t = 'square'
+                w = "320",
+                h = "240",
+                t = "square"
             }
 
             local image = api:process(test_image, params)
@@ -200,8 +200,8 @@ describe("thumbnail manipulator", function()
 
         it("upscale", function()
             local params = {
-                w = '3000',
-                t = 'square'
+                w = "3000",
+                t = "square"
             }
 
             local image = api:process(test_image, params)
@@ -214,8 +214,8 @@ describe("thumbnail manipulator", function()
         -- Do not enlarge when input width is already less than output width
         it("down width", function()
             local params = {
-                w = '2800',
-                t = 'squaredown'
+                w = "2800",
+                t = "squaredown"
             }
 
             local image = api:process(test_image, params)
@@ -228,8 +228,8 @@ describe("thumbnail manipulator", function()
         -- Do not enlarge when input height is already less than output height
         it("down height", function()
             local params = {
-                h = '2300',
-                t = 'squaredown'
+                h = "2300",
+                t = "squaredown"
             }
 
             local image = api:process(test_image, params)
@@ -245,9 +245,9 @@ describe("thumbnail manipulator", function()
 
         it("square", function()
             local params = {
-                w = '240',
-                h = '320',
-                t = 'square'
+                w = "240",
+                h = "320",
+                t = "square"
             }
 
             local image = api:process(test_image, params)
@@ -260,8 +260,8 @@ describe("thumbnail manipulator", function()
         -- Width or height considering ratio (portrait)
         it("ratio portrait", function()
             local params = {
-                w = '320',
-                h = '320'
+                w = "320",
+                h = "320"
             }
 
             local image = api:process(test_image, params)
@@ -276,8 +276,8 @@ describe("thumbnail manipulator", function()
     it("test jpg ratio landscape", function()
         local test_image = fixtures.input_jpg
         local params = {
-            w = '320',
-            h = '320'
+            w = "320",
+            h = "320"
         }
 
         local image = api:process(test_image, params)
@@ -293,9 +293,9 @@ describe("thumbnail manipulator", function()
         -- Downscale width and height, ignoring aspect ratio
         it("downscale", function()
             local params = {
-                w = '320',
-                h = '320',
-                t = 'absolute'
+                w = "320",
+                h = "320",
+                t = "absolute"
             }
 
             local image = api:process(test_image, params)
@@ -308,8 +308,8 @@ describe("thumbnail manipulator", function()
         -- Downscale width, ignoring aspect ratio
         it("downscale width", function()
             local params = {
-                w = '320',
-                t = 'absolute'
+                w = "320",
+                t = "absolute"
             }
 
             local image = api:process(test_image, params)
@@ -322,8 +322,8 @@ describe("thumbnail manipulator", function()
         -- Downscale height, ignoring aspect ratio
         it("downscale height", function()
             local params = {
-                h = '320',
-                t = 'absolute'
+                h = "320",
+                t = "absolute"
             }
 
             local image = api:process(test_image, params)
@@ -336,9 +336,9 @@ describe("thumbnail manipulator", function()
         -- Upscale width and height, ignoring aspect ratio
         it("upscale", function()
             local params = {
-                w = '3000',
-                h = '3000',
-                t = 'absolute'
+                w = "3000",
+                h = "3000",
+                t = "absolute"
             }
 
             local image = api:process(test_image, params)
@@ -351,8 +351,8 @@ describe("thumbnail manipulator", function()
         -- Upscale width, ignoring aspect ratio
         it("upscale width", function()
             local params = {
-                w = '3000',
-                t = 'absolute'
+                w = "3000",
+                t = "absolute"
             }
 
             local image = api:process(test_image, params)
@@ -365,8 +365,8 @@ describe("thumbnail manipulator", function()
         -- Upscale height, ignoring aspect ratio
         it("upscale height", function()
             local params = {
-                h = '3000',
-                t = 'absolute'
+                h = "3000",
+                t = "absolute"
             }
 
             local image = api:process(test_image, params)
@@ -379,9 +379,9 @@ describe("thumbnail manipulator", function()
         -- Downscale width, upscale height, ignoring aspect ratio
         it("downscale width upscale height", function()
             local params = {
-                w = '320',
-                h = '3000',
-                t = 'absolute'
+                w = "320",
+                h = "3000",
+                t = "absolute"
             }
 
             local image = api:process(test_image, params)
@@ -394,9 +394,9 @@ describe("thumbnail manipulator", function()
         -- Upscale width, downscale height, ignoring aspect ratio
         it("upscale width downscale height", function()
             local params = {
-                w = '3000',
-                h = '320',
-                t = 'absolute'
+                w = "3000",
+                h = "320",
+                t = "absolute"
             }
 
             local image = api:process(test_image, params)
@@ -409,7 +409,7 @@ describe("thumbnail manipulator", function()
         -- Upscale width, downscale height, ignoring aspect ratio
         it("identity transform", function()
             local params = {
-                t = 'absolute'
+                t = "absolute"
             }
 
             local image = api:process(test_image, params)
@@ -425,26 +425,26 @@ describe("thumbnail manipulator", function()
         it("CMYK to sRGB", function()
             local test_image = fixtures.input_jpg_with_cmyk_profile
             local params = {
-                w = '320'
+                w = "320"
             }
 
             local image = api:process(test_image, params)
 
-            assert.equal('rgb', image:interpretation())
+            assert.equal("rgb", image:interpretation())
             assert.equal(320, image:width())
         end)
 
         -- From profile-less CMYK to sRGB
         it("profile-less CMYK to sRGB", function()
             local test_image = fixtures.input_jpg_with_cmyk_no_profile
-            local expected_image = fixtures.expected_dir .. '/colourspace.cmyk-without-profile.jpg'
+            local expected_image = fixtures.expected_dir .. "/colourspace.cmyk-without-profile.jpg"
             local params = {
-                w = '320'
+                w = "320"
             }
 
             local image = api:process(test_image, params)
 
-            assert.equal('rgb', image:interpretation())
+            assert.equal("rgb", image:interpretation())
             assert.equal(320, image:width())
             assert.similar_image(expected_image, image)
         end)

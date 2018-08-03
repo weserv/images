@@ -6,14 +6,14 @@ local tonumber = tonumber
 
 -- Profile map to ensure that we use a device-
 -- independent color space for the images we process.
-local root_dir = (ngx.get_phase() == 'content' and ngx.var.weserv_root ~= nil) and ngx.var.weserv_root or '.'
+local root_dir = (ngx.get_phase() == "content" and ngx.var.weserv_root ~= nil) and ngx.var.weserv_root or "."
 local profile_map = {
     -- Default sRGB ICC profile from:
     -- https://packages.debian.org/sid/all/icc-profiles-free/filelist
-    srgb = root_dir .. '/src/weserv/ICC/sRGB.icm',
+    srgb = root_dir .. "/src/weserv/ICC/sRGB.icm",
     -- Convert to sRGB using default CMYK profile from:
     -- https://www.argyllcms.com/cmyk.icm
-    cmyk = root_dir .. '/src/weserv/ICC/cmyk.icm',
+    cmyk = root_dir .. "/src/weserv/ICC/cmyk.icm",
 }
 
 local VIPS_MAX_COORD = 10000000
@@ -55,27 +55,27 @@ end
 -- @param t The given fit.
 -- @return The resolved fit.
 function manipulator.resolve_fit(t)
-    if t == 'fit' or
-            t == 'fitup' or
-            t == 'square' or
-            t == 'squaredown' or
-            t == 'absolute' or
-            t == 'letterbox' then
+    if t == "fit" or
+            t == "fitup" or
+            t == "square" or
+            t == "squaredown" or
+            t == "absolute" or
+            t == "letterbox" then
         return t
     end
 
-    if t ~= nil and t:sub(1, 4) == 'crop' then
-        return 'crop'
+    if t ~= nil and t:sub(1, 4) == "crop" then
+        return "crop"
     end
 
-    return 'fit'
+    return "fit"
 end
 
 --- Indicating if we should not enlarge the output image.
 -- @param fit The resolved fit.
 -- @return bool
 function manipulator.without_enlargement(fit)
-    return fit == 'fit' or fit == 'squaredown'
+    return fit == "fit" or fit == "squaredown"
 end
 
 --- Perform thumbnail image manipulation.
@@ -85,7 +85,7 @@ function manipulator:process(image, args)
     if image:width() * image:height() > MAX_IMAGE_SIZE then
         return nil, {
             status = ngx.HTTP_BAD_REQUEST,
-            message = 'Image is too large for processing. Width x height should be less than 71 megapixels.',
+            message = "Image is too large for processing. Width x height should be less than 71 megapixels.",
         }
     end
 
@@ -105,7 +105,7 @@ function manipulator:process(image, args)
         linear = false,
     }
 
-    local is_cmyk = image:interpretation() == 'cmyk'
+    local is_cmyk = image:interpretation() == "cmyk"
     local embedded_profile = utils.has_profile(image)
 
     -- Ensure we're using a device-independent color space
@@ -122,7 +122,7 @@ function manipulator:process(image, args)
         thumbnail_options.export_profile = profile_map.srgb
 
         -- Use "perceptual" intent to better match imagemagick.
-        thumbnail_options.intent = 'perceptual'
+        thumbnail_options.intent = "perceptual"
     end
 
     local input_width = image:width()
@@ -147,13 +147,13 @@ function manipulator:process(image, args)
         local x_factor = input_width / args.w
         local y_factor = input_height / args.h
 
-        if fit == 'square' or fit == 'squaredown' or fit == 'crop' then
+        if fit == "square" or fit == "squaredown" or fit == "crop" then
             if x_factor < y_factor then
                 target_resize_height = math.floor((input_height / x_factor) + 0.5)
             else
                 target_resize_width = math.floor((input_width / y_factor) + 0.5)
             end
-        elseif fit == 'letterbox' or fit == 'fit' or fit == 'fitup' then
+        elseif fit == "letterbox" or fit == "fit" or fit == "fitup" then
             if x_factor > y_factor then
                 target_resize_height = math.floor((input_height / x_factor) + 0.5)
             else
@@ -161,7 +161,7 @@ function manipulator:process(image, args)
             end
         end
     elseif args.w > 0 then -- Fixed width
-        if fit == 'absolute' then
+        if fit == "absolute" then
             target_resize_height = input_height
             args.h = input_height
         else
@@ -174,7 +174,7 @@ function manipulator:process(image, args)
             target_resize_height = VIPS_MAX_COORD
         end
     elseif args.h > 0 then -- Fixed height
-        if fit == 'absolute' then
+        if fit == "absolute" then
             target_resize_width = input_width
             args.w = input_width
         else
@@ -207,23 +207,23 @@ function manipulator:process(image, args)
     -- Assign settings
     thumbnail_options.height = target_resize_height
 
-    if fit == 'absolute' then
-        thumbnail_options.size = 'force'
+    if fit == "absolute" then
+        thumbnail_options.size = "force"
     elseif manipulator.without_enlargement(fit) then
-        thumbnail_options.size = 'down'
+        thumbnail_options.size = "down"
 
         -- No need to check max image size because
         -- the operation will only downsize.
         check_max_image_size = false
     else
-        thumbnail_options.size = 'both'
+        thumbnail_options.size = "both"
     end
 
     -- targetResizeWidth and targetResizeWidth aren't reliable anymore.
     if check_max_image_size and args.w * args.h > MAX_IMAGE_SIZE then
         return nil, {
             status = ngx.HTTP_BAD_REQUEST,
-            message = 'Requested image dimensions are too large. Width x height should be less than 71 megapixels.',
+            message = "Requested image dimensions are too large. Width x height should be less than 71 megapixels.",
         }
     end
 

@@ -4,7 +4,7 @@ describe("throttler", function()
     local default_config = {
         allowed_requests = 700, -- 700 allowed requests
         minutes = 3, --  In 3 minutes
-        prefix = 'c', -- Cache key prefix
+        prefix = "c", -- Cache key prefix
         policy = {
             ban_time = 60, -- If exceed, ban for 60 minutes
             cloudflare = {
@@ -79,7 +79,7 @@ describe("throttler", function()
                     options_tbl[options[k]] = options[k + 1]
                 end
 
-                database[key] = { value, options_tbl['ex'] }
+                database[key] = { value, options_tbl["ex"] }
 
                 return 1
             end,
@@ -144,7 +144,7 @@ describe("throttler", function()
     end)
 
     it("test is lockout", function()
-        local ip_address = '127.0.0.1'
+        local ip_address = "127.0.0.1"
         local lockout_key = string.format("%s_%s:lockout", default_config.prefix, ip_address)
         local lockout_ttl = default_config.policy.ban_time * 60
         local lockout_expires = os.time() + lockout_ttl
@@ -155,7 +155,7 @@ describe("throttler", function()
     end)
 
     it("test is exceeded", function()
-        local ip_address = '127.0.0.1'
+        local ip_address = "127.0.0.1"
         local lockout_key = string.format("%s_%s:lockout", default_config.prefix, ip_address)
         local lockout_ttl = default_config.policy.ban_time * 60
         local incr_key = string.format("%s_%s", default_config.prefix, ip_address)
@@ -166,12 +166,12 @@ describe("throttler", function()
         assert.spy(stubbed_redis.exists).was_called_with(match._, lockout_key)
         assert.spy(stubbed_redis.incr).was_called_with(match._, incr_key)
         assert.spy(stubbed_policy.ban_at_cloudflare).was_called_with(match._, ip_address)
-        assert.spy(stubbed_redis.set).was_called_with(match._, lockout_key, match._, 'ex', lockout_ttl)
+        assert.spy(stubbed_redis.set).was_called_with(match._, lockout_key, match._, "ex", lockout_ttl)
         assert.spy(stubbed_redis.del).was_called_with(match._, incr_key)
     end)
 
     it("test is not exceeded", function()
-        local ip_address = '127.0.0.1'
+        local ip_address = "127.0.0.1"
         local lockout_key = string.format("%s_%s:lockout", default_config.prefix, ip_address)
         local incr_key = string.format("%s_%s", default_config.prefix, ip_address)
         local incr_ttl = default_config.minutes * 60
@@ -183,7 +183,7 @@ describe("throttler", function()
     end)
 
     it("test increment", function()
-        local ip_address = '127.0.0.1'
+        local ip_address = "127.0.0.1"
         local incr_key = string.format("%s_%s", default_config.prefix, ip_address)
         local incr_ttl = default_config.minutes * 60
 
@@ -193,7 +193,7 @@ describe("throttler", function()
     end)
 
     it("test attempts", function()
-        local ip_address = '127.0.0.1'
+        local ip_address = "127.0.0.1"
         local incr_key = string.format("%s_%s", default_config.prefix, ip_address)
         local incr_ttl = default_config.minutes * 60
         database[incr_key] = { 1, incr_ttl }
@@ -203,7 +203,7 @@ describe("throttler", function()
     end)
 
     it("test reset attempts", function()
-        local ip_address = '127.0.0.1'
+        local ip_address = "127.0.0.1"
         local incr_key = string.format("%s_%s", default_config.prefix, ip_address)
         local incr_ttl = default_config.minutes * 60
         database[incr_key] = { default_config.allowed_requests + 1, incr_ttl }
@@ -213,7 +213,7 @@ describe("throttler", function()
     end)
 
     it("test zero attempts all retries left", function()
-        local ip_address = '127.0.0.1'
+        local ip_address = "127.0.0.1"
         local incr_key = string.format("%s_%s", default_config.prefix, ip_address)
         local incr_ttl = default_config.minutes * 60
         database[incr_key] = { 0, incr_ttl }
@@ -224,7 +224,7 @@ describe("throttler", function()
     end)
 
     it("test retries left", function()
-        local ip_address = '127.0.0.1'
+        local ip_address = "127.0.0.1"
         local incr_key = string.format("%s_%s", default_config.prefix, ip_address)
         local incr_ttl = default_config.minutes * 60
         database[incr_key] = { 2, incr_ttl }
@@ -235,7 +235,7 @@ describe("throttler", function()
     end)
 
     it("test clear", function()
-        local ip_address = '127.0.0.1'
+        local ip_address = "127.0.0.1"
         local incr_key = string.format("%s_%s", default_config.prefix, ip_address)
         local incr_ttl = default_config.minutes * 60
         database[incr_key] = { default_config.allowed_requests + 1, incr_ttl }
@@ -252,7 +252,7 @@ describe("throttler", function()
     end)
 
     it("test available in", function()
-        local ip_address = '127.0.0.1'
+        local ip_address = "127.0.0.1"
         local lockout_key = string.format("%s_%s:lockout", default_config.prefix, ip_address)
         local lockout_ttl = default_config.policy.ban_time * 60
         local lockout_expires = os.time() + lockout_ttl
@@ -264,9 +264,9 @@ describe("throttler", function()
 
     describe("test redis error", function()
         it("set", function()
-            errors.set = 'Something went wrong'
+            errors.set = "Something went wrong"
 
-            local ip_address = '127.0.0.1'
+            local ip_address = "127.0.0.1"
             local incr_key = string.format("%s_%s", default_config.prefix, ip_address)
             local incr_ttl = default_config.minutes * 60
             database[incr_key] = { default_config.allowed_requests, incr_ttl }
@@ -278,9 +278,9 @@ describe("throttler", function()
         end)
 
         it("incr", function()
-            errors.incr = 'Something went wrong'
+            errors.incr = "Something went wrong"
 
-            local ip_address = '127.0.0.1'
+            local ip_address = "127.0.0.1"
 
             assert.equal(-1, throttler:increment(ip_address, default_config.minutes))
 
@@ -289,9 +289,9 @@ describe("throttler", function()
         end)
 
         it("expire", function()
-            errors.expire = 'Something went wrong'
+            errors.expire = "Something went wrong"
 
-            local ip_address = '127.0.0.1'
+            local ip_address = "127.0.0.1"
 
             assert.equal(1, throttler:increment(ip_address, default_config.minutes))
 
@@ -300,9 +300,9 @@ describe("throttler", function()
         end)
 
         it("get attempts", function()
-            errors.get = 'Something went wrong'
+            errors.get = "Something went wrong"
 
-            local ip_address = '127.0.0.1'
+            local ip_address = "127.0.0.1"
 
             assert.equal(-1, throttler:attempts(ip_address))
 
@@ -311,9 +311,9 @@ describe("throttler", function()
         end)
 
         it("del attempts", function()
-            errors.del = 'Something went wrong'
+            errors.del = "Something went wrong"
 
-            local ip_address = '127.0.0.1'
+            local ip_address = "127.0.0.1"
 
             assert.False(throttler:reset_attempts(ip_address))
 
@@ -322,9 +322,9 @@ describe("throttler", function()
         end)
 
         it("del clear", function()
-            errors.del = 'Something went wrong'
+            errors.del = "Something went wrong"
 
-            local ip_address = '127.0.0.1'
+            local ip_address = "127.0.0.1"
 
             assert.False(throttler:clear(ip_address))
 
@@ -333,9 +333,9 @@ describe("throttler", function()
         end)
 
         it("get available in", function()
-            errors.get = 'Something went wrong'
+            errors.get = "Something went wrong"
 
-            local ip_address = '127.0.0.1'
+            local ip_address = "127.0.0.1"
 
             assert.equal(-1, throttler:available_in(ip_address))
 

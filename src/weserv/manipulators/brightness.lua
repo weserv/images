@@ -44,7 +44,7 @@ function manipulator:process(image, args)
         end
 
         --[[local old_interpretation = image:interpretation()
-        local lch = image:colourspace('lch')
+        local lch = image:colourspace("lch")
 
         -- Edit the brightness
         image = lch:add({brightness, 1, 1}):colourspace(old_interpretation)]]

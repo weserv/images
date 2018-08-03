@@ -38,7 +38,7 @@ function policy:ban_at_cloudflare(ip_address)
     local body = cjson.encode({
         mode = self.config.cloudflare.mode,
         configuration = {
-            target = 'ip',
+            target = "ip",
             value = ip_address,
         },
         notes = "Banned until " .. os.date("%Y-%m-%dT%H:%M:%SZ", os.time() + (self:get_ban_time() * 60)),
@@ -48,12 +48,12 @@ function policy:ban_at_cloudflare(ip_address)
     local uri_template = "https://api.cloudflare.com/client/v4/zones/%s/firewall/access_rules/rules"
     local uri = string.format(uri_template, self.config.cloudflare.zone_id)
     local res, request_err = httpc:request_uri(uri, {
-        method = 'POST',
+        method = "POST",
         body = body,
         headers = {
-            ['X-Auth-Email'] = self.config.cloudflare.email,
-            ['X-Auth-Key'] = self.config.cloudflare.auth_key,
-            ['Content-Type'] = 'application/json',
+            ["X-Auth-Email"] = self.config.cloudflare.email,
+            ["X-Auth-Key"] = self.config.cloudflare.auth_key,
+            ["Content-Type"] = "application/json",
         },
         ssl_verify = false,
     })
@@ -86,19 +86,19 @@ end
 -- @return true if the unban was successful, false otherwise.
 function policy:unban_at_cloudflare(identifier)
     local body = cjson.encode({
-        cascade = 'none',
+        cascade = "none",
     })
 
     local httpc = http.new()
     local uri_template = "https://api.cloudflare.com/client/v4/zones/%s/firewall/access_rules/rules/%s"
     local uri = string.format(uri_template, self.config.cloudflare.zone_id, identifier)
     local res, request_err = httpc:request_uri(uri, {
-        method = 'DELETE',
+        method = "DELETE",
         body = body,
         headers = {
-            ['X-Auth-Email'] = self.config.cloudflare.email,
-            ['X-Auth-Key'] = self.config.cloudflare.auth_key,
-            ['Content-Type'] = 'application/json',
+            ["X-Auth-Email"] = self.config.cloudflare.email,
+            ["X-Auth-Key"] = self.config.cloudflare.auth_key,
+            ["Content-Type"] = "application/json",
         },
         ssl_verify = false,
     })

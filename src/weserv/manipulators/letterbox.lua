@@ -12,7 +12,7 @@ function manipulator:process(image, args)
     local width, height = args.w, args.h
     local image_width, image_height = image:width(), image:height()
 
-    if (image_width ~= width or image_height ~= height) and args.t == 'letterbox' then
+    if (image_width ~= width or image_height ~= height) and args.t == "letterbox" then
         -- Always letterbox with a transparent background;
         -- the background manipulator will handle the background color.
         local background = { 0, 0, 0, 0 }
@@ -27,7 +27,7 @@ function manipulator:process(image, args)
         local top = math.floor(((height - image_height) / 2) + 0.5)
 
         image = image:embed(left, top, width, height, {
-            extend = 'background',
+            extend = "background",
             background = background
         })
     end

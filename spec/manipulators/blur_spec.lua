@@ -25,22 +25,22 @@ describe("blur manipulator", function()
     end)
 
     it("test resolve blur", function()
-        assert.equal(50, manipulator.resolve_blur('50'))
+        assert.equal(50, manipulator.resolve_blur("50"))
         assert.equal(-1.0, manipulator.resolve_blur(nil))
-        assert.equal(-1.0, manipulator.resolve_blur('a'))
-        assert.equal(-1.0, manipulator.resolve_blur('-1'))
-        assert.equal(-1.0, manipulator.resolve_blur('1001'))
+        assert.equal(-1.0, manipulator.resolve_blur("a"))
+        assert.equal(-1.0, manipulator.resolve_blur("-1"))
+        assert.equal(-1.0, manipulator.resolve_blur("1001"))
     end)
 
     describe("test blur", function()
         it("radius 1", function()
             local test_image = fixtures.input_jpg
-            local expected_image = fixtures.expected_dir .. '/blur-1.jpg'
+            local expected_image = fixtures.expected_dir .. "/blur-1.jpg"
             local params = {
-                w = '320',
-                h = '240',
-                t = 'square',
-                blur = '1'
+                w = "320",
+                h = "240",
+                t = "square",
+                blur = "1"
             }
 
             local image = api:process(test_image, params)
@@ -52,12 +52,12 @@ describe("blur manipulator", function()
 
         it("radius 10", function()
             local test_image = fixtures.input_jpg
-            local expected_image = fixtures.expected_dir .. '/blur-10.jpg'
+            local expected_image = fixtures.expected_dir .. "/blur-10.jpg"
             local params = {
-                w = '320',
-                h = '240',
-                t = 'square',
-                blur = '10'
+                w = "320",
+                h = "240",
+                t = "square",
+                blur = "10"
             }
 
             local image = api:process(test_image, params)
@@ -69,12 +69,12 @@ describe("blur manipulator", function()
 
         it("radius 0.3", function()
             local test_image = fixtures.input_jpg
-            local expected_image = fixtures.expected_dir .. '/blur-0.3.jpg'
+            local expected_image = fixtures.expected_dir .. "/blur-0.3.jpg"
             local params = {
-                w = '320',
-                h = '240',
-                t = 'square',
-                blur = '0.3'
+                w = "320",
+                h = "240",
+                t = "square",
+                blur = "0.3"
             }
 
             local image = api:process(test_image, params)
@@ -86,12 +86,12 @@ describe("blur manipulator", function()
 
         it("mild", function()
             local test_image = fixtures.input_jpg
-            local expected_image = fixtures.expected_dir .. '/blur-mild.jpg'
+            local expected_image = fixtures.expected_dir .. "/blur-mild.jpg"
             local params = {
-                w = '320',
-                h = '240',
-                t = 'square',
-                blur = 'true'
+                w = "320",
+                h = "240",
+                t = "square",
+                blur = "true"
             }
 
             local image = api:process(test_image, params)
@@ -103,12 +103,12 @@ describe("blur manipulator", function()
 
         it("png transparent", function()
             local test_image = fixtures.input_png_overlay_layer1
-            local expected_image = fixtures.expected_dir .. '/blur-trans.png'
+            local expected_image = fixtures.expected_dir .. "/blur-trans.png"
             local params = {
-                w = '320',
-                h = '240',
-                t = 'square',
-                blur = '10'
+                w = "320",
+                h = "240",
+                t = "square",
+                blur = "10"
             }
 
             local image = api:process(test_image, params)

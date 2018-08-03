@@ -15,19 +15,19 @@ function manipulator.resolve_crop(crop)
     end
 
     local crop_methods = {
-        ['top-left'] = { 0, 0 },
-        ['t'] = { 50, 0 }, -- Deprecated use top instead
-        ['top'] = { 50, 0 },
-        ['top-right'] = { 100, 0 },
-        ['l'] = { 0, 50 }, -- Deprecated use left instead
-        ['left'] = { 0, 50 },
-        ['center'] = { 50, 50 },
-        ['r'] = { 100, 50 }, -- Deprecated use right instead
-        ['right'] = { 100, 50 },
-        ['bottom-left'] = { 0, 100 },
-        ['b'] = { 50, 100 }, -- Deprecated use bottom instead
-        ['bottom'] = { 50, 100 },
-        ['bottom-right'] = { 100, 100 },
+        ["top-left"] = { 0, 0 },
+        ["t"] = { 50, 0 }, -- Deprecated use top instead
+        ["top"] = { 50, 0 },
+        ["top-right"] = { 100, 0 },
+        ["l"] = { 0, 50 }, -- Deprecated use left instead
+        ["left"] = { 0, 50 },
+        ["center"] = { 50, 50 },
+        ["r"] = { 100, 50 }, -- Deprecated use right instead
+        ["right"] = { 100, 50 },
+        ["bottom-left"] = { 0, 100 },
+        ["b"] = { 50, 100 }, -- Deprecated use bottom instead
+        ["bottom"] = { 50, 100 },
+        ["bottom-right"] = { 100, 100 },
     }
 
     if crop_methods[crop] ~= nil then
@@ -35,12 +35,12 @@ function manipulator.resolve_crop(crop)
     end
 
     -- Focal point
-    if crop:sub(1, 5) == 'crop-' then
+    if crop:sub(1, 5) == "crop-" then
         local coordinates = {}
 
         -- Tables starts from one in Lua
         local count = 1
-        for c in crop:sub(5):gmatch('%d+') do
+        for c in crop:sub(5):gmatch("%d+") do
             if count >= 3 then
                 return 50, 50
             end
@@ -113,7 +113,7 @@ function manipulator.resolve_crop_coordinates(crop, image_width, image_height)
 
     -- Tables starts from one in Lua
     local count = 1
-    for c in crop:gmatch('%-?%d+') do
+    for c in crop:gmatch("%-?%d+") do
         if count >= 5 then
             return nil
         end
@@ -159,12 +159,12 @@ function manipulator:process(image, args)
     local image_width, image_height = image:width(), image:height()
 
     local is_smart_crop = args.a ~= nil and
-            (args.a == 'entropy' or
-                    args.a == 'attention')
+            (args.a == "entropy" or
+                    args.a == "attention")
     local is_crop_needed = args.t ~= nil and
-            (args.t == 'square' or
-                    args.t == 'squaredown' or
-                    args.t:sub(1, 4) == 'crop')
+            (args.t == "square" or
+                    args.t == "squaredown" or
+                    args.t:sub(1, 4) == "crop")
 
     if (image_width ~= width or image_height ~= height) and is_crop_needed then
         local min_width = math.min(image_width, width)

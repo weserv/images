@@ -39,7 +39,7 @@ function manipulator.sigmoid(image, contrast)
     local midpoint = 0.5
     local contrast_abs = math.abs(contrast)
 
-    local ushort = image:format() == 'ushort'
+    local ushort = image:format() == "ushort"
 
     -- Make a identity LUT, that is, a lut where each pixel has the value of
     -- its index ... if you map an image through the identity, you get the
@@ -91,7 +91,7 @@ function manipulator.sigmoid(image, contrast)
 
     -- And get the format right ... $result will be a float image after all
     -- that maths, but we want uchar or ushort
-    result = result:cast(ushort and 'ushort' or 'uchar')
+    result = result:cast(ushort and "ushort" or "uchar")
 
     return image:maplut(result)
 end

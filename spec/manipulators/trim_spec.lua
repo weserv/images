@@ -47,23 +47,23 @@ describe("trim manipulator", function()
     end)
 
     it("test resolve trim", function()
-        assert.equal(50, manipulator.resolve_trim('50'))
-        assert.equal(50.50, manipulator.resolve_trim('50.50'))
+        assert.equal(50, manipulator.resolve_trim("50"))
+        assert.equal(50.50, manipulator.resolve_trim("50.50"))
         assert.equal(10, manipulator.resolve_trim(nil))
-        assert.equal(10, manipulator.resolve_trim('a'))
-        assert.equal(10, manipulator.resolve_trim('-1'))
-        assert.equal(10, manipulator.resolve_trim('256'))
+        assert.equal(10, manipulator.resolve_trim("a"))
+        assert.equal(10, manipulator.resolve_trim("-1"))
+        assert.equal(10, manipulator.resolve_trim("256"))
     end)
 
     describe("test trim", function()
         it("threshold 25", function()
             local test_image = fixtures.input_png_overlay_layer1
-            local expected_image = fixtures.expected_dir .. '/alpha-layer-1-fill-trim-resize.png'
+            local expected_image = fixtures.expected_dir .. "/alpha-layer-1-fill-trim-resize.png"
             local params = {
-                w = '450',
-                h = '322',
-                t = 'square',
-                trim = '25'
+                w = "450",
+                h = "322",
+                t = "square",
+                trim = "25"
             }
 
             local image = api:process(test_image, params)
@@ -76,12 +76,12 @@ describe("trim manipulator", function()
 
         it("16bit with transparency", function()
             local test_image = fixtures.input_png_with_transparency_16bit
-            local expected_image = fixtures.expected_dir .. '/trim-16bit-rgba.png'
+            local expected_image = fixtures.expected_dir .. "/trim-16bit-rgba.png"
             local params = {
-                w = '32',
-                h = '32',
-                t = 'square',
-                trim = '10'
+                w = "32",
+                h = "32",
+                t = "square",
+                trim = "10"
             }
 
             local image = api:process(test_image, params)
@@ -95,10 +95,10 @@ describe("trim manipulator", function()
 
         it("skip shrink-on-load", function()
             local test_image = fixtures.input_jpg_overlay_layer2
-            local expected_image = fixtures.expected_dir .. '/alpha-layer-2-trim-resize.jpg'
+            local expected_image = fixtures.expected_dir .. "/alpha-layer-2-trim-resize.jpg"
             local params = {
-                w = '300',
-                trim = '10'
+                w = "300",
+                trim = "10"
             }
 
             local image = api:process(test_image, params)
@@ -112,7 +112,7 @@ describe("trim manipulator", function()
         it("aggressive trim returns original image", function()
             local test_image = fixtures.input_png_overlay_layer0
             local params = {
-                trim = '200'
+                trim = "200"
             }
 
             local image = api:process(test_image, params)

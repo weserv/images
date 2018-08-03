@@ -16,16 +16,16 @@ local manipulator = {}
 -- @param args The arguments.
 -- @return The resolved mask type.
 function manipulator.resolve_mask(mask)
-    if mask == 'circle' or
-            mask == 'ellipse' or
-            mask == 'hexagon' or
-            mask == 'pentagon' or
-            mask == 'pentagon-180' or
-            mask == 'square' or
-            mask == 'star' or
-            mask == 'heart' or
-            mask == 'triangle' or
-            mask == 'triangle-180' then
+    if mask == "circle" or
+            mask == "ellipse" or
+            mask == "hexagon" or
+            mask == "pentagon" or
+            mask == "pentagon-180" or
+            mask == "square" or
+            mask == "star" or
+            mask == "heart" or
+            mask == "triangle" or
+            mask == "triangle-180" then
         return mask
     end
 
@@ -59,16 +59,16 @@ function manipulator.get_svg_mask(mid_x, mid_y, points, outer_radius, inner_radi
         x_arr[#x_arr + 1] = x
         y_arr[#y_arr + 1] = y
 
-        local prepend = 'L'
+        local prepend = "L"
         if i == 0 then
             -- If an odd number of points, add an additional point at the top of the polygon
             -- this will shift the calculated center point of the shape so that the center point
             -- of the polygon is at x,y (otherwise the center is mis-located)
             if points % 2 == 1 then
-                path[#path + 1] = 'M0'
+                path[#path + 1] = "M0"
                 path[#path + 1] = radius
             end
-            prepend = 'M'
+            prepend = "M"
         end
 
         path[#path + 1] = prepend .. x
@@ -112,7 +112,7 @@ function manipulator.get_svg_heart(mid_x, mid_y)
         x_arr[#x_arr + 1] = x
         y_arr[#y_arr + 1] = y
 
-        local prepend = t == -math.pi and '' or 'L'
+        local prepend = t == -math.pi and "" or "L"
         path[#path + 1] = prepend .. x
         path[#path + 1] = y
 
@@ -142,9 +142,9 @@ end
 -- @param r the radius of the circle
 -- @return the circle represented as SVG path
 function manipulator.get_svg_circle_path(cx, cy, r)
-    return 'M ' .. cx - r .. ', ' .. cy ..
-            'a' .. r .. ',' .. r .. ' 0 1,0 ' .. r * 2 ..
-            ',0 a ' .. r .. ',' .. r .. ' 0 1,0 -' .. r * 2 .. ',0'
+    return "M " .. cx - r .. ", " .. cy ..
+            "a" .. r .. "," .. r .. " 0 1,0 " .. r * 2 ..
+            ",0 a " .. r .. "," .. r .. " 0 1,0 -" .. r * 2 .. ",0"
 end
 
 --- Generates an ellipse SVG path.
@@ -154,9 +154,9 @@ end
 -- @param cy the y coordinate of the center of the ellipse
 -- @return the ellipse represented as SVG path
 function manipulator.get_svg_ellipse_path(rx, cx, ry, cy)
-    return 'M ' .. cx - rx .. ', ' .. cy ..
-            'a' .. rx .. ',' .. ry .. ' 0 1,0 ' .. rx * 2 ..
-            ',0a' .. rx .. ',' .. ry .. ' 0 1,0 -' .. rx * 2 .. ',0'
+    return "M " .. cx - rx .. ", " .. cy ..
+            "a" .. rx .. "," .. ry .. " 0 1,0 " .. rx * 2 ..
+            ",0a" .. rx .. "," .. ry .. " 0 1,0 -" .. rx * 2 .. ",0"
 end
 
 --- Get the SVG mask by type.
@@ -170,12 +170,12 @@ function manipulator.get_svg_mask_by_type(width, height, mask)
     local mid_x = width / 2
     local mid_y = height / 2
 
-    if mask == 'ellipse' then
+    if mask == "ellipse" then
         -- Ellipse
         return manipulator.get_svg_ellipse_path(mid_x, mid_x, mid_y, mid_y), 0, 0, width, height
     end
 
-    if mask == 'circle' then
+    if mask == "circle" then
         -- Circle
         local x_min = mid_x - outer_radius
         local y_min = mid_y - outer_radius
@@ -183,7 +183,7 @@ function manipulator.get_svg_mask_by_type(width, height, mask)
         return manipulator.get_svg_circle_path(mid_x, mid_y, outer_radius), x_min, y_min, min, min
     end
 
-    if mask == 'heart' then
+    if mask == "heart" then
         -- Heart
         return manipulator.get_svg_heart(outer_radius, outer_radius)
     end
@@ -197,27 +197,27 @@ function manipulator.get_svg_mask_by_type(width, height, mask)
     -- Number of points (or number of sides for polygons)
     local points = 0
 
-    if mask == 'hexagon' then
+    if mask == "hexagon" then
         -- Hexagon
         points = 6
-    elseif mask == 'pentagon' then
+    elseif mask == "pentagon" then
         -- Pentagon
         points = 5
-    elseif mask == 'pentagon-180' then
+    elseif mask == "pentagon-180" then
         -- Pentagon tilted upside down
         points = 5
         initial_angle = math.pi
-    elseif mask == 'star' then
+    elseif mask == "star" then
         -- 5 point star
         points = 5 * 2
         inner_radius = inner_radius * 0.382
-    elseif mask == 'square' then
+    elseif mask == "square" then
         -- Square tilted 45 degrees
         points = 4
-    elseif mask == 'triangle' then
+    elseif mask == "triangle" then
         -- Triangle
         points = 3
-    elseif mask == 'triangle-180' then
+    elseif mask == "triangle-180" then
         -- Triangle upside down
         points = 3
         initial_angle = math.pi
@@ -237,7 +237,7 @@ function manipulator.get_transformed_path(path, transl_x, transl_y, scale)
         if type(v) == "number" then
             -- y value
             path[k] = string.format("%.1f", v * scale + transl_y)
-        elseif type(v) == "string" and string.sub(v, 1, 1) == 'L' then
+        elseif type(v) == "string" and string.sub(v, 1, 1) == "L" then
             -- x value
             local x_val = tonumber(string.sub(v, 2))
             path[k] = string.format("L%.1f", x_val * scale + transl_x)
@@ -359,15 +359,15 @@ function manipulator:process(image, args)
     local mask_transl_x, mask_transl_y, scale = manipulator.get_translation_and_scaling(image_width,
         image_height, mask_width, mask_height, x_min, y_min)
 
-    if mask_type ~= 'circle' and mask_type ~= 'ellipse' then
+    if mask_type ~= "circle" and mask_type ~= "ellipse" then
         -- Need to transform the path if the mask is not a circle or ellipse
         path = table.concat(manipulator.get_transformed_path(path, mask_transl_x, mask_transl_y, scale), " ")
     end
 
-    local preserve_aspect_ratio = mask_type == 'ellipse' and 'none' or 'xMidYMid meet'
-    local svg_template = "<svg xmlns='http://www.w3.org/2000/svg' version='1.1'"
-    svg_template = svg_template .. string.format(" width='%d' height='%d'", image_width, image_height)
-    svg_template = svg_template .. string.format(" preserveAspectRatio='%s'>\n", preserve_aspect_ratio)
+    local preserve_aspect_ratio = mask_type == "ellipse" and "none" or "xMidYMid meet"
+    local svg_template = "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\""
+    svg_template = svg_template .. string.format(" width=\"%d\" height=\"%d\"", image_width, image_height)
+    svg_template = svg_template .. string.format(" preserveAspectRatio=\"%s\">\n", preserve_aspect_ratio)
     svg_template = svg_template .. "%s\n"
     svg_template = svg_template .. "</svg>"
 
@@ -375,11 +375,11 @@ function manipulator:process(image, args)
 
     -- Cutout first if the image or mask background has an alpha channel
     if utils.has_alpha(image) or mask_background:has_alpha_channel() then
-        local svg_path = string.format("<path d='%s'/>", path)
+        local svg_path = string.format("<path d=\"%s\"/>", path)
         local svg_mask = string.format(svg_template, svg_path)
 
-        local mask = vips.Image.new_from_buffer(svg_mask, '', {
-            access = 'sequential',
+        local mask = vips.Image.new_from_buffer(svg_mask, "", {
+            access = "sequential",
         })
 
         image = manipulator.cutout(mask, image)
@@ -387,23 +387,23 @@ function manipulator:process(image, args)
 
     -- If the mask background is not completely transparent; overlay the frame
     if not mask_background:is_transparent() then
-        local svg_path = string.format("<path d='%s M0 0 h%d v%d h-%d Z' fill-rule='evenodd' fill='%s'/>",
+        local svg_path = string.format("<path d=\"%s M0 0 h%d v%d h-%d Z\" fill-rule=\"evenodd\" fill=\"%s\"/>",
             path, image_width, image_height, image_width, mask_background:to_rgba_string())
         local svg_frame = string.format(svg_template, svg_path)
 
-        local frame = vips.Image.new_from_buffer(svg_frame, '', {
-            access = 'sequential',
+        local frame = vips.Image.new_from_buffer(svg_frame, "", {
+            access = "sequential",
         })
 
         -- Alpha composite src over dst
-        image = image:composite(frame, 'over')
+        image = image:composite(frame, "over")
     end
 
     local mtrim = args.mtrim or args.strim
 
     -- Crop the image to the mask dimensions;
     -- if mtrim is defined and if it's not a ellipse
-    if mtrim ~= nil and mask_type ~= 'ellipse' then
+    if mtrim ~= nil and mask_type ~= "ellipse" then
         local left, top, trim_width, trim_height = manipulator.resolve_mask_trim(image_width,
             image_height,
             mask_width * scale,

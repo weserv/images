@@ -46,10 +46,10 @@ function manipulator:process(image, args)
 
         image = image:conv(matrix)
     else
-        if args.access_method == 'sequential' then
+        if args.access_method == "sequential" then
             image = image:linecache({
                 tile_height = 10,
-                access = 'sequential',
+                access = "sequential",
                 threaded = true,
             })
         end

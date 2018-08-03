@@ -26,12 +26,12 @@ describe("filter manipulator", function()
 
     it("test greyscale filter", function()
         local test_image = fixtures.input_jpg
-        local expected_image = fixtures.expected_dir .. '/greyscale.jpg'
+        local expected_image = fixtures.expected_dir .. "/greyscale.jpg"
         local params = {
-            w = '320',
-            h = '240',
-            t = 'square',
-            filt = 'greyscale'
+            w = "320",
+            h = "240",
+            t = "square",
+            filt = "greyscale"
         }
 
         local image = api:process(test_image, params)
@@ -45,12 +45,12 @@ describe("filter manipulator", function()
     describe("test sepia filter", function()
         it("jpeg", function()
             local test_image = fixtures.input_jpg
-            local expected_image = fixtures.expected_dir .. '/sepia.jpg'
+            local expected_image = fixtures.expected_dir .. "/sepia.jpg"
             local params = {
-                w = '320',
-                h = '240',
-                t = 'square',
-                filt = 'sepia'
+                w = "320",
+                h = "240",
+                t = "square",
+                filt = "sepia"
             }
 
             local image = api:process(test_image, params)
@@ -62,12 +62,12 @@ describe("filter manipulator", function()
 
         it("png transparent", function()
             local test_image = fixtures.input_png_overlay_layer1
-            local expected_image = fixtures.expected_dir .. '/sepia-trans.png'
+            local expected_image = fixtures.expected_dir .. "/sepia-trans.png"
             local params = {
-                w = '320',
-                h = '240',
-                t = 'square',
-                filt = 'sepia'
+                w = "320",
+                h = "240",
+                t = "square",
+                filt = "sepia"
             }
 
             local image = api:process(test_image, params)
@@ -82,12 +82,12 @@ describe("filter manipulator", function()
     describe("test negate filter", function()
         it("jpeg", function()
             local test_image = fixtures.input_jpg
-            local expected_image = fixtures.expected_dir .. '/negate.jpg'
+            local expected_image = fixtures.expected_dir .. "/negate.jpg"
             local params = {
-                w = '320',
-                h = '240',
-                t = 'square',
-                filt = 'negate'
+                w = "320",
+                h = "240",
+                t = "square",
+                filt = "negate"
             }
 
             local image = api:process(test_image, params)
@@ -99,12 +99,12 @@ describe("filter manipulator", function()
 
         it("png", function()
             local test_image = fixtures.input_png
-            local expected_image = fixtures.expected_dir .. '/negate.png'
+            local expected_image = fixtures.expected_dir .. "/negate.png"
             local params = {
-                w = '320',
-                h = '240',
-                t = 'square',
-                filt = 'negate'
+                w = "320",
+                h = "240",
+                t = "square",
+                filt = "negate"
             }
 
             local image = api:process(test_image, params)
@@ -116,12 +116,12 @@ describe("filter manipulator", function()
 
         it("png transparent", function()
             local test_image = fixtures.input_png_with_transparency
-            local expected_image = fixtures.expected_dir .. '/negate-trans.png'
+            local expected_image = fixtures.expected_dir .. "/negate-trans.png"
             local params = {
-                w = '320',
-                h = '240',
-                t = 'square',
-                filt = 'negate'
+                w = "320",
+                h = "240",
+                t = "square",
+                filt = "negate"
             }
 
             local image = api:process(test_image, params)
@@ -134,12 +134,12 @@ describe("filter manipulator", function()
 
         it("png with grey alpha", function()
             local test_image = fixtures.input_png_with_grey_alpha
-            local expected_image = fixtures.expected_dir .. '/negate-alpha.png'
+            local expected_image = fixtures.expected_dir .. "/negate-alpha.png"
             local params = {
-                w = '320',
-                h = '240',
-                t = 'square',
-                filt = 'negate'
+                w = "320",
+                h = "240",
+                t = "square",
+                filt = "negate"
             }
 
             local image = api:process(test_image, params)
@@ -152,12 +152,12 @@ describe("filter manipulator", function()
 
         it("webp", function()
             local test_image = fixtures.input_webp
-            local expected_image = fixtures.expected_dir .. '/negate.webp'
+            local expected_image = fixtures.expected_dir .. "/negate.webp"
             local params = {
-                w = '320',
-                h = '240',
-                t = 'square',
-                filt = 'negate'
+                w = "320",
+                h = "240",
+                t = "square",
+                filt = "negate"
             }
 
             local image = api:process(test_image, params)
@@ -169,12 +169,12 @@ describe("filter manipulator", function()
 
         it("webp transparent", function()
             local test_image = fixtures.input_webp_with_transparency
-            local expected_image = fixtures.expected_dir .. '/negate-trans.webp'
+            local expected_image = fixtures.expected_dir .. "/negate-trans.webp"
             local params = {
-                w = '320',
-                h = '240',
-                t = 'square',
-                filt = 'negate'
+                w = "320",
+                h = "240",
+                t = "square",
+                filt = "negate"
             }
 
             local image = api:process(test_image, params)

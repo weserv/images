@@ -15,7 +15,7 @@ function manipulator.resolve_sharpen(sharp)
 
     -- Tables starts from one in Lua
     local count = 1
-    for p in sharp:gmatch('[^,]+') do
+    for p in sharp:gmatch("[^,]+") do
         if count >= 4 then
             return unpack(sharpen)
         end
@@ -55,14 +55,14 @@ function manipulator.sharpen(image, sigma, flat, jagged, access_method)
     -- Slow, accurate sharpen in LAB colour space, with control over flat vs jagged areas
     local old_interpretation = image:interpretation()
 
-    if old_interpretation == 'rgb' then
-        old_interpretation = 'srgb'
+    if old_interpretation == "rgb" then
+        old_interpretation = "srgb"
     end
 
-    if access_method == 'sequential' then
+    if access_method == "sequential" then
         image = image:linecache({
             tile_height = 10,
-            access = 'sequential',
+            access = "sequential",
             threaded = true,
         })
     end

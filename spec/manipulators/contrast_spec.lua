@@ -25,22 +25,22 @@ describe("contrast manipulator", function()
     end)
 
     it("test resolve contrast", function()
-        assert.equal(50, manipulator.resolve_contrast('50'))
+        assert.equal(50, manipulator.resolve_contrast("50"))
         assert.equal(0, manipulator.resolve_contrast(nil))
-        assert.equal(0, manipulator.resolve_contrast('101'))
-        assert.equal(0, manipulator.resolve_contrast('-101'))
-        assert.equal(0, manipulator.resolve_contrast('a'))
+        assert.equal(0, manipulator.resolve_contrast("101"))
+        assert.equal(0, manipulator.resolve_contrast("-101"))
+        assert.equal(0, manipulator.resolve_contrast("a"))
     end)
 
     describe("test contrast", function()
         it("increase", function()
             local test_image = fixtures.input_jpg
-            local expected_image = fixtures.expected_dir .. '/contrast-increase.jpg'
+            local expected_image = fixtures.expected_dir .. "/contrast-increase.jpg"
             local params = {
-                w = '320',
-                h = '240',
-                t = 'square',
-                con = '30'
+                w = "320",
+                h = "240",
+                t = "square",
+                con = "30"
             }
 
             local image = api:process(test_image, params)
@@ -52,12 +52,12 @@ describe("contrast manipulator", function()
 
         it("decrease", function()
             local test_image = fixtures.input_jpg
-            local expected_image = fixtures.expected_dir .. '/contrast-decrease.jpg'
+            local expected_image = fixtures.expected_dir .. "/contrast-decrease.jpg"
             local params = {
-                w = '320',
-                h = '240',
-                t = 'square',
-                con = '-30'
+                w = "320",
+                h = "240",
+                t = "square",
+                con = "-30"
             }
 
             local image = api:process(test_image, params)

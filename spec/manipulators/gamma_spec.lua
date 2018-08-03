@@ -25,23 +25,23 @@ describe("gamma manipulator", function()
     end)
 
     it("test resolve gamma", function()
-        assert.equal(1.5, manipulator.resolve_gamma('1.5'))
+        assert.equal(1.5, manipulator.resolve_gamma("1.5"))
         assert.equal(2.2, manipulator.resolve_gamma(nil))
-        assert.equal(2.2, manipulator.resolve_gamma('a'))
-        assert.equal(2.2, manipulator.resolve_gamma('.1'))
-        assert.equal(2.2, manipulator.resolve_gamma('3.999'))
-        assert.equal(2.2, manipulator.resolve_gamma('0.005'))
-        assert.equal(2.2, manipulator.resolve_gamma('-1'))
+        assert.equal(2.2, manipulator.resolve_gamma("a"))
+        assert.equal(2.2, manipulator.resolve_gamma(".1"))
+        assert.equal(2.2, manipulator.resolve_gamma("3.999"))
+        assert.equal(2.2, manipulator.resolve_gamma("0.005"))
+        assert.equal(2.2, manipulator.resolve_gamma("-1"))
     end)
 
     describe("test gamma", function()
         it("default value", function()
             local test_image = fixtures.input_jpg_with_gamma_holiness
-            local expected_image = fixtures.expected_dir .. '/gamma-2.2.jpg'
+            local expected_image = fixtures.expected_dir .. "/gamma-2.2.jpg"
             -- Above q=90, libvips will write 4:4:4, ie. no subsampling of Cr and Cb
             local params = {
-                gam = 'true',
-                q = '95'
+                gam = "true",
+                q = "95"
             }
 
             local image = api:process(test_image, params)
@@ -53,11 +53,11 @@ describe("gamma manipulator", function()
 
         it("value of 3", function()
             local test_image = fixtures.input_jpg_with_gamma_holiness
-            local expected_image = fixtures.expected_dir .. '/gamma-3.0.jpg'
+            local expected_image = fixtures.expected_dir .. "/gamma-3.0.jpg"
             -- Above q=90, libvips will write 4:4:4, ie. no subsampling of Cr and Cb
             local params = {
-                gam = '3',
-                q = '95'
+                gam = "3",
+                q = "95"
             }
 
             local image = api:process(test_image, params)
@@ -69,12 +69,12 @@ describe("gamma manipulator", function()
 
         it("png transparent", function()
             local test_image = fixtures.input_png_overlay_layer1
-            local expected_image = fixtures.expected_dir .. '/gamma-alpha.png'
+            local expected_image = fixtures.expected_dir .. "/gamma-alpha.png"
             -- Above q=90, libvips will write 4:4:4, ie. no subsampling of Cr and Cb
             local params = {
-                w = '320',
-                gam = 'true',
-                q = '95'
+                w = "320",
+                gam = "true",
+                q = "95"
             }
 
             local image = api:process(test_image, params)

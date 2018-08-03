@@ -32,44 +32,44 @@ describe("api", function()
 
     it("test get load options", function()
         local params = {
-            access_method = 'sequential',
-            page = '0'
+            access_method = "sequential",
+            page = "0"
         }
 
-        params.tmp_file_name = 'test.pdf'
-        params.loader = 'VipsForeignLoadPdfFile'
+        params.tmp_file_name = "test.pdf"
+        params.loader = "VipsForeignLoadPdfFile"
         local load_options, string_options = api.get_load_options(params)
         assert.are.same({
-            access = 'sequential',
+            access = "sequential",
             page = 0
         }, load_options)
-        assert.equal('[page=0]', string_options)
+        assert.equal("[page=0]", string_options)
 
-        params.tmp_file_name = 'test.tiff'
-        params.loader = 'VipsForeignLoadTiffFile'
+        params.tmp_file_name = "test.tiff"
+        params.loader = "VipsForeignLoadTiffFile"
         load_options, string_options = api.get_load_options(params)
         assert.are.same({
-            access = 'sequential',
+            access = "sequential",
             page = 0
         }, load_options)
-        assert.equal('[page=0]', string_options)
+        assert.equal("[page=0]", string_options)
 
-        params.tmp_file_name = 'test.ico'
-        params.loader = 'VipsForeignLoadMagickFile'
-        load_options, string_options = api.get_load_options(params, 'ico')
+        params.tmp_file_name = "test.ico"
+        params.loader = "VipsForeignLoadMagickFile"
+        load_options, string_options = api.get_load_options(params, "ico")
         assert.are.same({
-            access = 'sequential',
+            access = "sequential",
             page = 0
         }, load_options)
-        assert.equal('[page=0]', string_options)
+        assert.equal("[page=0]", string_options)
 
-        params.tmp_file_name = 'test.jpg'
-        params.loader = 'VipsForeignLoadJpegFile'
+        params.tmp_file_name = "test.jpg"
+        params.loader = "VipsForeignLoadJpegFile"
         load_options, string_options = api.get_load_options(params)
         assert.are.same({
-            access = 'sequential',
+            access = "sequential",
         }, load_options)
-        assert.equal('', string_options)
+        assert.equal("", string_options)
     end)
 
     describe("test add manipulators", function()
@@ -101,7 +101,7 @@ describe("api", function()
             api:add_manipulators({
                 function() end,
                 {
-                    process = 'foo bar'
+                    process = "foo bar"
                 }
             })
             assert.are.same({}, api.manipulators)
@@ -109,24 +109,24 @@ describe("api", function()
     end)
 
     it("test process without any manipulator", function()
-        local image, api_err = api:process('noimage.jpg', { url = 'http://example.org/noimage.jpg' })
+        local image, api_err = api:process("noimage.jpg", { url = "http://example.org/noimage.jpg" })
         assert.falsy(image)
         assert.equal(500, api_err.status)
-        assert.equal('Attempted to run images.weserv.nl without any manipulator(s).', api_err.message)
+        assert.equal("Attempted to run images.weserv.nl without any manipulator(s).", api_err.message)
     end)
 
     describe("test process", function()
         it("invalid or unsupported", function()
             api:add_manipulator(require "weserv.manipulators.thumbnail")
 
-            local test_image = './spec/fixtures/does-not-exists.jpg'
+            local test_image = "./spec/fixtures/does-not-exists.jpg"
 
             local image, api_err = api:process(test_image, {
-                url = 'http://example.org/does-not-exists.jpg'
+                url = "http://example.org/does-not-exists.jpg"
             })
             assert.falsy(image)
             assert.equal(404, api_err.status)
-            assert.equal('Invalid or unsupported image format. Is it a valid image?', api_err.message)
+            assert.equal("Invalid or unsupported image format. Is it a valid image?", api_err.message)
 
             -- Log invalid or unsupported errors
             assert.equal(1, #ngx._logs)
@@ -136,19 +136,19 @@ describe("api", function()
             api:add_manipulator(require "weserv.manipulators.thumbnail")
 
             -- Create a unique file (starting with 'imo_') in our shared memory.
-            local tmpfile = utils.tempname('/dev/shm', 'imo_')
+            local tmpfile = utils.tempname("/dev/shm", "imo_")
 
             -- Write a non readable image to the unique file
-            local f = assert(io.open(tmpfile, 'w'))
-            f:write('GIF89a')
+            local f = assert(io.open(tmpfile, "w"))
+            f:write("GIF89a")
             f:close()
 
             local image, api_err = api:process(tmpfile, {
-                url = 'http://example.org/invalid.gif'
+                url = "http://example.org/invalid.gif"
             })
             assert.falsy(image)
             assert.equal(404, api_err.status)
-            assert.equal('Image not readable. Is it a valid image?', api_err.message)
+            assert.equal("Image not readable. Is it a valid image?", api_err.message)
             assert(os.remove(tmpfile))
 
             -- Log not readable errors

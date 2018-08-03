@@ -46,21 +46,21 @@ function weserv:run(args)
                 path = path .. "?" .. query
             end
 
-            ngx.redirect(scheme .. '://' .. host .. path)
+            ngx.redirect(scheme .. "://" .. host .. path)
         else
-            ngx.header['Content-Type'] = 'text/plain'
+            ngx.header["Content-Type"] = "text/plain"
             if client_err.status == ngx.HTTP_GONE then
                 ngx.status = ngx.HTTP_GONE
                 ngx.say(error_template:format(client_err.status,
-                    'because the hostname of the origin is unresolvable (DNS) or blocked by policy.'))
+                    "because the hostname of the origin is unresolvable (DNS) or blocked by policy."))
             elseif client_err.status == ngx.HTTP_REQUEST_TIMEOUT then
                 -- Don't send 408, otherwise the client may repeat that request.
                 ngx.status = ngx.HTTP_NOT_FOUND
                 ngx.say(error_template:format(ngx.HTTP_NOT_FOUND,
-                    'error it got: The requested URL returned error: Operation timed out.'))
+                    "error it got: The requested URL returned error: Operation timed out."))
             else
                 ngx.status = client_err.status
-                ngx.say(error_template:format(client_err.status, 'error it got: ' .. client_err.message))
+                ngx.say(error_template:format(client_err.status, "error it got: " .. client_err.message))
             end
         end
     else
@@ -71,8 +71,8 @@ function weserv:run(args)
             self.server.output(image, args)
         else
             ngx.status = api_err.status
-            ngx.header['Content-Type'] = 'text/plain'
-            ngx.say(error_template:format(api_err.status, 'error it got: ' .. api_err.message))
+            ngx.header["Content-Type"] = "text/plain"
+            ngx.say(error_template:format(api_err.status, "error it got: " .. api_err.message))
         end
 
         -- Remove the temporary file.

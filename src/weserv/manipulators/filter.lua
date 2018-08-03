@@ -9,7 +9,7 @@ local manipulator = {}
 -- @param image The source image.
 -- @return The manipulated image.
 function manipulator.greyscale_filter(image)
-    return image:colourspace('b-w')
+    return image:colourspace("b-w")
 end
 
 --- Perform sepia filter manipulation.
@@ -50,15 +50,15 @@ end
 -- @param image The source image.
 -- @param args The URL query arguments.
 function manipulator:process(image, args)
-    if args.filt == 'greyscale' then
+    if args.filt == "greyscale" then
         image = manipulator.greyscale_filter(image)
     end
 
-    if args.filt == 'sepia' then
+    if args.filt == "sepia" then
         image = manipulator.sepia_filter(image)
     end
 
-    if args.filt == 'negate' then
+    if args.filt == "negate" then
         image = manipulator.negate_filter(image)
     end
 

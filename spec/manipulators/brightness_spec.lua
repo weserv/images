@@ -25,22 +25,22 @@ describe("brightness manipulator", function()
     end)
 
     it("test resolve brightness", function()
-        assert.equal(50, manipulator.resolve_brightness('50'))
+        assert.equal(50, manipulator.resolve_brightness("50"))
         assert.equal(0, manipulator.resolve_brightness(nil))
-        assert.equal(0, manipulator.resolve_brightness('101'))
-        assert.equal(0, manipulator.resolve_brightness('-101'))
-        assert.equal(0, manipulator.resolve_brightness('a'))
+        assert.equal(0, manipulator.resolve_brightness("101"))
+        assert.equal(0, manipulator.resolve_brightness("-101"))
+        assert.equal(0, manipulator.resolve_brightness("a"))
     end)
 
     describe("test brightness", function()
         it("increase", function()
             local test_image = fixtures.input_jpg
-            local expected_image = fixtures.expected_dir .. '/brightness-increase.jpg'
+            local expected_image = fixtures.expected_dir .. "/brightness-increase.jpg"
             local params = {
-                w = '320',
-                h = '240',
-                t = 'square',
-                bri = '30'
+                w = "320",
+                h = "240",
+                t = "square",
+                bri = "30"
             }
 
             local image = api:process(test_image, params)
@@ -52,12 +52,12 @@ describe("brightness manipulator", function()
 
         it("decrease", function()
             local test_image = fixtures.input_jpg
-            local expected_image = fixtures.expected_dir .. '/brightness-decrease.jpg'
+            local expected_image = fixtures.expected_dir .. "/brightness-decrease.jpg"
             local params = {
-                w = '320',
-                h = '240',
-                t = 'square',
-                bri = '-30'
+                w = "320",
+                h = "240",
+                t = "square",
+                bri = "-30"
             }
 
             local image = api:process(test_image, params)
@@ -69,12 +69,12 @@ describe("brightness manipulator", function()
 
         it("png transparent", function()
             local test_image = fixtures.input_png_overlay_layer1
-            local expected_image = fixtures.expected_dir .. '/brightness-trans.png'
+            local expected_image = fixtures.expected_dir .. "/brightness-trans.png"
             local params = {
-                w = '320',
-                h = '240',
-                t = 'square',
-                bri = '30'
+                w = "320",
+                h = "240",
+                t = "square",
+                bri = "30"
             }
 
             local image = api:process(test_image, params)

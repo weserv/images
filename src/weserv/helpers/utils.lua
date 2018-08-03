@@ -19,13 +19,13 @@ utils.__index = utils
 
 -- The orientation tag for this image. An int from 1 - 8 using the standard
 -- exif/tiff meanings.
-local VIPS_META_ORIENTATION = 'orientation'
+local VIPS_META_ORIENTATION = "orientation"
 
 -- The name we use to attach an ICC profile. The file read and write
 -- operations for TIFF, JPEG, PNG and others use this item of metadata to
 -- attach and save ICC profiles. The profile is updated by the
 -- vips_icc_transform() operations.
-local VIPS_META_ICC_NAME = 'icc-profile-data'
+local VIPS_META_ICC_NAME = "icc-profile-data"
 
 -- Only alphanumerics, the percent character (prevents us from encoding
 -- already percent-encoded URIs), the special characters "-._~!$&'()*+,;=",
@@ -40,7 +40,7 @@ local REGEX_DISALLOWED_CHARS = "[^%w%-%._~%%!%$&'%(%)%*%+,;=:/%?#@]"
 -- @param interpretation The VipsInterpretation
 -- @return Boolean indicating if the pixel values in this image are 16-bit
 function utils.is_16_bit(interpretation)
-    return interpretation == 'rgb16' or interpretation == 'grey16'
+    return interpretation == "rgb16" or interpretation == "grey16"
 end
 
 --- Does this image have an embedded profile?
@@ -56,7 +56,7 @@ end
 function utils.has_alpha(image)
     return image:bands() == 2 or
             (image:bands() == 4 and
-                    image:interpretation() ~= 'cmyk') or
+                    image:interpretation() ~= "cmyk") or
             image:bands() > 4
 end
 
@@ -88,7 +88,7 @@ function utils.tempname(dir, prefix)
 
     local holder = C.mkstemp(tempname)
     if holder == -1 then
-        ngx.log(ngx.ERR, 'Unable to generate a unique file')
+        ngx.log(ngx.ERR, "Unable to generate a unique file")
 
         return nil
     end
@@ -104,19 +104,19 @@ end
 -- @return Cleaned URI.
 function utils.clean_uri(uri)
     -- Check for HTTPS origin hosts
-    if uri:sub(1, 4) == 'ssl:' then
-        uri = 'https://' .. uri:sub(5):gsub("^/*", "")
+    if uri:sub(1, 4) == "ssl:" then
+        uri = "https://" .. uri:sub(5):gsub("^/*", "")
     end
 
     -- If the URI is schemaless (i.e. //example.com), append 'https:'
-    if uri:sub(1, 2) == '//' then
-        uri = 'https:' .. uri
+    if uri:sub(1, 2) == "//" then
+        uri = "https:" .. uri
     end
 
     -- If only host is given (i.e. example.com), append 'http://'
-    if uri:sub(1, 5) ~= 'http:' and
-            uri:sub(1, 6) ~= 'https:' then
-        uri = 'http://' .. uri:gsub("^/*", "")
+    if uri:sub(1, 5) ~= "http:" and
+            uri:sub(1, 6) ~= "https:" then
+        uri = "http://" .. uri:gsub("^/*", "")
     end
 
     -- Remove the 'errorredirect' GET variable, if any
@@ -166,7 +166,7 @@ end
 -- @param uri The URI.
 -- @return Parsed URI.
 function utils.parse_uri(uri)
-    local m = ngx.re.match(utils.clean_uri(uri), [[^(http[s]?)://([^:/\?]+)(?::(\d+))?([^\?]*)\??(.*)]], 'jo')
+    local m = ngx.re.match(utils.clean_uri(uri), [[^(http[s]?)://([^:/\?]+)(?::(\d+))?([^\?]*)\??(.*)]], "jo")
 
     if not m then
         return nil, "Unable to parse URL"
@@ -181,7 +181,7 @@ function utils.parse_uri(uri)
         if m[3] then
             m[3] = tonumber(m[3])
         else
-            if m[1] == 'https' then
+            if m[1] == "https" then
                 m[3] = 443
             else
                 m[3] = 80
@@ -222,7 +222,7 @@ end
 -- @param params Parameters array.
 -- @return rotation, flip, flop
 function utils.resolve_rotation_and_flip(image, params)
-    local rotate = utils.resolve_angle_rotation(params['or'])
+    local rotate = utils.resolve_angle_rotation(params["or"])
     local flip = params.flip ~= nil
     local flop = params.flop ~= nil
 
@@ -255,20 +255,20 @@ end
 -- @param loader The name of the load operation.
 -- @return The image extension.
 function utils.determine_image_extension(loader)
-    local extension = 'unknown'
+    local extension = "unknown"
 
-    if loader == 'VipsForeignLoadJpegFile' then
-        extension = 'jpg'
-    elseif loader == 'VipsForeignLoadPng' then
-        extension = 'png'
-    elseif loader == 'VipsForeignLoadWebpFile' then
-        extension = 'webp'
-    elseif loader == 'VipsForeignLoadTiffFile' then
-        extension = 'tiff'
-    elseif loader == 'VipsForeignLoadGifFile' then
-        extension = 'gif'
-    elseif loader == 'VipsForeignLoadSvgFile' then
-        extension = 'svg'
+    if loader == "VipsForeignLoadJpegFile" then
+        extension = "jpg"
+    elseif loader == "VipsForeignLoadPng" then
+        extension = "png"
+    elseif loader == "VipsForeignLoadWebpFile" then
+        extension = "webp"
+    elseif loader == "VipsForeignLoadTiffFile" then
+        extension = "tiff"
+    elseif loader == "VipsForeignLoadGifFile" then
+        extension = "gif"
+    elseif loader == "VipsForeignLoadSvgFile" then
+        extension = "svg"
     end
 
     return extension
@@ -284,15 +284,15 @@ function utils.format_bytes(bytes)
     local terabyte = gigabyte * 1024
 
     if bytes >= 0 and bytes < kilobyte then
-        return bytes .. ' B'
+        return bytes .. " B"
     elseif bytes >= kilobyte and bytes < megabyte then
-        return string.format("%.2f", bytes / kilobyte):gsub("%.?0+$", "") .. ' KB'
+        return string.format("%.2f", bytes / kilobyte):gsub("%.?0+$", "") .. " KB"
     elseif bytes >= megabyte and bytes < gigabyte then
-        return string.format("%.2f", bytes / megabyte):gsub("%.?0+$", "") .. ' MB'
+        return string.format("%.2f", bytes / megabyte):gsub("%.?0+$", "") .. " MB"
     elseif bytes >= gigabyte and bytes < terabyte then
-        return string.format("%.2f", bytes / gigabyte):gsub("%.?0+$", "") .. ' GB'
+        return string.format("%.2f", bytes / gigabyte):gsub("%.?0+$", "") .. " GB"
     elseif bytes >= terabyte then
-        return string.format("%.2f", bytes / terabyte):gsub("%.?0+$", "") .. ' TB'
+        return string.format("%.2f", bytes / terabyte):gsub("%.?0+$", "") .. " TB"
     end
 end
 

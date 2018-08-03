@@ -30,10 +30,10 @@ describe("letterbox manipulator", function()
         it("tiff", function()
             local test_image = fixtures.input_tiff
             local params = {
-                w = '240',
-                h = '320',
-                t = 'letterbox',
-                bg = 'white'
+                w = "240",
+                h = "320",
+                t = "letterbox",
+                bg = "white"
             }
 
             local image = api:process(test_image, params)
@@ -46,13 +46,13 @@ describe("letterbox manipulator", function()
         -- Letterbox TIFF in LAB colourspace onto RGBA background
         it("tiff on rgba", function()
             local test_image = fixtures.input_tiff_cielab
-            local expected_image = fixtures.expected_dir .. '/letterbox-lab-into-rgba.png'
+            local expected_image = fixtures.expected_dir .. "/letterbox-lab-into-rgba.png"
             local params = {
-                w = '64',
-                h = '128',
-                t = 'letterbox',
-                bg = '80FF6600',
-                output = 'png'
+                w = "64",
+                h = "128",
+                t = "letterbox",
+                bg = "80FF6600",
+                output = "png"
             }
 
             local image = api:process(test_image, params)
@@ -66,17 +66,17 @@ describe("letterbox manipulator", function()
         -- From CMYK to sRGB with white background, not yellow
         it("jpg cmyk to srgb with background", function()
             local test_image = fixtures.input_jpg_with_cmyk_profile
-            local expected_image = fixtures.expected_dir .. '/colourspace.cmyk.jpg'
+            local expected_image = fixtures.expected_dir .. "/colourspace.cmyk.jpg"
             local params = {
-                w = '320',
-                h = '240',
-                t = 'letterbox',
-                bg = 'white'
+                w = "320",
+                h = "240",
+                t = "letterbox",
+                bg = "white"
             }
 
             local image = api:process(test_image, params)
 
-            assert.equal('rgb', image:interpretation())
+            assert.equal("rgb", image:interpretation())
             assert.equal(320, image:width())
             assert.equal(240, image:height())
             assert.similar_image(expected_image, image)
@@ -84,12 +84,12 @@ describe("letterbox manipulator", function()
 
         it("png transparent", function()
             local test_image = fixtures.input_png_with_transparency
-            local expected_image = fixtures.expected_dir .. '/letterbox-4-into-4.png'
+            local expected_image = fixtures.expected_dir .. "/letterbox-4-into-4.png"
             local params = {
-                w = '50',
-                h = '50',
-                t = 'letterbox',
-                bg = 'white'
+                w = "50",
+                h = "50",
+                t = "letterbox",
+                bg = "white"
             }
 
             local image = api:process(test_image, params)
@@ -103,12 +103,12 @@ describe("letterbox manipulator", function()
         -- 16-bit PNG with alpha channel
         it("png 16bit with transparency", function()
             local test_image = fixtures.input_png_with_transparency_16bit
-            local expected_image = fixtures.expected_dir .. '/letterbox-16bit.png'
+            local expected_image = fixtures.expected_dir .. "/letterbox-16bit.png"
             local params = {
-                w = '32',
-                h = '16',
-                t = 'letterbox',
-                bg = 'white'
+                w = "32",
+                h = "16",
+                t = "letterbox",
+                bg = "white"
             }
 
             local image = api:process(test_image, params)
@@ -122,11 +122,11 @@ describe("letterbox manipulator", function()
         -- 16-bit PNG with alpha channel onto RGBA
         it("png 16bit with transparency on rgba", function()
             local test_image = fixtures.input_png_with_transparency_16bit
-            local expected_image = fixtures.expected_dir .. '/letterbox-16bit-rgba.png'
+            local expected_image = fixtures.expected_dir .. "/letterbox-16bit-rgba.png"
             local params = {
-                w = '32',
-                h = '16',
-                t = 'letterbox'
+                w = "32",
+                h = "16",
+                t = "letterbox"
             }
 
             local image = api:process(test_image, params)
@@ -140,11 +140,11 @@ describe("letterbox manipulator", function()
         -- PNG with 2 channels
         it("png 2 channels", function()
             local test_image = fixtures.input_png_with_grey_alpha
-            local expected_image = fixtures.expected_dir .. '/letterbox-2channel.png'
+            local expected_image = fixtures.expected_dir .. "/letterbox-2channel.png"
             local params = {
-                w = '32',
-                h = '16',
-                t = 'letterbox'
+                w = "32",
+                h = "16",
+                t = "letterbox"
             }
 
             local image = api:process(test_image, params)
@@ -158,12 +158,12 @@ describe("letterbox manipulator", function()
         -- Enlarge and letterbox
         it("enlarge", function()
             local test_image = fixtures.input_png_with_one_color
-            local expected_image = fixtures.expected_dir .. '/letterbox-enlarge.png'
+            local expected_image = fixtures.expected_dir .. "/letterbox-enlarge.png"
             local params = {
-                w = '320',
-                h = '240',
-                t = 'letterbox',
-                bg = 'black'
+                w = "320",
+                h = "240",
+                t = "letterbox",
+                bg = "black"
             }
 
             local image = api:process(test_image, params)

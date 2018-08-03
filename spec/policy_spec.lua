@@ -6,10 +6,10 @@ describe("throttling policy", function()
         ban_time = 60, -- If exceed, ban for 60 minutes
         cloudflare = {
             enabled = true, -- Is CloudFlare enabled?
-            email = 'user@example.com',
-            auth_key = '',
-            zone_id = '7c5dae5552338874e5053f2534d2767a',
-            mode = 'block' -- The action to apply if the IP get's banned
+            email = "user@example.com",
+            auth_key = "",
+            zone_id = "7c5dae5552338874e5053f2534d2767a",
+            mode = "block" -- The action to apply if the IP get's banned
         }
     }
 
@@ -21,7 +21,7 @@ describe("throttling policy", function()
     local request_error
     local response = {
         status = 200,
-        body = ''
+        body = ""
     }
 
     setup(function()
@@ -69,7 +69,7 @@ describe("throttling policy", function()
         stubbed_http.request_uri:clear()
         response = {
             status = 200,
-            body = ''
+            body = ""
         }
     end)
 
@@ -100,9 +100,9 @@ describe("throttling policy", function()
                     value = "127.0.0.1"
                 },
                 scope = {
-                    id = '7c5dae5552338874e5053f2534d2767a',
-                    name = 'weserv.nl',
-                    type = 'zone',
+                    id = "7c5dae5552338874e5053f2534d2767a",
+                    name = "weserv.nl",
+                    type = "zone",
                 },
                 created_on = "2018-07-27T00:00:00.000000000Z"
             },
@@ -111,13 +111,13 @@ describe("throttling policy", function()
             messages = cjson.null,
         })
 
-        local ip_address = '127.0.0.1'
+        local ip_address = "127.0.0.1"
         local uri_template = "https://api.cloudflare.com/client/v4/zones/%s/firewall/access_rules/rules"
         local uri = string.format(uri_template, default_config.cloudflare.zone_id)
 
         assert.True(policy:ban_at_cloudflare(ip_address))
         assert.spy(stubbed_http.request_uri).was_called_with(match._, uri, match.contains({
-            method = 'POST'
+            method = "POST"
         }))
 
         -- Log successful ban notices
@@ -134,13 +134,13 @@ describe("throttling policy", function()
             messages = {}
         })
 
-        local identifier = '92f17202ed8bd63d69a66b86a49a8f6b'
+        local identifier = "92f17202ed8bd63d69a66b86a49a8f6b"
         local uri_template = "https://api.cloudflare.com/client/v4/zones/%s/firewall/access_rules/rules/%s"
         local uri = string.format(uri_template, default_config.cloudflare.zone_id, identifier)
 
         assert.True(policy:unban_at_cloudflare(identifier))
         assert.spy(stubbed_http.request_uri).was_called_with(match._, uri, match.contains({
-            method = 'DELETE'
+            method = "DELETE"
         }))
 
         -- Log successful unban notices
@@ -160,7 +160,7 @@ describe("throttling policy", function()
             messages = {}
         })
 
-        local ip_address = '127.0.0.1'
+        local ip_address = "127.0.0.1"
 
         assert.False(policy:ban_at_cloudflare(ip_address))
 
@@ -176,7 +176,7 @@ describe("throttling policy", function()
             messages = cjson.null,
         })
 
-        local identifier = 'f80165d0226f419987c9fc7651e5e8b4'
+        local identifier = "f80165d0226f419987c9fc7651e5e8b4"
 
         assert.False(policy:unban_at_cloudflare(identifier))
 
@@ -187,7 +187,7 @@ describe("throttling policy", function()
     it("test ban status 400", function()
         response.status = 400
 
-        local ip_address_invalid = '127.invalid'
+        local ip_address_invalid = "127.invalid"
 
         assert.False(policy:ban_at_cloudflare(ip_address_invalid))
 
@@ -198,7 +198,7 @@ describe("throttling policy", function()
     it("test unban status 400", function()
         response.status = 400
 
-        local identifier_invalid = 'foobar'
+        local identifier_invalid = "foobar"
 
         assert.False(policy:unban_at_cloudflare(identifier_invalid))
 
@@ -207,9 +207,9 @@ describe("throttling policy", function()
     end)
 
     it("test ban request error", function()
-        request_error = 'timeout'
+        request_error = "timeout"
 
-        local ip_address = '127.0.0.1'
+        local ip_address = "127.0.0.1"
 
         assert.False(policy:ban_at_cloudflare(ip_address))
 
@@ -218,9 +218,9 @@ describe("throttling policy", function()
     end)
 
     it("test unban request error", function()
-        request_error = 'timeout'
+        request_error = "timeout"
 
-        local identifier = '92f17202ed8bd63d69a66b86a49a8f6b'
+        local identifier = "92f17202ed8bd63d69a66b86a49a8f6b"
 
         assert.False(policy:unban_at_cloudflare(identifier))
 

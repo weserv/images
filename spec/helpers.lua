@@ -33,12 +33,12 @@ end
 local function normalize_image(image)
     -- Get original colourspace
     local type_before_normalize = image:interpretation()
-    if type_before_normalize == 'rgb' then
-        type_before_normalize = 'srgb'
+    if type_before_normalize == "rgb" then
+        type_before_normalize = "srgb"
     end
 
     -- Convert to LAB colourspace
-    local lab = image:colourspace('lab')
+    local lab = image:colourspace("lab")
 
     -- Extract luminance
     local luminance = lab:extract_band(0)
@@ -81,12 +81,12 @@ end
 local function fingerprint(image)
     local thumbnail_options = {
         height = 8,
-        size = 'force',
+        size = "force",
         auto_rotate = false,
         linear = false
     }
 
-    local thumbnailImage = image:thumbnail_image(9, thumbnail_options):colourspace('b-w')
+    local thumbnailImage = image:thumbnail_image(9, thumbnail_options):colourspace("b-w")
     local dhash_image = normalize_image(thumbnailImage:copy_memory()):extract_band(0):write_to_memory()
 
     local fingerprint_tbl = {}
@@ -95,7 +95,7 @@ local function fingerprint(image)
             local left = dhash_image[(x * 8) + y]
             local right = dhash_image[(x * 8) + y + 1]
 
-            fingerprint_tbl[#fingerprint_tbl + 1] = left > right and '1' or '0'
+            fingerprint_tbl[#fingerprint_tbl + 1] = left > right and "1" or "0"
         end
     end
 
@@ -149,15 +149,15 @@ local function similar_image(_, arguments)
     -- Default threshold is 5
     local threshold = arguments[3] or 5
 
-    if type(expected_image) == 'string' then
+    if type(expected_image) == "string" then
         expected_image = vips.Image.new_from_file(expected_image, {
-            access = 'sequential'
+            access = "sequential"
         })
     end
 
-    if type(actual_image) == 'string' then
+    if type(actual_image) == "string" then
         actual_image = vips.Image.new_from_file(actual_image, {
-            access = 'sequential'
+            access = "sequential"
         })
     end
 
@@ -209,15 +209,15 @@ local function max_color_distance(_, arguments)
     -- Default distance is 1
     local accepted_distance = arguments[3] or 1
 
-    if type(expected_image) == 'string' then
+    if type(expected_image) == "string" then
         expected_image = vips.Image.new_from_file(expected_image, {
-            access = 'sequential'
+            access = "sequential"
         })
     end
 
-    if type(actual_image) == 'string' then
+    if type(actual_image) == "string" then
         actual_image = vips.Image.new_from_file(actual_image, {
-            access = 'sequential'
+            access = "sequential"
         })
     end
 
@@ -230,13 +230,13 @@ local function max_color_distance(_, arguments)
 
     -- Ensure same number of channels
     if actual_image:bands() ~= expected_image:bands() then
-        error('Mismatched bands')
+        error("Mismatched bands")
     end
 
     -- Ensure same dimensions
     if actual_image:width() ~= expected_image:width() or
             actual_image:height() ~= expected_image:height() then
-        error('Mismatched dimensions')
+        error("Mismatched dimensions")
     end
 
     -- Premultiply and remove alpha
@@ -271,7 +271,7 @@ local function contains(container, contained)
     local t1, t2 = type(container), type(contained)
     if t1 ~= t2 then return false end
 
-    if t1 == 'table' then
+    if t1 == "table" then
         for k, v in pairs(contained) do
             if not contains(container[k], v) then return false end
         end

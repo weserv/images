@@ -42,7 +42,7 @@ function manipulator:process(image, args)
 
         -- Alpha composite src over dst
         -- Assumes alpha channels are already premultiplied and will be unpremultiplied after
-        image = background_image:composite(image, 'over', { premultiplied = true })
+        image = background_image:composite(image, "over", { premultiplied = true })
     else
         -- If it's a 8bit-alpha channel image or the requested background color hasn't an alpha channel;
         -- then flatten the alpha out of an image, replacing it with a constant background color.
@@ -63,7 +63,7 @@ function manipulator:process(image, args)
         -- so unpremultiply if we have a premultiplied image.
         if args.is_premultiplied then
             -- Unpremultiply image alpha and cast pixel values to integer
-            image = image:unpremultiply():cast('uchar')
+            image = image:unpremultiply():cast("uchar")
             args.is_premultiplied = false
         end
 

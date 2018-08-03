@@ -41,7 +41,7 @@ end
 
 -- Be careful: keys and values are unescaped according to URI escaping rules.
 local args, args_err = ngx.req.get_uri_args()
-if args.api == '3' then
+if args.api == "3" then
     -- Internal redirection to the old api, if requested
     ngx.exec("/index.php", args)
     return;
@@ -49,13 +49,13 @@ end
 
 if is_exceeded then
     ngx.status = ngx.HTTP_TOO_MANY_REQUESTS
-    ngx.header['Content-Type'] = 'text/plain'
-    ngx.say('429 Too Many Requests - There are an unusual number of requests coming from this IP address.')
-elseif args_err == 'truncated' then
+    ngx.header["Content-Type"] = "text/plain"
+    ngx.say("429 Too Many Requests - There are an unusual number of requests coming from this IP address.")
+elseif args_err == "truncated" then
     ngx.status = ngx.HTTP_BAD_REQUEST
-    ngx.header['Content-Type'] = 'text/plain'
-    ngx.say('400 Bad Request - Request arguments limit is exceeded. A maximum of 100 request arguments are parsed.')
-elseif args.url ~= nil and args.url ~= '' then
+    ngx.header["Content-Type"] = "text/plain"
+    ngx.say("400 Bad Request - Request arguments limit is exceeded. A maximum of 100 request arguments are parsed.")
+elseif args.url ~= nil and args.url ~= "" then
     for key, val in pairs(args) do
         if type(val) == "table" then
             -- Use the first value if multiple occurrences of an argument key are given.
@@ -89,7 +89,7 @@ elseif args.url ~= nil and args.url ~= '' then
     app:run(args)
 else
     ngx.status = ngx.HTTP_OK
-    ngx.header['Content-Type'] = 'text/html'
+    ngx.header["Content-Type"] = "text/html"
 
-    template.render('index.html', config.template)
+    template.render("index.html", config.template)
 end

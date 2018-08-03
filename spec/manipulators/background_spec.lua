@@ -26,12 +26,12 @@ describe("background manipulator", function()
     describe("test flatten", function()
         it("to black", function()
             local test_image = fixtures.input_png_with_transparency
-            local expected_image = fixtures.expected_dir .. '/flatten-white.png'
+            local expected_image = fixtures.expected_dir .. "/flatten-white.png"
             local params = {
-                w = '400',
-                h = '300',
-                t = 'square',
-                bg = 'white'
+                w = "400",
+                h = "300",
+                t = "square",
+                bg = "white"
             }
 
             local image = api:process(test_image, params)
@@ -43,12 +43,12 @@ describe("background manipulator", function()
 
         it("to orange", function()
             local test_image = fixtures.input_png_with_transparency
-            local expected_image = fixtures.expected_dir .. '/flatten-orange.png'
+            local expected_image = fixtures.expected_dir .. "/flatten-orange.png"
             local params = {
-                w = '400',
-                h = '300',
-                t = 'square',
-                bg = 'darkorange'
+                w = "400",
+                h = "300",
+                t = "square",
+                bg = "darkorange"
             }
 
             local image = api:process(test_image, params)
@@ -60,12 +60,12 @@ describe("background manipulator", function()
 
         it("to hex", function()
             local test_image = fixtures.input_png_with_transparency
-            local expected_image = fixtures.expected_dir .. '/flatten-orange.png'
+            local expected_image = fixtures.expected_dir .. "/flatten-orange.png"
             local params = {
-                w = '400',
-                h = '300',
-                t = 'square',
-                bg = 'FF8C00'
+                w = "400",
+                h = "300",
+                t = "square",
+                bg = "FF8C00"
             }
 
             local image = api:process(test_image, params)
@@ -77,9 +77,9 @@ describe("background manipulator", function()
 
         it("16bit with transparency to orange", function()
             local test_image = fixtures.input_png_with_transparency_16bit
-            local expected_image = fixtures.expected_dir .. '/flatten-rgb16-orange.png'
+            local expected_image = fixtures.expected_dir .. "/flatten-rgb16-orange.png"
             local params = {
-                bg = 'darkorange'
+                bg = "darkorange"
             }
 
             local image = api:process(test_image, params)
@@ -91,13 +91,13 @@ describe("background manipulator", function()
 
         it("greyscale to orange", function()
             local test_image = fixtures.input_png_with_grey_alpha
-            local expected_image = fixtures.expected_dir .. '/flatten-2channel.png'
+            local expected_image = fixtures.expected_dir .. "/flatten-2channel.png"
             local params = {
-                w = '320',
-                h = '240',
-                t = 'square',
-                filt = 'greyscale',
-                bg = 'darkorange'
+                w = "320",
+                h = "240",
+                t = "square",
+                filt = "greyscale",
+                bg = "darkorange"
             }
 
             local image = api:process(test_image, params)
@@ -110,13 +110,13 @@ describe("background manipulator", function()
 
         it("blur to orange should unpremultiply", function()
             local test_image = fixtures.input_png_with_transparency
-            local expected_image = fixtures.expected_dir .. '/flatten-blur-orange.png'
+            local expected_image = fixtures.expected_dir .. "/flatten-blur-orange.png"
             local params = {
-                w = '400',
-                h = '300',
-                t = 'square',
-                blur = '1',
-                bg = 'darkorange'
+                w = "400",
+                h = "300",
+                t = "square",
+                blur = "1",
+                bg = "darkorange"
             }
 
             local image = api:process(test_image, params)
@@ -129,12 +129,12 @@ describe("background manipulator", function()
 
     it("test composite to 50% orange", function()
         local test_image = fixtures.input_png_with_transparency
-        local expected_image = fixtures.expected_dir .. '/composite-50-orange.png'
+        local expected_image = fixtures.expected_dir .. "/composite-50-orange.png"
         local params = {
-            w = '400',
-            h = '300',
-            t = 'square',
-            bg = '80FF8C00'
+            w = "400",
+            h = "300",
+            t = "square",
+            bg = "80FF8C00"
         }
 
         local image = api:process(test_image, params)
@@ -148,7 +148,7 @@ describe("background manipulator", function()
         it("for jpeg", function()
             local test_image = fixtures.input_jpg
             local params = {
-                bg = 'FF0000'
+                bg = "FF0000"
             }
 
             local image = api:process(test_image, params)
@@ -159,7 +159,7 @@ describe("background manipulator", function()
         it("for transparent background", function()
             local test_image = fixtures.input_png_with_transparency
             local params = {
-                bg = '0FFF'
+                bg = "0FFF"
             }
 
             local image = api:process(test_image, params)

@@ -38,7 +38,7 @@ function throttler:is_exceeded(ip_address)
         end
 
         local ok, set_err = self.redis:set(string.format("%s_%s:lockout", self.config.prefix, ip_address),
-            expires, 'ex', ttl)
+            expires, "ex", ttl)
         if not ok then
             ngx.log(ngx.ERR, string.format("Failed to set lockout key (for %s): ", ip_address), set_err)
         end

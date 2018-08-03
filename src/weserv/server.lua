@@ -13,11 +13,11 @@ server.__index = server
 -- @param extension The extension.
 -- @return Boolean indicating the extension is allowed.
 function server.is_extension_allowed(extension)
-    return extension == 'jpg' or
-            extension == 'tiff' or
-            extension == 'gif' or
-            extension == 'png' or
-            extension == 'webp'
+    return extension == "jpg" or
+            extension == "tiff" or
+            extension == "gif" or
+            extension == "png" or
+            extension == "webp"
 end
 
 --- Resolve the quality for the provided extension.
@@ -28,7 +28,7 @@ end
 function server.resolve_quality(params, extension)
     local quality = 0
 
-    if extension == 'jpg' or extension == 'webp' or extension == 'tiff' then
+    if extension == "jpg" or extension == "webp" or extension == "tiff" then
         quality = 85
 
         local given_quality = tonumber(params.q)
@@ -39,7 +39,7 @@ function server.resolve_quality(params, extension)
         end
     end
 
-    if extension == 'png' then
+    if extension == "png" then
         quality = 6
 
         local given_level = tonumber(params.level)
@@ -61,7 +61,7 @@ end
 function server.get_buffer_options(params, extension)
     local buffer_options = {}
 
-    if extension == 'jpg' then
+    if extension == "jpg" then
         -- Strip all metadata (EXIF, XMP, IPTC)
         buffer_options.strip = true
         -- Set quality (default is 85)
@@ -70,7 +70,7 @@ function server.get_buffer_options(params, extension)
         buffer_options.interlace = params.il ~= nil
         -- Enable libjpeg's Huffman table optimiser
         buffer_options.optimize_coding = true
-    elseif extension == 'png' then
+    elseif extension == "png" then
         -- Use progressive (interlace) scan, if necessary
         buffer_options.interlace = params.il ~= nil
         -- zlib compression level (default is 6)
@@ -83,21 +83,21 @@ function server.get_buffer_options(params, extension)
             -- VIPS_FOREIGN_PNG_FILTER_NONE
             buffer_options.filter = 0x08
         end
-    elseif extension == 'webp' then
+    elseif extension == "webp" then
         -- Strip all metadata (EXIF, XMP, IPTC)
         buffer_options.strip = true
         -- Set quality (default is 85)
         buffer_options.Q = server.resolve_quality(params, extension)
         -- Set quality of alpha layer to 100
         buffer_options.alpha_q = 100
-    elseif extension == 'tiff' then
+    elseif extension == "tiff" then
         -- Strip all metadata (EXIF, XMP, IPTC)
         buffer_options.strip = true
         -- Set quality (default is 85)
         buffer_options.Q = server.resolve_quality(params, extension)
         -- Set the tiff compression
-        buffer_options.compression = 'jpeg'
-    elseif extension == 'gif' then
+        buffer_options.compression = "jpeg"
+    elseif extension == "gif" then
         -- Set the format option to hint the file type.
         buffer_options.format = extension
     end
@@ -111,11 +111,11 @@ end
 -- @return The mime type.
 function server.extension_to_mime_type(extension)
     local mime_types = {
-        gif = 'image/gif',
-        jpg = 'image/jpeg',
-        png = 'image/png',
-        webp = 'image/webp',
-        tiff = 'image/tiff',
+        gif = "image/gif",
+        jpg = "image/jpeg",
+        png = "image/png",
+        webp = "image/webp",
+        tiff = "image/tiff",
     }
 
     return mime_types[extension]
@@ -133,47 +133,47 @@ function server.output(image, args)
 
     if args.output ~= nil and server.is_extension_allowed(args.output) then
         extension = args.output
-    elseif (has_alpha and extension ~= 'png' and extension ~= 'webp' and extension ~= 'gif')
+    elseif (has_alpha and extension ~= "png" and extension ~= "webp" and extension ~= "gif")
             or not server.is_extension_allowed(extension) then
         -- We force the extension to PNG if:
         -- - The image has alpha and doesn't have the right extension to output alpha.
         --   (useful for masking and letterboxing)
         -- - The input extension is not allowed for output.
-        extension = 'png'
+        extension = "png"
     end
 
     --  Write the image to a formatted string
-    local buffer = image:write_to_buffer('.' .. extension, server.get_buffer_options(args, extension))
+    local buffer = image:write_to_buffer("." .. extension, server.get_buffer_options(args, extension))
 
     local mime_type = server.extension_to_mime_type(extension)
 
     local max_age = 60 * 60 * 24 * 31 -- 31 days
-    ngx.header['Expires'] = ngx.http_time(ngx.time() + max_age)
-    ngx.header['Cache-Control'] = 'max-age=' .. max_age
+    ngx.header["Expires"] = ngx.http_time(ngx.time() + max_age)
+    ngx.header["Cache-Control"] = "max-age=" .. max_age
 
-    ngx.header['X-Images-Api'] = '4'
+    ngx.header["X-Images-Api"] = "4"
 
-    if args.encoding ~= nil and args.encoding == 'base64' then
-        ngx.header['Content-Type'] = 'text/plain'
+    if args.encoding ~= nil and args.encoding == "base64" then
+        ngx.header["Content-Type"] = "text/plain"
         ngx.print(string.format("data:%s;base64,%s", mime_type, ngx.encode_base64(buffer)))
     else
-        ngx.header['Content-Length'] = #buffer
-        ngx.header['Content-Type'] = mime_type
+        ngx.header["Content-Length"] = #buffer
+        ngx.header["Content-Type"] = mime_type
 
-        local file_name = 'image.' .. extension
+        local file_name = "image." .. extension
 
         -- https://tools.ietf.org/html/rfc2183
         if args.filename ~= nil and
-                args.filename ~= '' and
+                args.filename ~= "" and
                 not args.filename:match("%W") and
-                string.len(args.filename .. '.' .. extension) <= 78 then
-            file_name = args.filename .. '.' .. extension
+                string.len(args.filename .. "." .. extension) <= 78 then
+            file_name = args.filename .. "." .. extension
         end
 
         if args.download ~= nil then
-            ngx.header['Content-Disposition'] = 'attachment; filename=' .. file_name
+            ngx.header["Content-Disposition"] = "attachment; filename=" .. file_name
         else
-            ngx.header['Content-Disposition'] = 'inline; filename=' .. file_name
+            ngx.header["Content-Disposition"] = "inline; filename=" .. file_name
         end
 
         ngx.print(buffer)
