@@ -39,6 +39,7 @@ if config.throttler ~= nil and config.throttler.whitelist[ip_address] == nil the
     end
 end
 
+-- Be careful: keys and values are unescaped according to URI escaping rules.
 local args, args_err = ngx.req.get_uri_args()
 if args.api == '3' then
     -- Internal redirection to the old api, if requested

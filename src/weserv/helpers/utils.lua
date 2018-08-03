@@ -27,10 +27,14 @@ local VIPS_META_ORIENTATION = 'orientation'
 -- vips_icc_transform() operations.
 local VIPS_META_ICC_NAME = 'icc-profile-data'
 
--- Only alphanumerics, the special characters "-._~!$&'()*+,;=", and reserved
--- characters used for delimiters purposes may be used unencoded within a URI.
+-- Only alphanumerics, the percent character (prevents us from encoding
+-- already percent-encoded URIs), the special characters "-._~!$&'()*+,;=",
+-- and reserved characters used for delimiters purposes may be used
+-- unencoded within a URI. The regex (in accordance with the naming
+-- convention of RFC 3986) is as follows:
+-- *( unreserved / pct-encoded / gen-delims / sub-delims )
 -- See: https://tools.ietf.org/html/rfc3986#section-2.2
-local REGEX_DISALLOWED_CHARS = "[^%w%-%._~!%$&'%(%)%*%+,;=:/%?#@]"
+local REGEX_DISALLOWED_CHARS = "[^%w%-%._~%%!%$&'%(%)%*%+,;=:/%?#@]"
 
 --- Are pixel values in this image 16-bit integer?
 -- @param interpretation The VipsInterpretation
@@ -127,12 +131,13 @@ function utils.percent_encode(char)
 end
 
 --- Determines a "canonical" equivalent of a URI path.
+-- Assumes that the URI path is already unescaped.
 -- @param path The URI path to canonicalise.
 -- @return The canonicalised path.
 function utils.canonicalise_path(path)
     local segments = {}
     for segment in path:gmatch("/([^/]*)") do
-        segments[#segments + 1] = ngx.unescape_uri(segment):gsub(REGEX_DISALLOWED_CHARS, utils.percent_encode)
+        segments[#segments + 1] = segment:gsub(REGEX_DISALLOWED_CHARS, utils.percent_encode)
     end
     local len = #segments
     if len == 0 then
@@ -144,13 +149,14 @@ function utils.canonicalise_path(path)
 end
 
 --- Determines a "canonical" equivalent of a query string.
+-- Assumes that the query string is already unescaped.
 -- @param path The query string to canonicalise.
 -- @return The canonicalised query string.
 function utils.canonicalise_query_string(query)
     local q = {}
     for key, val in query:gmatch("([^&=]+)=?([^&]*)") do
-        key = ngx.unescape_uri(key):gsub(REGEX_DISALLOWED_CHARS, utils.percent_encode)
-        val = ngx.unescape_uri(val):gsub(REGEX_DISALLOWED_CHARS, utils.percent_encode)
+        key = key:gsub(REGEX_DISALLOWED_CHARS, utils.percent_encode)
+        val = val:gsub(REGEX_DISALLOWED_CHARS, utils.percent_encode)
         q[#q + 1] = key .. "=" .. val
     end
     return table.concat(q, "&")

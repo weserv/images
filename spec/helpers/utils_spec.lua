@@ -90,33 +90,40 @@ describe("utils", function()
             { utils.parse_uri('http:\\ory.weserv.nl') })
         assert.are.same({ nil, "Invalid domain label" },
             { utils.parse_uri('--example--.org') })
+        -- Doesn't escape special / reserved characters
+        -- in accordance with RFC 3986
+        -- See: https://github.com/weserv/images/issues/145 and
+        -- https://github.com/weserv/images/issues/144
         assert.are.same({
             'https', 'ory.weserv.nl', 443,
-            "/-._~!$'()*%20,;=:#@",
+            "/-._~!$'()*+,;=:#@%",
             "bar=foo"
         }, {
-            unpack(utils.parse_uri("//ory.weserv.nl/-._~!$'()*+,;=:#@?bar=foo"))
+            unpack(utils.parse_uri("//ory.weserv.nl/-._~!$'()*+,;=:#@%?bar=foo"))
         })
         assert.are.same({
             'https', 'ory.weserv.nl', 443,
-            "/-._~!$'()*+,;=:/?#@",
+            "/",
+            "bar=-._~!$'()*+,;=:/@%"
+        }, {
+            unpack(utils.parse_uri("//ory.weserv.nl/?bar=-._~!$'()*+,;=:/@%"))
+        })
+
+        -- Doesn't unescape twice
+        -- See: https://github.com/weserv/images/issues/149
+        assert.are.same({
+            'https', 'ory.weserv.nl', 443,
+            "/",
+            "bar=%2D%2E%5F%7E%21%24%27%28%29%2A%2B%2C%3B%3D%3A%2F%40"
+        }, {
+            unpack(utils.parse_uri("//ory.weserv.nl/?bar=%2D%2E%5F%7E%21%24%27%28%29%2A%2B%2C%3B%3D%3A%2F%40"))
+        })
+        assert.are.same({
+            'https', 'ory.weserv.nl', 443,
+            "/%2D%2E%5F%7E%21%24%27%28%29%2A%2B%2C%3B%3D%3A%2F%3F%23%40",
             "bar=foo"
         }, {
             unpack(utils.parse_uri("//ory.weserv.nl/%2D%2E%5F%7E%21%24%27%28%29%2A%2B%2C%3B%3D%3A%2F%3F%23%40?bar=foo"))
-        })
-        assert.are.same({
-            'https', 'ory.weserv.nl', 443,
-            "/",
-            "bar=-._~!$'()*%20,;=:/@"
-        }, {
-            unpack(utils.parse_uri("//ory.weserv.nl/?bar=-._~!$'()*+,;=:/@"))
-        })
-        assert.are.same({
-            'https', 'ory.weserv.nl', 443,
-            "/",
-            "bar=-._~!$'()*+,;=:/@"
-        }, {
-            unpack(utils.parse_uri("//ory.weserv.nl/?bar=%2D%2E%5F%7E%21%24%27%28%29%2A%2B%2C%3B%3D%3A%2F%40"))
         })
     end)
 

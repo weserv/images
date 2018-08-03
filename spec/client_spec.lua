@@ -257,12 +257,14 @@ describe("client", function()
         end)
 
         it("max redirects error", function()
-            local redirect = 'https://ory.weserv.nl/image2.jpg?foo=bar'
+            -- Make sure that we unescape the redirect URI.
+            -- See: https://github.com/weserv/images/issues/142
+            local redirect = 'https://ory.weserv.nl/%252A/image2.jpg?foo=bar'
 
             response.status = 302
             response.headers['Location'] = redirect
 
-            local res, err = client:request("ory.weserv.nl/image.jpg?foo=bar")
+            local res, err = client:request("ory.weserv.nl/%2A/image.jpg?foo=bar")
 
             assert.equal(404, err.status)
             assert.equal(string.format("Will not follow more than %d redirects", default_config.max_redirects),
@@ -270,20 +272,20 @@ describe("client", function()
             assert.falsy(res)
 
             assert.spy(stubbed_http.request).was.called(10)
-            assert.spy(stubbed_http.request).was.called_with(match._, match.same({
+            assert.spy(stubbed_http.request).was.called_with(match._, match.contains({
                 headers = {
                     ['User-Agent'] = default_config.user_agent
                 },
-                path = '/image.jpg',
+                path = '/%2A/image.jpg',
                 query = 'foo=bar',
             }))
-            assert.spy(stubbed_http.request).was.called_with(match._, match.same({
+            assert.spy(stubbed_http.request).was.called_with(match._, match.contains({
                 headers = {
                     ['User-Agent'] = default_config.user_agent,
                     -- Referer needs to be added
-                    ['Referer'] = 'http://ory.weserv.nl/image.jpg?foo=bar'
+                    ['Referer'] = 'http://ory.weserv.nl/%2A/image.jpg?foo=bar'
                 },
-                path = '/image2.jpg',
+                path = '/%2A/image2.jpg',
                 query = 'foo=bar',
             }))
             assert.spy(stubbed_http.close).was.called()

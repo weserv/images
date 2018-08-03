@@ -183,7 +183,8 @@ function client:request(uri, addl_headers, redirect_nr)
         }
 
         -- recursive call
-        return self:request(res.headers['Location'], referer, redirect_nr + 1)
+        -- Note: Make sure that we unescape the redirect URI.
+        return self:request(ngx.unescape_uri(res.headers['Location']), referer, redirect_nr + 1)
     end
 
     local valid, invalid_err = self:is_valid_response(res)
