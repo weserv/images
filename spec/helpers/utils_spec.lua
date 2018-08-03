@@ -127,6 +127,20 @@ describe("utils", function()
         })
     end)
 
+    it("test percent encode", function()
+        assert.equal("%22", utils.percent_encode("\""))
+        assert.equal("%3C", utils.percent_encode("<"))
+        assert.equal("%3E", utils.percent_encode(">"))
+        assert.equal("%5B", utils.percent_encode("["))
+        assert.equal("%5C", utils.percent_encode("\\"))
+        assert.equal("%5D", utils.percent_encode("]"))
+        assert.equal("%5E", utils.percent_encode("^"))
+        assert.equal("%60", utils.percent_encode("`"))
+        assert.equal("%7B", utils.percent_encode("{"))
+        assert.equal("%7C", utils.percent_encode("|"))
+        assert.equal("%7D", utils.percent_encode("}"))
+    end)
+
     it("test resolve angle rotation", function()
         assert.equal(270, utils.resolve_angle_rotation('-3690'));
         assert.equal(270, utils.resolve_angle_rotation('-450'));
