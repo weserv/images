@@ -212,13 +212,15 @@ function client:request(uri, addl_headers, redirect_nr)
     local image_too_big = false
 
     repeat
-        local chunk, read_err = reader(65536)
+        local chunk, read_err, chunk_size = reader(65536)
         if read_err then
             ngx.log(ngx.ERR, read_err)
         end
 
         if chunk then
-            current_size = current_size + #chunk
+            -- TODO: Can be removed when https://github.com/pintsized/lua-resty-http/pull/152 is merged.
+            chunk_size = chunk_size or #chunk
+            current_size = current_size + chunk_size
             image_too_big = max_image_size ~= 0 and current_size > max_image_size
 
             if image_too_big then
