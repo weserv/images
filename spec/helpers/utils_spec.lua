@@ -49,9 +49,6 @@ describe("utils", function()
 
         tmpfile = utils.tempname("/path/does/not/exist", "imo_")
         assert.falsy(tmpfile)
-
-        -- Log unique file errors
-        assert.equal(1, #ngx._logs)
     end)
 
     it("test clean uri", function()

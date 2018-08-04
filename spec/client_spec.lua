@@ -14,32 +14,27 @@ describe("client", function()
             send = 5000,
             read = 10000,
         },
-        max_image_size = 0,
+        max_image_size = 24,
         max_redirects = 10,
         allowed_mime_types = {}
     }
 
     local errors = {}
 
-    local reader_co = coroutine.create(function(max_chunk_size)
-        coroutine.yield("Chunk 1 " .. max_chunk_size .. "\n")
-        coroutine.yield("Chunk 2 " .. max_chunk_size .. "\n")
-        coroutine.yield("Chunk 3 " .. max_chunk_size .. "\n")
-        coroutine.yield(nil)
-    end)
-
-    local body_reader = function(...)
-        if coroutine.status(reader_co) == "suspended" then
-            return select(2, coroutine.resume(reader_co, ...))
-        else
-            return nil, "can't resume a " .. coroutine.status(reader_co) .. " coroutine"
-        end
+    local body_reader = function(file_chunks)
+        return coroutine.wrap(function()
+            for i = 1, file_chunks do
+                coroutine.yield("Chunk " .. i .. "\n")
+            end
+            coroutine.yield(nil)
+        end)
     end
+
 
     local response = {
         status = 200,
         headers = {},
-        body_reader = body_reader
+        body_reader = body_reader(3)
     }
 
     local tempname = true
@@ -133,7 +128,7 @@ describe("client", function()
         response = {
             status = 200,
             headers = {},
-            body_reader = body_reader
+            body_reader = body_reader(3)
         }
     end)
 
@@ -165,7 +160,7 @@ describe("client", function()
             local t = f:read("*all")
             f:close()
 
-            assert.equal("Chunk 1 65536\nChunk 2 65536\nChunk 3 65536\n", t)
+            assert.equal("Chunk 1\nChunk 2\nChunk 3\n", t)
             assert(os.remove(res.tmpfile))
         end)
 
@@ -176,7 +171,7 @@ describe("client", function()
             assert.equal("Unable to parse URL", err.message)
             assert.falsy(res)
 
-            -- Don"t log invalid uris
+            -- Don't log invalid uris
             assert.equal(0, #ngx._logs)
         end)
 
@@ -194,7 +189,7 @@ describe("client", function()
             assert.spy(stubbed_http.request).was_not_called()
             assert.spy(stubbed_http.set_keepalive).was_not_called()
 
-            -- Don"t log connect errors
+            -- Don't log connect errors
             assert.equal(0, #ngx._logs)
         end)
 
@@ -234,8 +229,26 @@ describe("client", function()
             -- in buffer` error from set_keepalive for the next request.
             assert.spy(stubbed_http.close).was.called()
 
-            -- Don"t log request errors
+            -- Don't log request errors
             assert.equal(0, #ngx._logs)
+        end)
+
+        it("max image size error", function()
+            response.body_reader = body_reader(4)
+
+            local valid, invalid_err = client:request("https://ory.weserv.nl/big_image.jpg")
+
+            assert.spy(stubbed_http.connect).was.called()
+            assert.spy(stubbed_http.ssl_handshake).was.called()
+            assert.spy(stubbed_http.request).was.called()
+            assert.spy(stubbed_http.set_keepalive).was_not_called()
+
+            assert.falsy(valid)
+            assert.equal(404, invalid_err.status)
+            assert.equal([[The image is too big to be downloaded. Max image size: 24 B]], invalid_err.message)
+
+            -- Log images that are too big
+            assert.equal(1, #ngx._logs)
         end)
 
         it("keepalive error", function()
@@ -371,35 +384,10 @@ describe("client", function()
                 },
             })
 
-            assert.equal(400, invalid_err.status)
+            assert.falsy(valid)
+            assert.equal(404, invalid_err.status)
             assert.equal([[The request image is not a valid (supported) image.
 Allowed mime types: image/jpeg]], invalid_err.message)
-            assert.falsy(valid)
-        end)
-
-        it("max image size", function()
-            local new_client = require("weserv.client").new({
-                user_agent = "Mozilla/5.0 (compatible; ImageFetcher/8.0; +http://images.weserv.nl/)",
-                timeouts = {
-                    connect = 5000,
-                    send = 5000,
-                    read = 10000,
-                },
-                max_image_size = 1024,
-                max_redirects = 10,
-                allowed_mime_types = {}
-            })
-            local valid, invalid_err = new_client:is_valid_response({
-                headers = {
-                    ["Content-Length"] = "2048"
-                },
-            })
-
-            assert.equal(400, invalid_err.status)
-            assert.equal([[The image is too big to be downloaded.
-Image size: 2 KB
-Max image size: 1 KB]], invalid_err.message)
-            assert.falsy(valid)
         end)
     end)
 end)

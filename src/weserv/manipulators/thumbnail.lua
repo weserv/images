@@ -3,6 +3,7 @@ local utils = require "weserv.helpers.utils"
 local ngx = ngx
 local math = math
 local tonumber = tonumber
+local error = error
 
 -- Profile map to ensure that we use a device-
 -- independent color space for the images we process.
@@ -83,10 +84,10 @@ end
 -- @param args The URL query arguments.
 function manipulator:process(image, args)
     if image:width() * image:height() > MAX_IMAGE_SIZE then
-        return nil, {
-            status = ngx.HTTP_BAD_REQUEST,
+        error({
+            status = ngx.HTTP_NOT_FOUND,
             message = "Image is too large for processing. Width x height should be less than 71 megapixels.",
-        }
+        })
     end
 
     -- Resolve target dimensions
@@ -221,10 +222,10 @@ function manipulator:process(image, args)
 
     -- targetResizeWidth and targetResizeWidth aren't reliable anymore.
     if check_max_image_size and args.w * args.h > MAX_IMAGE_SIZE then
-        return nil, {
-            status = ngx.HTTP_BAD_REQUEST,
+        error({
+            status = ngx.HTTP_NOT_FOUND,
             message = "Requested image dimensions are too large. Width x height should be less than 71 megapixels.",
-        }
+        })
     end
 
     -- Try to use shrink-on-load for JPEG and WebP, when not

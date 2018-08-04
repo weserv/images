@@ -91,7 +91,8 @@ function api:next(image, args)
         -- Call the manipulator, which may itself call next().
         return manipulator.process(self, image, args)
     else
-        -- Reverse premultiplication after all transformations:
+        -- The last image manipulation was completed, reverse
+        -- premultiplication after all transformations:
         if args.is_premultiplied then
             -- Unpremultiply image alpha and cast pixel values to integer
             image = image:unpremultiply():cast("uchar")
@@ -141,13 +142,13 @@ function api:process(tmpfile, args)
     args.string_options = string_options
 
     local image
-    local success, image_err = pcall(function()
+    local read_success, read_err = pcall(function()
         image = vips.Image.new_from_file(args.tmp_file_name .. args.string_options, load_options)
     end)
 
-    if not success then
+    if not read_success then
         -- Log image not readable errors
-        ngx.log(ngx.ERR, "Image not readable: ", image_err)
+        ngx.log(ngx.ERR, "Image not readable: ", read_err)
 
         return nil, {
             status = ngx.HTTP_NOT_FOUND,
@@ -167,8 +168,38 @@ function api:process(tmpfile, args)
     -- Fill working queue
     for k, v in ipairs(self.manipulators) do self.manipulators_queue[k] = v end
 
-    -- Run the next manipulator.
-    return self:next(image, args)
+    -- Wrap it into pcall because we may throw errors.
+    local success, image_err = pcall(function()
+        -- Run the next manipulator.
+        image = self:next(image, args)
+    end)
+
+    if not success then
+        local api_err
+
+        -- lua-vips will throw errors as string types
+        if type(image_err) == "string" then
+            -- Log libvips errors
+            ngx.log(ngx.ERR, "libvips error: ", image_err)
+
+            api_err = {
+                status = ngx.HTTP_NOT_FOUND,
+                message = "libvips error: " .. image_err,
+            }
+        else
+            -- Otherwise we may throw it as a table type which
+            -- contains a status and message.
+            api_err = image_err
+        end
+
+        -- A image manipulation has caused an error, return
+        -- the error which may contain information to resolve it.
+        return nil, api_err
+    else
+        -- All image manipulations were successful, return
+        -- the image without errors
+        return image, nil
+    end
 end
 
 return {

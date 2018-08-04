@@ -154,5 +154,29 @@ describe("api", function()
             -- Log not readable errors
             assert.equal(1, #ngx._logs)
         end)
+
+        it("libvips error", function()
+            api:add_manipulator(require "weserv.manipulators.thumbnail")
+
+            -- Create a unique file (starting with 'imo_') in our shared memory.
+            local tmpfile = utils.tempname("/dev/shm", "imo_")
+
+            -- Write a 1x1 svg image
+            local f = assert(io.open(tmpfile, "w"))
+            f:write("<svg width=\"1\" height=\"1\"></svg>")
+            f:close()
+
+            local image, api_err = api:process(tmpfile, {
+                url = "http://example.org/1x1.svg",
+                w = '10000001', -- VIPS_MAX_COORD + 1
+            })
+            assert.falsy(image)
+            assert.equal(404, api_err.status)
+            assert.truthy(api_err.message:find("parameter width not set"))
+            assert(os.remove(tmpfile))
+
+            -- Log libvips errors
+            assert.equal(1, #ngx._logs)
+        end)
     end)
 end)

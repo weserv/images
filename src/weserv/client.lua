@@ -9,7 +9,6 @@ local table = table
 local string = string
 local assert = assert
 local unpack = unpack
-local tonumber = tonumber
 local setmetatable = setmetatable
 
 --- Client module.
@@ -64,25 +63,9 @@ function client:is_valid_response(res)
 Allowed mime types: %s]]
 
         return nil, {
-            status = ngx.HTTP_BAD_REQUEST,
+            status = ngx.HTTP_NOT_FOUND,
             message = string.format(error_template, table.concat(supported_images, ", "))
         }
-    end
-
-    if self.config.max_image_size ~= 0 then
-        local length = tonumber(res.headers["Content-Length"])
-
-        if length ~= nil and length > self.config.max_image_size then
-            local error_template = [[The image is too big to be downloaded.
-Image size: %s
-Max image size: %s]]
-
-            return nil, {
-                status = ngx.HTTP_BAD_REQUEST,
-                message = string.format(error_template, utils.format_bytes(length),
-                    utils.format_bytes(self.config.max_image_size))
-            }
-        end
     end
 
     if res.status ~= ngx.HTTP_OK then
@@ -223,6 +206,11 @@ function client:request(uri, addl_headers, redirect_nr)
 
     local f = assert(io.open(res.tmpfile, "wb"))
 
+    local max_image_size = self.config.max_image_size
+    local current_size = 0
+
+    local image_too_big = false
+
     repeat
         local chunk, read_err = reader(65536)
         if read_err then
@@ -230,10 +218,30 @@ function client:request(uri, addl_headers, redirect_nr)
         end
 
         if chunk then
+            current_size = current_size + #chunk
+            image_too_big = max_image_size ~= 0 and current_size > max_image_size
+
+            if image_too_big then
+                break
+            end
+
             f:write(chunk)
         end
     until not chunk
     f:close()
+
+    if image_too_big then
+        httpc:close()
+        os.remove(res.tmpfile)
+
+        ngx.log(ngx.ERR, "Image is too big to be downloaded.")
+        local error_template = "The image is too big to be downloaded. Max image size: %s"
+
+        return nil, {
+            status = ngx.HTTP_NOT_FOUND,
+            message = string.format(error_template, utils.format_bytes(self.config.max_image_size))
+        }
+    end
 
     local ok, keepalive_err = httpc:set_keepalive()
     if not ok then

@@ -21,7 +21,7 @@ return {
             read = 15000,
         },
         -- Number describing the max image size to receive (in bytes). Use 0 for no limits.
-        max_image_size = 0,
+        max_image_size = 104857600, -- 100 MB
         -- Number describing the maximum number of allowed redirects.
         max_redirects = 10,
         -- Allowed mime types. Use empty table to allow all mime types

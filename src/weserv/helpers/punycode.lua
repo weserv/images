@@ -16,7 +16,7 @@ local initial_n = 128 -- 0x80
 local delimiter = "-" -- 0x2D
 
 -- Highest positive signed 32-bit float value
-local max_int = 2147483647; -- aka. 0x7FFFFFFF or 2^31-1
+local max_int = 2147483647 -- aka. 0x7FFFFFFF or 2^31-1
 
 --- Punycode module
 -- @module punycode
@@ -74,7 +74,7 @@ function punycode.adapt(delta, numPoints, firstTime)
         k = k + 1
     end
 
-    return base * k + math.floor((base - t_min + 1) * delta / (delta + skew));
+    return base * k + math.floor((base - t_min + 1) * delta / (delta + skew))
 end
 
 --- Encoding procedure as per section 6.3 of RFC 3492.

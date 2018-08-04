@@ -70,7 +70,7 @@ describe("thumbnail manipulator", function()
             local image, api_err = api:process(test_image, {})
 
             assert.falsy(image)
-            assert.equal(400, api_err.status)
+            assert.equal(404, api_err.status)
             assert.truthy(api_err.message:find("Image is too large for processing"))
         end)
 
@@ -83,7 +83,7 @@ describe("thumbnail manipulator", function()
             })
 
             assert.falsy(image)
-            assert.equal(400, api_err.status)
+            assert.equal(404, api_err.status)
             assert.truthy(api_err.message:find("Requested image dimensions are too large"))
         end)
     end)

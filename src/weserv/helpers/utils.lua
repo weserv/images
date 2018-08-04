@@ -83,20 +83,17 @@ function utils.tempname(dir, prefix)
     local C = ffi.C
 
     local template = string.format("%s/%sXXXXXX", dir, prefix)
-    local tempname = ffi.new("char[?]", #template + 1) -- zero-initialized
-    ffi.copy(tempname, template) -- \x00 already at the end
-
-    local holder = C.mkstemp(tempname)
-    if holder == -1 then
-        ngx.log(ngx.ERR, "Unable to generate a unique file")
-
+    -- Use length + 1 to reserve room for the zero terminator.
+    local tempname = ffi.new("char[?]", #template + 1, template)
+    local fd = C.mkstemp(tempname)
+    if fd == -1 then
         return nil
     end
 
-    tempname = ffi.string(tempname)
-    C.close(holder)
+    local result = ffi.string(tempname)
+    local rv = C.close(fd)
 
-    return tempname
+    return rv ~= 0 and nil or result
 end
 
 --- Clean URI.
