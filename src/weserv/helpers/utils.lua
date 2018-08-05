@@ -132,9 +132,17 @@ end
 -- @param path The URI path to canonicalise.
 -- @return The canonicalised path.
 function utils.canonicalise_path(path)
+    -- Should we ignore the query?
+    local ignore_query = false
+
     local segments = {}
-    for segment in path:gmatch("/([^/]*)") do
-        segments[#segments + 1] = segment:gsub(REGEX_DISALLOWED_CHARS, utils.percent_encode)
+    for path_segment, fragment in path:gmatch("/([^/#]*)(#?)") do
+        segments[#segments + 1] = path_segment:gsub(REGEX_DISALLOWED_CHARS, utils.percent_encode)
+        -- Fragment identifier must be removed from the path.
+        if fragment == "#" then
+            ignore_query = true
+            break
+        end
     end
     local len = #segments
     if len == 0 then
@@ -142,7 +150,7 @@ function utils.canonicalise_path(path)
     end
     segments[0] = ""
     segments = table.concat(segments, "/", 0, len)
-    return segments
+    return segments, ignore_query
 end
 
 --- Determines a "canonical" equivalent of a query string.
@@ -156,7 +164,15 @@ function utils.canonicalise_query_string(query)
         val = val:gsub(REGEX_DISALLOWED_CHARS, utils.percent_encode)
         q[#q + 1] = key .. "=" .. val
     end
-    return table.concat(q, "&")
+    query = table.concat(q, "&")
+
+    -- Fragment identifier must be removed from the query string.
+    local frag_pos = query:find("#")
+    if frag_pos then
+        query = query:sub(1, frag_pos - 1)
+    end
+
+    return query
 end
 
 --- Parse URI.
@@ -185,8 +201,14 @@ function utils.parse_uri(uri)
             end
         end
 
-        m[4] = utils.canonicalise_path(m[4])
-        m[5] = utils.canonicalise_query_string(m[5])
+        local path, ignore_query = utils.canonicalise_path(m[4])
+        m[4] = path
+
+        if ignore_query then
+            m[5] = ""
+        else
+            m[5] = utils.canonicalise_query_string(m[5])
+        end
 
         return m, nil
     end

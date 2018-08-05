@@ -88,22 +88,23 @@ describe("utils", function()
         assert.are.same({ nil, "Invalid domain label" },
             { utils.parse_uri("--example--.org") })
         -- Doesn't escape special / reserved characters
-        -- in accordance with RFC 3986
+        -- in accordance with RFC 3986.
+        -- Also, a fragment identifier must be removed from the URI.
         -- See: https://github.com/weserv/images/issues/145 and
         -- https://github.com/weserv/images/issues/144
         assert.are.same({
             "https", "ory.weserv.nl", 443,
-            "/-._~!$'()*+,;=:#@%",
-            "bar=foo"
+            "/-._~!$'()*+,;=:@%",
+            ""
         }, {
-            unpack(utils.parse_uri("//ory.weserv.nl/-._~!$'()*+,;=:#@%?bar=foo"))
+            unpack(utils.parse_uri("//ory.weserv.nl/-._~!$'()*+,;=:@%#exclude?bar=foo"))
         })
         assert.are.same({
             "https", "ory.weserv.nl", 443,
             "/",
             "bar=-._~!$'()*+,;=:/@%"
         }, {
-            unpack(utils.parse_uri("//ory.weserv.nl/?bar=-._~!$'()*+,;=:/@%"))
+            unpack(utils.parse_uri("//ory.weserv.nl/?bar=-._~!$'()*+,;=:/@%#exclude"))
         })
 
         -- Doesn't unescape twice
