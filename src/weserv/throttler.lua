@@ -5,19 +5,18 @@ local setmetatable = setmetatable
 --- Throttler module.
 -- @module throttler
 local throttler = {}
-throttler.__index = throttler
+local mt = { __index = throttler }
 
 --- Instantiate a throttler object.
 -- @param redis Redis instance.
 -- @param policy Throttling policy.
 -- @param config Throttler config.
-local function new(redis, policy, config)
-    local self = {
+function throttler.new(redis, policy, config)
+    return setmetatable({
         redis = redis,
         policy = policy,
         config = config,
-    }
-    return setmetatable(self, throttler)
+    }, mt)
 end
 
 --- Determine if any rate limits have been exceeded.
@@ -136,7 +135,4 @@ function throttler:available_in(ip_address)
     return expires - ngx.time()
 end
 
-return {
-    new = new,
-    __object = throttler
-}
+return throttler

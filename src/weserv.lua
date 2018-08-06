@@ -8,7 +8,7 @@ local error_template = "Error %d: Server couldn't parse the ?url= that you were 
 --- Weserv module.
 -- @module weserv
 local weserv = {}
-weserv.__index = weserv
+local mt = { __index = weserv }
 
 --- Instantiate a Weserv object:
 -- The client is responsible for downloading an image from the http(s)
@@ -22,13 +22,12 @@ weserv.__index = weserv
 -- @param client client object
 -- @param client The api
 -- @param client The server
-local function new(client, api, server)
-    local self = {
+function weserv.new(client, api, server)
+    return setmetatable({
         client = client,
         api = api,
         server = server,
-    }
-    return setmetatable(self, weserv)
+    }, mt)
 end
 
 --- Start the app.
@@ -80,7 +79,4 @@ function weserv:run(args)
     end
 end
 
-return {
-    new = new,
-    __object = weserv
-}
+return weserv

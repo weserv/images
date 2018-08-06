@@ -13,15 +13,14 @@ local setmetatable = setmetatable
 --- API module.
 -- @module api
 local api = {}
-api.__index = api
+local mt = { __index = api }
 
 --- Instantiate a API object.
-local function new()
-    local self = {
+function api.new()
+    return setmetatable({
         manipulators = {},
         manipulators_queue = {}
-    }
-    return setmetatable(self, api)
+    }, mt)
 end
 
 --- Register a manipulator to be used.
@@ -202,7 +201,4 @@ function api:process(tmpfile, args)
     end
 end
 
-return {
-    new = new,
-    __object = api
-}
+return api

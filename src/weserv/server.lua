@@ -7,7 +7,6 @@ local tonumber = tonumber
 --- Server module.
 -- @module server
 local server = {}
-server.__index = server
 
 --- Is the extension allowed to pass on to the selected save operation?
 -- @param extension The extension.

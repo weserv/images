@@ -21,7 +21,6 @@ local max_int = 2147483647 -- aka. 0x7FFFFFFF or 2^31-1
 --- Punycode module
 -- @module punycode
 local punycode = {}
-punycode.__index = punycode
 
 --- Returns the code of a UTF-8 character.
 -- From sarn_utf8_code_func: http://lua-users.org/wiki/ValidateUnicodeString

@@ -8,15 +8,14 @@ local setmetatable = setmetatable
 --- Throttler policy module.
 -- @module policy
 local policy = {}
-policy.__index = policy
+local mt = { __index = policy }
 
 --- Instantiate a throttler policy object.
 -- @param config Throttler policy config.
-local function new(config)
-    local self = {
+function policy.new(config)
+    return setmetatable({
         config = config,
-    }
-    return setmetatable(self, policy)
+    }, mt)
 end
 
 --- How long should the user be banned?
@@ -125,7 +124,4 @@ function policy:unban_at_cloudflare(identifier)
     return true
 end
 
-return {
-    new = new,
-    __object = policy
-}
+return policy

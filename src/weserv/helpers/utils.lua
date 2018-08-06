@@ -15,7 +15,6 @@ ffi.cdef [[
 --- Utils module
 -- @module utils
 local utils = {}
-utils.__index = utils
 
 -- The orientation tag for this image. An int from 1 - 8 using the standard
 -- exif/tiff meanings.

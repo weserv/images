@@ -152,7 +152,23 @@ local colors = {
 --- Color helper module
 -- @module color
 local color_helper = {}
-color_helper.__index = color_helper
+local mt = { __index = color_helper }
+
+--- Instantiate a Color helper object.
+-- @param value The color value.
+function color_helper.new(value)
+    if value ~= nil then
+        local value_lower = string.lower(value)
+        if colors[value_lower] ~= nil then
+            value = colors[value_lower]
+        end
+    end
+
+    local color = {}
+    color.alpha, color.red, color.green, color.blue = color_helper.parse(value)
+
+    return setmetatable(color, mt)
+end
 
 --- Try to convert a string to a decimal ARGB sequence.
 -- Allowed formats:
@@ -218,22 +234,6 @@ function color_helper.parse(color)
     return unpack(result)
 end
 
---- Instantiate a Color helper object.
--- @param value The color value.
-local function new(value)
-    if value ~= nil then
-        local value_lower = string.lower(value)
-        if colors[value_lower] ~= nil then
-            value = colors[value_lower]
-        end
-    end
-
-    local self = {}
-    self.alpha, self.red, self.green, self.blue = color_helper.parse(value)
-
-    return setmetatable(self, color_helper)
-end
-
 --- Format color to RGBA table.
 -- The formatted RGBA color.
 function color_helper:to_rgba()
@@ -259,7 +259,4 @@ function color_helper:has_alpha_channel()
     return self.alpha < 255
 end
 
-return {
-    new = new,
-    __object = color_helper
-}
+return color_helper

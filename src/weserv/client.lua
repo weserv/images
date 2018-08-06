@@ -14,15 +14,14 @@ local setmetatable = setmetatable
 --- Client module.
 -- @module client
 local client = {}
-client.__index = client
+local mt = { __index = client }
 
 --- Instantiate a client object.
 -- @param config Client config.
-local function new(config)
-    local self = {
+function client.new(config)
+    return setmetatable({
         config = config,
-    }
-    return setmetatable(self, client)
+    }, mt)
 end
 
 --- Get status code for an specific error.
@@ -259,7 +258,4 @@ function client:request(uri, addl_headers, redirect_nr)
     return res, nil
 end
 
-return {
-    new = new,
-    __object = client
-}
+return client
