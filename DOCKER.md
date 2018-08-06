@@ -16,7 +16,7 @@ This document describes how to use images.weserv.nl with Docker.
     $ docker build . -t imagesweserv
     $ docker run \
         -v $(pwd):/var/www/imagesweserv \
-        -v $(pwd)/config/nginx/conf.d:/etc/nginx/conf.d/ \
+        -v $(pwd)/config/nginx/conf.d:/usr/local/openresty/nginx/conf/conf.d/ \
         -v $(pwd)/logs/supervisor:/var/log/supervisor \
         -v /dev/shm:/dev/shm \
         -p 80:80 \
@@ -48,7 +48,7 @@ Just run:
 ```bash
 $ docker run \
     -v $(pwd):/var/www/imagesweserv \
-    -v $(pwd)/config/nginx/conf.d:/etc/nginx/conf.d/ \
+    -v $(pwd)/config/nginx/conf.d:/usr/local/openresty/nginx/conf/conf.d/ \
     -v $(pwd)/logs/supervisor:/var/log/supervisor \
     -v /dev/shm:/dev/shm \
     -p 80:80 \
