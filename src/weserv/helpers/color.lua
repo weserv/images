@@ -1,8 +1,10 @@
 local type = type
-local string = string
 local unpack = unpack
 local tonumber = tonumber
 local setmetatable = setmetatable
+local str_rep = string.rep
+local str_lower = string.lower
+local str_format = string.format
 
 -- The 140 color names supported by all modern browsers.
 local colors = {
@@ -158,7 +160,7 @@ local mt = { __index = color_helper }
 -- @param value The color value.
 function color_helper.new(value)
     if value ~= nil then
-        local value_lower = string.lower(value)
+        local value_lower = str_lower(value)
         if colors[value_lower] ~= nil then
             value = colors[value_lower]
         end
@@ -223,7 +225,7 @@ function color_helper.parse(color)
     end
 
     -- Pad the string to AARRGGBB format
-    color = string.rep("F", 8 - #color) .. color
+    color = str_rep("F", 8 - #color) .. color
 
     -- Color is now AARRGGBB; return the decimal ARGB sequence
     local result = {}
@@ -244,7 +246,7 @@ function color_helper:to_rgba_string()
     return "rgba(" .. self.red .. "," ..
             self.green .. "," ..
             self.blue .. "," ..
-            string.format("%.2f", self.alpha * 0.00392156862) .. ")"
+            str_format("%.2f", self.alpha * 0.00392156862) .. ")"
 end
 
 --- Indicates if this color is completely transparent.

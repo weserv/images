@@ -74,19 +74,21 @@ function manipulator.sharpen(image, sigma, flat, jagged, access_method)
     }):colourspace(old_interpretation)
 end
 
+--- Should this manipulator process the image?
+-- @param args The URL query arguments.
+-- @return Boolean indicating if we should process the image.
+function manipulator.should_process(args)
+    return args.sharp ~= nil
+end
+
 --- Perform sharpen image manipulation.
 -- @param image The source image.
 -- @param args The URL query arguments.
-function manipulator:process(image, args)
-    if args.sharp == nil then
-        return self:next(image, args)
-    end
-
+-- @return The manipulated image.
+function manipulator.process(image, args)
     local flat, jagged, sigma = manipulator.resolve_sharpen(args.sharp)
 
-    image = manipulator.sharpen(image, sigma, flat, jagged, args.access_method)
-
-    return self:next(image, args)
+    return manipulator.sharpen(image, sigma, flat, jagged, args.access_method)
 end
 
 return manipulator

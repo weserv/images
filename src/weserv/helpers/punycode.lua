@@ -1,9 +1,12 @@
 local bit = require "bit"
-local math = math
-local table = table
-local string = string
+local band = bit.band
+local lshift = bit.lshift
 local ipairs = ipairs
 local select = select
+local str_byte = string.byte
+local str_char = string.char
+local math_floor = math.floor
+local tbl_concat = table.concat
 
 -- Parameter values for Punycode: https://tools.ietf.org/html/rfc3492#section-5
 local base = 36
@@ -30,7 +33,7 @@ function punycode.utf8_code(code, ...)
     local num_bytes = select("#", ...)
     for i = 1, num_bytes do
         local b = select(i, ...)
-        code = bit.lshift(code, 6) + bit.band(b, 63)
+        code = lshift(code, 6) + band(b, 63)
     end
 
     return code - offset[num_bytes + 1]
@@ -42,7 +45,7 @@ function punycode.to_ucs4(str)
     local out = {}
     -- https://stackoverflow.com/a/22954220/1480019
     for c in str:gmatch("([%z\1-\127\194-\244][\128-\191]*)") do
-        out[#out + 1] = punycode.utf8_code(string.byte(c, 1, -1))
+        out[#out + 1] = punycode.utf8_code(str_byte(c, 1, -1))
     end
 
     return out
@@ -62,18 +65,18 @@ end
 --- Bias adaptation function as per section 3.4 of RFC 3492.
 -- https://tools.ietf.org/html/rfc3492#section-3.4
 function punycode.adapt(delta, numPoints, firstTime)
-    delta = firstTime and math.floor(delta / damp) or math.floor(delta / 2)
+    delta = firstTime and math_floor(delta / damp) or math_floor(delta / 2)
 
-    delta = delta + math.floor(delta / numPoints)
+    delta = delta + math_floor(delta / numPoints)
 
     local k = 0
 
-    while delta > math.floor((base - t_min) * t_max / 2) do
-        delta = math.floor(delta / (base - t_min))
+    while delta > math_floor((base - t_min) * t_max / 2) do
+        delta = math_floor(delta / (base - t_min))
         k = k + 1
     end
 
-    return base * k + math.floor((base - t_min + 1) * delta / (delta + skew))
+    return base * k + math_floor((base - t_min + 1) * delta / (delta + skew))
 end
 
 --- Encoding procedure as per section 6.3 of RFC 3492.
@@ -97,7 +100,7 @@ function punycode.encode(input)
     for j = 1, input_length do
         local c = input[j]
         if c < 0x80 then
-            codepoints[#codepoints + 1] = string.char(c)
+            codepoints[#codepoints + 1] = str_char(c)
         end
     end
 
@@ -142,14 +145,14 @@ function punycode.encode(input)
 
                     local q_minus_t = q - t
                     local base_minus_t = base - t
-                    codepoints[#codepoints + 1] = string.char(punycode.encode_digit(t + q_minus_t % base_minus_t))
+                    codepoints[#codepoints + 1] = str_char(punycode.encode_digit(t + q_minus_t % base_minus_t))
 
-                    q = math.floor(q_minus_t / base_minus_t)
+                    q = math_floor(q_minus_t / base_minus_t)
 
                     k = k + base
                 end
 
-                codepoints[#codepoints + 1] = string.char(punycode.encode_digit(q))
+                codepoints[#codepoints + 1] = str_char(punycode.encode_digit(q))
                 bias = punycode.adapt(delta, h + 1, h == basic_length)
 
                 delta = 0
@@ -161,7 +164,7 @@ function punycode.encode(input)
         n = n + 1
     end
 
-    return table.concat(codepoints, "")
+    return tbl_concat(codepoints, "")
 end
 
 --- Encode a IDN domain.
@@ -184,7 +187,7 @@ function punycode.domain_encode(domain)
         end
     end
 
-    return table.concat(labels, ".")
+    return tbl_concat(labels, ".")
 end
 
 return punycode

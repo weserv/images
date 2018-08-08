@@ -1,14 +1,16 @@
 local vips = vips
 local utils = require "weserv.helpers.utils"
-local ngx = ngx
 local type = type
 local next = next
-local table = table
 local pcall = pcall
 local string = string
 local ipairs = ipairs
 local tonumber = tonumber
 local setmetatable = setmetatable
+local ngx_log = ngx.log
+local ngx_ERR = ngx.ERR
+local HTTP_NOT_FOUND = ngx.HTTP_NOT_FOUND
+local HTTP_INTERNAL_SERVER_ERROR = ngx.HTTP_INTERNAL_SERVER_ERROR
 
 --- API module.
 -- @module api
@@ -19,7 +21,6 @@ local mt = { __index = api }
 function api.new()
     return setmetatable({
         manipulators = {},
-        manipulators_queue = {}
     }, mt)
 end
 
@@ -28,7 +29,8 @@ end
 function api:add_manipulator(manipulator)
     if manipulator ~= nil and
             type(manipulator) == "table" and
-            type(manipulator.process) == "function" then
+            type(manipulator.process) == "function" and
+            type(manipulator.should_process) == "function" then
         self.manipulators[#self.manipulators + 1] = manipulator
     end
 end
@@ -79,28 +81,6 @@ function api.get_load_options(args)
     return load_options, string_options
 end
 
---- Runs the next manipulator.
--- @param image The image.
--- @param args The URL query arguments.
-function api:next(image, args)
-    -- Pick each piece of manipulator off in order from the working queue
-    local manipulator = table.remove(self.manipulators_queue, 1)
-
-    if manipulator ~= nil and type(manipulator.process) == "function" then
-        -- Call the manipulator, which may itself call next().
-        return manipulator.process(self, image, args)
-    else
-        -- The last image manipulation was completed, reverse
-        -- premultiplication after all transformations:
-        if args.is_premultiplied then
-            -- Unpremultiply image alpha and cast pixel values to integer
-            image = image:unpremultiply():cast("uchar")
-        end
-
-        return image, nil
-    end
-end
-
 --- Process the image from the temporary file.
 -- @param tmpfile A temporary file.
 -- @param args The URL query arguments.
@@ -108,7 +88,7 @@ end
 function api:process(tmpfile, args)
     if next(self.manipulators) == nil then
         return nil, {
-            status = ngx.HTTP_INTERNAL_SERVER_ERROR,
+            status = HTTP_INTERNAL_SERVER_ERROR,
             message = "Attempted to run images.weserv.nl without any manipulator(s).",
         }
     end
@@ -126,11 +106,11 @@ function api:process(tmpfile, args)
 
     if args.loader == nil then
         -- Log image invalid or unsupported errors
-        ngx.log(ngx.ERR, "Image invalid or unsupported: ", vips.verror.get())
+        ngx_log(ngx_ERR, "Image invalid or unsupported: ", vips.verror.get())
 
         -- No known loader is found, stop further processing
         return nil, {
-            status = ngx.HTTP_NOT_FOUND,
+            status = HTTP_NOT_FOUND,
             message = "Invalid or unsupported image format. Is it a valid image?",
         }
     end
@@ -147,31 +127,39 @@ function api:process(tmpfile, args)
 
     if not read_success then
         -- Log image not readable errors
-        ngx.log(ngx.ERR, "Image not readable: ", read_err)
+        ngx_log(ngx_ERR, "Image not readable: ", read_err)
 
         return nil, {
-            status = ngx.HTTP_NOT_FOUND,
+            status = HTTP_NOT_FOUND,
             message = "Image not readable. Is it a valid image?",
         }
     end
 
     -- Put common variables in the parameters
     args.is_premultiplied = false
+    args.has_alpha = utils.has_alpha(image)
 
     -- Calculate the angle of rotation and need-to-flip for the given exif orientation and parameters
     args.rotation, args.flip, args.flop = utils.resolve_rotation_and_flip(image, args)
 
-    -- Empty working queue
-    self.manipulators_queue = {}
+    -- Process all manipulators.
+    local success, image_err
+    for _, manipulator in ipairs(self.manipulators) do
+        -- Should this manipulator process the image?
+        if manipulator.should_process(args) then
+            -- Wrap it into pcall because we may throw errors.
+            success, image_err = pcall(function()
+                -- Call the manipulator. If a manipulator can't process the image
+                -- an error should be thrown.
+                image = manipulator.process(image, args)
+            end)
 
-    -- Fill working queue
-    for k, v in ipairs(self.manipulators) do self.manipulators_queue[k] = v end
-
-    -- Wrap it into pcall because we may throw errors.
-    local success, image_err = pcall(function()
-        -- Run the next manipulator.
-        image = self:next(image, args)
-    end)
+            if not success then
+                -- Don't process further if an error has occurred.
+                break
+            end
+        end
+    end
 
     if not success then
         local api_err
@@ -179,10 +167,10 @@ function api:process(tmpfile, args)
         -- lua-vips will throw errors as string types
         if type(image_err) == "string" then
             -- Log libvips errors
-            ngx.log(ngx.ERR, "libvips error: ", image_err)
+            ngx_log(ngx_ERR, "libvips error: ", image_err)
 
             api_err = {
-                status = ngx.HTTP_NOT_FOUND,
+                status = HTTP_NOT_FOUND,
                 message = "libvips error: " .. image_err,
             }
         else
@@ -195,8 +183,14 @@ function api:process(tmpfile, args)
         -- the error which may contain information to resolve it.
         return nil, api_err
     else
-        -- All image manipulations were successful, return
-        -- the image without errors
+        -- All image manipulations were successful, reverse
+        -- premultiplication after all transformations:
+        if args.is_premultiplied then
+            -- Unpremultiply image alpha and cast pixel values to integer
+            image = image:unpremultiply():cast("uchar")
+        end
+
+        -- Return the image without errors
         return image, nil
     end
 end

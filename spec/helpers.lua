@@ -27,6 +27,18 @@ ffi.cdef = function(def)
     return old_cdef(def)
 end
 
+-- Reset our weserv root location variable.
+local stubbed_ngx = {
+    var = {
+        weserv_root = nil
+    },
+}
+
+local old_ngx = ngx
+
+-- Busted requires explicit _G to access the global environment
+_G.ngx = setmetatable(stubbed_ngx, { __index = old_ngx })
+
 --- Stretch luminance to cover full dynamic range.
 -- @param image The source image.
 -- @return The normalized image.

@@ -1,5 +1,4 @@
 local vips = vips
-local utils = require "weserv.helpers.utils"
 local tonumber = tonumber
 
 --- Blur manipulator
@@ -20,15 +19,19 @@ function manipulator.resolve_blur(blur)
     return -1.0
 end
 
+--- Should this manipulator process the image?
+-- @param args The URL query arguments.
+-- @return Boolean indicating if we should process the image.
+function manipulator.should_process(args)
+    return args.blur ~= nil
+end
+
 --- Perform blur image manipulation.
 -- @param image The source image.
 -- @param args The URL query arguments.
-function manipulator:process(image, args)
-    if args.blur == nil then
-        return self:next(image, args)
-    end
-
-    if not args.is_premultiplied and utils.has_alpha(image) then
+-- @return The manipulated image.
+function manipulator.process(image, args)
+    if not args.is_premultiplied and args.has_alpha then
         -- Premultiply image alpha channel before blur transformation
         image = image:premultiply()
         args.is_premultiplied = true
@@ -57,7 +60,7 @@ function manipulator:process(image, args)
         image = image:gaussblur(blur)
     end
 
-    return self:next(image, args)
+    return image
 end
 
 return manipulator

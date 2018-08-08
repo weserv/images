@@ -96,24 +96,26 @@ function manipulator.sigmoid(image, contrast)
     return image:maplut(result)
 end
 
+--- Should this manipulator process the image?
+-- @param args The URL query arguments.
+-- @return Boolean indicating if we should process the image.
+function manipulator.should_process(args)
+    return args.con ~= nil
+end
+
 --- Perform contrast image manipulation.
 -- @param image The source image.
 -- @param args The URL query arguments.
-function manipulator:process(image, args)
-    if args.con == nil then
-        return self:next(image, args)
-    end
-
+-- @return The manipulated image.
+function manipulator.process(image, args)
     local contrast = manipulator.resolve_contrast(args.con)
 
     if contrast ~= 0 then
         -- Map contrast from -100/100 to -30/30 range
         contrast = contrast * 0.3
 
-        image = manipulator.sigmoid(image, contrast)
+        return manipulator.sigmoid(image, contrast)
     end
-
-    return self:next(image, args)
 end
 
 return manipulator

@@ -1,15 +1,24 @@
 local http = require "resty.http"
 local utils = require "weserv.helpers.utils"
-local ngx = ngx
-local os = os
-local io = io
 local next = next
 local pairs = pairs
 local table = table
-local string = string
 local assert = assert
 local unpack = unpack
 local setmetatable = setmetatable
+local io_open = io.open
+local os_remove = os.remove
+local tbl_concat = table.concat
+local str_format = string.format
+local ngx_log = ngx.log
+local ngx_ERR = ngx.ERR
+local ngx_unescape_uri = ngx.unescape_uri
+local HTTP_OK = ngx.HTTP_OK
+local HTTP_GONE = ngx.HTTP_GONE
+local HTTP_NOT_FOUND = ngx.HTTP_NOT_FOUND
+local HTTP_BAD_REQUEST = ngx.HTTP_BAD_REQUEST
+local HTTP_REQUEST_TIMEOUT = ngx.HTTP_REQUEST_TIMEOUT
+local HTTP_INTERNAL_SERVER_ERROR = ngx.HTTP_INTERNAL_SERVER_ERROR
 
 --- Client module.
 -- @module client
@@ -29,13 +38,13 @@ end
 -- @return Status code.
 function client.status_code(err)
     local error_codes = {
-        ["(3: Host not found)"] = ngx.HTTP_GONE,
-        ["(110: Operation timed out)"] = ngx.HTTP_REQUEST_TIMEOUT,
-        ["timeout"] = ngx.HTTP_REQUEST_TIMEOUT,
+        ["(3: Host not found)"] = HTTP_GONE,
+        ["(110: Operation timed out)"] = HTTP_REQUEST_TIMEOUT,
+        ["timeout"] = HTTP_REQUEST_TIMEOUT,
     }
 
     -- Default: HTTP 404 not found
-    local error_code = ngx.HTTP_NOT_FOUND
+    local error_code = HTTP_NOT_FOUND
 
     for k, v in pairs(error_codes) do
         if err:sub(-#k) == k then
@@ -62,14 +71,14 @@ function client:is_valid_response(res)
 Allowed mime types: %s]]
 
         return nil, {
-            status = ngx.HTTP_NOT_FOUND,
-            message = string.format(error_template, table.concat(supported_images, ", "))
+            status = HTTP_NOT_FOUND,
+            message = str_format(error_template, tbl_concat(supported_images, ", "))
         }
     end
 
-    if res.status ~= ngx.HTTP_OK then
+    if res.status ~= HTTP_OK then
         return nil, {
-            status = ngx.HTTP_NOT_FOUND,
+            status = HTTP_NOT_FOUND,
             message = "The requested URL returned error: " .. res.status
         }
     end
@@ -88,8 +97,8 @@ function client:request(uri, addl_headers, redirect_nr)
 
     if redirect_nr > self.config.max_redirects then
         return nil, {
-            status = ngx.HTTP_NOT_FOUND,
-            message = string.format("Will not follow more than %d redirects", self.config.max_redirects)
+            status = HTTP_NOT_FOUND,
+            message = str_format("Will not follow more than %d redirects", self.config.max_redirects)
         }
     end
 
@@ -108,7 +117,7 @@ function client:request(uri, addl_headers, redirect_nr)
     local parsed_uri, uri_err = utils.parse_uri(uri)
     if not parsed_uri then
         return nil, {
-            status = ngx.HTTP_BAD_REQUEST,
+            status = HTTP_BAD_REQUEST,
             message = uri_err
         }
     end
@@ -132,10 +141,10 @@ function client:request(uri, addl_headers, redirect_nr)
     if scheme == "https" then
         local ok, handsake_err = httpc:ssl_handshake(nil, host, false)
         if not ok then
-            ngx.log(ngx.ERR, "Failed to do SSL handshake: ", handsake_err)
+            ngx_log(ngx_ERR, "Failed to do SSL handshake: ", handsake_err)
 
             return nil, {
-                status = ngx.HTTP_NOT_FOUND,
+                status = HTTP_NOT_FOUND,
                 message = "Failed to do SSL handshake.",
             }
         end
@@ -166,7 +175,7 @@ function client:request(uri, addl_headers, redirect_nr)
 
         -- recursive call
         -- Note: Make sure that we unescape the redirect URI.
-        return self:request(ngx.unescape_uri(res.headers["Location"]), referer, redirect_nr + 1)
+        return self:request(ngx_unescape_uri(res.headers["Location"]), referer, redirect_nr + 1)
     end
 
     local valid, invalid_err = self:is_valid_response(res)
@@ -185,25 +194,25 @@ function client:request(uri, addl_headers, redirect_nr)
 
         -- Most likely HEAD or 204 etc.
         return nil, {
-            status = ngx.HTTP_NOT_FOUND,
+            status = HTTP_NOT_FOUND,
             message = "No body to be read.",
         }
     end
 
     -- Create a unique file (starting with 'imo_') in our shared memory.
-    res.tmpfile = utils.tempname('/dev/shm', 'imo_')
+    res.tmpfile = utils.tempname("/dev/shm", "imo_")
     if not res.tmpfile then
         httpc:close()
 
-        ngx.log(ngx.ERR, "Unable to generate a unique file.")
+        ngx_log(ngx_ERR, "Unable to generate a unique file.")
 
         return nil, {
-            status = ngx.HTTP_INTERNAL_SERVER_ERROR,
+            status = HTTP_INTERNAL_SERVER_ERROR,
             message = "Unable to generate a unique file.",
         }
     end
 
-    local f = assert(io.open(res.tmpfile, "wb"))
+    local f = assert(io_open(res.tmpfile, "wb"))
 
     local max_image_size = self.config.max_image_size
     local current_size = 0
@@ -213,7 +222,7 @@ function client:request(uri, addl_headers, redirect_nr)
     repeat
         local chunk, read_err, chunk_size = reader(65536)
         if read_err then
-            ngx.log(ngx.ERR, read_err)
+            ngx_log(ngx_ERR, read_err)
         end
 
         if chunk then
@@ -233,24 +242,24 @@ function client:request(uri, addl_headers, redirect_nr)
 
     if image_too_big then
         httpc:close()
-        os.remove(res.tmpfile)
+        os_remove(res.tmpfile)
 
-        ngx.log(ngx.ERR, "Image is too big to be downloaded.")
+        ngx_log(ngx_ERR, "Image is too big to be downloaded.")
         local error_template = "The image is too big to be downloaded. Max image size: %s"
 
         return nil, {
-            status = ngx.HTTP_NOT_FOUND,
-            message = string.format(error_template, utils.format_bytes(self.config.max_image_size))
+            status = HTTP_NOT_FOUND,
+            message = str_format(error_template, utils.format_bytes(self.config.max_image_size))
         }
     end
 
     local ok, keepalive_err = httpc:set_keepalive()
     if not ok then
-        ngx.log(ngx.ERR, "Failed to set keepalive: ", keepalive_err)
-        os.remove(res.tmpfile)
+        ngx_log(ngx_ERR, "Failed to set keepalive: ", keepalive_err)
+        os_remove(res.tmpfile)
 
         return nil, {
-            status = ngx.HTTP_NOT_FOUND,
+            status = HTTP_NOT_FOUND,
             message = "Failed to set keepalive.",
         }
     end

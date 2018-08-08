@@ -2,10 +2,18 @@
 -- @module orientation
 local manipulator = {}
 
+--- Should this manipulator process the image?
+-- @return Boolean indicating if we should process the image.
+function manipulator.should_process(_)
+    -- Always process the image via this manipulator.
+    return true
+end
+
 --- Perform orientation image manipulation.
 -- @param image The source image.
 -- @param args The URL query arguments.
-function manipulator:process(image, args)
+-- @return The manipulated image.
+function manipulator.process(image, args)
     -- Rotate if required.
     if args.rotation ~= 0 then
         -- Need to copy to memory, we have to stay seq.
@@ -27,7 +35,7 @@ function manipulator:process(image, args)
         image:remove("orientation")
     end
 
-    return self:next(image, args)
+    return image
 end
 
 return manipulator

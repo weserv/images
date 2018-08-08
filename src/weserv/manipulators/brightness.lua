@@ -1,4 +1,3 @@
-local utils = require "weserv.helpers.utils"
 local tonumber = tonumber
 
 --- Brightness manipulator
@@ -19,14 +18,18 @@ function manipulator.resolve_brightness(bri)
     return 0
 end
 
+--- Should this manipulator process the image?
+-- @param args The URL query arguments.
+-- @return Boolean indicating if we should process the image.
+function manipulator.should_process(args)
+    return args.bri ~= nil
+end
+
 --- Perform brightness image manipulation.
 -- @param image The source image.
 -- @param args The URL query arguments.
-function manipulator:process(image, args)
-    if args.bri == nil then
-        return self:next(image, args)
-    end
-
+-- @return The manipulated image.
+function manipulator.process(image, args)
     local brightness = manipulator.resolve_brightness(args.bri)
 
     if brightness ~= 0 then
@@ -34,7 +37,7 @@ function manipulator:process(image, args)
         brightness = brightness * 2.55
 
         -- Edit the brightness
-        if utils.has_alpha(image) then
+        if args.has_alpha then
             -- Separate alpha channel
             local image_without_alpha = image:extract_band(0, { n = image:bands() - 1 })
             local alpha = image:extract_band(image:bands() - 1, { n = 1 })
@@ -50,7 +53,7 @@ function manipulator:process(image, args)
         image = lch:add({brightness, 1, 1}):colourspace(old_interpretation)]]
     end
 
-    return self:next(image, args)
+    return image
 end
 
 return manipulator

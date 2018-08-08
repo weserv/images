@@ -1,13 +1,14 @@
 local vips = vips
 local utils = require "weserv.helpers.utils"
-local ngx = ngx
-local math = math
-local tonumber = tonumber
 local error = error
+local tonumber = tonumber
+local math_floor = math.floor
+local ngx_var = ngx.var
+local HTTP_NOT_FOUND = ngx.HTTP_NOT_FOUND
 
 -- Profile map to ensure that we use a device-
 -- independent color space for the images we process.
-local root_dir = (ngx.get_phase() == "content" and ngx.var.weserv_root ~= nil) and ngx.var.weserv_root or "."
+local root_dir = ngx_var.weserv_root ~= nil and ngx_var.weserv_root or "."
 local profile_map = {
     -- Default sRGB ICC profile from:
     -- https://packages.debian.org/sid/all/icc-profiles-free/filelist
@@ -79,13 +80,21 @@ function manipulator.without_enlargement(fit)
     return fit == "fit" or fit == "squaredown"
 end
 
+--- Should this manipulator process the image?
+-- @return Boolean indicating if we should process the image.
+function manipulator.should_process(_)
+    -- Always process the image via this manipulator.
+    return true
+end
+
 --- Perform thumbnail image manipulation.
 -- @param image The source image.
 -- @param args The URL query arguments.
-function manipulator:process(image, args)
+-- @return The manipulated image.
+function manipulator.process(image, args)
     if image:width() * image:height() > MAX_IMAGE_SIZE then
         error({
-            status = ngx.HTTP_NOT_FOUND,
+            status = HTTP_NOT_FOUND,
             message = "Image is too large for processing. Width x height should be less than 71 megapixels.",
         })
     end
@@ -150,15 +159,15 @@ function manipulator:process(image, args)
 
         if fit == "square" or fit == "squaredown" or fit == "crop" then
             if x_factor < y_factor then
-                target_resize_height = math.floor((input_height / x_factor) + 0.5)
+                target_resize_height = math_floor((input_height / x_factor) + 0.5)
             else
-                target_resize_width = math.floor((input_width / y_factor) + 0.5)
+                target_resize_width = math_floor((input_width / y_factor) + 0.5)
             end
         elseif fit == "letterbox" or fit == "fit" or fit == "fitup" then
             if x_factor > y_factor then
-                target_resize_height = math.floor((input_height / x_factor) + 0.5)
+                target_resize_height = math_floor((input_height / x_factor) + 0.5)
             else
-                target_resize_width = math.floor((input_width / y_factor) + 0.5)
+                target_resize_width = math_floor((input_width / y_factor) + 0.5)
             end
         end
     elseif args.w > 0 then -- Fixed width
@@ -168,7 +177,7 @@ function manipulator:process(image, args)
         else
             -- Auto height
             local y_factor = input_width / args.w
-            args.h = math.floor((input_height / y_factor) + 0.5)
+            args.h = math_floor((input_height / y_factor) + 0.5)
 
             -- Height is missing, replace with a huuuge value to prevent
             -- reduction or enlargement in that axis
@@ -181,7 +190,7 @@ function manipulator:process(image, args)
         else
             -- Auto width
             local x_factor = input_height / args.h
-            args.w = math.floor((input_width / x_factor) + 0.5)
+            args.w = math_floor((input_width / x_factor) + 0.5)
 
             -- Width is missing, replace with a huuuge value to prevent
             -- reduction or enlargement in that axis
@@ -223,7 +232,7 @@ function manipulator:process(image, args)
     -- targetResizeWidth and targetResizeWidth aren't reliable anymore.
     if check_max_image_size and args.w * args.h > MAX_IMAGE_SIZE then
         error({
-            status = ngx.HTTP_NOT_FOUND,
+            status = HTTP_NOT_FOUND,
             message = "Requested image dimensions are too large. Width x height should be less than 71 megapixels.",
         })
     end
@@ -233,13 +242,11 @@ function manipulator:process(image, args)
     --
     -- Note: After this operation the pixel interpretation is sRGB or RGB
     if args.trim ~= nil or args.gam ~= nil then
-        image = image:thumbnail_image(target_resize_width, thumbnail_options)
+        return image:thumbnail_image(target_resize_width, thumbnail_options)
     else
-        image = vips.Image.thumbnail(args.tmp_file_name .. args.string_options,
+        return vips.Image.thumbnail(args.tmp_file_name .. args.string_options,
             target_resize_width, thumbnail_options)
     end
-
-    return self:next(image, args)
 end
 
 return manipulator

@@ -1,6 +1,7 @@
-local math = math
 local unpack = unpack
 local tonumber = tonumber
+local math_min = math.min
+local math_floor = math.floor
 
 --- Crop manipulator
 -- @module crop
@@ -151,10 +152,18 @@ function manipulator.limit_to_image_boundaries(image, coordinates)
     return coordinates
 end
 
+--- Should this manipulator process the image?
+-- @param args The URL query arguments.
+-- @return Boolean indicating if we should process the image.
+function manipulator.should_process(args)
+    return args.crop ~= nil or args.a ~= nil or args.t ~= nil
+end
+
 --- Perform crop image manipulation.
 -- @param image The source image.
 -- @param args The URL query arguments.
-function manipulator:process(image, args)
+-- @return The manipulated image.
+function manipulator.process(image, args)
     local width, height = args.w, args.h
     local image_width, image_height = image:width(), image:height()
 
@@ -167,8 +176,8 @@ function manipulator:process(image, args)
                     args.t:sub(1, 4) == "crop")
 
     if (image_width ~= width or image_height ~= height) and is_crop_needed then
-        local min_width = math.min(image_width, width)
-        local min_height = math.min(image_height, height)
+        local min_width = math_min(image_width, width)
+        local min_height = math_min(image_height, height)
 
         if is_smart_crop then
             -- Need to copy to memory, we have to stay seq.
@@ -178,8 +187,8 @@ function manipulator:process(image, args)
         else
             local offset_percentage_x, offset_percentage_y = manipulator.resolve_crop(args.a)
 
-            local offset_x = math.floor(((image_width - width) * (offset_percentage_x / 100)) + 0.5)
-            local offset_y = math.floor(((image_height - height) * (offset_percentage_y / 100)) + 0.5)
+            local offset_x = math_floor(((image_width - width) * (offset_percentage_x / 100)) + 0.5)
+            local offset_y = math_floor(((image_height - height) * (offset_percentage_y / 100)) + 0.5)
 
             local left, top = manipulator.calculate_crop({ image_width, image_height },
                 { width, height },
@@ -200,7 +209,7 @@ function manipulator:process(image, args)
         image = image:crop(coordinates[3], coordinates[4], coordinates[1], coordinates[2])
     end
 
-    return self:next(image, args)
+    return image
 end
 
 return manipulator

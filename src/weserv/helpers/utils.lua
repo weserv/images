@@ -1,9 +1,10 @@
 local punycode = require "weserv.helpers.punycode"
 local ffi = require "ffi"
-local ngx = ngx
-local table = table
-local string = string
 local tonumber = tonumber
+local str_byte = string.byte
+local str_format = string.format
+local tbl_concat = table.concat
+local ngx_re_match = ngx.re.match
 
 -- Always call ffi.cdef() on the top-level scope of your own
 -- Lua module files.
@@ -81,7 +82,7 @@ end
 function utils.tempname(dir, prefix)
     local C = ffi.C
 
-    local template = string.format("%s/%sXXXXXX", dir, prefix)
+    local template = str_format("%s/%sXXXXXX", dir, prefix)
     -- Use length + 1 to reserve room for the zero terminator.
     local tempname = ffi.new("char[?]", #template + 1, template)
     local fd = C.mkstemp(tempname)
@@ -123,7 +124,7 @@ end
 -- @param char The char to percent-encode.
 -- @return The percent-encoded char.
 function utils.percent_encode(char)
-    return string.format("%%%02X", string.byte(char))
+    return str_format("%%%02X", str_byte(char))
 end
 
 --- Determines a "canonical" equivalent of a URI path.
@@ -148,7 +149,7 @@ function utils.canonicalise_path(path)
         return "/"
     end
     segments[0] = ""
-    segments = table.concat(segments, "/", 0, len)
+    segments = tbl_concat(segments, "/", 0, len)
     return segments, ignore_query
 end
 
@@ -163,7 +164,7 @@ function utils.canonicalise_query_string(query)
         val = val:gsub(REGEX_DISALLOWED_CHARS, utils.percent_encode)
         q[#q + 1] = key .. "=" .. val
     end
-    query = table.concat(q, "&")
+    query = tbl_concat(q, "&")
 
     -- Fragment identifier must be removed from the query string.
     local frag_pos = query:find("#")
@@ -178,7 +179,7 @@ end
 -- @param uri The URI.
 -- @return Parsed URI.
 function utils.parse_uri(uri)
-    local m = ngx.re.match(utils.clean_uri(uri), [[^(http[s]?)://([^:/\?]+)(?::(\d+))?([^\?]*)\??(.*)]], "jo")
+    local m = ngx_re_match(utils.clean_uri(uri), [[^(http[s]?)://([^:/\?]+)(?::(\d+))?([^\?]*)\??(.*)]], "jo")
 
     if not m then
         return nil, "Unable to parse URL"
@@ -304,13 +305,13 @@ function utils.format_bytes(bytes)
     if bytes >= 0 and bytes < kilobyte then
         return bytes .. " B"
     elseif bytes >= kilobyte and bytes < megabyte then
-        return string.format("%.2f", bytes / kilobyte):gsub("%.?0+$", "") .. " KB"
+        return str_format("%.2f", bytes / kilobyte):gsub("%.?0+$", "") .. " KB"
     elseif bytes >= megabyte and bytes < gigabyte then
-        return string.format("%.2f", bytes / megabyte):gsub("%.?0+$", "") .. " MB"
+        return str_format("%.2f", bytes / megabyte):gsub("%.?0+$", "") .. " MB"
     elseif bytes >= gigabyte and bytes < terabyte then
-        return string.format("%.2f", bytes / gigabyte):gsub("%.?0+$", "") .. " GB"
+        return str_format("%.2f", bytes / gigabyte):gsub("%.?0+$", "") .. " GB"
     elseif bytes >= terabyte then
-        return string.format("%.2f", bytes / terabyte):gsub("%.?0+$", "") .. " TB"
+        return str_format("%.2f", bytes / terabyte):gsub("%.?0+$", "") .. " TB"
     end
 end
 

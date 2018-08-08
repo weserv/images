@@ -130,5 +130,21 @@ describe("trim manipulator", function()
             -- Check if the image is unchanged
             assert.similar_image(test_image, image)
         end)
+
+        it("small image returns original image", function()
+            local test_image = fixtures.input_gif_pixel
+            local params = {
+                trim = "200"
+            }
+
+            local image = api:process(test_image, params)
+
+            -- Don't trim small images
+            assert.falsy(params.trim)
+
+            -- Check if dimensions are unchanged
+            assert.equal(1, image:width())
+            assert.equal(1, image:height())
+        end)
     end)
 end)

@@ -22,6 +22,8 @@ describe("server", function()
         -- Busted requires explicit _G to access the global environment
         _G.ngx = setmetatable(stubbed_ngx, { __index = old_ngx })
 
+        -- Reinitialize the server package
+        package.loaded["weserv.server"] = nil
         server = require "weserv.server"
     end)
 
@@ -31,7 +33,11 @@ describe("server", function()
 
     after_each(function()
         -- Clear nginx headers and body after each test
-        _G.ngx.header = {}
+        _G.ngx.header.expires = nil
+        _G.ngx.header.cache_control = nil
+        _G.ngx.header.content_length = nil
+        _G.ngx.header.content_type = nil
+        _G.ngx.header.content_disposition = nil
         _G.ngx._body = ""
     end)
 
@@ -42,11 +48,11 @@ describe("server", function()
                 output = "jpg"
             })
 
-            assert.truthy(ngx.header["Expires"])
-            assert.truthy(ngx.header["Cache-Control"])
-            assert.equal(#ngx._body, ngx.header["Content-Length"])
-            assert.equal("image/jpeg", ngx.header["Content-Type"])
-            assert.equal("inline; filename=image.jpg", ngx.header["Content-Disposition"])
+            assert.truthy(ngx.header.expires)
+            assert.truthy(ngx.header.cache_control)
+            assert.equal(#ngx._body, ngx.header.content_length)
+            assert.equal("image/jpeg", ngx.header.content_type)
+            assert.equal("inline; filename=image.jpg", ngx.header.content_disposition)
         end)
 
         it("base64 encoding", function()
@@ -56,11 +62,11 @@ describe("server", function()
                 encoding = "base64"
             })
 
-            assert.truthy(ngx.header["Expires"])
-            assert.truthy(ngx.header["Cache-Control"])
-            assert.falsy(ngx.header["Content-Length"])
-            assert.falsy(ngx.header["Content-Disposition"])
-            assert.equal("text/plain", ngx.header["Content-Type"])
+            assert.truthy(ngx.header.expires)
+            assert.truthy(ngx.header.cache_control)
+            assert.falsy(ngx.header.content_length)
+            assert.falsy(ngx.header.content_disposition)
+            assert.equal("text/plain", ngx.header.content_type)
 
             local base64_start = "data:image/jpeg;base64"
             assert.True(ngx._body:sub(1, #base64_start) == base64_start)
@@ -73,7 +79,7 @@ describe("server", function()
                 download = "1"
             })
 
-            assert.equal("attachment; filename=image.jpg", ngx.header["Content-Disposition"])
+            assert.equal("attachment; filename=image.jpg", ngx.header.content_disposition)
         end)
 
         it("filename", function()
@@ -83,7 +89,7 @@ describe("server", function()
                 filename = "foobar"
             })
 
-            assert.equal("inline; filename=foobar.jpg", ngx.header["Content-Disposition"])
+            assert.equal("inline; filename=foobar.jpg", ngx.header.content_disposition)
         end)
     end)
 
@@ -130,6 +136,7 @@ describe("server", function()
             test_image = test_image .. 255
 
             server.output(test_image, {
+                has_alpha = true,
                 loader = "VipsForeignLoadJpegFile"
             })
 

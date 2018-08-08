@@ -70,4 +70,6 @@ return {
     input_tiff_cielab = "./spec/fixtures/cielab-dagams.tiff",
     -- https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/check.svg
     input_svg = "./spec/fixtures/check.svg",
+    -- public domain
+    input_gif_pixel =  "./spec/fixtures/pixel.gif",
 }

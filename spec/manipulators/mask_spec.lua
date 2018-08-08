@@ -24,21 +24,49 @@ describe("mask manipulator", function()
         })
     end)
 
-    it("test resolve mask", function()
-        assert.equal("circle", manipulator.resolve_mask("circle"))
-        assert.equal("ellipse", manipulator.resolve_mask("ellipse"))
-        assert.equal("hexagon", manipulator.resolve_mask("hexagon"))
-        assert.equal("pentagon", manipulator.resolve_mask("pentagon"))
-        assert.equal("pentagon-180", manipulator.resolve_mask("pentagon-180"))
-        assert.equal("square", manipulator.resolve_mask("square"))
-        assert.equal("star", manipulator.resolve_mask("star"))
-        assert.equal("heart", manipulator.resolve_mask("heart"))
-        assert.equal("triangle", manipulator.resolve_mask("triangle"))
-        assert.equal("triangle-180", manipulator.resolve_mask("triangle-180"))
-        assert.falsy(manipulator.resolve_mask(nil))
-        assert.falsy(manipulator.resolve_mask("a"))
-        assert.falsy(manipulator.resolve_mask("-1"))
-        assert.falsy(manipulator.resolve_mask("100"))
+    it("test should process", function()
+        assert.True(manipulator.should_process({
+            mask = "circle"
+        }))
+        assert.True(manipulator.should_process({
+            mask = "ellipse"
+        }))
+        assert.True(manipulator.should_process({
+            mask = "hexagon"
+        }))
+        assert.True(manipulator.should_process({
+            mask = "pentagon"
+        }))
+        assert.True(manipulator.should_process({
+            mask = "pentagon-180"
+        }))
+        assert.True(manipulator.should_process({
+            mask = "square"
+        }))
+        assert.True(manipulator.should_process({
+            mask = "star"
+        }))
+        assert.True(manipulator.should_process({
+            mask = "heart"
+        }))
+        assert.True(manipulator.should_process({
+            mask = "triangle"
+        }))
+        assert.True(manipulator.should_process({
+            mask = "triangle-180"
+        }))
+        assert.False(manipulator.should_process({
+            mask = nil
+        }))
+        assert.False(manipulator.should_process({
+            mask = "a"
+        }))
+        assert.False(manipulator.should_process({
+            mask = "-1"
+        }))
+        assert.False(manipulator.should_process({
+            mask = "100"
+        }))
     end)
 
     describe("test mask", function()

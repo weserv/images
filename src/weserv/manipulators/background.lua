@@ -1,25 +1,29 @@
 local color = require "weserv.helpers.color"
-local utils = require "weserv.helpers.utils"
 
 --- Background manipulator
 -- @module background
 local manipulator = {}
 
---- Perform background image manipulation.
--- @param image The source image.
+--- Should this manipulator process the image?
 -- @param args The URL query arguments.
-function manipulator:process(image, args)
+-- @return Boolean indicating if we should process the image.
+function manipulator.should_process(args)
     -- Skip this manipulator if:
     -- - There's no bg parameter.
     -- - The image doesn't have an alpha channel.
-    if args.bg == nil or not utils.has_alpha(image) then
-        return self:next(image, args)
-    end
+    return args.bg ~= nil and args.has_alpha
+end
 
+--- Perform background image manipulation.
+-- @param image The source image.
+-- @param args The URL query arguments.
+-- @return The manipulated image.
+function manipulator.process(image, args)
     local background = color.new(args.bg)
 
+    -- Make sure that this manipulator is required.
     if background:is_transparent() then
-        return self:next(image, args)
+        return image
     end
 
     local background_rgba = background:to_rgba()
@@ -70,7 +74,7 @@ function manipulator:process(image, args)
         image = image:flatten({ background = background_color })
     end
 
-    return self:next(image, args)
+    return image
 end
 
 return manipulator

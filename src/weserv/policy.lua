@@ -1,8 +1,12 @@
 local http = require "resty.http"
 local cjson = require "cjson"
-local os = os
-local ngx = ngx
-local string = string
+local os_date = os.date
+local os_time = os.time
+local HTTP_OK = ngx.HTTP_OK
+local ngx_log = ngx.log
+local ngx_ERR = ngx.ERR
+local ngx_NOTICE = ngx.NOTICE
+local str_format = string.format
 local setmetatable = setmetatable
 
 --- Throttler policy module.
@@ -40,12 +44,12 @@ function policy:ban_at_cloudflare(ip_address)
             target = "ip",
             value = ip_address,
         },
-        notes = "Banned until " .. os.date("%Y-%m-%dT%H:%M:%SZ", os.time() + (self:get_ban_time() * 60)),
+        notes = "Banned until " .. os_date("%Y-%m-%dT%H:%M:%SZ", os_time() + (self:get_ban_time() * 60)),
     })
 
     local httpc = http.new()
     local uri_template = "https://api.cloudflare.com/client/v4/zones/%s/firewall/access_rules/rules"
-    local uri = string.format(uri_template, self.config.cloudflare.zone_id)
+    local uri = str_format(uri_template, self.config.cloudflare.zone_id)
     local res, request_err = httpc:request_uri(uri, {
         method = "POST",
         body = body,
@@ -58,23 +62,23 @@ function policy:ban_at_cloudflare(ip_address)
     })
 
     if not res then
-        ngx.log(ngx.ERR, string.format("Failed to ban (for %s) at CloudFlare: ", ip_address), request_err)
+        ngx_log(ngx_ERR, str_format("Failed to ban (for %s) at CloudFlare: ", ip_address), request_err)
         return false
     end
 
-    if res.status ~= ngx.HTTP_OK then
-        ngx.log(ngx.ERR, string.format("Failed to ban (for %s) at CloudFlare: ", ip_address), res.body)
+    if res.status ~= HTTP_OK then
+        ngx_log(ngx_ERR, str_format("Failed to ban (for %s) at CloudFlare: ", ip_address), res.body)
         return false
     end
 
     local response = cjson.decode(res.body)
     local success = response.result ~= cjson.null and response.result.id ~= cjson.null
     if not success then
-        ngx.log(ngx.ERR, string.format("Failed to ban (for %s) at CloudFlare: ", ip_address), res.body)
+        ngx_log(ngx_ERR, str_format("Failed to ban (for %s) at CloudFlare: ", ip_address), res.body)
         return false
     end
 
-    ngx.log(ngx.NOTICE, string.format("Successfully banned %s (identifier %s) at CloudFlare",
+    ngx_log(ngx_NOTICE, str_format("Successfully banned %s (identifier %s) at CloudFlare",
         ip_address, response.result.id))
 
     return true
@@ -90,7 +94,7 @@ function policy:unban_at_cloudflare(identifier)
 
     local httpc = http.new()
     local uri_template = "https://api.cloudflare.com/client/v4/zones/%s/firewall/access_rules/rules/%s"
-    local uri = string.format(uri_template, self.config.cloudflare.zone_id, identifier)
+    local uri = str_format(uri_template, self.config.cloudflare.zone_id, identifier)
     local res, request_err = httpc:request_uri(uri, {
         method = "DELETE",
         body = body,
@@ -103,23 +107,23 @@ function policy:unban_at_cloudflare(identifier)
     })
 
     if not res then
-        ngx.log(ngx.ERR, string.format("Failed to unban (for identifier %s) at CloudFlare: ", identifier), request_err)
+        ngx_log(ngx_ERR, str_format("Failed to unban (for identifier %s) at CloudFlare: ", identifier), request_err)
         return false
     end
 
-    if res.status ~= ngx.HTTP_OK then
-        ngx.log(ngx.ERR, string.format("Failed to unban (for identifier %s) at CloudFlare: ", identifier), res.body)
+    if res.status ~= HTTP_OK then
+        ngx_log(ngx_ERR, str_format("Failed to unban (for identifier %s) at CloudFlare: ", identifier), res.body)
         return false
     end
 
     local response = cjson.decode(res.body)
     local success = response.result ~= cjson.null and response.result.id ~= cjson.null
     if not success then
-        ngx.log(ngx.ERR, string.format("Failed to unban (for identifier %s) at CloudFlare: ", identifier), res.body)
+        ngx_log(ngx_ERR, str_format("Failed to unban (for identifier %s) at CloudFlare: ", identifier), res.body)
         return false
     end
 
-    ngx.log(ngx.NOTICE, string.format("Successfully unbanned identifier %s at CloudFlare", identifier))
+    ngx_log(ngx_NOTICE, str_format("Successfully unbanned identifier %s at CloudFlare", identifier))
 
     return true
 end

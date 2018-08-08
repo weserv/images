@@ -1,8 +1,13 @@
 local utils = require "weserv.helpers.utils"
-local ngx = ngx
-local math = math
-local string = string
 local tonumber = tonumber
+local ngx_print = ngx.print
+local ngx_header = ngx.header
+local ngx_http_time = ngx.http_time
+local ngx_encode_base64 = ngx.encode_base64
+local ngx_time = ngx.time
+local math_floor = math.floor
+local str_format = string.format
+local str_len = string.len
 
 --- Server module.
 -- @module server
@@ -34,7 +39,7 @@ function server.resolve_quality(params, extension)
 
         -- Quality may not be nil and needs to be in the range of 1 - 100
         if given_quality ~= nil and given_quality >= 1 and given_quality <= 100 then
-            quality = math.floor(given_quality + 0.5)
+            quality = math_floor(given_quality + 0.5)
         end
     end
 
@@ -45,7 +50,7 @@ function server.resolve_quality(params, extension)
 
         -- zlib compression level may not be nil and needs to be in the range of 0 - 9
         if given_level ~= nil and given_level >= 0 and given_level <= 9 then
-            quality = math.floor(given_level + 0.5)
+            quality = math_floor(given_level + 0.5)
         end
     end
 
@@ -127,12 +132,9 @@ function server.output(image, args)
     -- Determine image extension from the libvips loader
     local extension = utils.determine_image_extension(args.loader)
 
-    -- Does this image have an alpha channel?
-    local has_alpha = utils.has_alpha(image)
-
     if args.output ~= nil and server.is_extension_allowed(args.output) then
         extension = args.output
-    elseif (has_alpha and extension ~= "png" and extension ~= "webp" and extension ~= "gif")
+    elseif (args.has_alpha and extension ~= "png" and extension ~= "webp" and extension ~= "gif")
             or not server.is_extension_allowed(extension) then
         -- We force the extension to PNG if:
         -- - The image has alpha and doesn't have the right extension to output alpha.
@@ -147,17 +149,17 @@ function server.output(image, args)
     local mime_type = server.extension_to_mime_type(extension)
 
     local max_age = 60 * 60 * 24 * 31 -- 31 days
-    ngx.header["Expires"] = ngx.http_time(ngx.time() + max_age)
-    ngx.header["Cache-Control"] = "max-age=" .. max_age
+    ngx_header.expires = ngx_http_time(ngx_time() + max_age)
+    ngx_header.cache_control = "max-age=" .. max_age
 
-    ngx.header["X-Images-Api"] = "4"
+    ngx_header.x_images_api = "4"
 
     if args.encoding ~= nil and args.encoding == "base64" then
-        ngx.header["Content-Type"] = "text/plain"
-        ngx.print(string.format("data:%s;base64,%s", mime_type, ngx.encode_base64(buffer)))
+        ngx_header.content_type = "text/plain"
+        ngx_print(str_format("data:%s;base64,%s", mime_type, ngx_encode_base64(buffer)))
     else
-        ngx.header["Content-Length"] = #buffer
-        ngx.header["Content-Type"] = mime_type
+        ngx_header.content_length = #buffer
+        ngx_header.content_type = mime_type
 
         local file_name = "image." .. extension
 
@@ -165,17 +167,17 @@ function server.output(image, args)
         if args.filename ~= nil and
                 args.filename ~= "" and
                 not args.filename:match("%W") and
-                string.len(args.filename .. "." .. extension) <= 78 then
+                str_len(args.filename .. "." .. extension) <= 78 then
             file_name = args.filename .. "." .. extension
         end
 
         if args.download ~= nil then
-            ngx.header["Content-Disposition"] = "attachment; filename=" .. file_name
+            ngx_header.content_disposition = "attachment; filename=" .. file_name
         else
-            ngx.header["Content-Disposition"] = "inline; filename=" .. file_name
+            ngx_header.content_disposition = "inline; filename=" .. file_name
         end
 
-        ngx.print(buffer)
+        ngx_print(buffer)
     end
 end
 

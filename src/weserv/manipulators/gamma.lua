@@ -1,4 +1,3 @@
-local utils = require "weserv.helpers.utils"
 local tonumber = tonumber
 
 --- Gamma manipulator
@@ -20,18 +19,22 @@ function manipulator.resolve_gamma(gam)
     return 2.2
 end
 
+--- Should this manipulator process the image?
+-- @param args The URL query arguments.
+-- @return Boolean indicating if we should process the image.
+function manipulator.should_process(args)
+    return args.gam ~= nil
+end
+
 --- Perform gamma image manipulation.
 -- @param image The source image.
 -- @param args The URL query arguments.
-function manipulator:process(image, args)
-    if args.gam == nil then
-        return self:next(image, args)
-    end
-
+-- @return The manipulated image.
+function manipulator.process(image, args)
     local gamma = manipulator.resolve_gamma(args.gam)
 
     -- Edit the gamma
-    if utils.has_alpha(image) then
+    if args.has_alpha then
         if not args.is_premultiplied then
             -- Premultiply image alpha channel before gamma transformation
             image = image:premultiply()
@@ -46,7 +49,7 @@ function manipulator:process(image, args)
         image = image:gamma({ exponent = 1.0 / gamma })
     end
 
-    return self:next(image, args)
+    return image
 end
 
 return manipulator
