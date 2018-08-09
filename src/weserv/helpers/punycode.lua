@@ -180,7 +180,7 @@ function punycode.domain_encode(domain)
             return nil, "Invalid domain label"
         end
 
-        if label:match("^[a-zA-Z0-9-]+$") then
+        if label:match("^[a-zA-Z0-9-_]+$") then
             labels[#labels + 1] = label
         elseif label:sub(1, 1) ~= "-" and label:sub(2, 2) ~= "-" then
             labels[#labels + 1] = "xn--" .. punycode.encode(label)
