@@ -141,6 +141,8 @@ function client:request(uri, addl_headers, redirect_nr)
     if scheme == "https" then
         local ok, handsake_err = httpc:ssl_handshake(nil, host, false)
         if not ok then
+            httpc:close()
+
             ngx_log(ngx_ERR, "Failed to do SSL handshake: ", handsake_err)
 
             return nil, {

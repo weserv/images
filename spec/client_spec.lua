@@ -207,6 +207,8 @@ describe("client", function()
             assert.spy(stubbed_http.request).was_not.called()
             assert.spy(stubbed_http.set_keepalive).was_not.called()
 
+            assert.spy(stubbed_http.close).was.called()
+
             -- Log ssl handshake errors
             assert.equal(1, #ngx._logs)
         end)
@@ -337,10 +339,10 @@ describe("client", function()
             assert.equal("Unable to generate a unique file.", err.message)
             assert.falsy(res)
 
+            assert.spy(stubbed_http.close).was.called()
+
             -- Log unique file errors
             assert.equal(1, #ngx._logs)
-
-            assert.spy(stubbed_http.close).was.called()
         end)
 
         it("read error", function()
