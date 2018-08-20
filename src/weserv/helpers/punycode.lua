@@ -7,6 +7,7 @@ local str_byte = string.byte
 local str_char = string.char
 local math_floor = math.floor
 local tbl_concat = table.concat
+local ngx_re_sub = ngx.re.sub
 
 -- Parameter values for Punycode: https://tools.ietf.org/html/rfc3492#section-5
 local base = 36
@@ -44,7 +45,7 @@ end
 function punycode.to_ucs4(str)
     local out = {}
     -- https://stackoverflow.com/a/22954220/1480019
-    for c in str:gmatch("([%z\1-\127\194-\244][\128-\191]*)") do
+    for c in str:gmatch("[%z\1-\127\194-\244][\128-\191]*") do
         out[#out + 1] = punycode.utf8_code(str_byte(c, 1, -1))
     end
 
@@ -171,19 +172,24 @@ end
 -- If the domain is already ASCII, it is returned in its original state.
 -- If any encoding was required, the "xn--" prefix is added.
 function punycode.domain_encode(domain)
+    -- Normalize RFC 3490 separators
+    domain = ngx_re_sub(domain, [[[\x{3002}\x{FF0E}\x{FF61}]+]], ".", "u")
+
     local labels = {}
-    for label in domain:gmatch("([^.]+)%.?") do
-        -- Domain names can only consist of [a-zA-Z0-9-] and aren't allowed
+
+    for label in domain:gmatch("[^.]+") do
+        -- Domain names can only consist of ASCII characters and aren't allowed
         -- to start or end with a hyphen
         local first, last = label:sub(1, 1), label:sub(-1)
         if first == "-" or last == "-" then
             return nil, "Invalid domain label"
         end
 
-        if label:match("^[a-zA-Z0-9-_]+$") then
-            labels[#labels + 1] = label
-        elseif label:sub(1, 1) ~= "-" and label:sub(2, 2) ~= "-" then
+        -- Matches non-ASCII chars
+        if label:match("[^%z\1-\127]") then
             labels[#labels + 1] = "xn--" .. punycode.encode(label)
+        else
+            labels[#labels + 1] = label
         end
     end
 

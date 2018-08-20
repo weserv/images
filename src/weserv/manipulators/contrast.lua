@@ -1,5 +1,6 @@
 local vips = vips
-local math = math
+local math_abs = math.abs
+local math_exp = math.exp
 local tonumber = tonumber
 
 --- Contrast manipulator
@@ -37,7 +38,7 @@ function manipulator.sigmoid(image, contrast)
 
     -- Midpoint of the contrast (typically 0.5).
     local midpoint = 0.5
-    local contrast_abs = math.abs(contrast)
+    local contrast_abs = math_abs(contrast)
 
     local ushort = image:format() == "ushort"
 
@@ -79,8 +80,8 @@ function manipulator.sigmoid(image, contrast)
         result = (x - min) / (max - min)
 
     else
-        local min = 1 / (1 + math.exp(contrast_abs * midpoint))
-        local max = 1 / (1 + math.exp(contrast_abs * (midpoint - 1)))
+        local min = 1 / (1 + math_exp(contrast_abs * midpoint))
+        local max = 1 / (1 + math_exp(contrast_abs * (midpoint - 1)))
         local x = lut * (max - min) + min
 
         result = midpoint + (((((x * -1) + 1) / x):log() / contrast_abs) * -1)

@@ -3,7 +3,7 @@ local utils = require "weserv.helpers.utils"
 local type = type
 local next = next
 local pcall = pcall
-local string = string
+local str_format = string.format
 local ipairs = ipairs
 local tonumber = tonumber
 local setmetatable = setmetatable
@@ -75,7 +75,7 @@ function api.get_load_options(args)
 
         -- Add page to the string options
         -- Useful for the thumbnail operator
-        string_options = string.format("[page=%d]", page)
+        string_options = str_format("[page=%d]", page)
     end
 
     return load_options, string_options

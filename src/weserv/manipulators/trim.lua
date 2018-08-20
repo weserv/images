@@ -1,6 +1,6 @@
 local utils = require "weserv.helpers.utils"
-local string = string
 local tonumber = tonumber
+local str_format = string.format
 local ngx_log = ngx.log
 local ngx_ERR = ngx.ERR
 
@@ -72,7 +72,7 @@ function manipulator.process(image, args)
         -- And now crop the original image.
         return image:crop(left, top, width, height)
     else
-        ngx_log(ngx_ERR, string.format("Unexpected error while trimming. Threshold (%d) is too high.", threshold))
+        ngx_log(ngx_ERR, str_format("Unexpected error while trimming. Threshold (%d) is too high.", threshold))
 
         -- We could use shrink-on-load for the next thumbnail manipulator
         args.trim = nil

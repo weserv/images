@@ -167,7 +167,7 @@ function utils.canonicalise_query_string(query)
     query = tbl_concat(q, "&")
 
     -- Fragment identifier must be removed from the query string.
-    local frag_pos = query:find("#")
+    local frag_pos = query:find("#", 1, true)
     if frag_pos then
         query = query:sub(1, frag_pos - 1)
     end
