@@ -15,7 +15,7 @@ if [ -d "$HOME/vips/bin" ]; then
 
     if [[ "$installed_version" == "$version" ]]; then
         echo "Using cached vips directory"
-        exit 0
+        #exit 0
     fi
 fi
 
@@ -28,3 +28,6 @@ curl -L ${vips_tarball} | tar xz
 cd vips-${version}
 CXXFLAGS=-D_GLIBCXX_USE_CXX11_ABI=0 ./configure --prefix="$HOME/vips" $*
 make -j${JOBS} && make install
+
+cd ../
+rm -rf vips-${version}

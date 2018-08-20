@@ -26,3 +26,6 @@ curl -L ${luarocks_tarball} | tar xz
 cd luarocks-${version}
 ./configure --prefix="$HOME/luarocks" $*
 make build -j${JOBS} && make install
+
+cd ../
+rm -rf luarocks-${version}
