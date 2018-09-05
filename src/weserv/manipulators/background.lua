@@ -72,6 +72,9 @@ function manipulator.process(image, args)
         end
 
         image = image:flatten({ background = background_color })
+
+        -- The image don't have an alpha channel now
+        args.has_alpha = false
     end
 
     return image
