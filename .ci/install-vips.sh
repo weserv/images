@@ -3,7 +3,7 @@
 version=${VIPS_VERSION}
 pre_version=${VIPS_PRE_VERSION}
 tar_version=${VIPS_TAR_VERSION}
-vips_tarball=https://github.com/jcupitt/libvips/releases/download/v${version}${pre_version:+-$pre_version}/vips-${tar_version}.tar.gz
+vips_tarball=https://github.com/libvips/libvips/releases/download/v${version}${pre_version:+-$pre_version}/vips-${tar_version}.tar.gz
 
 set -e
 
