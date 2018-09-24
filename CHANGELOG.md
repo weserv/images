@@ -66,7 +66,7 @@ Thanks for your support!
 - The filter effect `&filt=`. Accepts `greyscale`, `sepia` or `negate`.
 
 #### Input
-- With the magical help of [libvips](https://github.com/jcupitt/libvips) and the PHP binding [php-vips](https://github.com/jcupitt/php-vips), we "officially" support `PNG`, `JPG`, `WEBP`, `GIF` (not animated), `SVG`, `PDF` and `TIFF` as image input. "Unofficially" we're supporting all [libMagick image file types](https://www.imagemagick.org/script/formats.php#supported). 
+- With the magical help of [libvips](https://github.com/libvips/libvips) and the PHP binding [php-vips](https://github.com/libvips/php-vips), we "officially" support `PNG`, `JPG`, `WEBP`, `GIF` (not animated), `SVG`, `PDF` and `TIFF` as image input. "Unofficially" we're supporting all [libMagick image file types](https://www.imagemagick.org/script/formats.php#supported). 
 
 #### Output
 - We've added `&output=webp` and `&output=tiff` in an effort to support more image formats as output. See [#68](https://github.com/weserv/images/issues/68).
@@ -82,7 +82,7 @@ Thanks for your support!
 - Add support for Docker deployment. See the [Docker installation instructions](DOCKER.md).
 
 ### Changed
-- Dropped [Intervention Image](http://image.intervention.io/) in favor of [php-vips](https://github.com/jcupitt/php-vips) because resizing an image with [libvips](https://github.com/jcupitt/libvips) is typically 4x-5x faster than using the quickest ImageMagick.
+- Dropped [Intervention Image](http://image.intervention.io/) in favor of [php-vips](https://github.com/libvips/php-vips) because resizing an image with [libvips](https://github.com/libvips/libvips) is typically 4x-5x faster than using the quickest ImageMagick.
 - We're now using the [uri package](https://github.com/thephpleague/uri) in order to parse URIs correctly. This is a drop-in replacement to PHP’s `parse_url` function.
 
 ### Deprecated

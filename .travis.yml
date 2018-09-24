@@ -6,10 +6,9 @@ dist: trusty
 
 env:
   global:
-    - LUAROCKS_VERSION=3.0.1
+    - LUAROCKS_VERSION=3.0.3
     - VIPS_VERSION=8.7.0
-    - VIPS_PRE_VERSION=rc2
-    - VIPS_TAR_VERSION=$VIPS_VERSION-rc2
+    - VIPS_TAR_VERSION=$VIPS_VERSION
     - VIPS_WARNING=0
     - TEST_COVERAGE=1
     - JOBS=2
