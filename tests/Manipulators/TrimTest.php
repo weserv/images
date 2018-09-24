@@ -33,12 +33,12 @@ class TrimTest extends ImagesWeservTestCase
         $this->manipulator = new Trim();
     }
 
-    public function testCreateInstance()
+    public function testCreateInstance(): void
     {
         $this->assertInstanceOf(Trim::class, $this->manipulator);
     }
 
-    public function testTrim()
+    public function testTrim(): void
     {
         $testImage = $this->inputPngOverlayLayer1;
         $expectedImage = $this->expectedDir . '/alpha-layer-1-fill-trim-resize.png';
@@ -63,7 +63,7 @@ class TrimTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testTrim16bitWithTransparency()
+    public function testTrim16bitWithTransparency(): void
     {
         $testImage = $this->inputPngWithTransparency16bit;
         $expectedImage = $this->expectedDir . '/trim-16bit-rgba.png';
@@ -88,7 +88,7 @@ class TrimTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testTrimSkipShrinkOnLoad()
+    public function testTrimSkipShrinkOnLoad(): void
     {
         $testImage = $this->inputJpgOverlayLayer2;
         $expectedImage = $this->expectedDir . '/alpha-layer-2-trim-resize.jpg';
@@ -113,7 +113,7 @@ class TrimTest extends ImagesWeservTestCase
     /**
      * @expectedException \PHPUnit\Framework\Error\Warning
      */
-    public function testAggressiveTrimTriggersError()
+    public function testAggressiveTrimTriggersError(): void
     {
         $testImage = $this->inputPngOverlayLayer0;
         $params = [
@@ -127,7 +127,7 @@ class TrimTest extends ImagesWeservTestCase
         $this->api->run($uri, $params);
     }
 
-    public function testAggressiveTrimReturnsOriginalImage()
+    public function testAggressiveTrimReturnsOriginalImage(): void
     {
         $testImage = $this->inputPngOverlayLayer0;
         $params = [
@@ -141,7 +141,7 @@ class TrimTest extends ImagesWeservTestCase
         /** @var Image $image */
         $image = @$this->api->run($uri, $params);
 
-        // Check if dimensions is unchanged
+        // Check if dimensions are unchanged
         $this->assertEquals(2048, $image->width);
         $this->assertEquals(1536, $image->height);
 
@@ -149,7 +149,7 @@ class TrimTest extends ImagesWeservTestCase
         $this->assertSimilarImage($testImage, $image);
     }
 
-    public function testGetTrim()
+    public function testGetTrim(): void
     {
         $this->assertSame(50, $this->manipulator->setParams(['trim' => '50'])->getTrim());
         $this->assertSame(50, $this->manipulator->setParams(['trim' => 50.50])->getTrim());

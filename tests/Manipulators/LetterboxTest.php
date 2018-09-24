@@ -34,7 +34,7 @@ class LetterboxTest extends ImagesWeservTestCase
         $this->manipulator = new Letterbox();
     }
 
-    public function testCreateInstance()
+    public function testCreateInstance(): void
     {
         $this->assertInstanceOf(Letterbox::class, $this->manipulator);
     }
@@ -42,7 +42,7 @@ class LetterboxTest extends ImagesWeservTestCase
     /**
      * TIFF letterbox known to cause rounding errors
      */
-    public function testTiffLetterbox()
+    public function testTiffLetterbox(): void
     {
         $testImage = $this->inputTiff;
         $params = [
@@ -67,7 +67,7 @@ class LetterboxTest extends ImagesWeservTestCase
     /**
      * Letterbox TIFF in LAB colourspace onto RGBA background
      */
-    public function testTiffLetterboxOnRGBA()
+    public function testTiffLetterboxOnRGBA(): void
     {
         $testImage = $this->inputTiffCielab;
         $expectedImage = $this->expectedDir . '/letterbox-lab-into-rgba.png';
@@ -96,7 +96,7 @@ class LetterboxTest extends ImagesWeservTestCase
     /**
      * From CMYK to sRGB with white background, not yellow
      */
-    public function testCMYKTosRGBWithBackground()
+    public function testCMYKTosRGBWithBackground(): void
     {
         $testImage = $this->inputJpgWithCmykProfile;
         $expectedImage = $this->expectedDir . '/colourspace.cmyk.jpg';
@@ -123,7 +123,7 @@ class LetterboxTest extends ImagesWeservTestCase
     /**
      * PNG with alpha channel
      */
-    public function testLetterboxPngTransparent()
+    public function testLetterboxPngTransparent(): void
     {
         $testImage = $this->inputPngWithTransparency;
         $expectedImage = $this->expectedDir . '/letterbox-4-into-4.png';
@@ -150,7 +150,7 @@ class LetterboxTest extends ImagesWeservTestCase
     /**
      * 16-bit PNG with alpha channel
      */
-    public function testLetterbox16bitWithTransparency()
+    public function testLetterbox16bitWithTransparency(): void
     {
         $testImage = $this->inputPngWithTransparency16bit;
         $expectedImage = $this->expectedDir . '/letterbox-16bit.png';
@@ -177,7 +177,7 @@ class LetterboxTest extends ImagesWeservTestCase
     /**
      * 16-bit PNG with alpha channel onto RGBA
      */
-    public function testLetterbox16bitWithTransparencyOnRGBA()
+    public function testLetterbox16bitWithTransparencyOnRGBA(): void
     {
         $testImage = $this->inputPngWithTransparency16bit;
         $expectedImage = $this->expectedDir . '/letterbox-16bit-rgba.png';
@@ -203,7 +203,7 @@ class LetterboxTest extends ImagesWeservTestCase
     /**
      * PNG with 2 channels
      */
-    public function testLetterboxPng2Channels()
+    public function testLetterboxPng2Channels(): void
     {
         $testImage = $this->inputPngWithGreyAlpha;
         $expectedImage = $this->expectedDir . '/letterbox-2channel.png';
@@ -229,7 +229,7 @@ class LetterboxTest extends ImagesWeservTestCase
     /**
      * Enlarge and letterbox
      */
-    public function testLetterboxEnlarge()
+    public function testLetterboxEnlarge(): void
     {
         $testImage = $this->inputPngWithOneColor;
         $expectedImage = $this->expectedDir . '/letterbox-enlarge.png';

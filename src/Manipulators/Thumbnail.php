@@ -49,14 +49,14 @@ class Thumbnail extends BaseManipulator
         Interpretation::CMYK => __DIR__ . '/../ICC/cmyk.icm'
     ];
 
-    const VIPS_MAX_COORD = 10000000;
+    protected const VIPS_MAX_COORD = 10000000;
 
     /**
      * Create Thumbnail instance.
      *
      * @param int|null $maxImageSize Maximum image size in pixels.
      */
-    public function __construct($maxImageSize = null)
+    public function __construct(?int $maxImageSize = null)
     {
         $this->maxImageSize = $maxImageSize;
     }
@@ -66,7 +66,7 @@ class Thumbnail extends BaseManipulator
      *
      * @return int|null Maximum image size in pixels.
      */
-    public function getMaxImageSize()
+    public function getMaxImageSize(): ?int
     {
         return $this->maxImageSize;
     }
@@ -75,10 +75,8 @@ class Thumbnail extends BaseManipulator
      * Set the maximum image size.
      *
      * @param int|null $maxImageSize Maximum image size in pixels.
-     *
-     * @return void
      */
-    public function setMaxImageSize($maxImageSize)
+    public function setMaxImageSize(?int $maxImageSize): void
     {
         $this->maxImageSize = $maxImageSize;
     }
@@ -107,7 +105,7 @@ class Thumbnail extends BaseManipulator
             $this->h = 0;
         }
 
-        list($this->w, $this->h) = $this->applyDpr($this->w, $this->h, $this->getDpr());
+        [$this->w, $this->h] = $this->applyDpr($this->w, $this->h, $this->getDpr());
 
         // Check if image size is greater then the maximum allowed image size after dimension is resolved
         $this->checkImageSize($image, $this->w, $this->h);
@@ -203,7 +201,7 @@ class Thumbnail extends BaseManipulator
      *
      * @return void
      */
-    public function checkImageSize(Image $image, int $width, int $height)
+    public function checkImageSize(Image $image, int $width, int $height): void
     {
         if ($width === 0 && $height === 0) {
             $width = $image->width;
@@ -274,7 +272,7 @@ class Thumbnail extends BaseManipulator
 
         if ($swapNeeded) {
             // Swap input width and height when rotating by 90 or 270 degrees
-            list($inputWidth, $inputHeight) = [$inputHeight, $inputWidth];
+            [$inputWidth, $inputHeight] = [$inputHeight, $inputWidth];
         }
 
         // Scaling calculations
@@ -336,7 +334,7 @@ class Thumbnail extends BaseManipulator
 
         if ($swapNeeded) {
             // Swap target output width and height when rotating by 90 or 270 degrees
-            list($targetResizeWidth, $targetResizeHeight) = [$targetResizeHeight, $targetResizeWidth];
+            [$targetResizeWidth, $targetResizeHeight] = [$targetResizeHeight, $targetResizeWidth];
         }
 
         // Assign settings

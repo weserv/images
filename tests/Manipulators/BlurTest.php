@@ -33,12 +33,12 @@ class BlurTest extends ImagesWeservTestCase
         $this->manipulator = new Blur();
     }
 
-    public function testCreateInstance()
+    public function testCreateInstance(): void
     {
         $this->assertInstanceOf(Blur::class, $this->manipulator);
     }
 
-    public function testBlurRadius1()
+    public function testBlurRadius1(): void
     {
         $testImage = $this->inputJpg;
         $expectedImage = $this->expectedDir . '/blur-1.jpg';
@@ -61,7 +61,7 @@ class BlurTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testBlurRadius10()
+    public function testBlurRadius10(): void
     {
         $testImage = $this->inputJpg;
         $expectedImage = $this->expectedDir . '/blur-10.jpg';
@@ -84,7 +84,7 @@ class BlurTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testBlurRadius03()
+    public function testBlurRadius03(): void
     {
         $testImage = $this->inputJpg;
         $expectedImage = $this->expectedDir . '/blur-0.3.jpg';
@@ -107,7 +107,7 @@ class BlurTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testMildBlur()
+    public function testMildBlur(): void
     {
         $testImage = $this->inputJpg;
         $expectedImage = $this->expectedDir . '/blur-mild.jpg';
@@ -130,7 +130,7 @@ class BlurTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testBlurPngTransparent()
+    public function testBlurPngTransparent(): void
     {
         $testImage = $this->inputPngOverlayLayer1;
         $expectedImage = $this->expectedDir . '/blur-trans.png';
@@ -153,7 +153,7 @@ class BlurTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testGetBlur()
+    public function testGetBlur(): void
     {
         $this->assertSame(50.0, $this->manipulator->setParams(['blur' => '50'])->getBlur());
         $this->assertSame(50.0, $this->manipulator->setParams(['blur' => 50])->getBlur());

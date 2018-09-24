@@ -8,21 +8,21 @@ use Weserv\Images\Test\ImagesWeservTestCase;
 
 class UtilsTest extends ImagesWeservTestCase
 {
-    public function testIs16Bit()
+    public function testIs16Bit(): void
     {
         $this->assertTrue(Utils::is16Bit(Interpretation::RGB16));
         $this->assertTrue(Utils::is16Bit(Interpretation::GREY16));
         $this->assertFalse(Utils::is16Bit(Interpretation::SRGB));
     }
 
-    public function testMaximumImageAlpha()
+    public function testMaximumImageAlpha(): void
     {
         $this->assertSame(65535, Utils::maximumImageAlpha(Interpretation::RGB16));
         $this->assertSame(65535, Utils::maximumImageAlpha(Interpretation::GREY16));
         $this->assertSame(255, Utils::maximumImageAlpha(Interpretation::SRGB));
     }
 
-    public function testResolveAngleRotation()
+    public function testResolveAngleRotation(): void
     {
         $this->assertSame(270, Utils::resolveAngleRotation('-3690'));
         $this->assertSame(270, Utils::resolveAngleRotation('-450'));
@@ -40,7 +40,7 @@ class UtilsTest extends ImagesWeservTestCase
         $this->assertSame(0, Utils::resolveAngleRotation('91'));
     }
 
-    public function testDetermineImageExtension()
+    public function testDetermineImageExtension(): void
     {
         $this->assertSame('jpg', Utils::determineImageExtension('jpegload'));
         $this->assertSame('png', Utils::determineImageExtension('pngload'));
@@ -50,7 +50,7 @@ class UtilsTest extends ImagesWeservTestCase
         $this->assertSame('unknown', Utils::determineImageExtension('invalid'));
     }
 
-    public function testFormatBytes()
+    public function testFormatBytes(): void
     {
         $base = 1024;
         $pow2 = $base ** 2;

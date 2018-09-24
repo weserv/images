@@ -40,17 +40,17 @@ class ServerTest extends ImagesWeservTestCase
         $this->server = new Server($this->api, $this->throttler);
     }
 
-    public function testCreateInstance()
+    public function testCreateInstance(): void
     {
         $this->assertInstanceOf(Server::class, $this->server);
     }
 
-    public function testGetApi()
+    public function testGetApi(): void
     {
         $this->assertInstanceOf(ApiInterface::class, $this->server->getApi());
     }
 
-    public function testSetDefaults()
+    public function testSetDefaults(): void
     {
         $defaults = [
             'output' => 'png'
@@ -61,7 +61,7 @@ class ServerTest extends ImagesWeservTestCase
         $this->assertSame($defaults, $this->server->getDefaults());
     }
 
-    public function testSetPresets()
+    public function testSetPresets(): void
     {
         $presets = [
             'small' => [
@@ -76,7 +76,7 @@ class ServerTest extends ImagesWeservTestCase
         $this->assertSame($presets, $this->server->getPresets());
     }
 
-    public function testGetAllParams()
+    public function testGetAllParams(): void
     {
         $this->server->setDefaults([
             'output' => 'png'
@@ -107,7 +107,7 @@ class ServerTest extends ImagesWeservTestCase
     /**
      * @runInSeparateProcess
      */
-    public function testOutputImage()
+    public function testOutputImage(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -135,7 +135,7 @@ class ServerTest extends ImagesWeservTestCase
     /**
      * @runInSeparateProcess
      */
-    public function testOutputImageAsBase64()
+    public function testOutputImageAsBase64(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -157,7 +157,7 @@ class ServerTest extends ImagesWeservTestCase
     /**
      * @runInSeparateProcess
      */
-    public function testOutputDebugInfo()
+    public function testOutputDebugInfo(): void
     {
         $testImage = $this->inputJpgWithCmykNoProfile;
         $params = [
@@ -180,7 +180,7 @@ class ServerTest extends ImagesWeservTestCase
      * @runInSeparateProcess
      * @requires extension xdebug
      */
-    public function testContentDispositionAttachmentHeader()
+    public function testContentDispositionAttachmentHeader(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -204,7 +204,7 @@ class ServerTest extends ImagesWeservTestCase
      * @runInSeparateProcess
      * @requires extension xdebug
      */
-    public function testFilename()
+    public function testFilename(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -226,9 +226,38 @@ class ServerTest extends ImagesWeservTestCase
 
     /**
      * @runInSeparateProcess
-     * @requires extension gd
      */
-    public function testOutputImageAsGif()
+    public function testOutputImageAsPng(): void
+    {
+        $testImage = $this->inputJpg;
+        $params = [
+            'w' => '320',
+            'h' => '240',
+            't' => 'square',
+            'output' => 'png'
+        ];
+
+        $uri = basename($testImage);
+
+        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
+        $this->throttler->shouldReceive('isExceeded')->with('127.0.0.1');
+
+        ob_start();
+        $this->server->outputImage($uri, $params);
+        $content = ob_get_clean();
+
+        $image = Image::newFromBuffer($content);
+
+        $this->assertEquals('pngload_buffer', $image->get('vips-loader'));
+        $this->assertEquals(320, $image->width);
+        $this->assertEquals(240, $image->height);
+        $this->assertFalse($image->hasAlpha());
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testOutputImageAsGif(): void
     {
         $testImage = $this->inputPngWithGreyAlpha;
         $params = [
@@ -257,40 +286,8 @@ class ServerTest extends ImagesWeservTestCase
 
     /**
      * @runInSeparateProcess
-     * @requires extension gd
      */
-    public function testOutputImageAsInterlacedGif()
-    {
-        $testImage = $this->inputJpg;
-        $params = [
-            'w' => '320',
-            'h' => '240',
-            't' => 'square',
-            'il' => 'true',
-            'output' => 'gif'
-        ];
-
-        $uri = basename($testImage);
-
-        $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
-        $this->throttler->shouldReceive('isExceeded')->with('127.0.0.1');
-
-        ob_start();
-        $this->server->outputImage($uri, $params);
-        $content = ob_get_clean();
-
-        $image = Image::newFromBuffer($content);
-
-        $this->assertEquals('gifload_buffer', $image->get('vips-loader'));
-        $this->assertEquals(320, $image->width);
-        $this->assertEquals(240, $image->height);
-        $this->assertFalse($image->hasAlpha());
-    }
-
-    /**
-     * @runInSeparateProcess
-     */
-    public function testOutputImageForcePng()
+    public function testOutputImageForcePng(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -317,7 +314,7 @@ class ServerTest extends ImagesWeservTestCase
         $this->assertTrue($image->hasAlpha());
     }
 
-    public function testGetBufferOptions()
+    public function testGetBufferOptions(): void
     {
         $this->assertSame([
             'strip' => true,
@@ -342,7 +339,7 @@ class ServerTest extends ImagesWeservTestCase
         ], $this->server->getBufferOptions([], 'tiff'));
     }
 
-    public function testGetQuality()
+    public function testGetQuality(): void
     {
         $this->assertSame(1, $this->server->getQuality(['q' => '1'], 'jpg'));
         $this->assertSame(100, $this->server->getQuality(['q' => '100'], 'jpg'));
@@ -352,7 +349,7 @@ class ServerTest extends ImagesWeservTestCase
         $this->assertSame(6, $this->server->getQuality(['level' => '10'], 'png'));
     }
 
-    public function testSetThrottler()
+    public function testSetThrottler(): void
     {
         // Test if we can set a `null` throttler
         $this->server->setThrottler(null);

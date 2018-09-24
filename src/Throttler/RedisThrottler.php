@@ -39,7 +39,7 @@ class RedisThrottler implements ThrottlerInterface
      *
      * @param ClientInterface $redis
      * @param ThrottlingPolicy $policy
-     * @param array $config
+     * @param mixed[] $config
      */
     public function __construct(ClientInterface $redis, ThrottlingPolicy $policy, array $config)
     {
@@ -70,7 +70,7 @@ class RedisThrottler implements ThrottlerInterface
      *
      * @return void
      */
-    public function setPrefix(string $prefix)
+    public function setPrefix(string $prefix): void
     {
         $this->prefix = !empty($prefix) ? $prefix . '_' : '';
     }
@@ -164,7 +164,7 @@ class RedisThrottler implements ThrottlerInterface
      *
      * @return void
      */
-    public function clear(string $ipAddress)
+    public function clear(string $ipAddress): void
     {
         $this->resetAttempts($ipAddress);
         $this->redis->del([$this->prefix . $ipAddress . ':lockout']);

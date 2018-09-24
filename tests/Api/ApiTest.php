@@ -27,23 +27,23 @@ class ApiTest extends ImagesWeservTestCase
         $this->api = new Api($this->client, $this->getManipulators());
     }
 
-    public function testCreateInstance()
+    public function testCreateInstance(): void
     {
         $this->assertInstanceOf(Api::class, $this->api);
     }
 
-    public function testSetClient()
+    public function testSetClient(): void
     {
         $this->api->setClient($this->getMockery(Client::class));
         $this->assertInstanceOf(Client::class, $this->api->getClient());
     }
 
-    public function testGetClient()
+    public function testGetClient(): void
     {
         $this->assertInstanceOf(Client::class, $this->api->getClient());
     }
 
-    public function testSetManipulators()
+    public function testSetManipulators(): void
     {
         $this->api->setManipulators([$this->getMockery(ManipulatorInterface::class)]);
         $manipulators = $this->api->getManipulators();
@@ -53,17 +53,17 @@ class ApiTest extends ImagesWeservTestCase
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testSetInvalidManipulator()
+    public function testSetInvalidManipulator(): void
     {
         $this->api->setManipulators([new \StdClass()]);
     }
 
-    public function testGetManipulators()
+    public function testGetManipulators(): void
     {
         $this->assertEquals($this->getManipulators(), $this->api->getManipulators());
     }
 
-    public function testGetLoadOptions()
+    public function testGetLoadOptions(): void
     {
         $params = [
             'accessMethod' => Access::SEQUENTIAL,

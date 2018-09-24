@@ -50,7 +50,7 @@ class RedisThrottlerTest extends ImagesWeservTestCase
         $this->throttler = new RedisThrottler($this->redis, $this->policy, $this->config);
     }
 
-    public function testSetGetPrefix()
+    public function testSetGetPrefix(): void
     {
         $this->throttler->setPrefix('');
         $this->assertEquals('', $this->throttler->getPrefix());
@@ -59,7 +59,7 @@ class RedisThrottlerTest extends ImagesWeservTestCase
         $this->assertEquals($this->config['prefix'] . '_', $this->throttler->getPrefix());
     }
 
-    public function testIsLockout()
+    public function testIsLockout(): void
     {
         $ipAddress = '127.0.0.1';
         $prefix = $this->throttler->getPrefix();
@@ -69,7 +69,7 @@ class RedisThrottlerTest extends ImagesWeservTestCase
         $this->assertTrue($this->throttler->isExceeded($ipAddress));
     }
 
-    public function testIsExceeded()
+    public function testIsExceeded(): void
     {
         $ipAddress = '127.0.0.1';
         $prefix = $this->throttler->getPrefix();
@@ -90,7 +90,7 @@ class RedisThrottlerTest extends ImagesWeservTestCase
         $this->assertTrue($this->throttler->isExceeded($ipAddress));
     }
 
-    public function testIsNotExceeded()
+    public function testIsNotExceeded(): void
     {
         $ipAddress = '127.0.0.1';
         $prefix = $this->throttler->getPrefix();
@@ -102,7 +102,7 @@ class RedisThrottlerTest extends ImagesWeservTestCase
         $this->assertFalse($this->throttler->isExceeded($ipAddress));
     }
 
-    public function testIncrement()
+    public function testIncrement(): void
     {
         $ipAddress = '127.0.0.1';
         $prefix = $this->throttler->getPrefix();
@@ -113,7 +113,7 @@ class RedisThrottlerTest extends ImagesWeservTestCase
         $this->assertEquals(1, $this->throttler->increment($ipAddress, $this->config['minutes']));
     }
 
-    public function testAttempts()
+    public function testAttempts(): void
     {
         $ipAddress = '127.0.0.1';
         $prefix = $this->throttler->getPrefix();
@@ -123,7 +123,7 @@ class RedisThrottlerTest extends ImagesWeservTestCase
         $this->assertEquals(1, $this->throttler->attempts($ipAddress));
     }
 
-    public function testResetAttempts()
+    public function testResetAttempts(): void
     {
         $ipAddress = '127.0.0.1';
         $prefix = $this->throttler->getPrefix();
@@ -133,7 +133,7 @@ class RedisThrottlerTest extends ImagesWeservTestCase
         $this->assertEquals(true, $this->throttler->resetAttempts($ipAddress));
     }
 
-    public function testZeroAttemptsAllRetriesLeft()
+    public function testZeroAttemptsAllRetriesLeft(): void
     {
         $ipAddress = '127.0.0.1';
         $prefix = $this->throttler->getPrefix();
@@ -146,7 +146,7 @@ class RedisThrottlerTest extends ImagesWeservTestCase
         );
     }
 
-    public function testRetriesLeft()
+    public function testRetriesLeft(): void
     {
         $ipAddress = '127.0.0.1';
         $prefix = $this->throttler->getPrefix();
@@ -159,7 +159,7 @@ class RedisThrottlerTest extends ImagesWeservTestCase
         );
     }
 
-    public function testClear()
+    public function testClear(): void
     {
         $ipAddress = '127.0.0.1';
         $prefix = $this->throttler->getPrefix();
@@ -170,7 +170,7 @@ class RedisThrottlerTest extends ImagesWeservTestCase
         $this->throttler->clear($ipAddress);
     }
 
-    public function testAvailableIn()
+    public function testAvailableIn(): void
     {
         $ipAddress = '127.0.0.1';
         $prefix = $this->throttler->getPrefix();

@@ -5,15 +5,15 @@ language: php
 dist: trusty
 
 php:
-  - 7.0.13
   - 7.1
   - 7.2
 
 env:
   global:
-    - VIPS_VERSION=8.6.4
+    - VIPS_VERSION=8.7.0
     - VIPS_TAR_VERSION=$VIPS_VERSION
     - VIPS_WARNING=0
+    - JOBS=2
     - PATH=$HOME/vips/bin:$PATH
     - LD_LIBRARY_PATH=$HOME/vips/lib:$LD_LIBRARY_PATH
     - PKG_CONFIG_PATH=$HOME/vips/lib/pkgconfig:$PKG_CONFIG_PATH
@@ -23,7 +23,6 @@ env:
     - GIT_COMMITTED_AT=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then git log -1 --pretty=format:%ct; else git log -1 --skip 1 --pretty=format:%ct; fi)
 
 cache:
-  apt: true
   directories:
     - $HOME/.composer/cache
     - $HOME/vips
@@ -50,7 +49,7 @@ addons:
       - libwebp-dev
 
 before_install:
-  - bash install-vips.sh
+  - bash .ci/install-vips.sh
   - yes '' | pecl install vips
 
 install: composer install --prefer-dist

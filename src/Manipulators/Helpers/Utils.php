@@ -11,7 +11,7 @@ class Utils
      * The orientation tag for this image. An int from 1 - 8 using the standard
      * exif/tiff meanings.
      */
-    const VIPS_META_ORIENTATION = 'orientation';
+    public const VIPS_META_ORIENTATION = 'orientation';
 
     /**
      * The name we use to attach an ICC profile. The file read and write
@@ -19,7 +19,7 @@ class Utils
      * attach and save ICC profiles. The profile is updated by the
      * vips_icc_transform() operations.
      */
-    const VIPS_META_ICC_NAME = 'icc-profile-data';
+    public const VIPS_META_ICC_NAME = 'icc-profile-data';
 
     /**
      * Are pixel values in this image 16-bit integer?
@@ -112,11 +112,11 @@ class Utils
      * and parameters
      *
      * @param Image $image The source image.
-     * @param  array $params Parameters array
+     * @param mixed[] $params Parameters array
      *
      * @throws \Jcupitt\Vips\Exception
      *
-     * @return array [rotation, flip, flop]
+     * @return mixed[] [rotation, flip, flop]
      */
     public static function resolveRotationAndFlip(Image $image, array $params): array
     {

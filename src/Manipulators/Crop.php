@@ -41,11 +41,11 @@ class Crop extends BaseManipulator
                 // Need to copy to memory, we have to stay seq.
                 $image = $image->copyMemory()->smartcrop($minWidth, $minHeight, ['interesting' => $this->a]);
             } else {
-                list($offsetPercentageX, $offsetPercentageY) = $this->getCrop();
+                [$offsetPercentageX, $offsetPercentageY] = $this->getCrop();
                 $offsetX = (int)(($imageWidth - $width) * ($offsetPercentageX / 100));
                 $offsetY = (int)(($imageHeight - $height) * ($offsetPercentageY / 100));
 
-                list($left, $top) = $this->calculateCrop(
+                [$left, $top] = $this->calculateCrop(
                     [$imageWidth, $imageHeight],
                     [$width, $height],
                     [$offsetX, $offsetY]
@@ -81,11 +81,11 @@ class Crop extends BaseManipulator
      * @param int $imageWidth
      * @param int $imageHeight
      *
-     * @return array|null The resolved coordinates.
+     * @return int[]|null The resolved coordinates.
      *
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
-    public function resolveCropCoordinates(int $imageWidth, int $imageHeight)
+    public function resolveCropCoordinates(int $imageWidth, int $imageHeight): ?array
     {
         if (!isset($this->crop)) {
             return null;

@@ -33,12 +33,12 @@ class ContrastTest extends ImagesWeservTestCase
         $this->manipulator = new Contrast();
     }
 
-    public function testCreateInstance()
+    public function testCreateInstance(): void
     {
         $this->assertInstanceOf(Contrast::class, $this->manipulator);
     }
 
-    public function testContrastIncrease()
+    public function testContrastIncrease(): void
     {
         $testImage = $this->inputJpg;
         $expectedImage = $this->expectedDir . '/contrast-increase.jpg';
@@ -61,7 +61,7 @@ class ContrastTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testContrastDecrease()
+    public function testContrastDecrease(): void
     {
         $testImage = $this->inputJpg;
         $expectedImage = $this->expectedDir . '/contrast-decrease.jpg';
@@ -84,7 +84,7 @@ class ContrastTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testGetContrast()
+    public function testGetContrast(): void
     {
         $this->assertSame(50, $this->manipulator->setParams(['con' => '50'])->getContrast());
         $this->assertSame(50, $this->manipulator->setParams(['con' => 50])->getContrast());

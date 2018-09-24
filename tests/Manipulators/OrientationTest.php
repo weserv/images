@@ -34,7 +34,7 @@ class OrientationTest extends ImagesWeservTestCase
         $this->manipulator = new Orientation();
     }
 
-    public function testCreateInstance()
+    public function testCreateInstance(): void
     {
         $this->assertInstanceOf(Orientation::class, $this->manipulator);
     }
@@ -42,7 +42,7 @@ class OrientationTest extends ImagesWeservTestCase
     /**
      * Rotate by any 90-multiple angle
      */
-    public function testRotateBy90MultipleAngle()
+    public function testRotateBy90MultipleAngle(): void
     {
         $testImage = $this->inputJpg320x240;
 
@@ -67,7 +67,7 @@ class OrientationTest extends ImagesWeservTestCase
     /**
      * Rotate by any 180-multiple angle
      */
-    public function testRotateBy180MultipleAngle()
+    public function testRotateBy180MultipleAngle(): void
     {
         $testImage = $this->inputJpg320x240;
 
@@ -92,7 +92,7 @@ class OrientationTest extends ImagesWeservTestCase
     /**
      * EXIF Orientation, auto-rotate
      */
-    public function testAutoRotate()
+    public function testAutoRotate(): void
     {
         foreach (['Landscape', 'Portrait'] as $orientation) {
             foreach ([1, 2, 3, 4, 5, 6, 7, 8] as $exifTag) {

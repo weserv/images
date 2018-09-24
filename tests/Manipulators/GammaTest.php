@@ -33,7 +33,7 @@ class GammaTest extends ImagesWeservTestCase
         $this->manipulator = new Gamma();
     }
 
-    public function testCreateInstance()
+    public function testCreateInstance(): void
     {
         $this->assertInstanceOf(Gamma::class, $this->manipulator);
     }
@@ -41,7 +41,7 @@ class GammaTest extends ImagesWeservTestCase
     /**
      * Value of 2.2 (default)
      */
-    public function testGammaDefaultValue()
+    public function testGammaDefaultValue(): void
     {
         $testImage = $this->inputJpgWithGammaHoliness;
         $expectedImage = $this->expectedDir . '/gamma-2.2.jpg';
@@ -66,7 +66,7 @@ class GammaTest extends ImagesWeservTestCase
     /**
      * Value of 3
      */
-    public function testGammaValueOf3()
+    public function testGammaValueOf3(): void
     {
         $testImage = $this->inputJpgWithGammaHoliness;
         $expectedImage = $this->expectedDir . '/gamma-3.0.jpg';
@@ -91,7 +91,7 @@ class GammaTest extends ImagesWeservTestCase
     /**
      * Alpha transparency
      */
-    public function testGammaPngTransparent()
+    public function testGammaPngTransparent(): void
     {
         $testImage = $this->inputPngOverlayLayer1;
         $expectedImage = $this->expectedDir . '/gamma-alpha.png';
@@ -113,7 +113,7 @@ class GammaTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testGetGamma()
+    public function testGetGamma(): void
     {
         $this->assertSame(1.5, $this->manipulator->setParams(['gam' => '1.5'])->getGamma());
         $this->assertSame(1.5, $this->manipulator->setParams(['gam' => 1.5])->getGamma());

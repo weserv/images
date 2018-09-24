@@ -61,7 +61,7 @@ interface ThrottlerInterface
      *
      * @return void
      */
-    public function clear(string $ipAddress);
+    public function clear(string $ipAddress): void;
 
     /**
      * Get the number of seconds until the ip address is accessible again.

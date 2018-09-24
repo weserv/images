@@ -30,7 +30,7 @@ class Shape extends BaseManipulator
             $width = $image->width;
             $height = $image->height;
 
-            list($path, $xMin, $yMin, $maskWidth, $maskHeight) = $this->getSVGShape($width, $height, $shape);
+            [$path, $xMin, $yMin, $maskWidth, $maskHeight] = $this->getSVGShape($width, $height, $shape);
 
             $preserveAspectRatio = $shape === 'ellipse' ? 'none' : 'xMidYMid meet';
             $svg = '<?xml version=\'1.0\' encoding=\'UTF-8\' standalone=\'no\'?>';
@@ -49,7 +49,7 @@ class Shape extends BaseManipulator
             // Crop the image to the mask dimensions;
             // if strim is defined and if it's not a ellipse
             if (isset($this->strim) && $shape !== 'ellipse') {
-                list($left, $top, $trimWidth, $trimHeight) = $this->resolveShapeTrim(
+                [$left, $top, $trimWidth, $trimHeight] = $this->resolveShapeTrim(
                     $width,
                     $height,
                     $maskWidth,
@@ -71,7 +71,7 @@ class Shape extends BaseManipulator
      *
      * @return string|null The resolved shape.
      */
-    public function getShape()
+    public function getShape(): ?string
     {
         if ($this->shape === 'circle' ||
             $this->shape === 'ellipse' ||
@@ -102,7 +102,7 @@ class Shape extends BaseManipulator
      * @param int $height
      * @param string $shape
      *
-     * @return array [
+     * @return mixed[] [
      *      *SVG path*,
      *      *Left edge of mask*,
      *      *Top edge of mask*,
@@ -188,7 +188,7 @@ class Shape extends BaseManipulator
      * @param float $midX midX
      * @param float $midY midY
      *
-     * @return array [
+     * @return mixed[] [
      *      *SVG path*,
      *      *Left edge of mask*,
      *      *Top edge of mask*,
@@ -225,7 +225,7 @@ class Shape extends BaseManipulator
      * @param float $midY midY
      * @param array $parameters mask parameters
      *
-     * @return array [
+     * @return mixed[] [
      *      *SVG path*,
      *      *Left edge of mask*,
      *      *Top edge of mask*,
@@ -241,7 +241,7 @@ class Shape extends BaseManipulator
          * @var float $innerRadius 'inner' radius of the star (if equal to outerRadius, a polygon is drawn)
          * @var float $initialAngle Initial angle (clockwise). By default, stars and polygons are 'pointing' up.
          */
-        list($points, $outerRadius, $innerRadius, $initialAngle) = $parameters;
+        [$points, $outerRadius, $innerRadius, $initialAngle] = $parameters;
 
         $path = '';
         $xArr = [];
@@ -330,7 +330,7 @@ class Shape extends BaseManipulator
      * @param int $maskWidth
      * @param int $maskHeight
      *
-     * @return array
+     * @return mixed[]
      */
     public function resolveShapeTrim(int $width, int $height, int $maskWidth, int $maskHeight): array
     {

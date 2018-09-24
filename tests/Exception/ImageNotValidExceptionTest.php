@@ -32,7 +32,7 @@ class ImageNotValidExceptionTest extends ImagesWeservTestCase
      *
      * @expectedException \Weserv\Images\Exception\ImageNotValidException
      */
-    public function testThrowException()
+    public function testThrowException(): void
     {
         throw new ImageNotValidException();
     }
@@ -40,7 +40,7 @@ class ImageNotValidExceptionTest extends ImagesWeservTestCase
     /**
      * @expectedException \Weserv\Images\Exception\ImageNotValidException
      */
-    public function testImageNotValidException()
+    public function testImageNotValidException(): void
     {
         $mock = new MockHandler([
             new Response(200, ['Content-Type' => 'application/zip'])

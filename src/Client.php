@@ -3,8 +3,7 @@
 namespace Weserv\Images;
 
 use GuzzleHttp\Client as GuzzleClient;
-use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\ResponseInterface;
 use Weserv\Images\Exception\ImageNotValidException;
 use Weserv\Images\Exception\ImageTooBigException;
@@ -33,8 +32,8 @@ class Client
 
     /**
      * @param string $fileName Temp file name to download to
-     * @param array $options Client options
-     * @param array $guzzleOptions Specific Guzzle options
+     * @param mixed[] $options Client options
+     * @param mixed[] $guzzleOptions Specific Guzzle options
      */
     public function __construct(string $fileName, array $options, array $guzzleOptions = [])
     {
@@ -46,11 +45,11 @@ class Client
     /**
      * Initialize the client
      *
-     * @param array $guzzleOptions Specific Guzzle options
+     * @param mixed[] $guzzleOptions Specific Guzzle options
      *
      * @return void
      */
-    private function initClient(array $guzzleOptions)
+    private function initClient(array $guzzleOptions): void
     {
         $defaultConfig = [
             'connect_timeout' => $this->options['connect_timeout'],
@@ -93,11 +92,11 @@ class Client
     /**
      * Create client instance.
      *
-     * @param ClientInterface $client The guzzle client.
+     * @param GuzzleClient $client The guzzle client.
      *
      * @return void
      */
-    public function setClient(ClientInterface $client)
+    public function setClient(GuzzleClient $client): void
     {
         $this->client = $client;
     }
@@ -105,9 +104,9 @@ class Client
     /**
      * Get the client instance.
      *
-     * @return ClientInterface $client The guzzle client.
+     * @return GuzzleClient $client The guzzle client.
      */
-    public function getClient(): ClientInterface
+    public function getClient(): GuzzleClient
     {
         return $this->client;
     }
@@ -115,11 +114,11 @@ class Client
     /**
      * Set the client options
      *
-     * @param array $options Client options
+     * @param mixed[] $options Client options
      *
      * @return void
      */
-    public function setOptions(array $options)
+    public function setOptions(array $options): void
     {
         $this->options = $options;
     }
@@ -127,7 +126,7 @@ class Client
     /**
      * Get the client options
      *
-     * @return array $options Client options
+     * @return mixed[] $options Client options
      */
     public function getOptions(): array
     {
@@ -149,10 +148,11 @@ class Client
      *      image.
      * @throws ImageTooBigException if the requested image is too big to be
      *      downloaded.
-     * @throws RequestException for errors that occur during a transfer
+     * @throws GuzzleException for errors that occur during a transfer
      *      or during the on_headers event.
      * @throws \InvalidArgumentException if the redirect URI can not be
      *      parsed (with parse_url).
+     * @throws \Throwable if the requested image is too big or not valid.
      *
      * @return string File name
      */
@@ -172,7 +172,7 @@ class Client
          */
         try {
             $this->client->request('GET', $url, $requestOptions);
-        } catch (RequestException $e) {
+        } catch (GuzzleException $e) {
             $previousException = $e->getPrevious();
 
             // Check if we need to throw a previous exception

@@ -33,12 +33,12 @@ class BackgroundTest extends ImagesWeservTestCase
         $this->manipulator = new Background();
     }
 
-    public function testCreateInstance()
+    public function testCreateInstance(): void
     {
         $this->assertInstanceOf(Background::class, $this->manipulator);
     }
 
-    public function testFlattenToBlack()
+    public function testFlattenToBlack(): void
     {
         $testImage = $this->inputPngWithTransparency;
         $expectedImage = $this->expectedDir . '/flatten-black.png';
@@ -61,7 +61,7 @@ class BackgroundTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testFlattenToOrange()
+    public function testFlattenToOrange(): void
     {
         $testImage = $this->inputPngWithTransparency;
         $expectedImage = $this->expectedDir . '/flatten-orange.png';
@@ -84,7 +84,7 @@ class BackgroundTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testFlattenToOrangeHex()
+    public function testFlattenToOrangeHex(): void
     {
         $testImage = $this->inputPngWithTransparency;
         $expectedImage = $this->expectedDir . '/flatten-orange.png';
@@ -107,7 +107,7 @@ class BackgroundTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testFlatten16bitWithTransparencyToOrange()
+    public function testFlatten16bitWithTransparencyToOrange(): void
     {
         $testImage = $this->inputPngWithTransparency16bit;
         $expectedImage = $this->expectedDir . '/flatten-rgb16-orange.png';
@@ -127,7 +127,7 @@ class BackgroundTest extends ImagesWeservTestCase
         $this->assertMaxColorDistance($expectedImage, $image);
     }
 
-    public function testFlattenGreyScaleToOrange()
+    public function testFlattenGreyScaleToOrange(): void
     {
         $testImage = $this->inputPngWithGreyAlpha;
         $expectedImage = $this->expectedDir . '/flatten-2channel.png';
@@ -152,7 +152,7 @@ class BackgroundTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testFlattenBlurToOrangeShouldUnpremultiply()
+    public function testFlattenBlurToOrangeShouldUnpremultiply(): void
     {
         $testImage = $this->inputPngWithTransparency;
         $expectedImage = $this->expectedDir . '/flatten-blur-orange.png';
@@ -176,7 +176,7 @@ class BackgroundTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testCompositeTo50PercentOrange()
+    public function testCompositeTo50PercentOrange(): void
     {
         $testImage = $this->inputPngWithTransparency;
         $expectedImage = $this->expectedDir . '/composite-50-orange.png';
@@ -199,7 +199,7 @@ class BackgroundTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testIgnoreForJpeg()
+    public function testIgnoreForJpeg(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -216,7 +216,7 @@ class BackgroundTest extends ImagesWeservTestCase
         $this->assertEquals(3, $image->bands);
     }
 
-    public function testIgnoreForTransparentBackground()
+    public function testIgnoreForTransparentBackground(): void
     {
         $testImage = $this->inputPngWithTransparency;
         $params = [

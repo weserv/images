@@ -33,12 +33,12 @@ class FilterTest extends ImagesWeservTestCase
         $this->manipulator = new Filter();
     }
 
-    public function testCreateInstance()
+    public function testCreateInstance(): void
     {
         $this->assertInstanceOf(Filter::class, $this->manipulator);
     }
 
-    public function testGreyscaleFilter()
+    public function testGreyscaleFilter(): void
     {
         $testImage = $this->inputJpg;
         $expectedImage = $this->expectedDir . '/greyscale.jpg';
@@ -62,7 +62,7 @@ class FilterTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testSepiaFilterJpeg()
+    public function testSepiaFilterJpeg(): void
     {
         $testImage = $this->inputJpg;
         $expectedImage = $this->expectedDir . '/sepia.jpg';
@@ -85,7 +85,7 @@ class FilterTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testSepiaFilterPngTransparent()
+    public function testSepiaFilterPngTransparent(): void
     {
         $testImage = $this->inputPngOverlayLayer1;
         $expectedImage = $this->expectedDir . '/sepia-trans.png';
@@ -108,7 +108,7 @@ class FilterTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testNegateFilterJpeg()
+    public function testNegateFilterJpeg(): void
     {
         $testImage = $this->inputJpg;
         $expectedImage = $this->expectedDir . '/negate.jpg';
@@ -131,7 +131,7 @@ class FilterTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testNegateFilterPng()
+    public function testNegateFilterPng(): void
     {
         $testImage = $this->inputPng;
         $expectedImage = $this->expectedDir . '/negate.png';
@@ -154,7 +154,7 @@ class FilterTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testNegateFilterPngTransparent()
+    public function testNegateFilterPngTransparent(): void
     {
         $testImage = $this->inputPngWithTransparency;
         $expectedImage = $this->expectedDir . '/negate-trans.png';
@@ -177,7 +177,7 @@ class FilterTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testNegateFilterPngWithGreyAlpha()
+    public function testNegateFilterPngWithGreyAlpha(): void
     {
         $testImage = $this->inputPngWithGreyAlpha;
         $expectedImage = $this->expectedDir . '/negate-alpha.png';
@@ -200,7 +200,7 @@ class FilterTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testNegateFilterWebp()
+    public function testNegateFilterWebp(): void
     {
         $testImage = $this->inputWebP;
         $expectedImage = $this->expectedDir . '/negate.webp';
@@ -223,7 +223,7 @@ class FilterTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testNegateFilterWebpTransparent()
+    public function testNegateFilterWebpTransparent(): void
     {
         $testImage = $this->inputWebPWithTransparency;
         $expectedImage = $this->expectedDir . '/negate-trans.webp';

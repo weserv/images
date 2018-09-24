@@ -34,23 +34,23 @@ class ThumbnailTest extends ImagesWeservTestCase
         $this->manipulator = new Thumbnail();
     }
 
-    public function testCreateInstance()
+    public function testCreateInstance(): void
     {
         $this->assertInstanceOf(Thumbnail::class, $this->manipulator);
     }
 
-    public function testSetMaxImageSize()
+    public function testSetMaxImageSize(): void
     {
         $this->manipulator->setMaxImageSize(500 * 500);
         $this->assertSame(500 * 500, $this->manipulator->getMaxImageSize());
     }
 
-    public function testGetMaxImageSize()
+    public function testGetMaxImageSize(): void
     {
         $this->assertNull($this->manipulator->getMaxImageSize());
     }
 
-    public function testFit()
+    public function testFit(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -73,7 +73,7 @@ class ThumbnailTest extends ImagesWeservTestCase
     /**
      * Provide only one dimension, should default to fit
      */
-    public function testFixedWidth()
+    public function testFixedWidth(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -92,7 +92,7 @@ class ThumbnailTest extends ImagesWeservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
-    public function testInvalidHeight()
+    public function testInvalidHeight(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -115,7 +115,7 @@ class ThumbnailTest extends ImagesWeservTestCase
     /**
      * Provide only one dimension, should default to fit
      */
-    public function testFixedHeight()
+    public function testFixedHeight(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -134,7 +134,7 @@ class ThumbnailTest extends ImagesWeservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
-    public function testInvalidWidth()
+    public function testInvalidWidth(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -154,7 +154,7 @@ class ThumbnailTest extends ImagesWeservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
-    public function testIdentityTransform()
+    public function testIdentityTransform(): void
     {
         $testImage = $this->inputJpg;
         $params = [];
@@ -171,7 +171,7 @@ class ThumbnailTest extends ImagesWeservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
-    public function testFitup()
+    public function testFitup(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -191,7 +191,7 @@ class ThumbnailTest extends ImagesWeservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
-    public function testSquare()
+    public function testSquare(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -212,7 +212,7 @@ class ThumbnailTest extends ImagesWeservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
-    public function testSquareUpscale()
+    public function testSquareUpscale(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -235,7 +235,7 @@ class ThumbnailTest extends ImagesWeservTestCase
     /**
      * Do not enlarge when input width is already less than output width
      */
-    public function testSquareDownWidth()
+    public function testSquareDownWidth(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -258,7 +258,7 @@ class ThumbnailTest extends ImagesWeservTestCase
     /**
      * Do not enlarge when input height is already less than output height
      */
-    public function testSquareDownHeight()
+    public function testSquareDownHeight(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -278,7 +278,7 @@ class ThumbnailTest extends ImagesWeservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
-    public function testTiff()
+    public function testTiff(): void
     {
         $testImage = $this->inputTiff;
         $params = [
@@ -302,7 +302,7 @@ class ThumbnailTest extends ImagesWeservTestCase
     /**
      * Width or height considering ratio (portrait)
      */
-    public function testTiffRatioPortrait()
+    public function testTiffRatioPortrait(): void
     {
         $testImage = $this->inputTiff;
         $params = [
@@ -325,7 +325,7 @@ class ThumbnailTest extends ImagesWeservTestCase
     /**
      * Width or height considering ratio (landscape)
      */
-    public function testJpgRatioLandscape()
+    public function testJpgRatioLandscape(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -348,7 +348,7 @@ class ThumbnailTest extends ImagesWeservTestCase
     /**
      * Downscale width and height, ignoring aspect ratio
      */
-    public function testAbsoluteDownscale()
+    public function testAbsoluteDownscale(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -372,7 +372,7 @@ class ThumbnailTest extends ImagesWeservTestCase
     /**
      * Downscale width, ignoring aspect ratio
      */
-    public function testAbsoluteDownscaleWidth()
+    public function testAbsoluteDownscaleWidth(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -395,7 +395,7 @@ class ThumbnailTest extends ImagesWeservTestCase
     /**
      * Downscale width, ignoring aspect ratio
      */
-    public function testAbsoluteDownscaleHeight()
+    public function testAbsoluteDownscaleHeight(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -418,7 +418,7 @@ class ThumbnailTest extends ImagesWeservTestCase
     /**
      * Upscale width and height, ignoring aspect ratio
      */
-    public function testAbsoluteUpscale()
+    public function testAbsoluteUpscale(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -442,7 +442,7 @@ class ThumbnailTest extends ImagesWeservTestCase
     /**
      * Upscale width and height, ignoring aspect ratio
      */
-    public function testAbsoluteUpscaleWidth()
+    public function testAbsoluteUpscaleWidth(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -465,7 +465,7 @@ class ThumbnailTest extends ImagesWeservTestCase
     /**
      * Upscale width and height, ignoring aspect ratio
      */
-    public function testAbsoluteUpscaleHeight()
+    public function testAbsoluteUpscaleHeight(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -488,7 +488,7 @@ class ThumbnailTest extends ImagesWeservTestCase
     /**
      * Downscale width, upscale height, ignoring aspect ratio
      */
-    public function testAbsoluteDownscaleWidthUpscaleHeight()
+    public function testAbsoluteDownscaleWidthUpscaleHeight(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -512,7 +512,7 @@ class ThumbnailTest extends ImagesWeservTestCase
     /**
      * Upscale width, downscale height, ignoring aspect ratio
      */
-    public function testAbsoluteUpscaleWidthDownscaleHeight()
+    public function testAbsoluteUpscaleWidthDownscaleHeight(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -533,7 +533,7 @@ class ThumbnailTest extends ImagesWeservTestCase
         $this->assertFalse($image->hasAlpha());
     }
 
-    public function testAbsoluteIdentityTransform()
+    public function testAbsoluteIdentityTransform(): void
     {
         $testImage = $this->inputJpg;
         $params = [
@@ -555,7 +555,7 @@ class ThumbnailTest extends ImagesWeservTestCase
     /**
      * From CMYK to sRGB
      */
-    public function testCMYKTosRGB()
+    public function testCMYKTosRGB(): void
     {
         $testImage = $this->inputJpgWithCmykProfile;
         $params = [
@@ -576,7 +576,7 @@ class ThumbnailTest extends ImagesWeservTestCase
     /**
      * From profile-less CMYK to sRGB
      */
-    public function testProfileLessCMYKTosRGB()
+    public function testProfileLessCMYKTosRGB(): void
     {
         $testImage = $this->inputJpgWithCmykNoProfile;
         $expectedImage = $this->expectedDir . '/colourspace.cmyk-without-profile.jpg';
@@ -596,7 +596,7 @@ class ThumbnailTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    public function testGetFit()
+    public function testGetFit(): void
     {
         $this->assertSame('fit', $this->manipulator->setParams(['t' => 'fit'])->getFit());
         $this->assertSame('fitup', $this->manipulator->setParams(['t' => 'fitup'])->getFit());
@@ -620,7 +620,7 @@ class ThumbnailTest extends ImagesWeservTestCase
         $this->assertSame('fit', $this->manipulator->setParams(['t' => null])->getFit());
     }
 
-    public function testGetDpr()
+    public function testGetDpr(): void
     {
         $this->assertSame(1.0, $this->manipulator->setParams(['dpr' => 'invalid'])->getDpr());
         $this->assertSame(1.0, $this->manipulator->setParams(['dpr' => '-1'])->getDpr());

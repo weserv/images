@@ -9,16 +9,16 @@ interface ManipulatorInterface
     /**
      * Set the manipulation params.
      *
-     * @param array $params The manipulation params.
+     * @param mixed[] $params The manipulation params.
      *
      * @return self
      */
-    public function setParams(array $params);
+    public function setParams(array $params): self;
 
     /**
      * Get the manipulation params.
      *
-     * @return array The manipulation params.
+     * @return mixed[] The manipulation params.
      */
     public function getParams(): array;
 
