@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Image cache &amp; resize proxy - Cache Removal Tool</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="mask-icon" href="safari-pinned-tab.svg" color="#a72376">
+    <meta name="msapplication-TileColor" content="#a72376">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.2/gh-fork-ribbon.min.css" integrity="sha384-jUHnRx457Q15HVKSx5g+6jqsItdcFcR0BBu729dDIMmTM4HT1sbXZuxxOpuiaM/p" crossorigin="anonymous">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <link rel="stylesheet" href="//static.weserv.nl/images-v3d.css" integrity="sha384-fEHMtdq65tYjYhByCic8VIU71uMnMsa2p7gbfnM3oVrsRqStpQezE3bwA7/1Riwh" crossorigin="anonymous">
+    <!--[if lte IE 9]>
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.2/gh-fork-ribbon.ie.min.css">
+        <script src="//static.weserv.nl/html5shiv-printshiv.min.js" type="text/javascript"></script>
+    <![endif]-->
+    <style type="text/css">
+    table#url_progress tr td,
+    table#url_progress tr th {
+        width: 120px;
+    }
+    table#url_progress tr td.md5,
+    table#url_progress tr th.md5 {
+        width: 320px;
+    }
+    table#url_progress tr td.url,
+    table#url_progress tr th.url {
+        max-width: 200px;
+        white-space: nowrap;
+        width: auto !important;
+    }
+    table#url_progress tr td.url {
+        overflow-x: auto;
+    }
+    textarea#url_input {
+        overflow-x: scroll;
+        padding:.5rem .5rem .2rem .5rem;
+        border:1px solid #ccc;
+        width: 100%;
+    }
+    </style>
+</head>
+<body>
+<nav id="sidebar">
+    <div id="header-wrapper">
+        <div id="header">
+            <a id="logo" href="//{{url}}/">
+                <div id="weserv-logo">Images.<strong>weserv</strong>.nl</div>
+                <span>Image cache &amp; resize proxy</span>
+            </a>
+        </div>
+    </div>
+    <div class="scrollbar-inner">
+        <ul id="nav" class="nav topics">
+            <li class="dd-item active">
+                <a href="#image-api" class="cen"><span>{{name}}</span></a>
+                <ul class="nav inner">
+                    <li class="dd-item"><a href="/cache/"><span>Cache-removal</span><span>Remaining limit: <strong id="remaining_limit">500</strong> (1000 per hour)</span></a></li>
+                </ul>
+            </li>
+        </ul>
+        <br />
+        <div id="footer">
+            <p>
+                <a href="https://github.com/weserv/images">Source code available on GitHub</a><br />
+                <a href="https://getgrav.org/">Design inspired by Grav</a><br />
+                <a href="https://github.com/weserv/images/blob/4.x/Privacy-Policy.md">Privacy Policy</a>
+            </p>
+        </div>
+    </div>
+</nav>
+<div id="body">
+    <section id="cache-removal">
+        <p>Images.<b>weserv</b>.nl is an image <b>cache</b> &amp; <b>resize</b> proxy. Our servers resize your image, cache it worldwide, and display it. <a class="github-fork-ribbon right-top" href="https://github.com/weserv/images/issues" data-ribbon="Feedback? Github!" title="Feedback? Github!">Feedback? GitHub!</a></p>
+        <h1>Cache Removal Tool</h1>
+        <p>The following tool can be used to remove images from cache. Please specify the full URL, including <i>https://{{url}}/?url=</i> or <i>http://{{url}}/?url=</i>. </p>
+        <p>It's posible to input multiple URL's, separated by a new-line:</p>
+        <textarea id="url_input" rows="15" autofocus placeholder="https://{{url}}/?url=ory.weserv.nl/lichtenstein.jpg&amp;w=30
+https://{{url}}/?url=ory.weserv.nl/lichtenstein.jpg&amp;w=200"></textarea><br />
+        <input type="submit" style="height:20px; width:100px;" onclick="return cacheremove();" />
+        
+        <p>Progress:</p>
+        <table id="url_progress">
+            <tr>
+                <th class="md5">MD5</th>
+                <th>Local?</th>
+                <th>Global?</th>
+                <th class="url">URL</th>
+            </tr>
+        </table>
+    </section>
+</div>
+<script src="//static.weserv.nl/md5.js" integrity="sha384-ASY33tjd2c1ppv7fGIpYjDHaFgEptv2ITQFRGsx4B1hHYtTuXorXK01aAI2/GUhm" crossorigin="anonymous"></script>
+<script>
+var url_arr = [];
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+function cacheremove(){
+    var url_arr_input = document.getElementById('url_input').value.split("\n");
+    for(i=0;i<url_arr_input.length;i++){
+        var url_input = url_arr_input[i];
+        var url = false;
+        if(url_input.substr(0,25) == 'https://images.weserv.nl/'){
+            var url = url_input.substr(24);
+        }else if(url_input.substr(0,24) == 'http://images.weserv.nl/'){
+            var url = url_input.substr(23);
+        }else if (url_input.substr(0,19) == '//images.weserv.nl/'){
+            var url = url_input.substr(18);
+        }
+        if(url != false){
+            var url_md5 = md5('GET|images.weserv.nl|'+url);
+            var d = new Date();
+            if(!url_arr[url_md5]){
+                document.getElementById('url_progress').innerHTML += '<tr id="url_progress_'+url_md5+'"></tr>';
+            }
+            url_arr[url_md5] = [url, d, d, 'checking', 'checking']; //url, date local,date global, result local, result global
+            update_progress_url(url_md5);
+            clear_local_cache(url_md5);
+            clear_global_cache(url_md5);
+        }
+    }
+    console.log(url_arr);
+    return false;
+}
+function update_progress_url(url_md5){
+    var url = url_arr[url_md5];
+    document.getElementById('url_progress_'+url_md5).innerHTML = '<td class="md5"><samp>'+url_md5+'</samp></td><td><abbr title="'+url[1]+'">'+url[3]+'</abbr></td><td><abbr title="'+url[2]+'">'+url[4]+'</abbr></td><td class="url"><samp>'+url[0]+'</samp>';
+}
+async function clear_local_cache(url_md5){
+    var sleep_time_local = Math.floor(Math.random() * 1000); 
+    await sleep(sleep_time_local);
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                url_arr[url_md5][1] = new Date();
+                url_arr[url_md5][3] = this.responseText;
+                update_progress_url(url_md5);
+                update_remaining_limit();
+            }
+        };
+    xhttp.open("GET", "/crt/clear_local_cache.txt?md5="+url_md5, true);
+    xhttp.send();
+}
+async function clear_global_cache(url_md5){
+    var sleep_time_global = Math.floor(Math.random() * 1000); 
+    await sleep(sleep_time_global);
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                url_arr[url_md5][2] = new Date();
+                url_arr[url_md5][4] = this.responseText;
+                update_progress_url(url_md5);
+                update_remaining_limit();
+            }
+        };
+    xhttp.open("GET", "/crt/clear_global_cache.txt"+url_arr[url_md5][0].substr(1), true);
+    xhttp.send();
+}
+function update_remaining_limit(){
+    document.getElementById('remaining_limit').innerHTML = (document.getElementById('remaining_limit').innerText) - 0.5;
+}
+</script>
+</body>
+</html>
