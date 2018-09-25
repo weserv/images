@@ -79,7 +79,7 @@
         <p>It's posible to input multiple URL's, separated by a new-line:</p>
         <textarea id="url_input" rows="15" autofocus placeholder="https://{{url}}/?url=ory.weserv.nl/lichtenstein.jpg&amp;w=30
 https://{{url}}/?url=ory.weserv.nl/lichtenstein.jpg&amp;w=200"></textarea><br />
-        <input type="submit" style="height:20px; width:100px;" onclick="return cacheremove();" />
+        <input type="submit" style="height:20px; width:100px;" onclick="return cache_remove();" />
         
         <p>Progress:</p>
         <table id="url_progress">
@@ -95,28 +95,30 @@ https://{{url}}/?url=ory.weserv.nl/lichtenstein.jpg&amp;w=200"></textarea><br />
 <script src="//static.weserv.nl/md5.js" integrity="sha384-ASY33tjd2c1ppv7fGIpYjDHaFgEptv2ITQFRGsx4B1hHYtTuXorXK01aAI2/GUhm" crossorigin="anonymous"></script>
 <script>
 var url_arr = [];
+
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(resolve = > setTimeout(resolve, ms));
 }
-function cacheremove(){
+
+function cache_remove() {
     var url_arr_input = document.getElementById('url_input').value.split("\n");
-    for(i=0;i<url_arr_input.length;i++){
+    for (i = 0; i < url_arr_input.length; i++) {
         var url_input = url_arr_input[i];
         var url = false;
-        if(url_input.substr(0,25) == 'https://images.weserv.nl/'){
+        if (url_input.substr(0, 25) == 'https://images.weserv.nl/') {
             var url = url_input.substr(24);
-        }else if(url_input.substr(0,24) == 'http://images.weserv.nl/'){
+        } else if (url_input.substr(0, 24) == 'http://images.weserv.nl/') {
             var url = url_input.substr(23);
-        }else if (url_input.substr(0,19) == '//images.weserv.nl/'){
+        } else if (url_input.substr(0, 19) == '//images.weserv.nl/') {
             var url = url_input.substr(18);
         }
-        if(url != false){
-            var url_md5 = md5('GET|images.weserv.nl|'+url);
+        if (url != false) {
+            var url_md5 = md5('GET|images.weserv.nl|' + url);
             var d = new Date();
-            if(!url_arr[url_md5]){
-                document.getElementById('url_progress').innerHTML += '<tr id="url_progress_'+url_md5+'"></tr>';
+            if (!url_arr[url_md5]) {
+                document.getElementById('url_progress').innerHTML += '<tr id="url_progress_' + url_md5 + '"></tr>';
             }
-            url_arr[url_md5] = [url, d, d, 'checking', 'checking']; //url, date local,date global, result local, result global
+            url_arr[url_md5] = [url, d, d, 'checking', 'checking']; //url, date local, date global, result local, result global
             update_progress_url(url_md5);
             clear_local_cache(url_md5);
             clear_global_cache(url_md5);
@@ -125,41 +127,43 @@ function cacheremove(){
     console.log(url_arr);
     return false;
 }
-function update_progress_url(url_md5){
+
+function update_progress_url(url_md5) {
     var url = url_arr[url_md5];
-    document.getElementById('url_progress_'+url_md5).innerHTML = '<td class="md5"><samp>'+url_md5+'</samp></td><td><abbr title="'+url[1]+'">'+url[3]+'</abbr></td><td><abbr title="'+url[2]+'">'+url[4]+'</abbr></td><td class="url"><samp>'+url[0]+'</samp>';
+    document.getElementById('url_progress_' + url_md5).innerHTML = '<td class="md5"><samp>' + url_md5 + '</samp></td><td><abbr title="' + url[1] + '">' + url[3] + '</abbr></td><td><abbr title="' + url[2] + '">' + url[4] + '</abbr></td><td class="url"><samp>' + url[0] + '</samp></td>';
 }
-async function clear_local_cache(url_md5){
-    var sleep_time_local = Math.floor(Math.random() * 1000); 
+async function clear_local_cache(url_md5) {
+    var sleep_time_local = Math.floor(Math.random() * 1000);
     await sleep(sleep_time_local);
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                url_arr[url_md5][1] = new Date();
-                url_arr[url_md5][3] = this.responseText;
-                update_progress_url(url_md5);
-                update_remaining_limit();
-            }
-        };
-    xhttp.open("GET", "/crt/clear_local_cache.txt?md5="+url_md5, true);
+        if (this.readyState == 4 && this.status == 200) {
+            url_arr[url_md5][1] = new Date();
+            url_arr[url_md5][3] = this.responseText;
+            update_progress_url(url_md5);
+            update_remaining_limit();
+        }
+    };
+    xhttp.open("GET", "/crt/clear_local_cache.txt?md5=" + url_md5, true);
     xhttp.send();
 }
-async function clear_global_cache(url_md5){
-    var sleep_time_global = Math.floor(Math.random() * 1000); 
+async function clear_global_cache(url_md5) {
+    var sleep_time_global = Math.floor(Math.random() * 1000);
     await sleep(sleep_time_global);
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                url_arr[url_md5][2] = new Date();
-                url_arr[url_md5][4] = this.responseText;
-                update_progress_url(url_md5);
-                update_remaining_limit();
-            }
-        };
-    xhttp.open("GET", "/crt/clear_global_cache.txt"+url_arr[url_md5][0].substr(1), true);
+        if (this.readyState == 4 && this.status == 200) {
+            url_arr[url_md5][2] = new Date();
+            url_arr[url_md5][4] = this.responseText;
+            update_progress_url(url_md5);
+            update_remaining_limit();
+        }
+    };
+    xhttp.open("GET", "/crt/clear_global_cache.txt" + url_arr[url_md5][0].substr(1), true);
     xhttp.send();
 }
-function update_remaining_limit(){
+
+function update_remaining_limit() {
     document.getElementById('remaining_limit').innerHTML = (document.getElementById('remaining_limit').innerText) - 0.5;
 }
 </script>
