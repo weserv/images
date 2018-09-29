@@ -7,11 +7,11 @@
 [![Build Status](https://travis-ci.org/weserv/images.svg?branch=4.x)](https://travis-ci.org/weserv/images)
 [![Coverage Status](https://coveralls.io/repos/github/weserv/images/badge.svg?branch=4.x)](https://coveralls.io/github/weserv/images?branch=4.x)
 
-Source code of images.weserv.nl, to be used on your own server(s). Images.weserv.nl leverages powerful libraries like [lua-vips](https://github.com/jcupitt/lua-vips) (for image handling and manipulation) and [lua-resty-http](https://github.com/pintsized/lua-resty-http) (for sending HTTP requests).
+Source code of images.weserv.nl, to be used on your own server(s). Images.weserv.nl leverages powerful libraries like [lua-vips](https://github.com/libvips/lua-vips) (for image handling and manipulation) and [lua-resty-http](https://github.com/pintsized/lua-resty-http) (for sending HTTP requests).
 
 ## Technologies used
 
-- Linux, [nginx](https://github.com/nginx/nginx), [libvips](https://github.com/jcupitt/libvips) and [OpenResty](https://github.com/openresty/) (without these technologies, this project would never have been possible)
+- Linux, [nginx](https://github.com/nginx/nginx), [libvips](https://github.com/libvips/libvips) and [OpenResty](https://github.com/openresty/) (without these technologies, this project would never have been possible)
 - [Cloudflare](https://www.cloudflare.com/) (for caching and IP-blocking)
 - [Redis](https://github.com/antirez/redis) (for rate limiting)
 - [OpenDNS](https://www.opendns.com/) (for DNS-filtering)
