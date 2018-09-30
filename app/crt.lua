@@ -26,10 +26,11 @@ local function file_exists(name)
     end
 end
 
-if args.md5 ~= nil and type(args.md5) == "string" then
-    ngx.header["Access-Control-Allow-Origin"] = "*"
-    ngx.header["Content-Type"] = "text/plain"
+if ngx.var.request_method == 'POST' then
+  ngx.header["Access-Control-Allow-Origin"] = "*"
+  ngx.header["Content-Type"] = "text/plain"
 
+  if args.md5 ~= nil and type(args.md5) == "string" then
     if #args.md5 == 32 and args.md5 == args.md5:match("[a-f0-9]*") then
         local path = "/dev/shm/proxy_cache/" .. args.md5:sub(32, 32) .. "/" .. args.md5:sub(30, 31) .. "/" .. args.md5
         if file_exists(path) then
@@ -44,6 +45,9 @@ if args.md5 ~= nil and type(args.md5) == "string" then
     else
         ngx.print("invalid")
     end
+  else
+      ngx.print("invalid")
+  end
 else
     template.render("cache-removal.html", config.template)
 end
