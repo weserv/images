@@ -12,5 +12,8 @@
 
   a {
     color: darken($sidebar-link, 10%);
+    img {
+      max-width: 280px;
+    }
   }
 }

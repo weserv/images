@@ -75,3 +75,29 @@ a.trimedges img {
     width: 100%;
   }
 }
+
+table#url_progress {
+  tr {
+    td, th {
+      width: 120px;
+    }
+    td.md5, th.md5 {
+        width: 320px;
+    }
+    td.url, th.url {
+      max-width: 200px;
+      white-space: nowrap;
+      width: auto !important;
+    }
+    td.url {
+      overflow-x: auto;
+    }
+  }
+}
+
+textarea#url_input {
+  overflow-x: scroll;
+  padding: .5rem .5rem .2rem .5rem;
+  border: 1px solid #ccc;
+  width: 100%;
+}
