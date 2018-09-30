@@ -137,34 +137,50 @@ async function clear_local_cache(url_md5) {
     await sleep(sleep_time_local);
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            url_arr[url_md5][1] = new Date();
-            url_arr[url_md5][3] = this.responseText;
-            update_progress_url(url_md5);
-            update_remaining_limit();
+        if (this.readyState == 4) {
+            if (this.status == 200) {
+                url_arr[url_md5][1] = new Date();
+                url_arr[url_md5][3] = this.responseText;
+                update_progress_url(url_md5);
+            } else {
+                url_arr[url_md5][1] = new Date();
+                url_arr[url_md5][3] = "error " + this.status;
+                update_progress_url(url_md5);
+            }
         }
     };
-    xhttp.open("GET", "/crt/clear_local_cache.txt?md5=" + url_md5, true);
+    xhttp.open("POST", "/crt/?md5=" + url_md5, true);
     xhttp.send();
 }
 async function clear_global_cache(url_md5) {
-    var sleep_time_global = Math.floor(Math.random() * 1000);
-    await sleep(sleep_time_global);
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            url_arr[url_md5][2] = new Date();
-            url_arr[url_md5][4] = this.responseText;
-            update_progress_url(url_md5);
-            update_remaining_limit();
-        }
-    };
-    xhttp.open("GET", "/crt/clear_global_cache.txt" + url_arr[url_md5][0].substr(1), true);
-    xhttp.send();
+    if (url_arr[url_md5][0].substr(0, 2) == '/?') {
+        var sleep_time_global = Math.floor(Math.random() * 1000);
+        await sleep(sleep_time_global);
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4) {
+                if (this.status == 200) {
+                    url_arr[url_md5][2] = new Date();
+                    url_arr[url_md5][4] = this.responseText;
+                    update_progress_url(url_md5);
+                    update_remaining_limit();
+                } else {
+                    url_arr[url_md5][2] = new Date();
+                    url_arr[url_md5][4] = "error " + this.status;
+                    update_progress_url(url_md5);
+                }
+            }
+        };
+        xhttp.open("POST", "/crt/clear_global_cache.txt" + url_arr[url_md5][0].substr(1), true);
+        xhttp.send();
+    } else {
+        url_arr[url_md5][2] = new Date();
+        url_arr[url_md5][4] = "invalid";
+        update_progress_url(url_md5);
+    }
 }
-
 function update_remaining_limit() {
-    document.getElementById('remaining_limit').innerHTML = (document.getElementById('remaining_limit').innerText) - 0.5;
+    document.getElementById('remaining_limit').innerHTML = (document.getElementById('remaining_limit').innerText) - 1;
 }
 </script>
 </body>
