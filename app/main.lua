@@ -41,11 +41,6 @@ end
 
 -- Be careful: keys and values are unescaped according to URI escaping rules.
 local args, args_err = ngx.req.get_uri_args()
-if args.api == "3" then
-    -- Internal redirection to the old api, if requested
-    ngx.exec("/index.php", args)
-    return;
-end
 
 if is_exceeded then
     ngx.status = ngx.HTTP_TOO_MANY_REQUESTS
