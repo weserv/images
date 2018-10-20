@@ -4,6 +4,7 @@ local weserv_api = require "weserv.api"
 local weserv_server = require "weserv.server"
 local weserv_throttler = require "weserv.throttler"
 local weserv_policy = require "weserv.policy"
+local weserv_response = require "weserv.helpers.response"
 local config = require "config"
 local template = require "resty.template"
 local redis = require "resty.redis"
@@ -43,13 +44,10 @@ end
 local args, args_err = ngx.req.get_uri_args()
 
 if is_exceeded then
-    ngx.status = ngx.HTTP_TOO_MANY_REQUESTS
-    ngx.header["Content-Type"] = "text/plain"
-    ngx.say("429 Too Many Requests - There are an unusual number of requests coming from this IP address.")
+    return weserv_response.send_HTTP_TOO_MANY_REQUESTS()
 elseif args_err == "truncated" then
-    ngx.status = ngx.HTTP_BAD_REQUEST
-    ngx.header["Content-Type"] = "text/plain"
-    ngx.say("400 Bad Request - Request arguments limit is exceeded. A maximum of 100 request arguments are parsed.")
+    local error = "Request arguments limit is exceeded. A maximum of 100 request arguments are parsed."
+    return weserv_response.send_HTTP_BAD_REQUEST(error)
 elseif args.url ~= nil and args.url ~= "" then
     for key, val in pairs(args) do
         if type(val) == "table" then
@@ -81,10 +79,10 @@ elseif args.url ~= nil and args.url ~= "" then
 
     local client = weserv_client.new(config.client)
     local app = weserv.new(client, api, weserv_server)
-    app:run(args)
+    return app:run(args)
 else
     ngx.status = ngx.HTTP_OK
     ngx.header["Content-Type"] = "text/html"
 
-    template.render("index.html", config.template)
+    return template.render("index.html", config.template)
 end

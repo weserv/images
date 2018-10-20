@@ -1,10 +1,13 @@
+-- luacheck: globals ngx._logs
 describe("utils", function()
     local old_ngx = _G.ngx
+    local snapshot
+    local stubbed_ngx
     local utils
 
-    setup(function()
-        local stubbed_ngx = {
-            -- luacheck: globals ngx._logs
+    before_each(function()
+        snapshot = assert:snapshot()
+        stubbed_ngx = {
             _logs = {},
         }
         stubbed_ngx.log = function(...)
@@ -19,13 +22,9 @@ describe("utils", function()
         utils = require "weserv.helpers.utils"
     end)
 
-    teardown(function()
-        _G.ngx = old_ngx
-    end)
-
     after_each(function()
-        -- Clear logs after each test
-        _G.ngx._logs = {}
+        snapshot:revert()
+        _G.ngx = old_ngx
     end)
 
     it("test is 16 bit", function()

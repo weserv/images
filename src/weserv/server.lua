@@ -1,10 +1,8 @@
 local utils = require "weserv.helpers.utils"
+local response = require "weserv.helpers.response"
 local tonumber = tonumber
-local ngx_print = ngx.print
-local ngx_header = ngx.header
-local ngx_http_time = ngx.http_time
+local os_remove = os.remove
 local ngx_encode_base64 = ngx.encode_base64
-local ngx_time = ngx.time
 local math_floor = math.floor
 local str_format = string.format
 local str_len = string.len
@@ -145,22 +143,17 @@ function server.output(image, args)
 
     --  Write the image to a formatted string
     local buffer = image:write_to_buffer("." .. extension, server.get_buffer_options(args, extension))
+    os_remove(args.tmp_file_name)
 
     local mime_type = server.extension_to_mime_type(extension)
 
-    local max_age = 60 * 60 * 24 * 31 -- 31 days
-    ngx_header.expires = ngx_http_time(ngx_time() + max_age)
-    ngx_header.cache_control = "max-age=" .. max_age
-
-    ngx_header.x_images_api = "4"
-
     if args.encoding ~= nil and args.encoding == "base64" then
-        ngx_header.content_type = "text/plain"
-        ngx_print(str_format("data:%s;base64,%s", mime_type, ngx_encode_base64(buffer)))
-    else
-        ngx_header.content_length = #buffer
-        ngx_header.content_type = mime_type
+        local base64_str = str_format("data:%s;base64,%s", mime_type, ngx_encode_base64(buffer))
 
+        return response.send_HTTP_OK(base64_str, {
+            ["Content-Type"] = "text/plain",
+        })
+    else
         local file_name = "image." .. extension
 
         -- https://tools.ietf.org/html/rfc2183
@@ -171,13 +164,12 @@ function server.output(image, args)
             file_name = args.filename .. "." .. extension
         end
 
-        if args.download ~= nil then
-            ngx_header.content_disposition = "attachment; filename=" .. file_name
-        else
-            ngx_header.content_disposition = "inline; filename=" .. file_name
-        end
+        local content_disposition = (args.download ~= nil and "attachment; " or "inline; ") .. "filename=" .. file_name
 
-        ngx_print(buffer)
+        return response.send_HTTP_OK(buffer, {
+            ["Content-Type"] = mime_type,
+            ["Content-Disposition"] = content_disposition,
+        })
     end
 end
 
