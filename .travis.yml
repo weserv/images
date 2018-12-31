@@ -2,12 +2,12 @@ sudo: false
 
 language: generic
 
-dist: trusty
+dist: xenial
 
 env:
   global:
-    - LUAROCKS_VERSION=3.0.3
-    - VIPS_VERSION=8.7.0
+    - LUAROCKS_VERSION=3.0.4
+    - VIPS_VERSION=8.7.2
     - VIPS_TAR_VERSION=$VIPS_VERSION
     - VIPS_WARNING=0
     - TEST_COVERAGE=1
@@ -45,6 +45,7 @@ addons:
       - libpango1.0-dev
       - libpoppler-glib-dev
       - librsvg2-dev
+      - libtiff5-dev
       - libwebp-dev
 
 before_install:

@@ -146,8 +146,8 @@ function manipulator.process(image, args)
     end
 
     -- Scaling calculations
-    local target_resize_width = args.w
-    local target_resize_height = args.h
+    local thumbnail_width = args.w
+    local thumbnail_height = args.h
 
     local fit = manipulator.resolve_fit(args.t)
 
@@ -158,21 +158,24 @@ function manipulator.process(image, args)
         local y_factor = input_height / args.h
 
         if fit == "square" or fit == "squaredown" or fit == "crop" then
+            -- We aim to fill the bounding box, so we must use centre as crop mode
+            thumbnail_options.crop = "centre"
+
             if x_factor < y_factor then
-                target_resize_height = math_floor((input_height / x_factor) + 0.5)
+                thumbnail_height = math_floor((input_height / x_factor) + 0.5)
             else
-                target_resize_width = math_floor((input_width / y_factor) + 0.5)
+                thumbnail_width = math_floor((input_width / y_factor) + 0.5)
             end
         elseif fit == "letterbox" or fit == "fit" or fit == "fitup" then
             if x_factor > y_factor then
-                target_resize_height = math_floor((input_height / x_factor) + 0.5)
+                thumbnail_height = math_floor((input_height / x_factor) + 0.5)
             else
-                target_resize_width = math_floor((input_width / y_factor) + 0.5)
+                thumbnail_width = math_floor((input_width / y_factor) + 0.5)
             end
         end
     elseif args.w > 0 then -- Fixed width
         if fit == "absolute" then
-            target_resize_height = input_height
+            thumbnail_height = input_height
             args.h = input_height
         else
             -- Auto height
@@ -181,11 +184,11 @@ function manipulator.process(image, args)
 
             -- Height is missing, replace with a huuuge value to prevent
             -- reduction or enlargement in that axis
-            target_resize_height = VIPS_MAX_COORD
+            thumbnail_height = VIPS_MAX_COORD
         end
     elseif args.h > 0 then -- Fixed height
         if fit == "absolute" then
-            target_resize_width = input_width
+            thumbnail_width = input_width
             args.w = input_width
         else
             -- Auto width
@@ -194,14 +197,14 @@ function manipulator.process(image, args)
 
             -- Width is missing, replace with a huuuge value to prevent
             -- reduction or enlargement in that axis
-            target_resize_width = VIPS_MAX_COORD
+            thumbnail_width = VIPS_MAX_COORD
         end
     else
         -- Identity transform
-        target_resize_width = input_width
+        thumbnail_width = input_width
         args.w = input_width
 
-        target_resize_height = input_height
+        thumbnail_height = input_height
         args.h = input_height
 
         -- No need to check max image size because
@@ -211,11 +214,11 @@ function manipulator.process(image, args)
 
     if swap_needed then
         -- Swap target output width and height when rotating by 90 or 270 degrees
-        target_resize_width, target_resize_height = target_resize_height, target_resize_width
+        thumbnail_width, thumbnail_height = thumbnail_height, thumbnail_width
     end
 
     -- Assign settings
-    thumbnail_options.height = target_resize_height
+    thumbnail_options.height = thumbnail_height
 
     if fit == "absolute" then
         thumbnail_options.size = "force"
@@ -229,7 +232,7 @@ function manipulator.process(image, args)
         thumbnail_options.size = "both"
     end
 
-    -- targetResizeWidth and targetResizeWidth aren't reliable anymore.
+    -- thumbnail_width and thumbnail_height aren't reliable anymore.
     if check_max_image_size and args.w * args.h > MAX_IMAGE_SIZE then
         error({
             status = HTTP_NOT_FOUND,
@@ -242,10 +245,10 @@ function manipulator.process(image, args)
     --
     -- Note: After this operation the pixel interpretation is sRGB or RGB
     if args.trim ~= nil or args.gam ~= nil then
-        return image:thumbnail_image(target_resize_width, thumbnail_options)
+        return image:thumbnail_image(thumbnail_width, thumbnail_options)
     else
         return vips.Image.thumbnail(args.tmp_file_name .. args.string_options,
-            target_resize_width, thumbnail_options)
+            thumbnail_width, thumbnail_options)
     end
 end
 

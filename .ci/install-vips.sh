@@ -8,7 +8,7 @@ vips_tarball=https://github.com/libvips/libvips/releases/download/v${version}${p
 set -e
 
 # Do we already have the correct vips built?
-if [ -d "$HOME/vips/bin" ]; then
+if [[ -d "$HOME/vips/bin" ]]; then
     installed_version=$($HOME/vips/bin/vips --version | awk -F- '{print $2}')
     echo "Need vips $version"
     echo "Found vips $installed_version"

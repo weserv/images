@@ -266,18 +266,14 @@ describe("client", function()
         it("keepalive error", function()
             errors.keepalive = "timeout"
 
-            local res, err = client:request("https://ory.weserv.nl/lichtenstein.jpg?foo=bar")
-
-            assert.equal(404, err.status)
-            assert.equal("Failed to set keepalive.", err.message)
-            assert.falsy(res)
+            local _, _ = client:request("https://ory.weserv.nl/lichtenstein.jpg?foo=bar")
 
             assert.spy(stubbed_http.connect).was.called()
             assert.spy(stubbed_http.ssl_handshake).was.called()
             assert.spy(stubbed_http.request).was.called()
             assert.spy(stubbed_http.set_keepalive).was.called()
 
-            -- Log keepalive errors
+            -- Only log keepalive errors
             assert.equal(1, #ngx._logs)
         end)
 

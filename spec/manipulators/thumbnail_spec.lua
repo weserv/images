@@ -198,6 +198,21 @@ describe("thumbnail manipulator", function()
             assert.False(utils.has_alpha(image))
         end)
 
+        -- Use the smaller axis in crop mode, we aim to fill the bounding box
+        it("smaller axis", function()
+            local params = {
+                w = "123",
+                h = "100",
+                t = "square"
+            }
+
+            local image = api:process(test_image, params)
+
+            assert.equal(123, image:width())
+            assert.equal(100, image:height())
+            assert.False(utils.has_alpha(image))
+        end)
+
         it("upscale", function()
             local params = {
                 w = "3000",
