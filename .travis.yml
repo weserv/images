@@ -24,7 +24,7 @@ cache:
 addons:
   apt:
     sources:
-      - sourceline: 'deb http://openresty.org/package/ubuntu trusty main'
+      - sourceline: 'deb http://openresty.org/package/ubuntu $(lsb_release -cs) main'
         key_url: 'https://openresty.org/package/pubkey.gpg'
     packages:
       - openresty
