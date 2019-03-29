@@ -158,13 +158,16 @@ function manipulator.process(image, args)
         local y_factor = input_height / args.h
 
         if fit == "square" or fit == "squaredown" or fit == "crop" then
-            -- We aim to fill the bounding box, so we must use centre as crop mode
-            thumbnail_options.crop = "centre"
-
             if x_factor < y_factor then
                 thumbnail_height = math_floor((input_height / x_factor) + 0.5)
             else
                 thumbnail_width = math_floor((input_width / y_factor) + 0.5)
+            end
+
+            -- We aim to fill the bounding box, so we must use centre as crop mode.
+            -- Only if we're not oversampling the image with squaredown.
+            if fit ~= "squaredown" or (thumbnail_width <= input_width and thumbnail_height <= input_height) then
+                thumbnail_options.crop = "centre"
             end
         elseif fit == "letterbox" or fit == "fit" or fit == "fitup" then
             if x_factor > y_factor then

@@ -1,13 +1,12 @@
-sudo: false
-
 language: generic
 
+# Ubuntu 16.04
 dist: xenial
 
 env:
   global:
     - LUAROCKS_VERSION=3.0.4
-    - VIPS_VERSION=8.7.2
+    - VIPS_VERSION=8.7.4
     - VIPS_TAR_VERSION=$VIPS_VERSION
     - VIPS_WARNING=0
     - TEST_COVERAGE=1
@@ -31,22 +30,25 @@ addons:
       - openresty-resty
       - libexpat1-dev
       - gettext
-      - libglib2.0-dev
-      - liborc-0.4-dev
-      - libfftw3-dev
       - liblcms2-dev
       - libmagickwand-dev
       - libopenexr-dev
       - libcfitsio3-dev
+      - libfftw3-dev
       - libgif-dev
+      - libgs-dev
       - libgsf-1-dev
       - libmatio-dev
       - libopenslide-dev
+      - liborc-0.4-dev
       - libpango1.0-dev
       - libpoppler-glib-dev
       - librsvg2-dev
-      - libtiff5-dev
       - libwebp-dev
+      - libtiff5-dev
+      # missing on xenial, unfortunately
+      # - libwebpmux2
+      - libglib2.0-dev
 
 before_install:
   - bash .ci/install-vips.sh
