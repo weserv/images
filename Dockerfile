@@ -44,8 +44,8 @@ RUN echo "NETWORKING=yes" >> /etc/sysconfig/network
 
 # Forward nginx request and error logs to docker log collector
 RUN mkdir -p /var/log/nginx && \
-    ln -sf /dev/stdout /var/log/nginx/access.log && \
-	ln -sf /dev/stderr /var/log/nginx/error.log
+    ln -sf /dev/stdout /usr/local/openresty/nginx/logs/nginx-access.log && \
+    ln -sf /dev/stderr /usr/local/openresty/nginx/logs/nginx-error.log
 
 # Add additional binaries into PATH for convenience
 ENV PATH=/usr/local/openresty/luajit/bin:/usr/local/openresty/nginx/sbin:/usr/local/openresty/bin:$PATH
