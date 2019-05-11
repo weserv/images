@@ -7,24 +7,45 @@ MAINTAINER Kleis Auke Wolthuizen <info@kleisauke.nl>
 ENV TZ Europe/Amsterdam
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+# Import archive signing keys and update packages
+RUN rpm --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7 && \
+    rpm --import https://rpms.remirepo.net/RPM-GPG-KEY-remi && \
+    rpm --import https://sourceforge.net/projects/libjpeg-turbo/files/LJT-GPG-KEY && \
+    rpm --import https://openresty.org/package/pubkey.gpg && \
+    rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 && \
+    yum update -y
+
+# Install the latest version of libjpeg-turbo,
+# since the version on CentOS is too old (v1.2.90)
+RUN yum install -y yum-utils && \
+    yum-config-manager --add-repo https://libjpeg-turbo.org/pmwiki/uploads/Downloads/libjpeg-turbo.repo && \
+    yum install -y libjpeg-turbo-official && \
+    echo '/opt/libjpeg-turbo/lib64' >> /etc/ld.so.conf.d/libjpeg-turbo-official-x86_64.conf && \
+    ldconfig
+
+# Update the PKG_CONFIG_PATH environment variable,
+# since libjpeg-turbo is installed in a non-standard prefix
+ENV PKG_CONFIG_PATH=/opt/libjpeg-turbo/lib64/pkgconfig:$PKG_CONFIG_PATH
+
 # Install openresty (+ command-line utility), libvips, redis, and supervisor
-RUN yum update -y && \
-    yum install -y epel-release yum-utils && \
-    yum install -y https://rpms.remirepo.net/enterprise/remi-release-7.rpm && \
+RUN yum install -y epel-release && \
+    yum localinstall -y --nogpgcheck https://rpms.remirepo.net/enterprise/remi-release-7.rpm && \
     yum-config-manager --enable remi && \
+    yum localinstall -y --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm && \
+    rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-free-el-7 && \
     yum-config-manager --add-repo https://openresty.org/package/centos/openresty.repo && \
     yum groupinstall -y "Development Tools" && \
-    yum install -y \
+    yum install -y --enablerepo=remi-test --setopt=tsflags=nodocs \
         openresty \
         openresty-resty \
-        vips \
+        vips-full \
         redis \
         supervisor && \
     yum clean all
 
 # Install LuaRocks
-RUN curl -L https://luarocks.github.io/luarocks/releases/luarocks-2.4.4.tar.gz | tar xz && \
-    cd luarocks-2.4.4/ && \
+RUN curl -L https://luarocks.github.io/luarocks/releases/luarocks-3.1.2.tar.gz | tar xz && \
+    cd luarocks-3.1.2/ && \
     ./configure \
         --prefix=/usr/local/openresty/luajit \
         --with-lua=/usr/local/openresty/luajit/ \

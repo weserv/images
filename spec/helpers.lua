@@ -7,18 +7,6 @@ local table = table
 local string = string
 local tonumber = tonumber
 
--- Reset our weserv root location variable.
-local stubbed_ngx = {
-    var = {
-        weserv_root = nil
-    },
-}
-
-local old_ngx = ngx
-
--- Busted requires explicit _G to access the global environment
-_G.ngx = setmetatable(stubbed_ngx, { __index = old_ngx })
-
 --- Stretch luminance to cover full dynamic range.
 -- @param image The source image.
 -- @return The normalized image.

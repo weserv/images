@@ -3,20 +3,7 @@ local utils = require "weserv.helpers.utils"
 local error = error
 local tonumber = tonumber
 local math_floor = math.floor
-local ngx_var = ngx.var
 local HTTP_NOT_FOUND = ngx.HTTP_NOT_FOUND
-
--- Profile map to ensure that we use a device-
--- independent color space for the images we process.
-local root_dir = ngx_var.weserv_root ~= nil and ngx_var.weserv_root or "."
-local profile_map = {
-    -- Default sRGB ICC profile from:
-    -- https://packages.debian.org/sid/all/icc-profiles-free/filelist
-    srgb = root_dir .. "/src/weserv/ICC/sRGB.icm",
-    -- Convert to sRGB using default CMYK profile from:
-    -- https://www.argyllcms.com/cmyk.icm
-    cmyk = root_dir .. "/src/weserv/ICC/cmyk.icm",
-}
 
 local VIPS_MAX_COORD = 10000000
 local MAX_IMAGE_SIZE = 71000000
@@ -111,25 +98,26 @@ function manipulator.process(image, args)
     args.h = args.h * dpr
 
     local thumbnail_options = {
-        auto_rotate = false,
+        no_rotate = true,
         linear = false,
     }
 
     local is_cmyk = image:interpretation() == "cmyk"
+    local is_labs = image:interpretation() == "labs"
     local embedded_profile = utils.has_profile(image)
 
     -- Ensure we're using a device-independent color space
-    if embedded_profile or (not embedded_profile and is_cmyk) then
+    if (embedded_profile or is_cmyk) and not is_labs then
         -- Embedded profile; fallback in case the profile embedded in the image is broken.
         -- No embedded profile; import using default CMYK profile.
         if is_cmyk then
-            thumbnail_options.import_profile = profile_map.cmyk
+            thumbnail_options.import_profile = "cmyk"
         else
-            thumbnail_options.import_profile = profile_map.srgb
+            thumbnail_options.import_profile = "srgb"
         end
 
         -- Convert to sRGB using embedded or import profile.
-        thumbnail_options.export_profile = profile_map.srgb
+        thumbnail_options.export_profile = "srgb"
 
         -- Use "perceptual" intent to better match imagemagick.
         thumbnail_options.intent = "perceptual"
