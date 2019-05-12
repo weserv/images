@@ -3,20 +3,7 @@ local utils = require "weserv.helpers.utils"
 local error = error
 local tonumber = tonumber
 local math_floor = math.floor
-local ngx_var = ngx.var
 local HTTP_NOT_FOUND = ngx.HTTP_NOT_FOUND
-
--- Profile map to ensure that we use a device-
--- independent color space for the images we process.
-local root_dir = ngx_var.weserv_root ~= nil and ngx_var.weserv_root or "."
-local profile_map = {
-    -- Default sRGB ICC profile from:
-    -- https://packages.debian.org/sid/all/icc-profiles-free/filelist
-    srgb = root_dir .. "/src/weserv/ICC/sRGB.icm",
-    -- Convert to sRGB using default CMYK profile from:
-    -- https://www.argyllcms.com/cmyk.icm
-    cmyk = root_dir .. "/src/weserv/ICC/cmyk.icm",
-}
 
 local VIPS_MAX_COORD = 10000000
 local MAX_IMAGE_SIZE = 71000000
@@ -111,25 +98,26 @@ function manipulator.process(image, args)
     args.h = args.h * dpr
 
     local thumbnail_options = {
-        auto_rotate = false,
+        no_rotate = true,
         linear = false,
     }
 
     local is_cmyk = image:interpretation() == "cmyk"
+    local is_labs = image:interpretation() == "labs"
     local embedded_profile = utils.has_profile(image)
 
     -- Ensure we're using a device-independent color space
-    if embedded_profile or (not embedded_profile and is_cmyk) then
+    if (embedded_profile or is_cmyk) and not is_labs then
         -- Embedded profile; fallback in case the profile embedded in the image is broken.
         -- No embedded profile; import using default CMYK profile.
         if is_cmyk then
-            thumbnail_options.import_profile = profile_map.cmyk
+            thumbnail_options.import_profile = "cmyk"
         else
-            thumbnail_options.import_profile = profile_map.srgb
+            thumbnail_options.import_profile = "srgb"
         end
 
         -- Convert to sRGB using embedded or import profile.
-        thumbnail_options.export_profile = profile_map.srgb
+        thumbnail_options.export_profile = "srgb"
 
         -- Use "perceptual" intent to better match imagemagick.
         thumbnail_options.intent = "perceptual"
@@ -146,8 +134,8 @@ function manipulator.process(image, args)
     end
 
     -- Scaling calculations
-    local target_resize_width = args.w
-    local target_resize_height = args.h
+    local thumbnail_width = args.w
+    local thumbnail_height = args.h
 
     local fit = manipulator.resolve_fit(args.t)
 
@@ -159,20 +147,26 @@ function manipulator.process(image, args)
 
         if fit == "square" or fit == "squaredown" or fit == "crop" then
             if x_factor < y_factor then
-                target_resize_height = math_floor((input_height / x_factor) + 0.5)
+                thumbnail_height = math_floor((input_height / x_factor) + 0.5)
             else
-                target_resize_width = math_floor((input_width / y_factor) + 0.5)
+                thumbnail_width = math_floor((input_width / y_factor) + 0.5)
+            end
+
+            -- We aim to fill the bounding box, so we must use centre as crop mode.
+            -- Only if we're not oversampling the image with squaredown.
+            if fit ~= "squaredown" or (thumbnail_width <= input_width and thumbnail_height <= input_height) then
+                thumbnail_options.crop = "centre"
             end
         elseif fit == "letterbox" or fit == "fit" or fit == "fitup" then
             if x_factor > y_factor then
-                target_resize_height = math_floor((input_height / x_factor) + 0.5)
+                thumbnail_height = math_floor((input_height / x_factor) + 0.5)
             else
-                target_resize_width = math_floor((input_width / y_factor) + 0.5)
+                thumbnail_width = math_floor((input_width / y_factor) + 0.5)
             end
         end
     elseif args.w > 0 then -- Fixed width
         if fit == "absolute" then
-            target_resize_height = input_height
+            thumbnail_height = input_height
             args.h = input_height
         else
             -- Auto height
@@ -181,11 +175,11 @@ function manipulator.process(image, args)
 
             -- Height is missing, replace with a huuuge value to prevent
             -- reduction or enlargement in that axis
-            target_resize_height = VIPS_MAX_COORD
+            thumbnail_height = VIPS_MAX_COORD
         end
     elseif args.h > 0 then -- Fixed height
         if fit == "absolute" then
-            target_resize_width = input_width
+            thumbnail_width = input_width
             args.w = input_width
         else
             -- Auto width
@@ -194,14 +188,14 @@ function manipulator.process(image, args)
 
             -- Width is missing, replace with a huuuge value to prevent
             -- reduction or enlargement in that axis
-            target_resize_width = VIPS_MAX_COORD
+            thumbnail_width = VIPS_MAX_COORD
         end
     else
         -- Identity transform
-        target_resize_width = input_width
+        thumbnail_width = input_width
         args.w = input_width
 
-        target_resize_height = input_height
+        thumbnail_height = input_height
         args.h = input_height
 
         -- No need to check max image size because
@@ -211,11 +205,11 @@ function manipulator.process(image, args)
 
     if swap_needed then
         -- Swap target output width and height when rotating by 90 or 270 degrees
-        target_resize_width, target_resize_height = target_resize_height, target_resize_width
+        thumbnail_width, thumbnail_height = thumbnail_height, thumbnail_width
     end
 
     -- Assign settings
-    thumbnail_options.height = target_resize_height
+    thumbnail_options.height = thumbnail_height
 
     if fit == "absolute" then
         thumbnail_options.size = "force"
@@ -229,7 +223,7 @@ function manipulator.process(image, args)
         thumbnail_options.size = "both"
     end
 
-    -- targetResizeWidth and targetResizeWidth aren't reliable anymore.
+    -- thumbnail_width and thumbnail_height aren't reliable anymore.
     if check_max_image_size and args.w * args.h > MAX_IMAGE_SIZE then
         error({
             status = HTTP_NOT_FOUND,
@@ -242,10 +236,10 @@ function manipulator.process(image, args)
     --
     -- Note: After this operation the pixel interpretation is sRGB or RGB
     if args.trim ~= nil or args.gam ~= nil then
-        return image:thumbnail_image(target_resize_width, thumbnail_options)
+        return image:thumbnail_image(thumbnail_width, thumbnail_options)
     else
         return vips.Image.thumbnail(args.tmp_file_name .. args.string_options,
-            target_resize_width, thumbnail_options)
+            thumbnail_width, thumbnail_options)
     end
 end
 

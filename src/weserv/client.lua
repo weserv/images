@@ -255,13 +255,8 @@ function client:request(uri, addl_headers, redirect_nr)
 
     local ok, keepalive_err = httpc:set_keepalive()
     if not ok then
+        -- Only log keepalive errors, don't bother the user with internal errors.
         ngx_log(ngx_ERR, "Failed to set keepalive: ", keepalive_err)
-        os_remove(res.tmpfile)
-
-        return nil, {
-            status = HTTP_NOT_FOUND,
-            message = "Failed to set keepalive.",
-        }
     end
 
     return res, nil

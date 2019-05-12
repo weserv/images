@@ -198,6 +198,36 @@ describe("thumbnail manipulator", function()
             assert.False(utils.has_alpha(image))
         end)
 
+        -- Use the smaller axis in crop mode, we aim to fill the bounding box
+        it("smaller axis", function()
+            local params = {
+                w = "123",
+                h = "100",
+                t = "squaredown"
+            }
+
+            local image = api:process(test_image, params)
+
+            assert.equal(123, image:width())
+            assert.equal(100, image:height())
+            assert.False(utils.has_alpha(image))
+        end)
+
+        -- Don't use the crop mode when oversampling with squaredown
+        it("smaller axis down width", function()
+            local params = {
+                w = "3000",
+                h = "3000",
+                t = "squaredown"
+            }
+
+            local image = api:process(test_image, params)
+
+            assert.equal(2725, image:width())
+            assert.equal(2225, image:height())
+            assert.False(utils.has_alpha(image))
+        end)
+
         it("upscale", function()
             local params = {
                 w = "3000",

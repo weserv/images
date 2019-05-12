@@ -1,12 +1,15 @@
 local utils = require "weserv.helpers.utils"
 
+-- luacheck: globals ngx._logs
 describe("api", function()
     local old_ngx = _G.ngx
+    local snapshot
+    local stubbed_ngx
     local api
 
-    setup(function()
-        local stubbed_ngx = {
-            -- luacheck: globals ngx._logs
+    before_each(function()
+        snapshot = assert:snapshot()
+        stubbed_ngx = {
             _logs = {},
         }
         stubbed_ngx.log = function(...)
@@ -20,13 +23,9 @@ describe("api", function()
         api = weserv_api.new()
     end)
 
-    teardown(function()
-        _G.ngx = old_ngx
-    end)
-
     after_each(function()
-        -- Clear logs and manipulators after each test
-        _G.ngx._logs = {}
+        snapshot:revert()
+        _G.ngx = old_ngx
         api:clear_manipulators()
     end)
 

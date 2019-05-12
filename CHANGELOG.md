@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [4.0.0] - started 2018-07-17
 
-Requires libvips 8.7+ and OpenResty 1.13.6.2+.
+Requires libvips 8.8+ and OpenResty 1.13.6.2+.
 
 ### Note
 Rewrote the complete code base to Lua and switched to [OpenResty](https://openresty.org/en/), which turns [Nginx](http://nginx.org/) and [LuaJIT](http://luajit.org/luajit.html) into a full-fledged scriptable web platform.

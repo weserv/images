@@ -1,6 +1,7 @@
 local match = require "luassert.match"
 local cjson = require "cjson"
 
+-- luacheck: globals ngx._logs
 describe("throttling policy", function()
     local default_config = {
         ban_time = 60, -- If exceed, ban for 60 minutes
@@ -14,6 +15,8 @@ describe("throttling policy", function()
     }
 
     local old_ngx = _G.ngx
+    local snapshot
+    local stubbed_ngx
     local old_http = package.loaded["resty.http"]
     local stubbed_http
     local policy
@@ -25,17 +28,6 @@ describe("throttling policy", function()
     }
 
     setup(function()
-        local stubbed_ngx = {
-            -- luacheck: globals ngx._logs
-            _logs = {},
-        }
-        stubbed_ngx.log = function(...)
-            stubbed_ngx._logs[#stubbed_ngx._logs + 1] = table.concat({ ... }, " ")
-        end
-
-        -- Busted requires explicit _G to access the global environment
-        _G.ngx = setmetatable(stubbed_ngx, { __index = old_ngx })
-
         stubbed_http = {
             request_uri = function(_, _, _)
                 if request_error ~= nil then
@@ -52,13 +44,29 @@ describe("throttling policy", function()
                 return stubbed_http
             end
         }
+    end)
 
-        local weserv_policy = require "weserv.policy"
-        policy = weserv_policy.new(default_config)
+    before_each(function()
+        snapshot = assert:snapshot()
+        stubbed_ngx = {
+            _logs = {},
+        }
+        stubbed_ngx.log = function(...)
+            stubbed_ngx._logs[#stubbed_ngx._logs + 1] = table.concat({ ... }, " ")
+        end
+
+        -- Busted requires explicit _G to access the global environment
+        _G.ngx = setmetatable(stubbed_ngx, { __index = old_ngx })
+
+        policy = require("weserv.policy").new(default_config)
+    end)
+
+    after_each(function()
+        snapshot:revert()
+        _G.ngx = old_ngx
     end)
 
     teardown(function()
-        _G.ngx = old_ngx
         package.loaded["resty.http"] = old_http
     end)
 

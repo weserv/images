@@ -6,12 +6,12 @@ luarocks_tarball=https://luarocks.github.io/luarocks/releases/luarocks-${version
 set -e
 
 # Do we already have the correct LuaRocks built?
-if [ -d "$HOME/luarocks/bin" ]; then
+if [[ -d "$HOME/luarocks/bin" ]]; then
     installed_version=$($HOME/luarocks/bin/luarocks --version | head -1 | awk '{print $2}')
     echo "Need LuaRocks $version"
     echo "Found LuaRocks $installed_version"
 
-    if [ "$installed_version" == "$version" ]; then
+    if [[ "$installed_version" == "$version" ]]; then
         echo "Using cached LuaRocks directory"
         exit 0
     fi

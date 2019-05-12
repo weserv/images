@@ -2,13 +2,13 @@ local weserv_api = require "weserv.api"
 local fixtures = require "spec.fixtures"
 local utils = require "weserv.helpers.utils"
 
+-- luacheck: globals ngx._logs
 describe("trim manipulator", function()
     local old_ngx = _G.ngx
     local api, manipulator
 
     setup(function()
         local stubbed_ngx = {
-            -- luacheck: globals ngx._logs
             _logs = {},
         }
         stubbed_ngx.log = function(...)

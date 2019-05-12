@@ -1,7 +1,10 @@
 local match = require "luassert.match"
 
+-- luacheck: globals ngx._logs
 describe("client", function()
     local old_ngx = _G.ngx
+    local snapshot
+    local stubbed_ngx
     local old_http = package.loaded["resty.http"]
     local old_utils = package.loaded["weserv.helpers.utils"]
     local stubbed_http
@@ -40,17 +43,6 @@ describe("client", function()
     local tempname = true
 
     setup(function()
-        local stubbed_ngx = {
-            -- luacheck: globals ngx._logs
-            _logs = {},
-        }
-        stubbed_ngx.log = function(...)
-            stubbed_ngx._logs[#stubbed_ngx._logs + 1] = table.concat({ ... }, " ")
-        end
-
-        -- Busted requires explicit _G to access the global environment
-        _G.ngx = setmetatable(stubbed_ngx, { __index = old_ngx })
-
         stubbed_http = {
             set_timeouts = function(_, _, _, _) end,
             connect = function(_, _, _)
@@ -83,6 +75,7 @@ describe("client", function()
             end,
             close = function(_) end
         }
+
         spy.on(stubbed_http, "set_timeouts")
         spy.on(stubbed_http, "connect")
         spy.on(stubbed_http, "ssl_handshake")
@@ -105,12 +98,29 @@ describe("client", function()
                 return old_utils.tempname(dir, prefix)
             end
         }, { __index = old_utils })
+    end)
+
+    before_each(function()
+        snapshot = assert:snapshot()
+        stubbed_ngx = {
+            _logs = {},
+        }
+        stubbed_ngx.log = function(...)
+            stubbed_ngx._logs[#stubbed_ngx._logs + 1] = table.concat({ ... }, " ")
+        end
+
+        -- Busted requires explicit _G to access the global environment
+        _G.ngx = setmetatable(stubbed_ngx, { __index = old_ngx })
 
         client = require("weserv.client").new(default_config)
     end)
 
-    teardown(function()
+    after_each(function()
+        snapshot:revert()
         _G.ngx = old_ngx
+    end)
+
+    teardown(function()
         package.loaded["resty.http"] = old_http
         package.loaded["weserv.helpers.utils"] = old_utils
     end)
@@ -256,18 +266,14 @@ describe("client", function()
         it("keepalive error", function()
             errors.keepalive = "timeout"
 
-            local res, err = client:request("https://ory.weserv.nl/lichtenstein.jpg?foo=bar")
-
-            assert.equal(404, err.status)
-            assert.equal("Failed to set keepalive.", err.message)
-            assert.falsy(res)
+            local _, _ = client:request("https://ory.weserv.nl/lichtenstein.jpg?foo=bar")
 
             assert.spy(stubbed_http.connect).was.called()
             assert.spy(stubbed_http.ssl_handshake).was.called()
             assert.spy(stubbed_http.request).was.called()
             assert.spy(stubbed_http.set_keepalive).was.called()
 
-            -- Log keepalive errors
+            -- Only log keepalive errors
             assert.equal(1, #ngx._logs)
         end)
 

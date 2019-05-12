@@ -92,6 +92,14 @@ $ docker exec imagesweserv supervisorctl update
 # Access to logs
 $ docker logs imagesweserv
 
+# View the access logs
+$ docker exec imagesweserv tail /usr/local/openresty/nginx/logs/nginx-access.log
+
+# View the error logs
+$ docker exec imagesweserv tail /usr/local/openresty/nginx/logs/error.log
+$ docker exec imagesweserv tail /usr/local/openresty/nginx/logs/lua-error.log
+$ docker exec imagesweserv tail /usr/local/openresty/nginx/logs/nginx-error.log
+
 # Check CPU consumption
 $ docker stats
 

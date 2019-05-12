@@ -1,5 +1,6 @@
 local match = require "luassert.match"
 
+-- luacheck: globals ngx._body ngx._logs
 describe("throttler", function()
     local default_config = {
         allowed_requests = 700, -- 700 allowed requests
@@ -14,6 +15,8 @@ describe("throttler", function()
     }
 
     local old_ngx = _G.ngx
+    local snapshot
+    local stubbed_ngx
     local stubbed_redis, stubbed_policy
     local throttler
 
@@ -22,24 +25,9 @@ describe("throttler", function()
     local database = {}
 
     setup(function()
-        local stubbed_ngx = {
-            -- luacheck: globals ngx._logs
-            _logs = {},
-        }
-        stubbed_ngx.log = function(...)
-            stubbed_ngx._logs[#stubbed_ngx._logs + 1] = table.concat({ ... }, " ")
-        end
-
-        -- Busted requires explicit _G to access the global environment
-        _G.ngx = setmetatable(stubbed_ngx, { __index = old_ngx })
-
         stubbed_redis = {
             exists = function(_, key)
-                if database[key] ~= nil then
-                    return 1
-                else
-                    return 0
-                end
+                return database[key] ~= nil and 1 or 0
             end,
             incr = function(_, key)
                 if errors.incr ~= nil then
@@ -121,12 +109,25 @@ describe("throttler", function()
         spy.on(stubbed_policy, "get_ban_time")
         spy.on(stubbed_policy, "is_cloudflare_enabled")
         spy.on(stubbed_policy, "ban_at_cloudflare")
-
-        local weserv_throttler = require "weserv.throttler"
-        throttler = weserv_throttler.new(stubbed_redis, stubbed_policy, default_config)
     end)
 
-    teardown(function()
+    before_each(function()
+        snapshot = assert:snapshot()
+        stubbed_ngx = {
+            _logs = {},
+        }
+        stubbed_ngx.log = function(...)
+            stubbed_ngx._logs[#stubbed_ngx._logs + 1] = table.concat({ ... }, " ")
+        end
+
+        -- Busted requires explicit _G to access the global environment
+        _G.ngx = setmetatable(stubbed_ngx, { __index = old_ngx })
+
+        throttler = require("weserv.throttler").new(stubbed_redis, stubbed_policy, default_config)
+    end)
+
+    after_each(function()
+        snapshot:revert()
         _G.ngx = old_ngx
     end)
 
