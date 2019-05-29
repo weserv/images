@@ -13,50 +13,39 @@ This document describes how to use images.weserv.nl with Docker.
 2. Build/run containers with (with and without detached mode)
 
     ```bash
-    $ docker build . -t imagesweserv
+    $ docker build . \
+        -t imagesweserv
     $ docker run \
-        -v $(pwd):/var/www/imagesweserv \
-        -v $(pwd)/config/nginx/conf.d:/usr/local/openresty/nginx/conf/conf.d/ \
-        -v $(pwd)/logs/supervisor:/var/log/supervisor \
-        -v /dev/shm:/dev/shm \
+        --shm-size=1gb \
         -p 80:80 \
         -d \
         --name=imagesweserv \
         imagesweserv
     ```
 
-3. Update your system host file (add images.weserv.local)
+3. Update your system host file (add images.weserv.test)
 
     ```bash
     # UNIX only: get containers IP address and update host (replace IP according to your configuration) (on Windows, edit C:\Windows\System32\drivers\etc\hosts)
-    $ sudo echo $(docker network inspect bridge | grep Gateway | grep -o -E '[0-9\.]+') "images.weserv.local" >> /etc/hosts
+    $ sudo echo $(docker network inspect bridge | grep Gateway | grep -o -E '[0-9\.]+') "images.weserv.test" >> /etc/hosts
     ```
 
-    **Note:** For **OS X**, please take a look [here](https://docs.docker.com/docker-for-mac/networking/) and for **Windows** read [this](https://docs.docker.com/docker-for-windows/#/step-4-explore-the-application-and-run-examples) (4th step).
+    **Note:** For **OS X**, please take a look [here](https://docs.docker.com/docker-for-mac/networking/) and for **Windows** read [this](https://docs.docker.com/docker-for-windows/networking/).
 
-4. Install images.weserv.nl
-
-    ```bash
-    $ docker exec imagesweserv make dev
-    ```
-
-5. Enjoy :-)
+4. Enjoy :-)
 
 ## Usage
 
 Just run:
 ```bash
 $ docker run \
-    -v $(pwd):/var/www/imagesweserv \
-    -v $(pwd)/config/nginx/conf.d:/usr/local/openresty/nginx/conf/conf.d/ \
-    -v $(pwd)/logs/supervisor:/var/log/supervisor \
-    -v /dev/shm:/dev/shm \
+    --shm-size=1gb \
     -p 80:80 \
     -d \
     --name=imagesweserv \
     imagesweserv
 ```
-then visit [images.weserv.local](http://images.weserv.local)  
+then visit [images.weserv.test](http://images.weserv.test)
 
 ## Useful commands
 
@@ -92,13 +81,9 @@ $ docker exec imagesweserv supervisorctl update
 # Access to logs
 $ docker logs imagesweserv
 
-# View the access logs
-$ docker exec imagesweserv tail /usr/local/openresty/nginx/logs/nginx-access.log
-
 # View the error logs
 $ docker exec imagesweserv tail /usr/local/openresty/nginx/logs/error.log
 $ docker exec imagesweserv tail /usr/local/openresty/nginx/logs/lua-error.log
-$ docker exec imagesweserv tail /usr/local/openresty/nginx/logs/nginx-error.log
 
 # Check CPU consumption
 $ docker stats

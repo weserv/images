@@ -35,7 +35,7 @@ RUN yum install -y epel-release && \
     rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-free-el-7 && \
     yum-config-manager --add-repo https://openresty.org/package/centos/openresty.repo && \
     yum groupinstall -y "Development Tools" && \
-    yum install -y --enablerepo=remi-test --setopt=tsflags=nodocs \
+    yum install -y --setopt=tsflags=nodocs \
         openresty \
         openresty-resty \
         vips-full \
@@ -54,13 +54,7 @@ RUN curl -L https://luarocks.github.io/luarocks/releases/luarocks-3.1.2.tar.gz |
     make build -j$(nproc) && \
     make install
 
-# Add nginx configuration
-ADD config/nginx/nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
-
-# Add Supervisor configuration
-ADD config/supervisord.conf /etc/supervisord.conf
-
-# Enable networking
+# Enable networking, see: https://github.com/openresty/openresty-packaging/issues/28
 RUN echo "NETWORKING=yes" >> /etc/sysconfig/network
 
 # Forward nginx request and error logs to docker log collector
@@ -74,10 +68,23 @@ ENV PATH=/usr/local/openresty/luajit/bin:/usr/local/openresty/nginx/sbin:/usr/lo
 # lua-vips is searching for libvips.so instead of libvips.so.42
 RUN ln -sf /usr/lib64/libvips.so.42 /usr/lib64/libvips.so
 
+# Copy the contents of this repository to the container
+COPY . /var/www/imagesweserv
+
+# Alternatively, clone the repository
+# RUN git clone https://github.com/weserv/images.git /var/www/imagesweserv
+
 WORKDIR /var/www/imagesweserv
 
-# Define mountable directories
-VOLUME ["/var/www/imagesweserv", "/etc/nginx/conf.d", "/dev/shm"]
+# Copy nginx configuration
+COPY config/nginx/nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
+COPY config/nginx/conf.d /usr/local/openresty/nginx/conf/conf.d/
+
+# Copy Supervisor configuration
+COPY config/supervisord.conf /etc/supervisord.conf
+
+# Install LuaRocks dependencies
+RUN make dev
 
 EXPOSE 80
 
