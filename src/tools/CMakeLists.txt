@@ -1,0 +1,5 @@
+add_executable(${PROJECT_NAME}-cli cli.cpp cli_environment.h)
+target_link_libraries(${PROJECT_NAME}-cli
+        PRIVATE
+            ${PROJECT_NAME}
+        )

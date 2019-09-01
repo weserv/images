@@ -6,7 +6,7 @@ use_cache=true
 configure_args=()
 
 # Parse arguments
-for i in "$@"; do
+while [ $# -gt 0 ]; do
     case $1 in
         --from-source) from_source=true ;;
         --skip-cache) use_cache=false ;;

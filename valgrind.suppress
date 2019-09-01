@@ -1,0 +1,34 @@
+## nginx suppressions
+{
+   nginx-core-process-init
+   Memcheck:Leak
+   fun:malloc
+   fun:ngx_alloc
+   fun:ngx_event_process_init
+   fun:ngx_single_process_cycle
+   fun:main
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:ngx_alloc
+   fun:ngx_set_environment
+   fun:ngx_single_process_cycle
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:ngx_alloc
+   fun:ngx_set_environment
+   fun:ngx_worker_process_init
+   fun:ngx_worker_process_cycle
+}
+
+## For the valgrind suppressions of libvips, see:
+## https://github.com/libvips/libvips/blob/master/suppressions/valgrind.supp

@@ -1,0 +1,19 @@
+---
+# We'll use defaults from the LLVM style, but with 4 columns indentation
+BasedOnStyle: LLVM
+IndentWidth: 4
+---
+Language: Cpp
+# At least two spaces is best between code and comments (cpplint)
+SpacesBeforeTrailingComments: 2
+# Indent case labels
+IndentCaseLabels: true
+# Always break after template declaration
+AlwaysBreakTemplateDeclarations: Yes
+# Only merge empty functions
+AllowShortFunctionsOnASingleLine: Empty
+# Override the access modifier offset (cpplint)
+AccessModifierOffset: -3
+# https://reviews.llvm.org/D57687
+# AllowShortLambdasOnASingleLine: None
+...

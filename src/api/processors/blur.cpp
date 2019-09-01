@@ -1,0 +1,42 @@
+#include "processors/blur.h"
+
+namespace weserv {
+namespace api {
+namespace processors {
+
+VImage Blur::process(const VImage &image) const {
+    auto sigma = query_->get<float>("blur", 0.0F);
+
+    // Should we process the image?
+    if (sigma == 0.0F) {
+        return image;
+    }
+
+    // Sigma needs to be in the range of 0.3 - 1000
+    if (sigma < 0.3 || sigma > 1000) {
+        // Defaulting to fast, mild blur
+        sigma = -1.0F;
+    }
+
+    if (sigma == -1.0F) {
+        // Fast, mild blur - averages neighbouring pixels
+        // clang-format off
+        VImage blur = VImage::new_matrixv(3, 3,
+                                          1.0, 1.0, 1.0,
+                                          1.0, 1.0, 1.0,
+                                          1.0, 1.0, 1.0);
+        // clang-format on
+        blur.set("scale", 9.0);
+        return image.conv(blur);
+    } else {
+        // Slower, accurate Gaussian blur
+        return (image.get_typeof(VIPS_META_SEQUENTIAL) != 0
+                    ? utils::line_cache(image, 10)
+                    : image)
+            .gaussblur(sigma);
+    }
+}
+
+}  // namespace processors
+}  // namespace api
+}  // namespace weserv

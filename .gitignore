@@ -1,16 +1,61 @@
-# Compiled Lua sources
-luac.out
+### C++ ###
+# Prerequisites
+*.d
 
-# LuaCov
-luacov.stats.out
-luacov.report.out
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
 
-# IntelliJ
-.idea
+# Precompiled Headers
+*.gch
+*.pch
 
-# SASS cache files
-.sass-cache
+# GCC coverage testing tool files
+*.gcno
+*.gcda
+*.gcov
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+### IntelliJ ###
+.idea/
+
+### CMake ###
+*.cbp
+bin/*
+lib/
+build/
+cmake-build-debug/
+cmake-build-release/
+CMakeFiles/
+CMakeCache.txt
+Makefile
+cmake_install.cmake
+CTestTestfile.cmake
+
+# Test::Nginx
+t/servroot/
+test/t/servroot/
 
 # User-specific stuff
-/app/config.lua
-generate-expected-fixtures.lua
+test/api/generate_expected_fixtures.cpp

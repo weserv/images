@@ -1,38 +1,41 @@
-language: generic
-
-# Ubuntu 16.04
+language: cpp
 dist: xenial
 
 env:
   global:
-    - LUAROCKS_VERSION=3.1.2
-    - VIPS_VERSION=8.8.0
+    # TODO(kleisauke):
+    # https://github.com/libvips/libvips/commit/46212e92b1f943e6852e807db1ee6e5ca66b6ccf#r34904985
+    # - VIPS_VERSION=8.8.3
+    - VIPS_VERSION=8.8.1
     - VIPS_WARNING=0
-    - TEST_COVERAGE=1
     - JOBS=`nproc`
     - LD_LIBRARY_PATH=$HOME/vips/lib:$LD_LIBRARY_PATH
     - PKG_CONFIG_PATH=$HOME/vips/lib/pkgconfig:$PKG_CONFIG_PATH
-    - PATH=$HOME/vips/bin:$HOME/luarocks/bin:/usr/local/openresty/luajit/bin:/usr/local/openresty/nginx/sbin:/usr/local/openresty/bin:$PATH
+    - PATH=$HOME/vips/bin:$HOME/nginx/sbin:$PATH
+    - CTEST_OUTPUT_ON_FAILURE=1
+    - CTEST_PARALLEL_LEVEL=$JOBS
+    - CODECOV_TOKEN=a795bded-831b-4799-a7c4-f86096834d1b
 
 cache:
   directories:
     - $HOME/vips
-    - $HOME/luarocks
 
 addons:
   apt:
     update: true
     sources:
+      # for Test::Nginx
       - sourceline: 'deb http://openresty.org/package/ubuntu $(lsb_release -cs) main'
         key_url: 'https://openresty.org/package/pubkey.gpg'
-      # use imagemagick 6.9.7-4 instead than 6.8.9-9
-      - sourceline: 'ppa:opencpu/imagemagick'
+      # use a more recent imagemagick instead of 6.8.9-9
+      - sourceline: 'ppa:cran/imagemagick'
       # add support for HEIF files
       - sourceline: 'ppa:strukturag/libheif'
       - sourceline: 'ppa:strukturag/libde265'
     packages:
-      - openresty
-      - openresty-resty
+      - lcov
+      - clang-tidy
+      - libtest-nginx-perl
       - libexpat1-dev
       - gettext
       - liblcms2-dev
@@ -55,6 +58,9 @@ addons:
       # missing on xenial, unfortunately
       # - libwebpmux2
       - libglib2.0-dev
+      # needed for building libvips from source
+      - gtk-doc-tools
+      - gobject-introspection
 
 before_install:
   # add support for WebP
@@ -63,23 +69,26 @@ before_install:
   - wget http://archive.ubuntu.com/ubuntu/pool/main/libw/libwebp/libwebpmux3_0.6.1-2_amd64.deb
   - wget http://archive.ubuntu.com/ubuntu/pool/main/libw/libwebp/libwebp6_0.6.1-2_amd64.deb
   - sudo dpkg -i *.deb
-  - |
-    bash .ci/install-vips.sh \
-      --skip-cache \
-      --disable-dependency-tracking
-  - |
-    bash .ci/install-luarocks.sh \
-      --with-lua=/usr/local/openresty/luajit/ \
-      --lua-suffix=jit-2.1.0-beta3 \
-      --with-lua-include=/usr/local/openresty/luajit/include/luajit-2.1
-  - eval `luarocks path`
 
 install:
-  - cp app/config.example.lua app/config.lua
-  - make dev
+  - |
+    bash .ci/install-vips.sh \
+      --disable-dependency-tracking
 
 script:
-  - .ci/run_tests.sh
+  - mkdir -p build && cd build
+  - |
+    cmake .. \
+      -DCMAKE_BUILD_TYPE=Debug \
+      -DCUSTOM_NGX_FLAGS="--prefix=$HOME/nginx" \
+      -DENABLE_COVERAGE=ON \
+      -DBUILD_TESTS=ON
+  - make -j$JOBS
+  - make test
+  - TEST_NGINX_SERVROOT=$PWD/servroot prove -r ../test/nginx
 
 after_success:
-  - luacov-coveralls
+  # collect coverage information
+  - make coverage
+  # upload coverage report to Codecov
+  - bash <(curl -s https://codecov.io/bash) -f coverage.info || echo "Codecov did not collect coverage reports"

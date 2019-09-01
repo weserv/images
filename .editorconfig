@@ -13,14 +13,6 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
-# Web files
-[*.{htm,html,js,css,scss}]
-indent_size = 2
-
-# Remove final newline
-[*.{txt,htm,html,xml}]
-insert_final_newline = false
-
 # Markdown files
 [*.md]
 max_line_length = off
@@ -29,11 +21,6 @@ trim_trailing_whitespace = false
 # Bash files
 [*.sh]
 indent_size = 2
-
-# Minified JavaScript files shouldn't be changed
-[**.min.js]
-indent_style = ignore
-insert_final_newline = ignore
 
 # JSON/YAML files
 [*.{json,yml}]

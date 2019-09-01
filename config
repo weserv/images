@@ -1,0 +1,42 @@
+if [ -z "$ngx_module_link" ]; then
+cat << END
+
+$0: error: Weserv module requires recent version of NGINX (1.9.11+).
+
+END
+    exit 1
+fi
+
+ngx_addon_name=ngx_weserv_module
+ngx_module_type=HTTP_AUX_FILTER
+ngx_module_name=$ngx_addon_name
+ngx_module_deps=" \
+  $ngx_addon_dir/src/nginx/alloc.h \
+  $ngx_addon_dir/src/nginx/api.h \
+  $ngx_addon_dir/src/nginx/environment.h \
+  $ngx_addon_dir/src/nginx/handler.h \
+  $ngx_addon_dir/src/nginx/header.h \
+  $ngx_addon_dir/src/nginx/http.h \
+  $ngx_addon_dir/src/nginx/http_filter.h \
+  $ngx_addon_dir/src/nginx/http_request.h \
+  $ngx_addon_dir/src/nginx/module.h \
+  $ngx_addon_dir/src/nginx/uri_parser.h \
+  $ngx_addon_dir/src/nginx/util.h \
+"
+ngx_module_srcs=" \
+  $ngx_addon_dir/src/nginx/api.cpp \
+  $ngx_addon_dir/src/nginx/environment.cpp \
+  $ngx_addon_dir/src/nginx/handler.cpp \
+  $ngx_addon_dir/src/nginx/header.cpp \
+  $ngx_addon_dir/src/nginx/http.cpp \
+  $ngx_addon_dir/src/nginx/http_filter.cpp \
+  $ngx_addon_dir/src/nginx/module.cpp \
+  $ngx_addon_dir/src/nginx/uri_parser.cpp \
+  $ngx_addon_dir/src/nginx/util.cpp \
+"
+ngx_module_libs="-lstdc++ -limagesweserv"
+
+. auto/module
+
+# Save our sources in a separate var since we may need it in config.make
+WESERV_NGX_SRCS="$ngx_module_srcs"

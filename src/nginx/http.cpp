@@ -1,0 +1,700 @@
+#include "http.h"
+
+#include "alloc.h"
+#include "http_filter.h"
+#include "http_request.h"
+#include "module.h"
+#include "uri_parser.h"
+#include "util.h"
+
+using ::weserv::api::utils::Status;
+
+namespace weserv {
+namespace nginx {
+
+namespace {
+
+/**
+ * http:// and https:// prefixes used to parse target URL of the HTTP
+ * request and identify the protocol.
+ */
+ngx_str_t http = ngx_string("http://");
+#if NGX_HTTP_SSL
+ngx_str_t https = ngx_string("https://");
+#endif
+
+/**
+ * Declarations of response handlers.
+ */
+ngx_int_t ngx_weserv_upstream_process_status_line(ngx_http_request_t *r);
+
+ngx_int_t ngx_weserv_upstream_process_header(ngx_http_request_t *r);
+
+/**
+ * Parses the request URL, identifies the URL scheme and default port,
+ */
+Status ngx_weserv_upstream_set_url(ngx_pool_t *pool,
+                                   ngx_http_upstream_t *upstream, ngx_str_t url,
+                                   ngx_str_t *host_header,
+                                   ngx_str_t *url_path) {
+    ngx_url_t parsed_url;
+    ngx_memzero(&parsed_url, sizeof(parsed_url));
+
+    // Recognize the URL scheme.
+    // only if NGINX has been compiled with NGX_HTTP_SSL support, try to
+    // recognize a https:// scheme because the ssl related fields are not
+    // defined otherwise.
+    if (url.len > http.len &&
+        ngx_strncasecmp(url.data, http.data, http.len) == 0) {
+        upstream->schema = http;
+
+        parsed_url.url.data = url.data + http.len;
+        parsed_url.url.len = url.len - http.len;
+        parsed_url.default_port = 80;
+
+#if NGX_HTTP_SSL
+    } else if (url.len > https.len &&
+               ngx_strncasecmp(url.data, https.data, https.len) == 0) {
+        upstream->schema = https;
+        upstream->ssl = 1;
+
+        parsed_url.url.data = url.data + https.len;
+        parsed_url.url.len = url.len - https.len;
+        parsed_url.default_port = 443;
+#endif
+    } else {
+        return Status(Status::Code::InvalidUri, "Unable to parse URI",
+                      Status::ErrorCause::Application);
+    }
+
+    // Parse out the URI part of the URL
+    parsed_url.uri_part = 1;
+    // Do not try to resolve the host name as part of URL parsing
+    parsed_url.no_resolve = 1;
+
+    if (ngx_parse_url(pool, &parsed_url) != NGX_OK) {
+        return Status(Status::Code::InvalidUri, "Unable to parse URI",
+                      Status::ErrorCause::Application);
+    }
+
+    // Detect situation where input URL was of the form:
+    //     https://domain.com?query_parameters
+    // (without a forward slash preceding a question mark), and insert
+    // a leading slash to form a valid path: /?query_parameters.
+    if (parsed_url.uri.len > 0 && parsed_url.uri.data[0] == '?') {
+        auto *p = reinterpret_cast<u_char *>(
+            ngx_pnalloc(pool, parsed_url.uri.len + 1));
+        if (p == nullptr) {
+            return Status(NGX_ERROR, "Out of memory");
+        }
+
+        *p = '/';
+        ngx_memcpy(p + 1, parsed_url.uri.data, parsed_url.uri.len);
+        parsed_url.uri.len++;
+        parsed_url.uri.data = p;
+    }
+
+    // Populate the upstream config structure with the parsed URL
+
+    upstream->resolved = reinterpret_cast<ngx_http_upstream_resolved_t *>(
+        ngx_pcalloc(pool, sizeof(ngx_http_upstream_resolved_t)));
+    if (upstream->resolved == nullptr) {
+        return Status(NGX_ERROR, "Out of memory");
+    }
+
+    // This condition is true if the URL did not use domain name, but rather
+    // an IP address directly: http://74.125.25.239/...
+    // NGINX, in this case, only returns the parsed IP address so there is
+    // only one address to return. See ngx_parse_url and ngx_inet_addr for
+    // details.
+    if (parsed_url.addrs != nullptr && parsed_url.addrs[0].sockaddr) {
+        upstream->resolved->sockaddr = parsed_url.addrs[0].sockaddr;
+        upstream->resolved->socklen = parsed_url.addrs[0].socklen;
+        upstream->resolved->naddrs = 1;
+        upstream->resolved->host = parsed_url.addrs[0].name;
+    } else {
+        upstream->resolved->host = parsed_url.host;
+    }
+
+    upstream->resolved->no_port = parsed_url.no_port;
+    upstream->resolved->port =
+        parsed_url.no_port ? parsed_url.default_port : parsed_url.port;
+
+    // Return Host header and a URL path
+    if (parsed_url.family != AF_UNIX) {
+        *host_header = parsed_url.host;
+        // If the URL contains a port, include it in the host header
+        if (!(parsed_url.no_port ||
+              parsed_url.port == parsed_url.default_port)) {
+            // Extend the Host header to include ':<port>'
+            host_header->len += 1 + parsed_url.port_text.len;
+        }
+    } else {
+        ngx_str_set(host_header, "localhost");
+    }
+    *url_path = parsed_url.uri;
+
+    return Status::OK;
+}
+
+/**
+ * Utilities to render HTTP request inside an NGINX buffer.
+ * Overloads accepting const std::string&, ngx_str_t and a string literal
+ * are available.
+ */
+
+inline void append(ngx_buf_t *buf, const std::string &value) {
+    buf->last = ngx_cpymem(buf->last, value.c_str(), value.size());
+}
+
+inline void append(ngx_buf_t *buf, ngx_str_t value) {
+    buf->last = ngx_cpymem(buf->last, value.data, value.len);
+}
+
+/**
+ * The overload which accepts a string literal.
+ * It is templatized on the char array size and returns size of the array - 1
+ * (for trailing \0).
+ */
+template <size_t N>
+inline void append(ngx_buf_t *buf, const char (&value)[N]) {
+    buf->last = ngx_cpymem(buf->last, value, sizeof(value) - 1);
+}
+
+/**
+ * HTTP Request upstream handlers.
+ *
+ * NGINX upstream module is responsible for establishing and maintaining the
+ * peer connection, SSH, reading response data. It does not actually construct
+ * the request being sent to the upstream, or parse the response.
+ *
+ * The caller provides the upstream module with several callbacks which create
+ * the request buffers, reinitialize state for retries, and parse the response.
+ * These callbacks are implemented below.
+ */
+
+/**
+ * Create request.
+ * When NGINX is ready to send the data to the upstream, it calls this handler
+ * to create the request buffer.
+ * It will compute needed buffer size, allocate the buffer, and create an HTTP
+ * request within it, passing it back to NGINX for network communication.
+ */
+ngx_int_t ngx_weserv_upstream_create_request(ngx_http_request_t *r) {
+    ngx_weserv_http_connection *http_connection = get_weserv_connection(r);
+    ngx_log_debug2(
+        NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+        "weserv: ngx_weserv_upstream_create_request (r=%p, http_connection=%p)",
+        r, http_connection);
+
+    if (http_connection == nullptr) {
+        return NGX_ERROR;
+    }
+
+    // Accumulate buffer size
+    size_t buffer_size = 0;
+
+    HTTPRequest *http_request = http_connection->request.get();
+
+    ngx_log_debug3(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                   "weserv: creating request (r=%p), %V%V", r,
+                   &http_connection->host_header, &http_connection->url_path);
+
+    // 'GET' followed by a space
+    buffer_size += sizeof("GET ") - 1;
+    // <URL path> followed by 'HTTP/1.1' and a newline
+    buffer_size += http_connection->url_path.len + sizeof(" HTTP/1.1\r\n") - 1;
+    // 'Host:' header, followed by a newline
+    buffer_size += sizeof("Host: ") - 1;
+    buffer_size += http_connection->host_header.len;
+    buffer_size += sizeof("\r\n") - 1;
+    buffer_size += sizeof("Connection: Keep-Alive\r\n") - 1;
+
+    // Add sizes of all headers and their values
+    for (const auto &header : http_request->request_headers()) {
+        const std::string &name = header.first;
+        const ngx_str_t &value = header.second;
+
+        buffer_size += name.size();
+        buffer_size += sizeof(": ") - 1;
+        buffer_size += value.len;
+        buffer_size += sizeof("\r\n") - 1;
+    }
+
+    buffer_size += sizeof("\r\n") - 1;  // Newline following the HTTP headers
+
+    // Create a temporary buffer to render the request
+    ngx_buf_t *buf = ngx_create_temp_buf(r->pool, buffer_size);
+    if (buf == nullptr) {
+        return NGX_ERROR;
+    }
+
+    // Append an HTTP request line
+    append(buf, "GET ");
+    append(buf, http_connection->url_path);
+    append(buf, " HTTP/1.1\r\n");
+
+    // Append the Host and Connection headers
+    append(buf, "Host: ");
+    append(buf, http_connection->host_header);
+    append(buf, "\r\n");
+    append(buf, "Connection: Keep-Alive\r\n");
+
+    // Append the headers provided by the caller
+    for (const auto &header : http_request->request_headers()) {
+        const std::string &name = header.first;
+        const ngx_str_t &value = header.second;
+
+        append(buf, name);
+        append(buf, ": ");
+        append(buf, value);
+        append(buf, "\r\n");
+    }
+
+    // End request headers, insert newline before the body
+    append(buf, "\r\n");
+
+    // Allocate a buffer chain for NGINX
+    ngx_chain_t *chain = ngx_alloc_chain_link(r->pool);
+    if (chain == nullptr) {
+        return NGX_ERROR;
+    }
+
+    chain->next = nullptr;
+    chain->buf = buf;
+
+    // We are only sending one buffer
+    buf->last_buf = 1;
+
+    // Attach the buffer to the request
+    r->upstream->request_bufs = chain;
+    // r->subrequest_in_memory = 1;
+
+    return NGX_OK;
+}
+
+/**
+ * A handler NGINX calls when it needs to reinitialize response processing
+ * state machine.
+ */
+ngx_int_t ngx_weserv_upstream_reinit_request(ngx_http_request_t *r) {
+    ngx_weserv_http_connection *http_connection = get_weserv_connection(r);
+
+    ngx_log_debug2(
+        NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+        "weserv: ngx_weserv_upstream_reinit_request (r=%p, http_connection=%p)",
+        r, http_connection);
+
+    if (http_connection == nullptr) {
+        return NGX_ERROR;
+    }
+
+    http_connection->chunked.state = 0;
+
+    // We only reset state to start parsing status line again
+    r->upstream->process_header = ngx_weserv_upstream_process_status_line;
+    r->upstream->pipe->input_filter = ngx_weserv_copy_filter;
+    r->state = 0;
+
+    return NGX_OK;
+}
+
+/**
+ * A handler called to parse response status line.
+ *
+ * NGINX only has one callback for parsing 'header' in general so once we have
+ * successfully parsed the HTTP status line, we update the handler to point
+ * at the header parsing function. This is a technique used in other
+ * implementations of upstream modules.
+ */
+ngx_int_t ngx_weserv_upstream_process_status_line(ngx_http_request_t *r) {
+    ngx_weserv_http_connection *http_connection = get_weserv_connection(r);
+
+    ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                   "weserv: ngx_weserv_upstream_process_status_line (r=%p, "
+                   "http_connection=%p)",
+                   r, http_connection);
+
+    if (http_connection == nullptr) {
+        return NGX_ERROR;
+    }
+
+#if NGX_DEBUG
+    // Get the buffer with the response arriving from the upstream server
+    ngx_buf_t *buf = &r->upstream->buffer;
+
+    // str is only used in debug mode
+    ngx_str_t str = {(size_t)(buf->last - buf->pos), buf->pos};
+    ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                   "Received (partial) http response:\n%V\n\n", &str);
+#endif
+
+    // Parse the status line by calling NGINX helper
+    ngx_http_status_t status;
+    ngx_memzero(&status, sizeof(status));
+
+    ngx_int_t rc = ngx_http_parse_status_line(r, &r->upstream->buffer, &status);
+    if (rc == NGX_AGAIN) {
+        return rc;  // We don't have the whole status line yet
+    } else if (rc == NGX_ERROR) {
+        r->upstream->headers_in.connection_close = 1;
+        return NGX_OK;
+    }
+
+    // We assume that status codes between 300-308 are redirects
+    http_connection->redirecting = status.code >= 300 && status.code <= 308;
+
+    // Don't parse further if a non 200 status code is returned
+    // and we're not redirecting.
+    if (status.code != 200 && !http_connection->redirecting) {
+        std::string message = "Response status code: ";
+        if (status.start) {
+            message += std::string(reinterpret_cast<const char *>(status.start),
+                                   status.count);
+        }
+
+        // Store the parsed error code
+        http_connection->response_status =
+            Status(status.code, message, Status::ErrorCause::Upstream);
+
+        return NGX_HTTP_UPSTREAM_INVALID_HEADER;
+    }
+
+    // Store the parsed response status for later
+    http_connection->response_status =
+        Status(status.code, "", Status::ErrorCause::Upstream);
+
+    if (status.http_version < NGX_HTTP_VERSION_11) {
+        r->upstream->headers_in.connection_close = 1;
+    }
+
+    // Advance the state machine to parse individual headers next
+    r->upstream->process_header = ngx_weserv_upstream_process_header;
+    return ngx_weserv_upstream_process_header(r);
+}
+
+/**
+ * A handler called by NGINX to parse response headers.
+ */
+ngx_int_t ngx_weserv_upstream_process_header(ngx_http_request_t *r) {
+    ngx_weserv_http_connection *http_connection = get_weserv_connection(r);
+
+    ngx_log_debug2(
+        NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+        "weserv: ngx_weserv_upstream_process_header (r=%p, http_connection=%p)",
+        r, http_connection);
+
+    if (http_connection == nullptr) {
+        return NGX_ERROR;
+    }
+
+    ngx_http_upstream_t *u = r->upstream;
+
+    for (;;) {
+        // Parse an individual header line by calling an NGINX helper
+        ngx_int_t rc = ngx_http_parse_header_line(r, &u->buffer, 1);
+
+        if (rc == NGX_OK) {
+            // a header line has been parsed successfully
+
+            ngx_str_t name = {
+                (size_t)(r->header_name_end - r->header_name_start),
+                r->header_name_start};
+            ngx_strlow(name.data, name.data, name.len);
+            ngx_str_t value = {(size_t)(r->header_end - r->header_start),
+                               r->header_start};
+
+            ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                           "weserv header: \"%V: %V\"", &name, &value);
+
+            // Check if the header was "Content-Length"
+            static ngx_str_t content_length = ngx_string("Content-Length");
+            if (name.len == content_length.len &&
+                ngx_strncasecmp(name.data, content_length.data,
+                                content_length.len) == 0) {
+                // Store the content length on the incoming headers object
+                u->headers_in.content_length_n =
+                    ngx_atoof(value.data, value.len);
+            }
+
+            // Check if the header was "Transfer-Encoding: chunked"
+            static ngx_str_t transfer_encoding =
+                ngx_string("Transfer-Encoding");
+            static ngx_str_t chunked = ngx_string("chunked");
+            if (name.len == transfer_encoding.len &&
+                ngx_strncasecmp(name.data, transfer_encoding.data,
+                                transfer_encoding.len) == 0 &&
+                value.len == chunked.len &&
+                ngx_strncasecmp(value.data, chunked.data, chunked.len) == 0) {
+                // Store chunked flag
+                u->headers_in.chunked = 1;
+            }
+
+            // Check if there was a redirection URI
+            static ngx_str_t location = ngx_string("Location");
+            if (http_connection->redirecting && name.len == location.len &&
+                ngx_strncasecmp(name.data, location.data, location.len) == 0) {
+                ngx_str_t absolute_url = value;
+
+                if (!has_valid_scheme(value)) {
+                    // Relative URIs are allowed in the Location header, see:
+                    // https://tools.ietf.org/html/rfc7231#section-7.1.2
+                    (void)concat_url(r->pool, http_connection->request->url(),
+                                     value, &absolute_url);
+                }
+
+                // Parse the absolute redirection URI.
+                (void)parse_url(r->pool, absolute_url,
+                                &http_connection->location);
+            }
+        } else if (rc == NGX_HTTP_PARSE_HEADER_DONE) {
+            // A whole header has been parsed successfully
+            ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                           "weserv header done");
+
+            // Clear content length if response is chunked
+            if (u->headers_in.chunked) {
+                u->headers_in.content_length_n = -1;
+            }
+
+            auto *lc = reinterpret_cast<ngx_weserv_loc_conf_t *>(
+                ngx_http_get_module_loc_conf(r, ngx_weserv_module));
+
+            if (u->headers_in.content_length_n >
+                static_cast<off_t>(lc->max_size)) {
+                ngx_log_error(
+                    NGX_LOG_ERR, r->connection->log, 0,
+                    "upstream intended to send too large body: %O bytes",
+                    u->headers_in.content_length_n);
+
+                http_connection->response_status =
+                    Status(413,
+                           "The image is too large to be downloaded. "
+                           "Max image size: " +
+                               std::to_string(lc->max_size) + " bytes",
+                           Status::ErrorCause::Upstream);
+
+                return NGX_HTTP_UPSTREAM_INVALID_HEADER;
+            }
+
+            if (http_connection->redirecting) {
+                return NGX_HTTP_MOVED_PERMANENTLY;
+            }
+
+            return NGX_OK;
+        } else if (rc == NGX_AGAIN) {
+            return NGX_AGAIN;
+        } else {
+            // There was error while a header line parsing
+            ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
+                          "upstream sent invalid header");
+
+            return NGX_HTTP_UPSTREAM_INVALID_HEADER;
+        }
+    }
+}
+
+/**
+ * An abort handler -- apparently this is never called by NGINX so we only log.
+ */
+void ngx_weserv_upstream_abort_request(ngx_http_request_t *r) {
+    ngx_log_error(NGX_LOG_DEBUG, r->connection->log, 0,
+                  "weserv: request aborted");
+}
+
+/**
+ * A finalize handler. Called by NGINX when request is complete (success)
+ * or on error, for example connection error, timeout, etc.
+ */
+void ngx_weserv_upstream_finalize_request(ngx_http_request_t *r, ngx_int_t rc) {
+    ngx_weserv_http_connection *http_connection = get_weserv_connection(r);
+
+    ngx_log_debug3(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                   "weserv: finalizing request r=%p, rc=%d, http_connection=%p",
+                   r, rc, http_connection);
+
+    if (http_connection == nullptr) {
+        return;
+    }
+
+    ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                   "ngx_weserv_upstream_finalize_request called: %V%V",
+                   &http_connection->host_header, &http_connection->url_path);
+
+    if (rc != NGX_OK) {
+        if (http_connection->response_status.ok()) {
+            http_connection->response_status =
+                Status(rc, "Failed to connect to server",
+                       Status::ErrorCause::Upstream);
+        }
+
+        // Reset redirect flag
+        http_connection->redirecting = 0;
+    } else if (http_connection->redirecting) {
+        // Swap the initial HTTP request out
+        std::unique_ptr<HTTPRequest> request;
+        request.swap(http_connection->request);
+
+        ngx_str_t referer = request->url();
+
+        // Increase redirect counter
+        ++(*request);
+
+        // Check redirection loop
+        if (http_connection->location.len == referer.len &&
+            ngx_strncasecmp(http_connection->location.data, referer.data,
+                            referer.len) == 0) {
+            http_connection->response_status =
+                Status(310, "Will not follow a redirection to itself",
+                       Status::ErrorCause::Upstream);
+
+            // Reset redirect flag
+            http_connection->redirecting = 0;
+        } else if (request->redirect_count() >= request->max_redirects()) {
+            http_connection->response_status = Status(
+                310,
+                "Will not follow more than " +
+                    std::to_string(request->max_redirects()) + " redirects",
+                Status::ErrorCause::Upstream);
+
+            // Reset redirect flag
+            http_connection->redirecting = 0;
+        } else {  // Redirect if there are redirects left
+            // Set new redirection URI and referer
+            request->set_url(http_connection->location);
+            request->set_header("Referer", referer);
+
+            ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                           "Redirect request, %d redirects left",
+                           request->max_redirects() -
+                               request->redirect_count());
+
+            // Swap the initial HTTP request out to the next iteration
+            http_connection->request = std::move(request);
+
+            ngx_int_t rc = ngx_weserv_send_http_request(r, http_connection);
+
+            if (rc == NGX_ERROR) {
+                // Reset redirect flag
+                http_connection->redirecting = 0;
+            }
+        }
+    }
+}
+
+/**
+ * Initializes the upstream data structures which NGINX upstream module uses to
+ * call the server.
+ */
+Status
+initialize_upstream_request(ngx_http_request_t *r,
+                            ngx_weserv_http_connection *http_connection) {
+    // Create the NGINX upstream structures
+    if (ngx_http_upstream_create(r) != NGX_OK) {
+        return Status(NGX_ERROR, "Out of memory");
+    }
+
+    ngx_http_upstream_t *u = r->upstream;
+
+    // Parse the URL provided by the caller
+    Status status = ngx_weserv_upstream_set_url(
+        r->pool, u, http_connection->request->url(),
+        &http_connection->host_header, &http_connection->url_path);
+    if (!status.ok()) {
+        return status;
+    }
+
+    u->output.tag = reinterpret_cast<ngx_buf_tag_t>(&ngx_weserv_module);
+
+    auto *lc = reinterpret_cast<ngx_weserv_loc_conf_t *>(
+        ngx_http_get_module_loc_conf(r, ngx_weserv_module));
+
+    u->conf = &lc->upstream_conf;
+    u->buffering = 1;
+
+    // Set up the upstream handlers which create the request HTTP buffers, and
+    // process the response data as the upstream module reads it from the wire.
+    u->pipe = reinterpret_cast<ngx_event_pipe_t *>(
+        ngx_pcalloc(r->pool, sizeof(ngx_event_pipe_t)));
+    if (u->pipe == nullptr) {
+        return Status(NGX_ERROR, "Out of memory");
+    }
+
+    u->pipe->input_filter = ngx_weserv_copy_filter;
+
+    // The request filter context is the request object (ngx_request_t)
+    u->pipe->input_ctx = r;
+
+    u->input_filter_init = ngx_weserv_input_filter_init;
+
+    // No need to set non buffered copy filters; we are always buffering
+    // responses
+    // u->input_filter = ngx_weserv_non_buffered_copy_filter;
+    // u->input_filter_ctx = r;
+
+    u->create_request = ngx_weserv_upstream_create_request;
+    u->reinit_request = ngx_weserv_upstream_reinit_request;
+    u->process_header = ngx_weserv_upstream_process_status_line;
+    u->abort_request = ngx_weserv_upstream_abort_request;
+    u->finalize_request = ngx_weserv_upstream_finalize_request;
+
+    u->accel = 1;
+
+    return Status::OK;
+}
+
+}  // namespace
+
+ngx_weserv_http_connection::ngx_weserv_http_connection()
+    : response_status(NGX_OK, "") {}
+
+ngx_weserv_http_connection *get_weserv_connection(ngx_http_request_t *r) {
+    if (r != nullptr) {
+        auto *ctx = reinterpret_cast<ngx_weserv_upstream_ctx_t *>(
+            ngx_http_get_module_ctx(r, ngx_weserv_module));
+        ngx_weserv_http_connection *whc = ctx->http_subrequest;
+
+        ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                       "get_weserv_connection(%p) -> %p", r, whc);
+
+        return whc;
+    }
+
+    return nullptr;
+}
+
+ngx_int_t
+ngx_weserv_send_http_request(ngx_http_request_t *r,
+                             ngx_weserv_http_connection *http_connection) {
+    ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                   "weserv: sending http request: %V",
+                   &http_connection->request->url());
+
+    Status status = initialize_upstream_request(r, http_connection);
+
+    if (status.ok()) {
+        ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                       "weserv: calling ngx_http_upstream_init(%p)", r);
+
+        r->main->count++;
+
+        // Initiate the upstream connection by calling NGINX upstream
+        ngx_http_upstream_init(r);
+
+        /*ngx_int_t rc =
+            ngx_http_read_client_request_body(r, ngx_http_upstream_init);
+
+        if (rc >= NGX_HTTP_SPECIAL_RESPONSE) {
+            return rc;
+        }*/
+
+        return NGX_DONE;
+    } else {
+        http_connection->response_status = status;
+
+        return NGX_ERROR;
+    }
+}
+
+}  // namespace nginx
+}  // namespace weserv

@@ -4,18 +4,12 @@ This document describes how to use images.weserv.nl with Docker.
 
 ## Installation
 
-1. Create a `app/config.lua` from the `app/config.example.lua` file. Adapt it according to your needs.
+1. Build/run containers with (with and without detached mode)
 
     ```bash
-    cp app/config.example.lua app/config.lua
-    ```
-
-2. Build/run containers with (with and without detached mode)
-
-    ```bash
-    $ docker build . \
+    docker build . \
         -t imagesweserv
-    $ docker run \
+    docker run \
         --shm-size=1gb \
         -p 80:80 \
         -d \
@@ -23,22 +17,22 @@ This document describes how to use images.weserv.nl with Docker.
         imagesweserv
     ```
 
-3. Update your system host file (add images.weserv.test)
+2. Update your system host file (add images.weserv.test)
 
     ```bash
     # UNIX only: get containers IP address and update host (replace IP according to your configuration) (on Windows, edit C:\Windows\System32\drivers\etc\hosts)
-    $ sudo echo $(docker network inspect bridge | grep Gateway | grep -o -E '[0-9\.]+') "images.weserv.test" >> /etc/hosts
+    sudo echo $(docker network inspect bridge | grep Gateway | grep -o -E '[0-9\.]+') "images.weserv.test" >> /etc/hosts
     ```
 
     **Note:** For **OS X**, please take a look [here](https://docs.docker.com/docker-for-mac/networking/) and for **Windows** read [this](https://docs.docker.com/docker-for-windows/networking/).
 
-4. Enjoy :-)
+3. Enjoy :-)
 
 ## Usage
 
 Just run:
 ```bash
-$ docker run \
+docker run \
     --shm-size=1gb \
     -p 80:80 \
     -d \
@@ -51,49 +45,30 @@ then visit [images.weserv.test](http://images.weserv.test)
 
 ```bash
 # bash commands
-$ docker exec -it imagesweserv bash
-
-# Fancy command-line utilities for OpenResty.
-$ docker exec -it imagesweserv resty
+docker exec -it imagesweserv bash
 
 # Check nginx configuration for correct syntax
-$ docker exec imagesweserv nginx -t
+docker exec imagesweserv nginx -t
 
 # Reload the nginx configuration file
-$ docker exec imagesweserv nginx -s reload
+docker exec imagesweserv nginx -s reload
 
 # Retrieve an IP Address
-$ docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -f name=imagesweserv -q)
-$ docker inspect $(docker ps -f name=imagesweserv -q) | grep IPAddress
-
-# Access to redis-cli
-$ docker exec -it imagesweserv redis-cli
-
-# When you have reached the rate-limit (where 127.0.0.1 is your IP address)
-$ docker exec imagesweserv redis-cli DEL c_127.0.0.1:lockout
-
-# Make configuration changes available
-$ docker exec imagesweserv supervisorctl reread
-
-# Restarts the applications whose configuration has changed
-$ docker exec imagesweserv supervisorctl update
+docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -f name=imagesweserv -q)
+docker inspect $(docker ps -f name=imagesweserv -q) | grep IPAddress
 
 # Access to logs
-$ docker logs imagesweserv
-
-# View the error logs
-$ docker exec imagesweserv tail /usr/local/openresty/nginx/logs/error.log
-$ docker exec imagesweserv tail /usr/local/openresty/nginx/logs/lua-error.log
+docker logs imagesweserv
 
 # Check CPU consumption
-$ docker stats
+docker stats
 
 # Stop all containers
-$ docker stop $(docker ps -aq)
+docker stop $(docker ps -aq)
 
 # Delete all containers
-$ docker rm $(docker ps -aq)
+docker rm $(docker ps -aq)
 
 # Delete all images
-$ docker rmi $(docker images -q)
+docker rmi $(docker images -q)
 ```
