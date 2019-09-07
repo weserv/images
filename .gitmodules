@@ -1,0 +1,4 @@
+[submodule "docs"]
+	path = public
+	url = https://github.com/weserv/docs.git
+	branch = deploy

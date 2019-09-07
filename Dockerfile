@@ -51,11 +51,8 @@ RUN groupadd nginx \
 
 RUN mkdir -p /var/www/imagesweserv
 
-# Copy the contents of this repository to the container
-COPY . /var/www/imagesweserv
-
-# Alternatively, clone the repository
-# RUN git clone https://github.com/weserv/images.git /var/www/imagesweserv
+# Clone the repository
+RUN git clone --recursive https://github.com/weserv/images.git /var/www/imagesweserv
 
 WORKDIR /var/www/imagesweserv
 
