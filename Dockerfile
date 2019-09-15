@@ -1,5 +1,7 @@
 FROM centos:7
 
+ARG NGINX_VERSION=1.17.3
+
 LABEL maintainer "Kleis Auke Wolthuizen <info@kleisauke.nl>"
 
 # Set default timezone
@@ -49,16 +51,10 @@ RUN yum install -y epel-release centos-release-scl \
 RUN groupadd nginx \
     && useradd -r -g nginx -s /sbin/nologin -c "Nginx web server" nginx
 
-RUN mkdir -p /var/www/imagesweserv
-
 # Clone the repository
 RUN git clone --recursive https://github.com/weserv/images.git /var/www/imagesweserv
 
 WORKDIR /var/www/imagesweserv
-
-# Ensure clean build directory
-RUN rm -rf build \
-    && mkdir build
 
 # Use the C and C++ compiler from devtoolset-8
 ENV CC=/opt/rh/devtoolset-8/root/usr/bin/gcc \
@@ -66,9 +62,11 @@ ENV CC=/opt/rh/devtoolset-8/root/usr/bin/gcc \
     PATH=/opt/rh/devtoolset-8/root/usr/bin${PATH:+:${PATH}}
 
 # Build CMake-based project
-RUN cd build \
+RUN mkdir build \
+    && cd build \
     && cmake3 .. \
        -DCMAKE_BUILD_TYPE=Release \
+       -DNGX_VERSION=$NGINX_VERSION \
        -DCUSTOM_NGX_FLAGS="--prefix=/usr/share/nginx;\
 --sbin-path=/usr/sbin/nginx;\
 --modules-path=/usr/lib64/nginx/modules;\
