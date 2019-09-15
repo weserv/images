@@ -1,6 +1,6 @@
 # Images.weserv.nl
 
-<img src="https://raw.githubusercontent.com/weserv/docs/master/.vuepress/public/logo.svg?sanitize=true" width="160" height="160" alt="Images.weserv.nl logo" align="right">
+<img src="https://raw.githubusercontent.com/weserv/docs/deploy/logo.svg?sanitize=true" width="160" height="160" alt="Images.weserv.nl logo" align="right">
 
 [![Author](https://img.shields.io/badge/author-andrieslouw-blue.svg)](https://github.com/andrieslouw)
 [![Author](https://img.shields.io/badge/author-kleisauke-blue.svg)](https://github.com/kleisauke)
@@ -54,7 +54,7 @@ Please see [Privacy-Policy.md](Privacy-Policy.md) for more information.
 
 This is made in Sneek with love and passion.
 
-<a href="https://en.wikipedia.org/wiki/Sneek"><img src="https://raw.githubusercontent.com/weserv/docs/master/.vuepress/public/made-in-sneek.svg?sanitize=true" height="200" alt="Made in Sneek logo"></a>
+<a href="https://en.wikipedia.org/wiki/Sneek"><img src="https://raw.githubusercontent.com/weserv/docs/deploy/made-in-sneek.svg?sanitize=true" height="200" alt="Made in Sneek logo"></a>
 
 [avatar-author1]: https://avatars2.githubusercontent.com/u/11487455?v=3&s=120
 [avatar-author2]: https://avatars2.githubusercontent.com/u/12746591?v=3&s=120
