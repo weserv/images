@@ -1,6 +1,6 @@
 FROM centos:7
 
-ARG NGINX_VERSION=1.17.3
+ARG NGINX_VERSION=1.17.4
 
 LABEL maintainer "Kleis Auke Wolthuizen <info@kleisauke.nl>"
 
