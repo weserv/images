@@ -54,17 +54,29 @@ add_library(catch2_main OBJECT
         similar_image.cpp
         test_environment.h
         )
-target_include_directories(catch2_main
-        PRIVATE
-            ${VIPS_INCLUDE_DIRS}
-        )
-target_link_libraries(catch2_main
-        PUBLIC
-            ${PROJECT_NAME}
-            Catch2::Catch2
-        PRIVATE
-            ${VIPS_LDFLAGS}
-        )
+
+# target_link_libraries on object libraries only works with CMake >= 3.12.
+if (${CMAKE_VERSION} VERSION_LESS "3.12.0")
+    target_include_directories(catch2_main
+            PUBLIC
+                ${CMAKE_SOURCE_DIR}/include
+                $<TARGET_PROPERTY:Catch2::Catch2,INTERFACE_INCLUDE_DIRECTORIES>
+            PRIVATE
+                ${VIPS_INCLUDE_DIRS}
+            )
+else()
+    target_include_directories(catch2_main
+            PRIVATE
+                ${VIPS_INCLUDE_DIRS}
+            )
+    target_link_libraries(catch2_main
+            PUBLIC
+                ${PROJECT_NAME}
+                Catch2::Catch2
+            PRIVATE
+                ${VIPS_LDFLAGS}
+            )
+endif()
 
 file(GLOB_RECURSE files "${CMAKE_CURRENT_SOURCE_DIR}/unit-*.cpp")
 foreach (file ${files})
