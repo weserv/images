@@ -3,10 +3,7 @@ dist: xenial
 
 env:
   global:
-    # TODO(kleisauke):
-    # https://github.com/libvips/libvips/commit/46212e92b1f943e6852e807db1ee6e5ca66b6ccf#r34904985
-    # - VIPS_VERSION=8.8.3
-    - VIPS_VERSION=8.8.1
+    - VIPS_VERSION=8.8.3
     - VIPS_WARNING=0
     - JOBS=`nproc`
     - LD_LIBRARY_PATH=$HOME/vips/lib:$LD_LIBRARY_PATH
