@@ -286,18 +286,9 @@ VImage Thumbnail::shrink_on_load(const VImage &image,
         auto thumb = VImage::new_from_buffer(
             buffer, "", load_options->set("thumbnail", true));
 
-        double hshrink;
-        double vshrink;
-
-        std::tie(hshrink, vshrink) = resolve_shrink(width, height);
-
-        int target_width =
-            static_cast<int>(std::rint(static_cast<double>(width) / hshrink));
-        int target_height =
-            static_cast<int>(std::rint(static_cast<double>(height) / vshrink));
-
-        // Use the thumbnail if it's larger than our target
-        if (thumb.width() >= target_width && thumb.height() >= target_height) {
+        // Use the thumbnail if, by using it, we could get a factor >= * 1.0,
+        // ie. we would not need to expand the thumbnail.
+        if (resolve_common_shrink(thumb.width(), thumb.height()) >= 1.0) {
             return thumb;
         }
     }
