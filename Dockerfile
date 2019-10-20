@@ -1,4 +1,4 @@
-FROM centos:7
+FROM centos:8
 
 ARG NGINX_VERSION=1.17.4
 
@@ -11,17 +11,15 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
     && echo $TZ > /etc/timezone
 
 # Import archive signing keys and update packages
-RUN rpm --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7 \
-    && rpm --import https://rpms.remirepo.net/RPM-GPG-KEY-remi \
-    && rpm --import https://sourceforge.net/projects/libjpeg-turbo/files/LJT-GPG-KEY \
-    && rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 \
-    && yum update -y
+RUN rpm --import https://sourceforge.net/projects/libjpeg-turbo/files/LJT-GPG-KEY \
+    && rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial \
+    && dnf update -y
 
 # Install the latest version of libjpeg-turbo,
-# since the version on CentOS is too old (v1.2.90)
-RUN yum install -y yum-utils \
-    && yum-config-manager --add-repo https://libjpeg-turbo.org/pmwiki/uploads/Downloads/libjpeg-turbo.repo \
-    && yum install -y libjpeg-turbo-official \
+# since the version on CentOS is too old (v1.5.3)
+RUN dnf install -y dnf-utils \
+    && dnf config-manager --add-repo https://libjpeg-turbo.org/pmwiki/uploads/Downloads/libjpeg-turbo.repo \
+    && dnf install -y libjpeg-turbo-official \
     && echo '/opt/libjpeg-turbo/lib64' >> /etc/ld.so.conf.d/libjpeg-turbo-official-x86_64.conf \
     && ldconfig
 
@@ -30,19 +28,21 @@ RUN yum install -y yum-utils \
 ENV PKG_CONFIG_PATH=/opt/libjpeg-turbo/lib64/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}
 
 # Install libvips and needed dependencies
-RUN yum install -y epel-release centos-release-scl \
-    && rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-SCLo \
-    && yum localinstall -y --nogpgcheck https://rpms.remirepo.net/enterprise/remi-release-7.rpm \
-    && yum-config-manager --enable remi \
-    && yum localinstall -y --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm \
-    && rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-free-el-7  \
-    && yum install -y --setopt=tsflags=nodocs \
+RUN dnf install -y epel-release \
+    && rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-8 \
+    && dnf config-manager --set-enabled PowerTools \
+    && dnf install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm \
+    && rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-remi.el8 \
+    && dnf config-manager --set-enabled remi \
+    && dnf install -y --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm \
+    && rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-free-el-8  \
+    && dnf install -y --setopt=tsflags=nodocs \
         git \
         cmake3 \
         vips-full-devel \
-        devtoolset-8-make \
-        devtoolset-8-gcc \
-        devtoolset-8-gcc-c++ \
+        make \
+        gcc \
+        gcc-c++ \
         openssl-devel \
         pcre-devel \
         zlib-devel
@@ -55,11 +55,6 @@ RUN groupadd nginx \
 RUN git clone --recursive https://github.com/weserv/images.git /var/www/imagesweserv
 
 WORKDIR /var/www/imagesweserv
-
-# Use the C and C++ compiler from devtoolset-8
-ENV CC=/opt/rh/devtoolset-8/root/usr/bin/gcc \
-    CXX=/opt/rh/devtoolset-8/root/usr/bin/g++ \
-    PATH=/opt/rh/devtoolset-8/root/usr/bin${PATH:+:${PATH}}
 
 # Build CMake-based project
 RUN mkdir build \
