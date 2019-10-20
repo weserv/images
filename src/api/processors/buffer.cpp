@@ -19,12 +19,13 @@ const int DEFAULT_LEVEL = 6;
 // = 71 megapixels
 const int MAX_IMAGE_SIZE = 71000000;
 
-// Halt processing and raise an error when loading invalid images.
-// Set this flag to `false` if you'd rather apply a "best effort" to decode
-// images, even if the data is corrupt or invalid.
+// Do a "best effort" to decode images, even if the data is corrupt or invalid.
+// Set this flag to `true` if you would rather to halt processing and raise an
+// error when loading invalid images.
 // See: CVE-2019-6976
 // https://blog.silentsignal.eu/2019/04/18/drop-by-drop-bleeding-through-libvips/
-const bool FAIL_ON_ERROR = true;
+// https://github.com/weserv/images/issues/194
+const bool FAIL_ON_ERROR = false;
 
 template <typename Comparator>
 int ImageBuffer::resolve_page(const std::string &buf, const std::string &loader,

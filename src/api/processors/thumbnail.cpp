@@ -13,7 +13,7 @@ const int MAX_PAGES = 256;
 const int MAX_TARGET_SIZE = 71000000;
 
 // See `buffer.cpp`
-const bool FAIL_ON_ERROR = true;
+const bool FAIL_ON_ERROR = false;
 
 // Set to true in order to have a greater advantage of the JPEG
 // shrink-on-load feature. You can set this to false for more
