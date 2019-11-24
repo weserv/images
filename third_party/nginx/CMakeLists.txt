@@ -1,5 +1,5 @@
 if (NOT NGX_VERSION)
-    set(NGX_VERSION 1.17.4)
+    set(NGX_VERSION 1.17.6)
 endif()
 
 set(NGX_ROOT ${CMAKE_CURRENT_BINARY_DIR})
