@@ -59,7 +59,7 @@ add_library(catch2_main OBJECT
 if (${CMAKE_VERSION} VERSION_LESS "3.12.0")
     target_include_directories(catch2_main
             PUBLIC
-                ${CMAKE_SOURCE_DIR}/include
+                ${PROJECT_SOURCE_DIR}/include
                 $<TARGET_PROPERTY:Catch2::Catch2,INTERFACE_INCLUDE_DIRECTORIES>
             PRIVATE
                 ${VIPS_INCLUDE_DIRS}
@@ -105,13 +105,13 @@ foreach (file ${files})
             )
     add_test(NAME "${testcase}"
             COMMAND ${testcase}
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
             )
 
     if (ENABLE_VALGRIND)
         add_test(NAME "${testcase}_valgrind"
                 COMMAND ${MEMCHECK_COMMAND} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${testcase}
-                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+                WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                 )
         set_tests_properties("${testcase}_valgrind" PROPERTIES LABELS "valgrind")
     endif()

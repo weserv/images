@@ -4,7 +4,7 @@ extern "C" {
 #include <ngx_http.h>
 }
 
-#include <api/utils/status.h>
+#include <weserv/utils/status.h>
 
 #include "module.h"
 

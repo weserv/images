@@ -3,8 +3,8 @@
 #include <memory>
 #include <string>
 
-#include <api/env_interface.h>
-#include <api/utils/status.h>
+#include <weserv/env_interface.h>
+#include <weserv/utils/status.h>
 
 namespace weserv {
 namespace api {

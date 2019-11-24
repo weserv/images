@@ -58,7 +58,7 @@ add_library(${PROJECT_NAME} SHARED ${HEADERS} ${SOURCES})
 
 target_include_directories(${PROJECT_NAME}
         PUBLIC
-            $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+            $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
             $<INSTALL_INTERFACE:include>
         PRIVATE
             ${VIPS_INCLUDE_DIRS}
@@ -75,4 +75,14 @@ set_target_properties(${PROJECT_NAME}
         PROPERTIES
             VERSION ${PROJECT_VERSION}
             SOVERSION 5
+        )
+
+install(TARGETS ${PROJECT_NAME}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        COMPONENT ${PROJECT_NAME}
+        )
+
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+        FILES_MATCHING PATTERN "*.h"
         )

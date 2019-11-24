@@ -52,7 +52,7 @@ RUN groupadd nginx \
     && useradd -r -g nginx -s /sbin/nologin -c "Nginx web server" nginx
 
 # Clone the repository
-RUN git clone --recursive https://github.com/weserv/images.git /var/www/imagesweserv
+RUN git clone --recurse-submodules https://github.com/weserv/images.git /var/www/imagesweserv
 
 WORKDIR /var/www/imagesweserv
 

@@ -1,7 +1,7 @@
 #include <catch2/catch.hpp>
 
 #include "../base.h"
-#include <api/utils/status.h>
+#include <weserv/utils/status.h>
 
 using Catch::Matchers::Contains;
 

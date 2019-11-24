@@ -2,7 +2,7 @@
 
 #include "fixtures.h"
 
-#include <api/api_manager.h>
+#include <weserv/api_manager.h>
 #include <vips/vips8>
 
 using vips::VImage;

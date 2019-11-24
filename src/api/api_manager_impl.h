@@ -1,6 +1,6 @@
 #pragma once
 
-#include <api/api_manager.h>
+#include <weserv/api_manager.h>
 
 #include "parsers/query.h"
 

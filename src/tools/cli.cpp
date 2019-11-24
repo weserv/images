@@ -1,6 +1,6 @@
 #include "cli_environment.h"
 
-#include <api/api_manager.h>
+#include <weserv/api_manager.h>
 
 #include <fstream>
 #include <sstream>

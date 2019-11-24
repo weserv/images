@@ -8,17 +8,17 @@ list(APPEND NGX_CONFIGURE_OPTS
         #--with-debug
         "--with-cc=${CMAKE_C_COMPILER}"
         "--with-cpp=${CMAKE_CXX_COMPILER}"
-        "--with-cc-opt=-I${CMAKE_SOURCE_DIR}/include ${CUSTOM_NGX_CC_OPT}"
-        "--with-ld-opt=-L${CMAKE_SOURCE_DIR}/lib -Wl,-rpath,${CMAKE_SOURCE_DIR}/lib ${CUSTOM_NGX_LD_OPT}"
+        "--with-cc-opt=-I${PROJECT_SOURCE_DIR}/include ${CUSTOM_NGX_CC_OPT}"
+        "--with-ld-opt=-L${PROJECT_SOURCE_DIR}/lib -Wl,-rpath,${PROJECT_SOURCE_DIR}/lib ${CUSTOM_NGX_LD_OPT}"
         )
 
 if (NGX_DYN_MODULE)
     list(APPEND NGX_CONFIGURE_OPTS
-            "--add-dynamic-module=${CMAKE_SOURCE_DIR}"
+            "--add-dynamic-module=${PROJECT_SOURCE_DIR}"
             )
 else()
     list(APPEND NGX_CONFIGURE_OPTS
-            "--add-module=${CMAKE_SOURCE_DIR}"
+            "--add-module=${PROJECT_SOURCE_DIR}"
             )
 endif()
 

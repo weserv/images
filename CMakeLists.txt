@@ -10,9 +10,9 @@ project(imagesweserv
         )
 
 # Set output directories in which to build the target files
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
 # Options
 option(ENABLE_COVERAGE "Compile in coverage mode" OFF)
@@ -64,6 +64,9 @@ endif()
 
 include(ExternalProject)
 include(FetchContent)
+
+# Use GNUInstallDirs to install libraries into correct locations on all platforms
+include(GNUInstallDirs)
 
 # Find Catch2 (optional)
 find_package(Catch2 2.7.1 QUIET)

@@ -4,7 +4,7 @@ extern "C" {
 #include <ngx_http.h>
 }
 
-#include <api/api_manager.h>
+#include <weserv/api_manager.h>
 
 #include "http.h"
 

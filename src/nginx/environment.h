@@ -4,7 +4,7 @@ extern "C" {
 #include <ngx_core.h>
 }
 
-#include <api/env_interface.h>
+#include <weserv/env_interface.h>
 
 namespace weserv {
 namespace nginx {
