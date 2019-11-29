@@ -14,7 +14,7 @@ VImage Orientation::process(const VImage &image) const {
         return image;
     }
 
-    // Need to copy, since we need to remove metadata
+    // Internal copy, we need to re-assign a few times
     auto output_image = image;
 
     // Rotation by any multiple of 90 degrees
@@ -35,12 +35,14 @@ VImage Orientation::process(const VImage &image) const {
         output_image = output_image.fliphor();
     }
 
-    // Remove EXIF Orientation from image, if any
-    if (output_image.get_typeof(VIPS_META_ORIENTATION) != 0) {
-        output_image.remove(VIPS_META_ORIENTATION);
-    }
+    // Removing metadata, need to copy the image
+    auto copy = output_image.copy();
 
-    return output_image;
+    // We must remove VIPS_META_ORIENTATION to prevent accidental double
+    // rotations
+    copy.remove(VIPS_META_ORIENTATION);
+
+    return copy;
 }
 
 }  // namespace processors

@@ -380,20 +380,17 @@ void ImageBuffer::append_save_options(const Output &output,
 
 std::pair<std::string, std::string>
 ImageBuffer::to_buffer(const VImage &image) const {
-    // Need to copy, since we need to attach metadata
-    auto output_image = image;
-
-    // All image processors were successful, reverse
-    // premultiplication after all transformations.
-    if (query_->get<bool>("premultiplied", false)) {
-        // Unpremultiply image alpha and cast pixel values to integer
-        output_image = output_image.unpremultiply().cast(VIPS_FORMAT_UCHAR);
-    }
+    // Attaching metadata, need to copy the image
+    auto copy =
+        (query_->get<bool>("premultiplied", false)
+             // Unpremultiply image alpha and cast pixel values to integer
+             ? image.unpremultiply().cast(VIPS_FORMAT_UCHAR)
+             : image)
+            .copy();
 
     // Update page height
-    if (output_image.get_typeof(VIPS_META_PAGE_HEIGHT) != 0) {
-        output_image.set(VIPS_META_PAGE_HEIGHT,
-                         query_->get<int>("page_height"));
+    if (copy.get_typeof(VIPS_META_PAGE_HEIGHT) != 0) {
+        copy.set(VIPS_META_PAGE_HEIGHT, query_->get<int>("page_height"));
     }
 
     // Set the number of loops, libvips uses iterations like this:
@@ -402,7 +399,7 @@ ImageBuffer::to_buffer(const VImage &image) const {
     // 2 - loop twice etc.
     auto loop = query_->get<int>("loop", -1);
     if (loop != -1) {
-        output_image.set("gif-loop", loop);
+        copy.set("gif-loop", loop);
     }
 
     // Set the frame delay(s)
@@ -415,11 +412,11 @@ ImageBuffer::to_buffer(const VImage &image) const {
         }
 
         // Multiple delay values are supported, set an array of ints instead
-        output_image.set("delay", delays);
+        copy.set("delay", delays);
 #else
         // Multiple delay values are not supported, set the gif-delay field.
         // Note: this is centiseconds (the GIF standard).
-        output_image.set("gif-delay", std::rint(delays[0] / 10.0));
+        copy.set("gif-delay", std::rint(delays[0] / 10.0));
 #endif
     }
 
@@ -430,7 +427,7 @@ ImageBuffer::to_buffer(const VImage &image) const {
     std::string extension;
 
     if (output == Output::Json) {
-        out = utils::image_to_json(output_image, image_type);
+        out = utils::image_to_json(copy, image_type);
         extension = ".json";
     } else {
         if (output == Output::Origin) {
@@ -457,8 +454,7 @@ ImageBuffer::to_buffer(const VImage &image) const {
         append_save_options(output, save_options);
 
         // Write the image to a formatted string
-        output_image.write_to_buffer(extension.c_str(), &buf, &size,
-                                     save_options);
+        copy.write_to_buffer(extension.c_str(), &buf, &size, save_options);
 
         out.assign(static_cast<const char *>(buf), size);
 

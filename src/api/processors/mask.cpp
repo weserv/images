@@ -293,7 +293,7 @@ VImage Mask::process(const VImage &image) const {
         query_->get<parsers::Color>("mbg", parsers::Color::DEFAULT);
     bool bg_has_alpha = mask_background.has_alpha_channel();
 
-    // Need to copy, since we need to re-assign a few times
+    // Internal copy, we need to re-assign a few times
     auto output_image = image;
 
     // Cutout first if the image or mask background has an alpha channel
