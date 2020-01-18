@@ -172,7 +172,7 @@ void *ngx_weserv_create_loc_conf(ngx_conf_t *cf) {
 
     if (ngx_ssl_create(ssl,
                        NGX_SSL_SSLv2 | NGX_SSL_SSLv3 | NGX_SSL_TLSv1 |
-                           NGX_SSL_TLSv1_1 | NGX_SSL_TLSv1_2,
+                           NGX_SSL_TLSv1_1 | NGX_SSL_TLSv1_2 | NGX_SSL_TLSv1_3,
                        nullptr) != NGX_OK) {
         return nullptr;
     }
