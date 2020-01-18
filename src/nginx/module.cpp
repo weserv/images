@@ -177,6 +177,13 @@ void *ngx_weserv_create_loc_conf(ngx_conf_t *cf) {
         return nullptr;
     }
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+    // Must use lowest OpenSSL security level to ensure maximum compatibility.
+    // This is basically the same as using OpenSSL 1.0, which does not have a
+    // minimum security policy.
+    SSL_CTX_set_security_level(ssl->ctx, 0);
+#endif
+
     ssl_cleanup->handler = ngx_ssl_cleanup_ctx;
 
     lc->upstream_conf.ssl = ssl;
