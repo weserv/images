@@ -5,13 +5,18 @@
 
 #include <vips/vips8>
 
+using Catch::Matchers::Equals;
 using vips::VImage;
 
 TEST_CASE("embed", "[embed]") {
     // TIFF letterbox known to cause rounding errors
     SECTION("tiff") {
-        if (vips_type_find("VipsOperation", "tiffload_buffer") == 0 ||
-            vips_type_find("VipsOperation", "tiffsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation",
+                           pre_8_10 ? "tiffload_buffer" : "tiffload_source") ==
+                0 ||
+            vips_type_find("VipsOperation",
+                           pre_8_10 ? "tiffsave_buffer" : "tiffsave_target") ==
+                0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -19,13 +24,9 @@ TEST_CASE("embed", "[embed]") {
         auto test_image = fixtures->input_tiff;
         auto params = "w=240&h=320&fit=contain&cbg=white";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".tiff");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("tiffload_buffer"));
 
         CHECK(image.width() == 240);
         CHECK(image.height() == 320);
@@ -34,7 +35,9 @@ TEST_CASE("embed", "[embed]") {
 
     // Letterbox TIFF in LAB colourspace onto RGBA background
     SECTION("tiff on rgba") {
-        if (vips_type_find("VipsOperation", "tiffload_buffer") == 0) {
+        if (vips_type_find("VipsOperation",
+                           pre_8_10 ? "tiffload_buffer" : "tiffload_source") ==
+            0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -44,16 +47,13 @@ TEST_CASE("embed", "[embed]") {
             fixtures->expected_dir + "/embed-lab-into-rgba.png";
         auto params = "w=64&h=128&fit=contain&cbg=80FF6600&output=png";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".png");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("pngload_buffer"));
 
         CHECK(image.width() == 64);
         CHECK(image.height() == 128);
+
         CHECK_THAT(image, is_similar_image(expected_image));
     }
 
@@ -63,14 +63,12 @@ TEST_CASE("embed", "[embed]") {
         auto expected_image = fixtures->expected_dir + "/colourspace.cmyk.jpg";
         auto params = "w=320&h=240&fit=contain&cbg=white";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.interpretation() == VIPS_INTERPRETATION_sRGB);
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
+
         CHECK_THAT(image, is_similar_image(expected_image));
     }
 
@@ -79,14 +77,12 @@ TEST_CASE("embed", "[embed]") {
         auto expected_image = fixtures->expected_dir + "/embed-4-into-4.png";
         auto params = "w=50&h=50&fit=contain&cbg=white";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.bands() == 4);
         CHECK(image.width() == 50);
         CHECK(image.height() == 50);
+
         CHECK_THAT(image, is_similar_image(expected_image));
     }
 
@@ -96,14 +92,12 @@ TEST_CASE("embed", "[embed]") {
         auto expected_image = fixtures->expected_dir + "/embed-16bit.png";
         auto params = "w=32&h=16&fit=contain&cbg=white";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.bands() == 4);
         CHECK(image.width() == 32);
         CHECK(image.height() == 16);
+
         CHECK_THAT(image, is_similar_image(expected_image));
     }
 
@@ -113,14 +107,12 @@ TEST_CASE("embed", "[embed]") {
         auto expected_image = fixtures->expected_dir + "/embed-16bit-rgba.png";
         auto params = "w=32&h=16&fit=contain";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.bands() == 4);
         CHECK(image.width() == 32);
         CHECK(image.height() == 16);
+
         CHECK_THAT(image, is_similar_image(expected_image));
     }
 
@@ -130,14 +122,12 @@ TEST_CASE("embed", "[embed]") {
         auto expected_image = fixtures->expected_dir + "/embed-2channel.png";
         auto params = "w=32&h=16&fit=contain";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.bands() == 4);
         CHECK(image.width() == 32);
         CHECK(image.height() == 16);
+
         CHECK_THAT(image, is_similar_image(expected_image));
     }
 
@@ -147,14 +137,12 @@ TEST_CASE("embed", "[embed]") {
         auto expected_image = fixtures->expected_dir + "/embed-enlarge.png";
         auto params = "w=320&h=240&fit=contain&cbg=black";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.bands() == 4);
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
+
         CHECK_THAT(image, is_similar_image(expected_image));
     }
 
@@ -163,14 +151,12 @@ TEST_CASE("embed", "[embed]") {
         auto expected_image = fixtures->expected_dir + "/embed-focal.png";
         auto params = "w=320&h=240&fit=contain&a=focal-0-50&cbg=black";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.bands() == 4);
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
+
         CHECK_THAT(image, is_similar_image(expected_image));
     }
 
@@ -178,10 +164,7 @@ TEST_CASE("embed", "[embed]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=320&h=320&t=letterbox";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 320);
@@ -192,21 +175,20 @@ TEST_CASE("skip", "[embed]") {
     auto test_image = fixtures->input_jpg;
     auto params = "w=320&h=261&fit=contain&fsol=0";
 
-    std::string buffer;
-    std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-    VImage image = buffer_to_image(buffer);
+    VImage image = process_file<VImage>(test_image, params);
 
     CHECK(image.width() == 320);
     CHECK(image.height() == 261);
 }
 
 TEST_CASE("skip height in toilet-roll mode", "[embed]") {
-    if (vips_type_find("VipsOperation", "gifload_buffer") == 0) {
+    if (vips_type_find("VipsOperation",
+                       pre_8_10 ? "gifload_buffer" : "gifload_source") == 0) {
         SUCCEED("no gif support, skipping test");
         return;
     }
-    if (vips_type_find("VipsOperation", "magicksave_buffer") == 0) {
+    if (vips_type_find("VipsOperation", pre_8_10 ? "magicksave_buffer"
+                                                 : "magicksave_target") == 0) {
         SUCCEED("no magick support, skipping test");
         return;
     }
@@ -214,10 +196,7 @@ TEST_CASE("skip height in toilet-roll mode", "[embed]") {
     auto test_image = fixtures->input_gif_animated;
     auto params = "n=-1&w=300&h=400&fit=contain";
 
-    std::string buffer;
-    std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-    VImage image = buffer_to_image(buffer);
+    VImage image = process_file<VImage>(test_image, params);
 
     CHECK(image.width() == 300);
     CHECK(vips_image_get_page_height(image.get_image()) == 318);

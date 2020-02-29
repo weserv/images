@@ -2,23 +2,9 @@
 
 #include <weserv/api_manager.h>
 
-#include <fstream>
-#include <sstream>
-
 using weserv::api::utils::Status;
 
 std::shared_ptr<weserv::api::ApiManager> api_manager;
-
-Status process_file(const std::string &file, const std::string &query,
-                    std::string *out_buf, std::string *out_ext) {
-    std::ifstream t(file);
-    std::ostringstream buffer;
-    buffer << t.rdbuf();
-
-    const std::string buf = buffer.str();
-
-    return api_manager->process(query, buf, out_buf, out_ext);
-}
 
 inline std::string get_extension(const std::string &base_filename) {
     const size_t idx = base_filename.find_last_of('.');
@@ -26,7 +12,7 @@ inline std::string get_extension(const std::string &base_filename) {
                                     : base_filename;
 }
 
-auto main(int argc, const char *argv[]) -> int {
+int main(int argc, const char *argv[]) {
     if (argc < 3) {
         std::cout << argv[0] << " image.jpg image2.jpg [ARG1] [ARG2] [...]"
                   << std::endl;
@@ -52,15 +38,13 @@ auto main(int argc, const char *argv[]) -> int {
             query += "&output=" + get_extension(argv[2]);
         }
     } else {
-        query += "output=" + get_extension(argv[2]);
+        query = "output=" + get_extension(argv[2]);
     }
 
     std::cout << "Processing image \"" << argv[1]
               << "\" with query arguments \"" << query << "\"" << std::endl;
 
-    std::string out_buf;
-    std::string out_ext;
-    Status status = process_file(argv[1], query, &out_buf, &out_ext);
+    Status status = api_manager->process_file(query, argv[1], argv[2]);
 
     if (!status.ok()) {
         std::cerr << "ERROR: " << status.message() << " (" << status.code()
@@ -68,7 +52,5 @@ auto main(int argc, const char *argv[]) -> int {
         return 1;
     }
 
-    std::ofstream out(argv[2]);
-    out << out_buf;
-    out.close();
+    return 0;
 }

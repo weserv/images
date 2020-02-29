@@ -3,6 +3,8 @@
 namespace weserv {
 namespace api {
 
+using io::Source;
+using io::Target;
 using utils::Status;
 using vips::VError;
 
@@ -65,7 +67,7 @@ Status ApiManagerImpl::exception_handler(const std::string &query) {
         throw;
     } catch (const exceptions::InvalidImageException &e) {
         // Log image invalid or unsupported errors
-        env_->log_info("Buffer contains unsupported image format. Cause: " +
+        env_->log_info("Stream contains unsupported image format. Cause: " +
                        std::string(e.what()) + "\nQuery: " + query);
 
         return Status(
@@ -104,9 +106,9 @@ Status ApiManagerImpl::exception_handler(const std::string &query) {
     // LCOV_EXCL_STOP
 }
 
-Status ApiManagerImpl::process(const std::string &query,
-                               const std::string &in_buf, std::string *out_buf,
-                               std::string *out_ext) {
+utils::Status ApiManagerImpl::process(const std::string &query,
+                                      const Source &source,
+                                      const Target &target) {
     auto query_holder = parsers::parse<parsers::QueryHolderPtr>(query);
 
     // Note: the disadvantage of pre-resize extraction behaviour is that none
@@ -114,8 +116,8 @@ Status ApiManagerImpl::process(const std::string &query,
     // thumbnailing of large images extremely slow. So, turn it off by default.
     auto precrop = query_holder->get<bool>("precrop", false);
 
-    // Image buffer processor
-    auto image_buffer = processors::ImageBuffer(query_holder);
+    // Stream processor
+    auto stream = processors::Stream(query_holder);
 
     // Image processors
     auto trim = processors::Trim(query_holder);
@@ -135,48 +137,105 @@ Status ApiManagerImpl::process(const std::string &query,
     auto background = processors::Background(query_holder);
     auto mask = processors::Mask(query_holder);
 
-    std::string buf;
-    std::string extension;
+    // Create image from a source
+    auto image = stream.new_from_source(source);
 
-    try {
-        // Create image from input buffer
-        auto image = image_buffer.from_buffer(in_buf);
+    // Image processing phase 1 (make sure trimming is done first)
+    image = image | trim;
 
-        // Image processing phase 1 (make sure trimming is done first)
-        image = image | trim;
-
-        // Image processing phase 2 (size, crop, etc.)
-        if (precrop) {
-            image = image | orientation | crop | thumbnail | alignment;
-        } else {
-            // The very fast shrink-on-load tricks are possible
-            image = thumbnail.shrink_on_load(image, in_buf);
-            image = image | thumbnail | orientation | alignment | crop;
-        }
-
-        // Image processing phase 3 (adjustments, effects, etc.)
-        image = image | embed | rotation | brightness | contrast | gamma |
-                sharpen | filter | blur | tint | background | mask;
-
-        // Write the image to a buffer
-        std::tie(buf, extension) = image_buffer.to_buffer(image);
-    } catch (...) {
-        // We'll pass the query string for debugging purposes.
-        return exception_handler(query);
+    // Image processing phase 2 (size, crop, etc.)
+    if (precrop) {
+        image = image | orientation | crop | thumbnail | alignment;
+    } else {
+        // The very fast shrink-on-load tricks are possible
+        image = thumbnail.shrink_on_load(image, source);
+        image = image | thumbnail | orientation | alignment | crop;
     }
 
-    if (out_buf != nullptr) {
-        *out_buf = buf;
-    }
+    // Image processing phase 3 (adjustments, effects, etc.)
+    image = image | embed | rotation | brightness | contrast | gamma | sharpen |
+            filter | blur | tint | background | mask;
 
-    if (out_ext != nullptr) {
-        *out_ext = extension;
-    }
+    // Write the image to a target
+    stream.write_to_target(image, target);
 
     // Clean up libvips' per-request data and threads
     clean_up();
 
     return Status::OK;
+}
+
+utils::Status
+ApiManagerImpl::process(const std::string &query,
+                        std::unique_ptr<io::SourceInterface> source,
+                        std::unique_ptr<io::TargetInterface> target) {
+    try {
+        return process(query, Source::new_from_pointer(std::move(source)),
+                       Target::new_to_pointer(std::move(target)));
+    } catch (...) {
+        // We'll pass the query string for debugging purposes.
+        return exception_handler(query);
+    }
+}
+
+utils::Status ApiManagerImpl::process_file(const std::string &query,
+                                           const std::string &in_file,
+                                           const std::string &out_file) {
+    try {
+        return process(query, Source::new_from_file(in_file),
+                       Target::new_to_file(out_file));
+    } catch (...) {
+        return exception_handler(query);
+    }
+}
+
+utils::Status ApiManagerImpl::process_file(const std::string &query,
+                                           const std::string &in_file,
+                                           std::string *out_buf) {
+    try {
+#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+        auto target = Target::new_to_memory();
+#else
+        auto target = Target::new_to_memory(out_buf);
+#endif
+        Status status = process(query, Source::new_from_file(in_file), target);
+
+#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+        if (status.ok() && out_buf != nullptr) {
+            size_t length;
+            const void *out = vips_blob_get(target.get_target()->blob, &length);
+            out_buf->assign(static_cast<const char *>(out), length);
+        }
+#endif
+
+        return status;
+    } catch (...) {
+        return exception_handler(query);
+    }
+}
+
+utils::Status ApiManagerImpl::process_buffer(const std::string &query,
+                                             const std::string &in_buf,
+                                             std::string *out_buf) {
+    try {
+#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+        auto target = Target::new_to_memory();
+#else
+        auto target = Target::new_to_memory(out_buf);
+#endif
+        Status status = process(query, Source::new_from_buffer(in_buf), target);
+
+#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+        if (status.ok() && out_buf != nullptr) {
+            size_t length;
+            const void *out = vips_blob_get(target.get_target()->blob, &length);
+            out_buf->assign(static_cast<const char *>(out), length);
+        }
+#endif
+        return status;
+    } catch (...) {
+        return exception_handler(query);
+    }
 }
 
 }  // namespace api

@@ -4,7 +4,8 @@ namespace weserv {
 namespace api {
 namespace processors {
 
-using namespace enums;
+using enums::Canvas;
+using enums::Position;
 
 VImage Alignment::process(const VImage &image) const {
     // Should we process the image?
@@ -14,18 +15,20 @@ VImage Alignment::process(const VImage &image) const {
 
     int image_width = image.width();
     int image_height = image.height();
-    auto width = query_->get_if<int>("w",
-                                     [&image_width](int w) {
-                                         // Limit width to image boundary
-                                         return w > 0 && w < image_width;
-                                     },
-                                     image_width);
-    auto height = query_->get_if<int>("h",
-                                      [&image_height](int h) {
-                                          // Limit height to image boundary
-                                          return h > 0 && h < image_height;
-                                      },
-                                      image_height);
+    auto width = query_->get_if<int>(
+        "w",
+        [&image_width](int w) {
+            // Limit width to image boundary
+            return w > 0 && w < image_width;
+        },
+        image_width);
+    auto height = query_->get_if<int>(
+        "h",
+        [&image_height](int h) {
+            // Limit height to image boundary
+            return h > 0 && h < image_height;
+        },
+        image_height);
 
     // Return early when required dimensions are met
     if (image_width == width && image_height == height) {

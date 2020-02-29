@@ -4,15 +4,16 @@ namespace weserv {
 namespace api {
 namespace processors {
 
-using namespace enums;
+using enums::Canvas;
+using enums::ImageType;
 
-// See `buffer.cpp`
+// See `stream.cpp`
 const int MAX_PAGES = 256;
 
-// See `buffer.cpp`
+// See `stream.cpp`
 const int MAX_TARGET_SIZE = 71000000;
 
-// See `buffer.cpp`
+// See `stream.cpp`
 const bool FAIL_ON_ERROR = false;
 
 // Set to true in order to have a greater advantage of the JPEG
@@ -20,6 +21,8 @@ const bool FAIL_ON_ERROR = false;
 // consistent results and to avoid occasional small image shifting.
 // NOTE: Can be overridden with `&fsol=0`.
 const bool FAST_SHRINK_ON_LOAD = true;
+
+using io::Source;
 
 std::pair<double, double> Thumbnail::resolve_shrink(int width,
                                                     int height) const {
@@ -133,9 +136,8 @@ int Thumbnail::resolve_jpeg_shrink(int width, int height) const {
     }
 }
 
-int Thumbnail::resolve_tiff_pyramid(const VImage &image,
-                                    const std::string &buffer, int width,
-                                    int height) const {
+int Thumbnail::resolve_tiff_pyramid(const VImage &image, const Source &source,
+                                    int width, int height) const {
     int n_pages = 1;
     if (image.get_typeof(VIPS_META_N_PAGES) != 0) {
         n_pages =
@@ -151,7 +153,11 @@ int Thumbnail::resolve_tiff_pyramid(const VImage &image,
 
     for (int i = n_pages - 1; i >= 0; i--) {
         auto page =
-            VImage::new_from_buffer(buffer, "",
+#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+            VImage::new_from_source(source, "",
+#else
+            VImage::new_from_buffer(source.buffer(), "",
+#endif
                                     VImage::option()
                                         ->set("access", VIPS_ACCESS_SEQUENTIAL)
                                         ->set("fail", FAIL_ON_ERROR)
@@ -184,7 +190,7 @@ int Thumbnail::resolve_tiff_pyramid(const VImage &image,
     return target_page;
 }
 
-// TODO(kleisauke): No openslideload_buffer (?)
+// TODO(kleisauke): No openslideload_source (?)
 /*int Thumbnail::resolve_open_slide_level(const VImage &image) const {
     int level_count = 1;
     if (image.get_typeof("openslide.level-count") != 0) {
@@ -215,20 +221,21 @@ int Thumbnail::resolve_tiff_pyramid(const VImage &image,
 
 void Thumbnail::append_page_options(vips::VOption *options) const {
     auto n = query_->get<int>("n");
-    auto page = query_->get_if<int>("page",
-                                    [](int p) {
-                                        // Page needs to be in the range of
-                                        // 0 (numbered from zero) - 100000
-                                        return p >= 0 && p <= 100000;
-                                    },
-                                    0);
+    auto page = query_->get_if<int>(
+        "page",
+        [](int p) {
+            // Page needs to be in the range of
+            // 0 (numbered from zero) - 100000
+            return p >= 0 && p <= 100000;
+        },
+        0);
 
     options->set("n", n);
     options->set("page", page);
 }
 
 VImage Thumbnail::shrink_on_load(const VImage &image,
-                                 const std::string &buffer) const {
+                                 const Source &source) const {
     // Try to reload input using shrink-on-load, when:
     //  - the width or height parameters are specified.
     //  - gamma correction doesn't need to be applied.
@@ -251,7 +258,11 @@ VImage Thumbnail::shrink_on_load(const VImage &image,
     if (image_type == ImageType::Jpeg) {
         auto shrink = resolve_jpeg_shrink(width, height);
 
-        return VImage::new_from_buffer(buffer, "",
+#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+        return VImage::new_from_source(source, "",
+#else
+        return VImage::new_from_buffer(source.buffer(), "",
+#endif
                                        load_options->set("shrink", shrink));
     } else if (image_type == ImageType::Pdf || image_type == ImageType::Webp) {
         append_page_options(load_options);
@@ -259,46 +270,69 @@ VImage Thumbnail::shrink_on_load(const VImage &image,
         auto scale =
             1.0 / resolve_common_shrink(width, utils::get_page_height(image));
 
-        return VImage::new_from_buffer(buffer, "",
+#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+        return VImage::new_from_source(source, "",
+#else
+        return VImage::new_from_buffer(source.buffer(), "",
+#endif
                                        load_options->set("scale", scale));
     } else if (image_type == ImageType::Tiff) {
-        auto page = resolve_tiff_pyramid(image, buffer, width, height);
+        auto page = resolve_tiff_pyramid(image, source, width, height);
 
         // We've found a pyramid
         if (page != -1) {
-            return VImage::new_from_buffer(buffer, "",
+#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+            return VImage::new_from_source(source, "",
+#else
+            return VImage::new_from_buffer(source.buffer(), "",
+#endif
                                            load_options->set("page", page));
         }
     /*} else if (image_type == ImageType::OpenSlide) {
         auto level = resolve_open_slide_level(image);
 
-        return VImage::new_from_buffer(buffer, "",
+        return VImage::new_from_source(source, "",
                                        load_options->set("level", level));*/
     } else if (image_type == ImageType::Svg) {
         auto scale = 1.0 / resolve_common_shrink(width, height);
 
-        return VImage::new_from_buffer(buffer, "",
+#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+        return VImage::new_from_source(source, "",
+#else
+        return VImage::new_from_buffer(source.buffer(), "",
+#endif
                                        load_options->set("scale", scale));
 #if VIPS_VERSION_AT_LEAST(8, 9, 0)
-    // Retrieving a non-existent thumbnail from a HEIF image was terribly slow
-    // before libvips 8.9.0. See:
+    // Retrieving a non-existent thumbnail from a HEIF image was terribly
+    // slow before libvips 8.9.0. See:
     // https://github.com/libvips/libvips/commit/1ef1b2d9870d8be9c1a063a47f0c745c04a127d3
     } else if (image_type == ImageType::Heif) {
         append_page_options(load_options);
 
         // Fetch the size of the stored thumbnail
-        auto thumb = VImage::new_from_buffer(
-            buffer, "", load_options->set("thumbnail", true));
+#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+        auto thumb =
+            VImage::new_from_source(source, "",
+#else
+        auto thumb =
+            VImage::new_from_buffer(source.buffer(), "",
+#endif
+                                    load_options->set("thumbnail", true));
 
         // Use the thumbnail if, by using it, we could get a factor >= * 1.0,
         // ie. we would not need to expand the thumbnail.
-        if (resolve_common_shrink(thumb.width(), thumb.height()) >= 1.0) {
-            return thumb;
-        }
+        return resolve_common_shrink(thumb.width(), thumb.height()) >= 1.0
+                   ? thumb
+                   : image;
 #endif
     }
 
-    // Still here? Just return the original image
+    // Still here? The loader probably doesn't support shrink-on-load.
+
+    // Delete the options we allocated above
+    delete load_options;
+
+    // And return the original image
     return image;
 }
 
@@ -310,12 +344,11 @@ VImage Thumbnail::process(const VImage &image) const {
     int page_height = utils::get_page_height(thumb);
     query_->update("page_height", page_height);
 
-    // analyzeload_buffer isn't available, so we can safely assume that
-    // that we don't have to unpack any radiance images.
-    /*if (thumb.coding() == VIPS_CODING_RAD) {
-        // rad is scrgb
+    // RAD needs special unpacking.
+    if (thumb.coding() == VIPS_CODING_RAD) {
+        // rad is scRGB
         thumb = thumb.rad2float();
-    }*/
+    }
 
     // If this is a CMYK image, we only want to export at the end
     bool is_cmyk = thumb.interpretation() == VIPS_INTERPRETATION_CMYK;
@@ -326,10 +359,13 @@ VImage Thumbnail::process(const VImage &image) const {
 
     // If there's an alpha, we have to premultiply before shrinking. See
     // https://github.com/libvips/libvips/issues/291
+    VipsBandFormat unpremultiplied_format = VIPS_FORMAT_NOTSET;
     if (thumb.has_alpha()) {
-        thumb = thumb.premultiply();
+        // .premultiply() makes a float image. When we .unpremultiply() below,
+        // we need to cast back to the pre-premultiply format.
+        unpremultiplied_format = thumb.format();
 
-        query_->update("premultiplied", true);
+        thumb = thumb.premultiply();
     }
 
     int thumb_width = thumb.width();
@@ -369,9 +405,9 @@ VImage Thumbnail::process(const VImage &image) const {
 
     query_->update("page_height", target_page_height);
 
-    // Note:
-    // Don't unpremultiply the alpha, it's done after all transformations
-    // (at the end of the pipeline).
+    if (unpremultiplied_format != VIPS_FORMAT_NOTSET) {
+        thumb = thumb.unpremultiply().cast(unpremultiplied_format);
+    }
 
     // Colour management.
     // If this is a CMYK image, just export. Otherwise, we're in

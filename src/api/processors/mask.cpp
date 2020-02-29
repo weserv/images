@@ -4,7 +4,8 @@ namespace weserv {
 namespace api {
 namespace processors {
 
-using namespace enums;
+using enums::MaskType;
+using parsers::Color;
 
 std::string Mask::svg_path_by_type(const int width, const int height,
                                    const MaskType &mask,
@@ -289,8 +290,7 @@ VImage Mask::process(const VImage &image) const {
     auto path = svg_path_by_type(image_width, image_height, mask_type, &x_min,
                                  &y_min, &mask_width, &mask_height);
 
-    auto mask_background =
-        query_->get<parsers::Color>("mbg", parsers::Color::DEFAULT);
+    auto mask_background = query_->get<Color>("mbg", Color::DEFAULT);
     bool bg_has_alpha = mask_background.has_alpha_channel();
 
     // Internal copy, we need to re-assign a few times

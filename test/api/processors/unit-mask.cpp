@@ -13,10 +13,7 @@ TEST_CASE("mask", "[mask]") {
         auto expected_image = fixtures->expected_dir + "/mask-circle.png";
         auto params = "w=320&h=240&fit=cover&mask=circle";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -29,10 +26,7 @@ TEST_CASE("mask", "[mask]") {
         auto expected_image = fixtures->expected_dir + "/mask-circle-trim.png";
         auto params = "w=320&h=240&fit=cover&mask=circle&mtrim=true";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 240);
         CHECK(image.height() == 240);
@@ -45,10 +39,7 @@ TEST_CASE("mask", "[mask]") {
         auto expected_image = fixtures->expected_dir + "/mask-ellipse.png";
         auto params = "w=320&h=240&fit=cover&mask=ellipse";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -61,10 +52,7 @@ TEST_CASE("mask", "[mask]") {
         auto expected_image = fixtures->expected_dir + "/mask-triangle.png";
         auto params = "w=320&h=240&fit=cover&mask=triangle";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -77,10 +65,7 @@ TEST_CASE("mask", "[mask]") {
         auto expected_image = fixtures->expected_dir + "/mask-triangle-180.png";
         auto params = "w=320&h=240&fit=cover&mask=triangle-180";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -93,10 +78,7 @@ TEST_CASE("mask", "[mask]") {
         auto expected_image = fixtures->expected_dir + "/mask-pentagon.png";
         auto params = "w=320&h=240&fit=cover&mask=pentagon";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -109,10 +91,7 @@ TEST_CASE("mask", "[mask]") {
         auto expected_image = fixtures->expected_dir + "/mask-pentagon-180.png";
         auto params = "w=320&h=240&fit=cover&mask=pentagon-180";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -125,10 +104,7 @@ TEST_CASE("mask", "[mask]") {
         auto expected_image = fixtures->expected_dir + "/mask-hexagon.png";
         auto params = "w=320&h=240&fit=cover&mask=hexagon";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -141,10 +117,7 @@ TEST_CASE("mask", "[mask]") {
         auto expected_image = fixtures->expected_dir + "/mask-square.png";
         auto params = "w=320&h=240&fit=cover&mask=square";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -157,10 +130,7 @@ TEST_CASE("mask", "[mask]") {
         auto expected_image = fixtures->expected_dir + "/mask-star.png";
         auto params = "w=320&h=240&fit=cover&mask=star";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -173,10 +143,7 @@ TEST_CASE("mask", "[mask]") {
         auto expected_image = fixtures->expected_dir + "/mask-heart.png";
         auto params = "w=320&h=240&fit=cover&mask=heart";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -189,10 +156,7 @@ TEST_CASE("mask", "[mask]") {
         auto expected_image = fixtures->expected_dir + "/mask-star-trans.png";
         auto params = "w=320&h=240&fit=cover&mask=star";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -206,10 +170,7 @@ TEST_CASE("mask", "[mask]") {
             fixtures->expected_dir + "/mask-star-trans-bg.png";
         auto params = "w=320&h=240&fit=cover&mask=star&mbg=red";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -222,10 +183,7 @@ TEST_CASE("mask", "[mask]") {
         auto expected_image = fixtures->expected_dir + "/mask-2channel.png";
         auto params = "w=320&h=240&fit=cover&mask=triangle-180";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -237,10 +195,7 @@ TEST_CASE("mask", "[mask]") {
         auto test_image = fixtures->input_jpg;
         auto params = "mask=none";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         // Check if the image is unchanged
         CHECK_THAT(image, is_similar_image(test_image));

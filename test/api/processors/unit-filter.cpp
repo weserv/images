@@ -12,10 +12,7 @@ TEST_CASE("greyscale filter", "[filter]") {
     auto expected_image = fixtures->expected_dir + "/greyscale.jpg";
     auto params = "w=320&h=240&fit=cover&filt=greyscale";
 
-    std::string buffer;
-    std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-    VImage image = buffer_to_image(buffer);
+    VImage image = process_file<VImage>(test_image, params);
 
     CHECK(image.bands() == 1);
     CHECK(image.width() == 320);
@@ -30,10 +27,7 @@ TEST_CASE("sepia filter", "[filter]") {
         auto expected_image = fixtures->expected_dir + "/sepia.jpg";
         auto params = "w=320&h=240&fit=cover&filt=sepia";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -46,10 +40,7 @@ TEST_CASE("sepia filter", "[filter]") {
         auto expected_image = fixtures->expected_dir + "/sepia-trans.png";
         auto params = "w=320&h=240&fit=cover&filt=sepia";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -65,10 +56,7 @@ TEST_CASE("duotone filter", "[filter]") {
         auto expected_image = fixtures->expected_dir + "/duotone.jpg";
         auto params = "w=320&h=240&fit=cover&filt=duotone";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -81,10 +69,7 @@ TEST_CASE("duotone filter", "[filter]") {
         auto expected_image = fixtures->expected_dir + "/duotone-alpha.png";
         auto params = "w=320&h=240&fit=cover&filt=duotone";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -100,10 +85,7 @@ TEST_CASE("negate filter", "[filter]") {
         auto expected_image = fixtures->expected_dir + "/negate.jpg";
         auto params = "w=320&h=240&fit=cover&filt=negate";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -116,10 +98,7 @@ TEST_CASE("negate filter", "[filter]") {
         auto expected_image = fixtures->expected_dir + "/negate.png";
         auto params = "w=320&h=240&fit=cover&filt=negate";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -132,10 +111,7 @@ TEST_CASE("negate filter", "[filter]") {
         auto expected_image = fixtures->expected_dir + "/negate-trans.png";
         auto params = "w=320&h=240&fit=cover&filt=negate";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -149,10 +125,7 @@ TEST_CASE("negate filter", "[filter]") {
         auto expected_image = fixtures->expected_dir + "/negate-alpha.png";
         auto params = "w=320&h=240&fit=cover&filt=negate";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -162,8 +135,12 @@ TEST_CASE("negate filter", "[filter]") {
     }
 
     SECTION("webp") {
-        if (vips_type_find("VipsOperation", "webpload_buffer") == 0 ||
-            vips_type_find("VipsOperation", "webpsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation",
+                           pre_8_10 ? "webpload_buffer" : "webpload_source") ==
+                0 ||
+            vips_type_find("VipsOperation",
+                           pre_8_10 ? "webpsave_buffer" : "webpsave_target") ==
+                0) {
             SUCCEED("no webp support, skipping test");
             return;
         }
@@ -172,10 +149,7 @@ TEST_CASE("negate filter", "[filter]") {
         auto expected_image = fixtures->expected_dir + "/negate.webp";
         auto params = "w=320&h=240&fit=cover&filt=negate";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -184,8 +158,12 @@ TEST_CASE("negate filter", "[filter]") {
     }
 
     SECTION("webp transparent") {
-        if (vips_type_find("VipsOperation", "webpload_buffer") == 0 ||
-            vips_type_find("VipsOperation", "webpsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation",
+                           pre_8_10 ? "webpload_buffer" : "webpload_source") ==
+                0 ||
+            vips_type_find("VipsOperation",
+                           pre_8_10 ? "webpsave_buffer" : "webpsave_target") ==
+                0) {
             SUCCEED("no webp support, skipping test");
             return;
         }
@@ -194,10 +172,7 @@ TEST_CASE("negate filter", "[filter]") {
         auto expected_image = fixtures->expected_dir + "/negate-trans.webp";
         auto params = "w=320&h=240&fit=cover&filt=negate";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -211,10 +186,7 @@ TEST_CASE("invalid", "[filter]") {
     auto test_image = fixtures->input_jpg;
     auto params = "filt=none";
 
-    std::string buffer;
-    std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-    VImage image = buffer_to_image(buffer);
+    VImage image = process_file<VImage>(test_image, params);
 
     // Check if the image is unchanged
     CHECK_THAT(image, is_similar_image(test_image));

@@ -12,13 +12,9 @@ TEST_CASE("color", "[color]") {
         auto test_image = fixtures->input_png_pixel;
         auto params = "bg=ABC";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".png");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("pngload_buffer"));
 
         CHECK_THAT(image.getpoint(0, 0),
                    Equals(std::vector<double>{170, 187, 204}));
@@ -28,13 +24,9 @@ TEST_CASE("color", "[color]") {
         auto test_image = fixtures->input_png_pixel;
         auto params = "bg=%23ABC";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".png");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("pngload_buffer"));
 
         CHECK_THAT(image.getpoint(0, 0),
                    Equals(std::vector<double>{170, 187, 204}));
@@ -44,13 +36,9 @@ TEST_CASE("color", "[color]") {
         auto test_image = fixtures->input_png_pixel;
         auto params = "bg=3ABC";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".png");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("pngload_buffer"));
 
         CHECK_THAT(image.getpoint(0, 0),
                    Equals(std::vector<double>{170, 187, 204, 51}));
@@ -60,13 +48,9 @@ TEST_CASE("color", "[color]") {
         auto test_image = fixtures->input_png_pixel;
         auto params = "bg=%233ABC";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".png");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("pngload_buffer"));
 
         CHECK_THAT(image.getpoint(0, 0),
                    Equals(std::vector<double>{170, 187, 204, 51}));
@@ -76,13 +60,9 @@ TEST_CASE("color", "[color]") {
         auto test_image = fixtures->input_png_pixel;
         auto params = "bg=11FF33";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".png");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("pngload_buffer"));
 
         CHECK_THAT(image.getpoint(0, 0),
                    Equals(std::vector<double>{17, 255, 51}));
@@ -92,13 +72,9 @@ TEST_CASE("color", "[color]") {
         auto test_image = fixtures->input_png_pixel;
         auto params = "bg=%2311FF33";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".png");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("pngload_buffer"));
 
         CHECK_THAT(image.getpoint(0, 0),
                    Equals(std::vector<double>{17, 255, 51}));
@@ -108,13 +84,9 @@ TEST_CASE("color", "[color]") {
         auto test_image = fixtures->input_png_pixel;
         auto params = "bg=3311FF33";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".png");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("pngload_buffer"));
 
         CHECK_THAT(image.getpoint(0, 0),
                    Equals(std::vector<double>{17, 255, 51, 51}));
@@ -124,13 +96,9 @@ TEST_CASE("color", "[color]") {
         auto test_image = fixtures->input_png_pixel;
         auto params = "bg=%233311FF33";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".png");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("pngload_buffer"));
 
         CHECK_THAT(image.getpoint(0, 0),
                    Equals(std::vector<double>{17, 255, 51, 51}));
@@ -140,13 +108,9 @@ TEST_CASE("color", "[color]") {
         auto test_image = fixtures->input_png_pixel;
         auto params = "bg=black";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".png");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("pngload_buffer"));
 
         CHECK_THAT(image.getpoint(0, 0), Equals(std::vector<double>{0, 0, 0}));
     }
@@ -155,13 +119,9 @@ TEST_CASE("color", "[color]") {
         auto test_image = fixtures->input_png_pixel;
         auto params = "bg=ZXCZXCMM";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".png");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("pngload_buffer"));
 
         CHECK_THAT(image.getpoint(0, 0),
                    Equals(std::vector<double>{0, 0, 0, 0}));
@@ -171,13 +131,9 @@ TEST_CASE("color", "[color]") {
         auto test_image = fixtures->input_png_pixel;
         auto params = "bg=0123456X";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".png");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("pngload_buffer"));
 
         CHECK_THAT(image.getpoint(0, 0),
                    Equals(std::vector<double>{0, 0, 0, 0}));
@@ -187,13 +143,9 @@ TEST_CASE("color", "[color]") {
         auto test_image = fixtures->input_png_pixel;
         auto params = "bg=01";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".png");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("pngload_buffer"));
 
         CHECK_THAT(image.getpoint(0, 0),
                    Equals(std::vector<double>{0, 0, 0, 0}));
@@ -203,13 +155,9 @@ TEST_CASE("color", "[color]") {
         auto test_image = fixtures->input_png_pixel;
         auto params = "bg=01234";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".png");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("pngload_buffer"));
 
         CHECK_THAT(image.getpoint(0, 0),
                    Equals(std::vector<double>{0, 0, 0, 0}));
@@ -219,13 +167,9 @@ TEST_CASE("color", "[color]") {
         auto test_image = fixtures->input_png_pixel;
         auto params = "bg=012345678";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".png");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("pngload_buffer"));
 
         CHECK_THAT(image.getpoint(0, 0),
                    Equals(std::vector<double>{0, 0, 0, 0}));
@@ -235,13 +179,9 @@ TEST_CASE("color", "[color]") {
         auto test_image = fixtures->input_png_pixel;
         auto params = "bg=unknown";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".png");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("pngload_buffer"));
 
         CHECK_THAT(image.getpoint(0, 0),
                    Equals(std::vector<double>{0, 0, 0, 0}));
@@ -251,13 +191,9 @@ TEST_CASE("color", "[color]") {
         auto test_image = fixtures->input_png_pixel;
         auto params = "bg=";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".png");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("pngload_buffer"));
 
         CHECK_THAT(image.getpoint(0, 0),
                    Equals(std::vector<double>{0, 0, 0, 0}));

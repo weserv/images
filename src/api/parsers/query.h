@@ -1,8 +1,7 @@
 #pragma once
 
-#include "base.h"
-#include "color.h"
-#include "enums.h"
+#include "parsers/base.h"
+#include "parsers/color.h"
 #include "parsers/enumeration.h"
 #include "parsers/numeric.h"
 #include "parsers/query_holder.h"

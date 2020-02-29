@@ -1,6 +1,5 @@
 #pragma once
 
-#include "enums.h"
 #include "utils/utility.h"
 
 #include <mpark/variant.hpp>

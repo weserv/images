@@ -54,16 +54,25 @@ std::string SimilarImage::dhash(const VImage &image) const {
                                  ->set("no_rotate", true)
                                  ->set("linear", false);
 
-    auto thumbnail =
-        normalize(image.thumbnail_image(9, thumbnail_options).copy_memory())
-            .colourspace(VIPS_INTERPRETATION_B_W)[0];
+    VImage thumbnail =
+        image.thumbnail_image(9, thumbnail_options).copy_memory();
+
+    // Flatten it to mid-gray before generating a fingerprint.
+    if (image.has_alpha()) {
+        std::vector<double> background{128, 128, 128};  // #808080
+
+        thumbnail =
+            thumbnail.flatten(VImage::option()->set("background", background));
+    }
+
+    thumbnail = normalize(thumbnail).colourspace(VIPS_INTERPRETATION_B_W)[0];
 
     auto dhash_image =
         static_cast<uint8_t *>(thumbnail.write_to_memory(nullptr));
 
     // Calculate dHash
-    auto hash = 0;
-    auto bit = 1;
+    auto hash = 0u;
+    auto bit = 1u;
 
     for (int y = 0; y < 8; ++y) {
         for (int x = 0; x < 8; ++x) {
@@ -77,7 +86,7 @@ std::string SimilarImage::dhash(const VImage &image) const {
             }
 
             // Prepare the next loop
-            bit <<= 1;
+            bit <<= 1u;
         }
     }
 

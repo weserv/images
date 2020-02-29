@@ -15,11 +15,8 @@ TEST_CASE("orientation", "[orientation]") {
         std::vector<int> angles{-3690, -450, -90, 90, 450, 3690};
 
         for (const auto &angle : angles) {
-            std::string buffer;
-            std::tie(buffer, std::ignore) =
-                process_file(test_image, "ro=" + std::to_string(angle));
-
-            VImage image = buffer_to_image(buffer);
+            VImage image =
+                process_file<VImage>(test_image, "ro=" + std::to_string(angle));
 
             CHECK(image.width() == 240);
             CHECK(image.height() == 320);
@@ -33,11 +30,8 @@ TEST_CASE("orientation", "[orientation]") {
         std::vector<int> angles{-3780, -540, 0, 180, 540, 3780};
 
         for (const auto &angle : angles) {
-            std::string buffer;
-            std::tie(buffer, std::ignore) =
-                process_file(test_image, "ro=" + std::to_string(angle));
-
-            VImage image = buffer_to_image(buffer);
+            VImage image =
+                process_file<VImage>(test_image, "ro=" + std::to_string(angle));
 
             CHECK(image.width() == 320);
             CHECK(image.height() == 240);
@@ -60,10 +54,7 @@ TEST_CASE("auto rotate", "[orientation]") {
         for (size_t i = 0; i != landscape_fixtures.size(); i++) {
             auto test_image = landscape_fixtures[i];
 
-            std::string buffer;
-            std::tie(buffer, std::ignore) = process_file(test_image, "w=320");
-
-            VImage image = buffer_to_image(buffer);
+            VImage image = process_file<VImage>(test_image, "w=320");
 
             CHECK(image.width() == 320);
             CHECK(image.height() == 240);
@@ -92,10 +83,7 @@ TEST_CASE("auto rotate", "[orientation]") {
         for (size_t i = 0; i != portrait_fixtures.size(); i++) {
             auto test_image = portrait_fixtures[i];
 
-            std::string buffer;
-            std::tie(buffer, std::ignore) = process_file(test_image, "w=320");
-
-            VImage image = buffer_to_image(buffer);
+            VImage image = process_file<VImage>(test_image, "w=320");
 
             CHECK(image.width() == 320);
             CHECK(image.height() == 427);
@@ -116,10 +104,7 @@ TEST_CASE("rotate by 270 degrees, square output ignoring aspect ratio",
     auto test_image = fixtures->input_jpg;
     auto params = "w=240&h=240&fit=fill&ro=270";
 
-    std::string buffer;
-    std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-    VImage image = buffer_to_image(buffer);
+    VImage image = process_file<VImage>(test_image, params);
 
     CHECK(image.width() == 240);
     CHECK(image.height() == 240);
@@ -130,10 +115,7 @@ TEST_CASE("rotate by 270 degrees, rectangular output ignoring aspect ratio",
     auto test_image = fixtures->input_jpg;
     auto params = "w=320&h=240&fit=fill&ro=270";
 
-    std::string buffer;
-    std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-    VImage image = buffer_to_image(buffer);
+    VImage image = process_file<VImage>(test_image, params);
 
     CHECK(image.width() == 320);
     CHECK(image.height() == 240);

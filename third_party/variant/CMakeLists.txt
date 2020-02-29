@@ -2,7 +2,7 @@
 # https://github.com/mpark/variant/issues/43
 FetchContent_Declare(variant
         GIT_REPOSITORY https://github.com/mpark/variant.git
-        GIT_TAG 0467c3c
+        GIT_TAG 3c7fc82
         )
 
 FetchContent_GetProperties(variant)

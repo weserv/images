@@ -9,47 +9,118 @@
 std::shared_ptr<Fixtures> fixtures;
 std::shared_ptr<weserv::api::ApiManager> api_manager;
 
-std::pair<std::string, std::string> process_buffer(const std::string &buffer,
-                                                   const std::string &query) {
+bool pre_8_10 = /*false*/
+    vips_version(0) < 8 || (vips_version(0) == 8 && vips_version(1) < 10);
+
+VImage buffer_to_image(const std::string &buf) {
+    const char *operation_name =
+        vips_foreign_find_load_buffer(buf.c_str(), buf.size());
+
+    if (operation_name == nullptr) {
+        throw std::runtime_error("invalid or unsupported image format");
+    }
+
+    VImage out;
+
+    // We must take a copy of the data.
+    VipsBlob *blob = vips_blob_copy(buf.c_str(), buf.size());
+    vips::VOption *options = VImage::option()
+                                 ->set("access", VIPS_ACCESS_SEQUENTIAL)
+                                 ->set("buffer", blob)
+                                 ->set("out", &out);
+    vips_area_unref(VIPS_AREA(blob));
+
+    VImage::call(operation_name, options);
+
+    return out;
+}
+
+Status process(std::unique_ptr<SourceInterface> source,
+               std::unique_ptr<TargetInterface> target,
+               const std::string &query) {
+    return api_manager->process(query, std::move(source), std::move(target));
+}
+
+template <>
+std::string process_buffer<std::string>(const std::string &buffer,
+                                        const std::string &query) {
     std::string out_buf;
-    std::string out_ext;
-    auto status = api_manager->process(query, buffer, &out_buf, &out_ext);
-    if (status == Status::OK) {
-        return std::make_pair(out_buf, out_ext);
+    auto status = api_manager->process_buffer(query, buffer, &out_buf);
+    if (status.ok()) {
+        return out_buf;
     }
 
     throw std::runtime_error(status.message());
 }
 
-std::pair<std::string, std::string> process_file(const std::string &file,
-                                                 const std::string &query) {
-    std::ifstream t(file);
-    std::ostringstream buffer;
-    buffer << t.rdbuf();
-
-    const std::string buf = buffer.str();
-
-    return process_buffer(buf, query);
+template <>
+VImage process_buffer<VImage>(const std::string &buffer,
+                              const std::string &query) {
+    return buffer_to_image(process_buffer<std::string>(buffer, query));
 }
 
-Status check_buffer_status(const std::string &buffer,
-                           const std::string &query) {
-    return api_manager->process(query, buffer, nullptr, nullptr);
+Status process_buffer(const std::string &buffer, std::string *out_buf,
+                      const std::string &query) {
+    return api_manager->process_buffer(query, buffer, out_buf);
 }
 
-Status check_file_status(const std::string &file, const std::string &query) {
-    std::ifstream t(file);
-    std::ostringstream buffer;
-    buffer << t.rdbuf();
+template <>
+std::string process_file<std::string>(const std::string &file,
+                                      const std::string &query) {
+    std::string out_buf;
+    auto status = api_manager->process_file(query, file, &out_buf);
 
-    const std::string buf = buffer.str();
+    if (status.ok()) {
+        return out_buf;
+    }
 
-    return check_buffer_status(buf, query);
+    throw std::runtime_error(status.message());
 }
 
-VImage buffer_to_image(const std::string &buffer) {
-    return VImage::new_from_buffer(
-        buffer, "", VImage::option()->set("access", VIPS_ACCESS_SEQUENTIAL));
+template <>
+VImage process_file<VImage>(const std::string &file, const std::string &query) {
+    return buffer_to_image(process_file<std::string>(file, query));
+}
+
+template <>
+VImage process_file<VImage>(const std::string &in_file, std::string *out_file,
+                            const std::string &query) {
+    char tmpname[] = "/tmp/imageXXXXXX";
+    int fd = mkstemp(tmpname);
+    if (fd == -1) {
+        throw std::runtime_error("mkstemp temporary file failed");
+    }
+
+    auto status = api_manager->process_file(query, in_file, tmpname);
+    if (status.ok()) {
+        VImage image = VImage::new_from_file(
+            tmpname, VImage::option()->set("access", VIPS_ACCESS_SEQUENTIAL));
+        close(fd);
+
+        if (out_file == nullptr) {
+            // Caller is not interested in the output file, so just delete it
+            std::remove(tmpname);
+        } else {
+            // The caller is responsible for deleting the file
+            out_file->assign(tmpname, sizeof("/tmp/imageXXXXXX") - 1);
+        }
+
+        return image;
+    }
+
+    close(fd);
+    std::remove(tmpname);
+    throw std::runtime_error(status.message());
+}
+
+Status process_file(const std::string &in_file, const std::string &out_file,
+                    const std::string &query) {
+    return api_manager->process_file(query, in_file, out_file);
+}
+
+Status process_file(const std::string &file, std::string *out_buf,
+                    const std::string &query) {
+    return api_manager->process_file(query, file, out_buf);
 }
 
 int main(const int argc, const char *argv[]) {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "exceptions/large.h"
+#include "io/source.h"
 #include "processors/base.h"
 
 #include <algorithm>
@@ -18,10 +19,10 @@ class Thumbnail : ImageProcessor {
     /**
      * Use any shrink-on-load features available in the file import library.
      * @param image The source image.
-     * @param buffer Input buffer.
+     * @param source Source to read from.
      * @return An image that may have shrunk.
      */
-    VImage shrink_on_load(const VImage &image, const std::string &buffer) const;
+    VImage shrink_on_load(const VImage &image, const io::Source &source) const;
 
     VImage process(const VImage &image) const override;
 
@@ -57,11 +58,13 @@ class Thumbnail : ImageProcessor {
     /**
      * Find the pyramid level, if it's a pyr tiff.
      * We just look for two or more pages following roughly /2 shrinks.
+     * @param image The source image.
+     * @param source Source to read from.
      * @param width Input width.
      * @param height Input height.
      * @return The pyramid level.
      */
-    int resolve_tiff_pyramid(const VImage &image, const std::string &buffer,
+    int resolve_tiff_pyramid(const VImage &image, const io::Source &source,
                              int width, int height) const;
 
     /**
