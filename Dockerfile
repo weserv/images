@@ -54,12 +54,10 @@ RUN groupadd nginx \
 # Clone the repository
 RUN git clone --recurse-submodules https://github.com/weserv/images.git /var/www/imagesweserv
 
-WORKDIR /var/www/imagesweserv
+WORKDIR /var/www/imagesweserv/build
 
 # Build CMake-based project
-RUN mkdir build \
-    && cd build \
-    && cmake3 .. \
+RUN cmake3 .. \
        -DCMAKE_BUILD_TYPE=Release \
        -DNGX_VERSION=$NGINX_VERSION \
        -DCUSTOM_NGX_FLAGS="--prefix=/usr/share/nginx;\
@@ -78,8 +76,9 @@ RUN mkdir build \
 --user=nginx;\
 --group=nginx" \
     && make -j$(nproc) \
-    && ldconfig \
-    && cd ..
+    && ldconfig
+
+WORKDIR /var/www/imagesweserv
 
 # Ensure nginx directories exist
 RUN mkdir -p -m 700 /var/lib/nginx \
