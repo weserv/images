@@ -1,4 +1,4 @@
-# Install instructions (for CentOS 7)
+# Install instructions (for CentOS 8)
 
 ## Build dependencies
 
@@ -12,21 +12,24 @@
 
 ```bash
 # Install the EPEL repository configuration package
-yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+dnf install epel-release
 
 # Install the Remi repository configuration package
-yum install http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+dnf install https://rpms.remirepo.net/enterprise/remi-release-8.rpm
 
-# Install the Software Collections (SCL) package
-yum install centos-release-scl
+# Install the RPM Fusion repository configuration package (for libheif)
+dnf install --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm
 
-# Install the yum-utils package (for the yum-config-manager command)
-yum install yum-utils
+# Install the dnf-utils package (for the dnf config-manager command)
+dnf install dnf-utils
 
-# Command to enable the repository
-yum-config-manager --enable remi
+# Enable Remi's RPM repository
+dnf config-manager --set-enabled remi
 
-# Install libvips 8.8 (full-fat version)
+# Enable the PowerTools repository since EPEL packages may depend on packages from it
+dnf config-manager --set-enabled PowerTools
+
+# Install libvips 8.9 (full-fat version)
 yum install vips-full-devel
 
 # Install build requirements
@@ -34,9 +37,9 @@ yum install \
   autoconf \
   automake \
   cmake3 \
-  devtoolset-8-make \
-  devtoolset-8-gcc \
-  devtoolset-8-gcc-c++ \
+  make \
+  gcc \
+  gcc-c++ \
   git \
   glibc-devel \
   glibc-headers \
@@ -48,12 +51,7 @@ yum install \
 ## Build
 
 ```bash
-# Use the C and C++ compiler from devtoolset-8
-export CC=/opt/rh/devtoolset-8/root/usr/bin/gcc
-export CXX=/opt/rh/devtoolset-8/root/usr/bin/g++
-export PATH=/opt/rh/devtoolset-8/root/usr/bin${PATH:+:${PATH}}
-
-git clone https://github.com/weserv/images.git
+git clone --recurse-submodules https://github.com/weserv/images.git
 cd images
 mkdir build && cd build
 cmake3 .. \
