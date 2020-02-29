@@ -1,6 +1,6 @@
 FROM centos:8
 
-ARG NGINX_VERSION=1.17.7
+ARG NGINX_VERSION=1.17.8
 
 LABEL maintainer "Kleis Auke Wolthuizen <info@kleisauke.nl>"
 
@@ -82,15 +82,15 @@ WORKDIR /var/www/imagesweserv
 
 # Ensure nginx directories exist
 RUN mkdir -p -m 700 /var/lib/nginx \
-  && mkdir -p -m 700 /var/lib/nginx/tmp \
-  && mkdir -p -m 700 /var/log/nginx \
-  && mkdir -p -m 755 /usr/share/nginx/html \
-  && mkdir -p -m 755 /usr/lib64/nginx/modules \
-  # Forward request and error logs to docker log collector
-  && ln -sf /dev/stdout /var/log/nginx/weserv-access.log \
-  && ln -sf /dev/stderr /var/log/nginx/weserv-error.log \
-  # Copy nginx config to the appropriate location
-  && cp -r /var/www/imagesweserv/ngx_conf/. /etc/nginx
+    && mkdir -p -m 700 /var/lib/nginx/tmp \
+    && mkdir -p -m 700 /var/log/nginx \
+    && mkdir -p -m 755 /usr/share/nginx/html \
+    && mkdir -p -m 755 /usr/lib64/nginx/modules \
+    # Forward request and error logs to docker log collector
+    && ln -sf /dev/stdout /var/log/nginx/weserv-access.log \
+    && ln -sf /dev/stderr /var/log/nginx/weserv-error.log \
+    # Copy nginx config to the appropriate location
+    && cp -r /var/www/imagesweserv/ngx_conf/. /etc/nginx
 
 EXPOSE 80
 
