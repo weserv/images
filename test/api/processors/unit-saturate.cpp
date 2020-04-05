@@ -7,19 +7,16 @@
 
 using vips::VImage;
 
-TEST_CASE("saturate grayscale", "[saturate]") {
-    // SECTION("jpeg") {
-    //     auto test_image = fixtures->input_jpg;
-    //     auto expected_image = fixtures->expected_dir + "/saturate-0.jpg";
-    //     auto params = "sat=0";
+TEST_CASE("grayscale", "[saturate]") {
+    SECTION("jpeg") {
+        auto test_image = fixtures->input_jpg_saturate;
+        auto expected_image = fixtures->expected_dir + "/saturate-0.jpg";
+        auto params = "sat=0";
 
-    //     VImage image = process_file<VImage>(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-    //     CHECK(image.width() == 320);
-    //     CHECK(image.height() == 240);
-
-    //     CHECK_THAT(image, is_similar_image(expected_image));
-    // }
+        CHECK_THAT(image, is_similar_image(expected_image));
+    }
 
     SECTION("png") {
         auto test_image = fixtures->input_png_saturate;
@@ -34,16 +31,16 @@ TEST_CASE("saturate grayscale", "[saturate]") {
     }
 }
 
-TEST_CASE("saturate undersaturate", "[saturate]") {
-    // SECTION("jpeg") {
-    //     auto test_image = fixtures->input_jpg;
-    //     auto expected_image = fixtures->expected_dir + "/saturate-0.5.jpg";
-    //     auto params = "sat=0.5";
+TEST_CASE("undersaturate", "[saturate]") {
+    SECTION("jpeg") {
+        auto test_image = fixtures->input_jpg_saturate;
+        auto expected_image = fixtures->expected_dir + "/saturate-0.5.jpg";
+        auto params = "sat=0.5";
 
-    //     VImage image = process_file<VImage>(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-    //     CHECK_THAT(image, is_similar_image(expected_image));
-    // }
+        CHECK_THAT(image, is_similar_image(expected_image));
+    }
 
     SECTION("png") {
         auto test_image = fixtures->input_png_saturate;
@@ -58,20 +55,20 @@ TEST_CASE("saturate undersaturate", "[saturate]") {
     }
 }
 
-TEST_CASE("saturate identity", "[saturate]") {
-    // SECTION("jpeg") {
-    //     auto test_image = fixtures->input_jpg;
-    //     auto expected_image = fixtures->expected_dir + "/saturate-1.jpg";
-    //     auto params = "sat=1";
+TEST_CASE("identity", "[saturate]") {
+    SECTION("jpeg") {
+        auto test_image = fixtures->input_jpg_saturate;
+        auto expected_image = fixtures->input_png_saturate;
+        auto params = "sat=1";
 
-    //     VImage image = process_file<VImage>(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-    //     CHECK_THAT(image, is_similar_image(expected_image));
-    // }
+        CHECK_THAT(image, is_similar_image(expected_image));
+    }
 
     SECTION("png") {
         auto test_image = fixtures->input_png_saturate;
-        auto expected_image = fixtures->expected_dir + "/saturate-1.png";
+        auto expected_image = fixtures->input_png_saturate;
         auto params = "sat=1";
 
         VImage image = process_file<VImage>(test_image, params);
@@ -83,15 +80,15 @@ TEST_CASE("saturate identity", "[saturate]") {
 }
 
 TEST_CASE("saturate oversaturate", "[saturate]") {
-    // SECTION("jpeg") {
-    //     auto test_image = fixtures->input_jpg;
-    //     auto expected_image = fixtures->expected_dir + "/saturate-1.5.jpg";
-    //     auto params = "sat=1.5";
+    SECTION("jpeg") {
+        auto test_image = fixtures->input_jpg_saturate;
+        auto expected_image = fixtures->expected_dir + "/saturate-1.5.jpg";
+        auto params = "sat=1.5";
 
-    //     VImage image = process_file<VImage>(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-    //     CHECK_THAT(image, is_similar_image(expected_image));
-    // }
+        CHECK_THAT(image, is_similar_image(expected_image));
+    }
 
     SECTION("png") {
         auto test_image = fixtures->input_png_saturate;
