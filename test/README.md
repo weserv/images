@@ -65,7 +65,7 @@ cmake3 .. \
   -DBUILD_TESTS=ON \
   -DINSTALL_NGX_MODULE=OFF
 make
-make test
+CTEST_OUTPUT_ON_FAILURE=1 make test
 ```
 
 ## Integration tests

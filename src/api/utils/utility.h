@@ -14,8 +14,10 @@ namespace weserv {
 namespace api {
 namespace utils {
 
+using enums::ImageType;
+using enums::Output;
+using enums::Position;
 using vips::VImage;
-using namespace enums;
 
 #ifndef __has_builtin       // Optional of course.
 #define __has_builtin(x) 0  // Compatibility with non-clang compilers.
@@ -131,7 +133,7 @@ inline VImage line_cache(const VImage &image, const int tile_height) {
  * @note Assumes that a positive angle is given which is a multiple of 90.
  * @return Rotation as VipsAngle.
  */
-inline VipsAngle resolve_angle_rotation(int angle) {
+inline VipsAngle resolve_angle_rotation(const int angle) {
     switch (angle) {
         case 90:
             return VIPS_ANGLE_D90;
@@ -366,9 +368,15 @@ inline std::string image_to_json(const VImage &image,
         json << R"("pageHeight":)" << image.get_int(VIPS_META_PAGE_HEIGHT)
              << ",";
     }
+#if VIPS_VERSION_AT_LEAST(8, 9, 0)
+    if (image.get_typeof("loop") != 0) {
+        json << R"("loop":)" << image.get_int("loop") << ",";
+    }
+#else
     if (image.get_typeof("gif-loop") != 0) {
         json << R"("loop":)" << image.get_int("gif-loop") << ",";
     }
+#endif
 #if VIPS_VERSION_AT_LEAST(8, 9, 0)
     if (image.get_typeof("delay") != 0) {
         std::vector<int> delays = image.get_array_int("delay");
@@ -389,6 +397,10 @@ inline std::string image_to_json(const VImage &image,
         json << R"("delay":[)" << image.get_int("gif-delay") * 10 << "],";
     }
 #endif
+    if (image.get_typeof("heif-primary") != 0) {
+        json << R"("pagePrimary":)" << image.get_int("heif-primary") << ",";
+    }
+
     json << R"("hasProfile":)" << (has_profile(image) ? "true" : "false") << ","
          << R"("hasAlpha":)" << (image.has_alpha() ? "true" : "false") << ","
          << R"("orientation":)" << exif_orientation(image) << "}";

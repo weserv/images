@@ -71,13 +71,14 @@ VImage Contrast::sigmoid(const VImage &image, const double contrast) const {
 }
 
 VImage Contrast::process(const VImage &image) const {
-    auto con = query_->get_if<int>("con",
-                                   [](int c) {
-                                       // Contrast needs to be in the range of
-                                       // -100 - 100
-                                       return c >= -100 && c <= 100;
-                                   },
-                                   0);
+    auto con = query_->get_if<int>(
+        "con",
+        [](int c) {
+            // Contrast needs to be in the range of
+            // -100 - 100
+            return c >= -100 && c <= 100;
+        },
+        0);
 
     // Should we process the image?
     if (con == 0) {

@@ -13,10 +13,7 @@ TEST_CASE("tint", "[tint]") {
         auto expected_image = fixtures->expected_dir + "/tint-red.jpg";
         auto params = "w=320&h=240&fit=cover&tint=FF0000";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -29,10 +26,7 @@ TEST_CASE("tint", "[tint]") {
         auto expected_image = fixtures->expected_dir + "/tint-green.jpg";
         auto params = "w=320&h=240&fit=cover&tint=00FF00";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -45,10 +39,7 @@ TEST_CASE("tint", "[tint]") {
         auto expected_image = fixtures->expected_dir + "/tint-blue.jpg";
         auto params = "w=320&h=240&fit=cover&tint=0000FF";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -61,10 +52,7 @@ TEST_CASE("tint", "[tint]") {
         auto expected_image = fixtures->expected_dir + "/tint-sepia.jpg";
         auto params = "w=320&h=240&fit=cover&tint=704214";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -77,10 +65,7 @@ TEST_CASE("tint", "[tint]") {
         auto expected_image = fixtures->expected_dir + "/tint-alpha.png";
         auto params = "w=320&h=240&fit=cover&tint=704214";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -93,10 +78,7 @@ TEST_CASE("tint", "[tint]") {
         auto expected_image = fixtures->expected_dir + "/tint-cmyk.jpg";
         auto params = "w=320&h=240&fit=cover&tint=FF0000";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);

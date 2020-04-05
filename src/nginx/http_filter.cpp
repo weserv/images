@@ -1,6 +1,5 @@
 #include "http_filter.h"
 
-#include "http.h"
 #include "module.h"
 
 using ::weserv::api::utils::Status;
@@ -15,9 +14,14 @@ ngx_int_t check_image_too_large(ngx_event_pipe_t *p) {
         ngx_http_get_module_loc_conf(r, ngx_weserv_module));
 
     if (p->read_length > static_cast<off_t>(lc->max_size)) {
-        auto *http_connection = get_weserv_connection(r);
+        if (r == nullptr) {
+            return NGX_ERROR;
+        }
 
-        if (http_connection == nullptr) {
+        auto *ctx = reinterpret_cast<ngx_weserv_upstream_ctx_t *>(
+            ngx_http_get_module_ctx(r, ngx_weserv_module));
+
+        if (ctx == nullptr) {
             return NGX_ERROR;
         }
 
@@ -25,7 +29,7 @@ ngx_int_t check_image_too_large(ngx_event_pipe_t *p) {
                       "upstream has sent an too large body: %O bytes",
                       p->read_length);
 
-        http_connection->response_status =
+        ctx->response_status =
             Status(413,
                    "The image is too large to be downloaded. "
                    "Max image size: " +
@@ -112,9 +116,14 @@ ngx_int_t ngx_weserv_chunked_filter(ngx_event_pipe_t *p, ngx_buf_t *buf) {
     }
 
     auto *r = reinterpret_cast<ngx_http_request_t *>(p->input_ctx);
-    auto *http_connection = get_weserv_connection(r);
+    if (r == nullptr) {
+        return NGX_ERROR;
+    }
 
-    if (http_connection == nullptr) {
+    auto *ctx = reinterpret_cast<ngx_weserv_upstream_ctx_t *>(
+        ngx_http_get_module_ctx(r, ngx_weserv_module));
+
+    if (ctx == nullptr) {
         return NGX_ERROR;
     }
 
@@ -122,7 +131,7 @@ ngx_int_t ngx_weserv_chunked_filter(ngx_event_pipe_t *p, ngx_buf_t *buf) {
     prev = &buf->shadow;
 
     for (;;) {
-        rc = ngx_http_parse_chunked(r, buf, &http_connection->chunked);
+        rc = ngx_http_parse_chunked(r, buf, &ctx->chunked);
 
         if (rc == NGX_OK) {
             // a chunk has been parsed successfully
@@ -158,15 +167,15 @@ ngx_int_t ngx_weserv_chunked_filter(ngx_event_pipe_t *p, ngx_buf_t *buf) {
             ngx_log_debug2(NGX_LOG_DEBUG_EVENT, p->log, 0, "input buf #%d %p",
                            b->num, b->pos);
 
-            if (buf->last - buf->pos >= http_connection->chunked.size) {
-                buf->pos += (size_t)http_connection->chunked.size;
+            if (buf->last - buf->pos >= ctx->chunked.size) {
+                buf->pos += (size_t)ctx->chunked.size;
                 b->last = buf->pos;
-                http_connection->chunked.size = 0;
+                ctx->chunked.size = 0;
 
                 continue;
             }
 
-            http_connection->chunked.size -= buf->last - buf->pos;
+            ctx->chunked.size -= buf->last - buf->pos;
             buf->pos = buf->last;
             b->last = buf->last;
 
@@ -185,7 +194,7 @@ ngx_int_t ngx_weserv_chunked_filter(ngx_event_pipe_t *p, ngx_buf_t *buf) {
         if (rc == NGX_AGAIN) {
             // set p->length, minimal amount of data we want to see
 
-            p->length = http_connection->chunked.length;
+            p->length = ctx->chunked.length;
 
             break;
         }
@@ -199,7 +208,7 @@ ngx_int_t ngx_weserv_chunked_filter(ngx_event_pipe_t *p, ngx_buf_t *buf) {
 
     ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                    "http proxy chunked state %ui, length %O",
-                   http_connection->chunked.state, p->length);
+                   ctx->chunked.state, p->length);
 
     if (check_image_too_large(p) != NGX_OK) {
         p->upstream_done = 1;
@@ -227,9 +236,14 @@ ngx_int_t ngx_weserv_chunked_filter(ngx_event_pipe_t *p, ngx_buf_t *buf) {
 
 ngx_int_t ngx_weserv_input_filter_init(void *data) {
     auto *r = reinterpret_cast<ngx_http_request_t *>(data);
-    auto *http_connection = get_weserv_connection(r);
+    if (r == nullptr) {
+        return NGX_ERROR;
+    }
 
-    if (http_connection == nullptr) {
+    auto *ctx = reinterpret_cast<ngx_weserv_upstream_ctx_t *>(
+        ngx_http_get_module_ctx(r, ngx_weserv_module));
+
+    if (ctx == nullptr) {
         return NGX_ERROR;
     }
 
@@ -237,8 +251,8 @@ ngx_int_t ngx_weserv_input_filter_init(void *data) {
 
     ngx_log_debug3(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                    "weserv upstream filter initialized s:%ui c:%d l:%O",
-                   http_connection->response_status.code(),
-                   u->headers_in.chunked, u->headers_in.content_length_n);
+                   ctx->response_status.code(), u->headers_in.chunked,
+                   u->headers_in.content_length_n);
 
     // as per RFC2616, 4.4 Message Length
 

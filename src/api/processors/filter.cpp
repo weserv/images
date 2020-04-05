@@ -4,7 +4,8 @@ namespace weserv {
 namespace api {
 namespace processors {
 
-using namespace enums;
+using enums::FilterType;
+using parsers::Color;
 
 VImage Filter::process(const VImage &image) const {
     auto filter_type = query_->get<FilterType>("filt", FilterType::None);
@@ -27,32 +28,29 @@ VImage Filter::process(const VImage &image) const {
                 0.2392, 0.4696, 0.0912
             };
 
+            auto matrix =
+                image.bands() == 3
+                    ? VImage::new_from_memory(sepia.begin(), 9 * sizeof(double),
+                                              3, 3, 1, VIPS_FORMAT_DOUBLE)
+                    : VImage::new_matrixv(4, 4,
+                                          sepia[0], sepia[1], sepia[2], 0.0,
+                                          sepia[3], sepia[4], sepia[5], 0.0,
+                                          sepia[6], sepia[7], sepia[8], 0.0,
+                                          0.0, 0.0, 0.0, 1.0);
+
             return image
                 .colourspace(VIPS_INTERPRETATION_sRGB)
-                .recomb(image.bands() == 3
-                        ? VImage::new_from_memory(sepia.begin(), 9 * sizeof(double), 3,
-                                                  3, 1, VIPS_FORMAT_DOUBLE)
-                        : VImage::new_matrixv(4, 4,
-                                              sepia[0], sepia[1], sepia[2], 0.0,
-                                              sepia[3], sepia[4], sepia[5], 0.0,
-                                              sepia[6], sepia[7], sepia[8], 0.0,
-                                              0.0, 0.0, 0.0, 1.0));
+                .recomb(matrix);
             // clang-format on
         }
         case FilterType::Duotone: {
             // #C83658 by default
             std::vector<double> start =
-                query_
-                    ->get<parsers::Color>("start",
-                                          parsers::Color(255, 200, 54, 88))
-                    .to_lab();
+                query_->get<Color>("start", Color(255, 200, 54, 88)).to_lab();
 
             // #D8E74F by default
             std::vector<double> stop =
-                query_
-                    ->get<parsers::Color>("stop",
-                                          parsers::Color(255, 216, 231, 79))
-                    .to_lab();
+                query_->get<Color>("stop", Color(255, 216, 231, 79)).to_lab();
 
             // Perform duotone filter manipulation
             auto lut = VImage::identity() / 255;
@@ -70,9 +68,6 @@ VImage Filter::process(const VImage &image) const {
             // pixel value in the lut and replacing it with the pre-calculated
             // result.
             if (image.has_alpha()) {
-                // The image isn't premultiplied anymore
-                query_->update("premultiplied", false);
-
                 // Separate alpha channel
                 auto image_without_alpha = image.extract_band(
                     0, VImage::option()->set("n", image.bands() - 1));
@@ -88,9 +83,6 @@ VImage Filter::process(const VImage &image) const {
         default:
             // Perform negate filter manipulation
             if (image.has_alpha()) {
-                // The image isn't premultiplied anymore
-                query_->update("premultiplied", false);
-
                 // Separate alpha channel
                 auto image_without_alpha = image.extract_band(
                     0, VImage::option()->set("n", image.bands() - 1));

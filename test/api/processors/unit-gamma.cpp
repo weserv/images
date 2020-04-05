@@ -15,10 +15,7 @@ TEST_CASE("gamma", "[gamma]") {
         // Above q=90, libvips will write 4:4:4, ie. no subsampling of Cr and Cb
         auto params = "gam=true&q=95";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 258);
         CHECK(image.height() == 222);
@@ -33,10 +30,7 @@ TEST_CASE("gamma", "[gamma]") {
         // Above q=90, libvips will write 4:4:4, ie. no subsampling of Cr and Cb
         auto params = "gam=3&q=95";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 258);
         CHECK(image.height() == 222);
@@ -49,10 +43,7 @@ TEST_CASE("gamma", "[gamma]") {
         auto expected_image = fixtures->expected_dir + "/gamma-alpha.png";
         auto params = "w=320&gam=true";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
 
@@ -63,10 +54,7 @@ TEST_CASE("gamma", "[gamma]") {
         auto test_image = fixtures->input_jpg;
         auto params = "gam=100000000";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         // Check if the image is unchanged
         CHECK_THAT(image, is_similar_image(test_image));

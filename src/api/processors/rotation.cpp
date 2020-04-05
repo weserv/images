@@ -4,10 +4,12 @@ namespace weserv {
 namespace api {
 namespace processors {
 
+using parsers::Color;
+
 VImage Rotation::process(const VImage &image) const {
     // Only arbitrary angles are valid
-    auto rotation =
-        query_->get_if<int>("ro", [](int r) { return r % 90 != 0; }, 0);
+    auto rotation = query_->get_if<int>(
+        "ro", [](int r) { return r % 90 != 0; }, 0);
 
     // Should we process the image?
     // Skip for for multi-page images
@@ -16,7 +18,7 @@ VImage Rotation::process(const VImage &image) const {
     }
 
     // A background color can be specified with the rbg parameter
-    auto bg = query_->get<parsers::Color>("rbg", parsers::Color::DEFAULT);
+    auto bg = query_->get<Color>("rbg", Color::DEFAULT);
 
     if (!query_->get<bool>("has_alpha", false)) {
         // The image may now have an alpha channel

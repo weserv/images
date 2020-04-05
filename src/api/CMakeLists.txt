@@ -2,6 +2,8 @@ set(HEADERS
         exceptions/invalid.h
         exceptions/large.h
         exceptions/unreadable.h
+        io/source.h
+        io/target.h
         parsers/color.h
         parsers/enumeration.h
         parsers/numeric.h
@@ -12,7 +14,6 @@ set(HEADERS
         processors/base.h
         processors/blur.h
         processors/brightness.h
-        processors/buffer.h
         processors/contrast.h
         processors/crop.h
         processors/embed.h
@@ -23,6 +24,7 @@ set(HEADERS
         processors/rotation.h
         processors/saturate.h
         processors/sharpen.h
+        processors/stream.h
         processors/thumbnail.h
         processors/tint.h
         processors/trim.h
@@ -34,11 +36,12 @@ set(HEADERS
 set(SOURCES
         parsers/color.cpp
         parsers/query.cpp
+        io/source.cpp
+        io/target.cpp
         processors/alignment.cpp
         processors/background.cpp
         processors/blur.cpp
         processors/brightness.cpp
-        processors/buffer.cpp
         processors/contrast.cpp
         processors/crop.cpp
         processors/embed.cpp
@@ -49,6 +52,7 @@ set(SOURCES
         processors/rotation.cpp
         processors/saturate.cpp
         processors/sharpen.cpp
+        processors/stream.cpp
         processors/thumbnail.cpp
         processors/tint.cpp
         processors/trim.cpp

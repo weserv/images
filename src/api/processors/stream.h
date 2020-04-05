@@ -3,6 +3,8 @@
 #include "exceptions/invalid.h"
 #include "exceptions/large.h"
 #include "exceptions/unreadable.h"
+#include "io/source.h"
+#include "io/target.h"
 #include "processors/base.h"
 
 #include <algorithm>
@@ -14,14 +16,13 @@ namespace weserv {
 namespace api {
 namespace processors {
 
-class ImageBuffer {
+class Stream {
  public:
-    explicit ImageBuffer(parsers::QueryHolderPtr query)
-        : query_(std::move(query)) {}
+    explicit Stream(parsers::QueryHolderPtr query) : query_(std::move(query)) {}
 
-    VImage from_buffer(const std::string &buf) const;
+    VImage new_from_source(const io::Source &source) const;
 
-    std::pair<std::string, std::string> to_buffer(const VImage &image) const;
+    void write_to_target(const VImage &image, const io::Target &target) const;
 
  private:
     /**
@@ -33,37 +34,37 @@ class ImageBuffer {
      * Finds the largest/smallest page in the range [0, VIPS_META_N_PAGES].
      * Pages are compared using the given comparison function.
      * See: https://github.com/weserv/images/issues/170.
-     * @param buf Image buffer.
+     * @param source Source to read from.
      * @param loader Image loader.
      * @param comp Comparison function object.
      * @return The largest/smallest page in the range [0, VIPS_META_N_PAGES].
      */
     template <typename Comparator>
-    int resolve_page(const std::string &buf, const std::string &loader,
+    int resolve_page(const io::Source &source, const std::string &loader,
                      Comparator comp) const;
 
     /**
      * Get the page options for a specified loader to pass on
      * to the load operation.
-     * @param buf Image buffer.
+     * @param source Source to read from.
      * @param loader Image loader.
      * @return Any options to pass on to the load operation
      */
-    std::pair<int, int> get_page_load_options(const std::string &buf,
+    std::pair<int, int> get_page_load_options(const io::Source &souce,
                                               const std::string &loader) const;
 
     /**
-     * Load a formatted image from memory.
-     * @note This behaves exactly as `VImage::new_from_buffer`, but the loader
+     * Load a formatted image from a source.
+     * @note This behaves exactly as `VImage::new_from_source`, but the loader
      *       can be specified instead of being found automatically.
      *       It will throw a `UnreadableImageException` if an error occurs
      *       during loading.
-     * @param buf Image buffer.
+     * @param source Source to read from.
      * @param loader Image loader.
      * @param options Any options to pass on to the load operation.
      * @return A new `VImage`.
      */
-    VImage new_from_buffer(const std::string &buf, const std::string &loader,
+    VImage new_from_source(const io::Source &source, const std::string &loader,
                            vips::VOption *options) const;
 
     /**

@@ -13,10 +13,7 @@ TEST_CASE("contrast", "[contrast]") {
         auto expected_image = fixtures->expected_dir + "/contrast-increase.jpg";
         auto params = "w=320&h=240&fit=cover&con=30";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -29,10 +26,7 @@ TEST_CASE("contrast", "[contrast]") {
         auto expected_image = fixtures->expected_dir + "/contrast-decrease.jpg";
         auto params = "w=320&h=240&fit=cover&con=-30";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -44,10 +38,7 @@ TEST_CASE("contrast", "[contrast]") {
         auto test_image = fixtures->input_jpg;
         auto params = "con=100000000";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         // Check if the image is unchanged
         CHECK_THAT(image, is_similar_image(test_image));

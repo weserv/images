@@ -1,8 +1,8 @@
 #include "handler.h"
 
 #include "alloc.h"
-#include "api.h"
-#include "module.h"
+#include "error.h"
+#include "http.h"
 #include "uri_parser.h"
 #include "util.h"
 
@@ -25,9 +25,9 @@ ngx_int_t ngx_weserv_request_handler(ngx_http_request_t *r) {
     }
 
     if (lc->mode == NGX_WESERV_FILE_MODE) {
-        // Allocate a weserv module context
-        auto *ctx = register_pool_cleanup(
-            r->pool, new (r->pool) ngx_weserv_filter_ctx_t());
+        // Allocate a weserv base module context
+        auto *ctx = register_pool_cleanup(r->pool, new (r->pool)
+                                                       ngx_weserv_base_ctx_t());
 
         if (ctx == nullptr) {
             return NGX_HTTP_INTERNAL_SERVER_ERROR;
@@ -63,21 +63,25 @@ ngx_int_t ngx_weserv_request_handler(ngx_http_request_t *r) {
         return ngx_http_output_filter(r, &out);
     }
 
-    // Allocate a weserv module context and set its field to http_connection
+    // Allocate a weserv upstream module context
     auto *ctx = register_pool_cleanup(r->pool, new (r->pool)
                                                    ngx_weserv_upstream_ctx_t());
     if (ctx == nullptr) {
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
 
-    // Allocate the HTTP connection
-    auto *http_connection = register_pool_cleanup(
-        r->pool, new (r->pool) ngx_weserv_http_connection());
-    if (http_connection == nullptr) {
-        return NGX_HTTP_INTERNAL_SERVER_ERROR;
-    }
+#if NGX_DEBUG
+    ngx_str_t debug;
+    if (ngx_http_arg(r, (u_char *)"debug", 5, &debug) == NGX_OK) {
+        ctx->debug = ngx_atoof(debug.data, debug.len);
 
-    ctx->http_subrequest = http_connection;
+        if (ctx->debug == NGX_ERROR || ctx->debug > 3) {
+            ctx->debug = 0;
+        }
+    } else {
+        ctx->debug = 0;
+    }
+#endif
 
     // Set the request's weserv module context
     ngx_http_set_ctx(r, ctx, ngx_weserv_module);
@@ -88,14 +92,13 @@ ngx_int_t ngx_weserv_request_handler(ngx_http_request_t *r) {
         .set_header("User-Agent", lc->user_agent);
 
     // Store the caller's request
-    http_connection->request = std::move(http_request);
+    ctx->request = std::move(http_request);
 
-    rc = ngx_weserv_send_http_request(r, http_connection);
+    rc = ngx_weserv_send_http_request(r, ctx);
 
     if (rc == NGX_ERROR) {
         ngx_chain_t out;
-        if (ngx_weserv_return_error(r, http_connection->response_status,
-                                    &out) != NGX_OK) {
+        if (ngx_weserv_return_error(r, ctx->response_status, &out) != NGX_OK) {
             return NGX_ERROR;
         }
 

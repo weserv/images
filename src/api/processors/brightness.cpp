@@ -5,13 +5,14 @@ namespace api {
 namespace processors {
 
 VImage Brightness::process(const VImage &image) const {
-    auto bri = query_->get_if<int>("bri",
-                                   [](int b) {
-                                       // Brightness needs to be in the range of
-                                       // -100 - 100
-                                       return b >= -100 && b <= 100;
-                                   },
-                                   0);
+    auto bri = query_->get_if<int>(
+        "bri",
+        [](int b) {
+            // Brightness needs to be in the range of
+            // -100 - 100
+            return b >= -100 && b <= 100;
+        },
+        0);
 
     // Should we process the image?
     if (bri == 0) {
@@ -23,9 +24,6 @@ VImage Brightness::process(const VImage &image) const {
 
     // Edit the brightness
     if (image.has_alpha()) {
-        // The image isn't premultiplied anymore
-        query_->update("premultiplied", false);
-
         // Separate alpha channel
         auto image_without_alpha = image.extract_band(
             0, VImage::option()->set("n", image.bands() - 1));

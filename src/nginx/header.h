@@ -15,7 +15,7 @@ namespace nginx {
 ngx_int_t set_expires_header(ngx_http_request_t *r, time_t max_age);
 
 ngx_int_t set_content_disposition_header(ngx_http_request_t *r,
-                                         ngx_str_t *value);
+                                         const std::string &extension);
 
 ngx_int_t set_location_header(ngx_http_request_t *r, ngx_str_t *value);
 

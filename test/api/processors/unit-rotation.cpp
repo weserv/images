@@ -5,6 +5,7 @@
 
 #include <vips/vips8>
 
+using Catch::Matchers::Equals;
 using vips::VImage;
 
 TEST_CASE("rotation", "[rotation]") {
@@ -14,13 +15,9 @@ TEST_CASE("rotation", "[rotation]") {
             fixtures->expected_dir + "/rotate-transparent-bg.png";
         auto params = "w=320&ro=30&rbg=80FF0000&fsol=0";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".png");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("pngload_buffer"));
 
         CHECK(image.width() == 408);
         CHECK(image.height() == 386);
@@ -33,13 +30,9 @@ TEST_CASE("rotation", "[rotation]") {
         auto expected_image = fixtures->expected_dir + "/rotate-solid-bg.jpg";
         auto params = "w=320&ro=30&rbg=FF0000&fsol=0";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".jpg");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("jpegload_buffer"));
 
         CHECK(image.width() == 408);
         CHECK(image.height() == 386);
@@ -51,13 +44,9 @@ TEST_CASE("rotation", "[rotation]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=320&h=240&fit=cover&ro=30&output=jpg";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".jpg");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("jpegload_buffer"));
 
         CHECK(image.width() == 397);
         CHECK(image.height() == 368);
@@ -69,11 +58,8 @@ TEST_CASE("rotation", "[rotation]") {
         std::vector<int> angles{-3750, -510, -150, 30, 390, 3630};
 
         for (const auto &angle : angles) {
-            std::string buffer;
-            std::tie(buffer, std::ignore) =
-                process_file(test_image, "ro=" + std::to_string(angle));
-
-            VImage image = buffer_to_image(buffer);
+            VImage image =
+                process_file<VImage>(test_image, "ro=" + std::to_string(angle));
 
             CHECK(image.width() == 397);
             CHECK(image.height() == 368);
@@ -84,10 +70,7 @@ TEST_CASE("rotation", "[rotation]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=240&h=240&fit=fill&ro=315&output=jpg";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 339);
         CHECK(image.height() == 339);
@@ -97,10 +80,7 @@ TEST_CASE("rotation", "[rotation]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=320&h=240&fit=fill&ro=30&output=jpg";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 397);
         CHECK(image.height() == 368);

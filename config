@@ -12,25 +12,27 @@ ngx_module_type=HTTP_AUX_FILTER
 ngx_module_name=$ngx_addon_name
 ngx_module_deps=" \
   $ngx_addon_dir/src/nginx/alloc.h \
-  $ngx_addon_dir/src/nginx/api.h \
   $ngx_addon_dir/src/nginx/environment.h \
+  $ngx_addon_dir/src/nginx/error.h \
   $ngx_addon_dir/src/nginx/handler.h \
   $ngx_addon_dir/src/nginx/header.h \
   $ngx_addon_dir/src/nginx/http.h \
   $ngx_addon_dir/src/nginx/http_filter.h \
   $ngx_addon_dir/src/nginx/http_request.h \
   $ngx_addon_dir/src/nginx/module.h \
+  $ngx_addon_dir/src/nginx/stream.h \
   $ngx_addon_dir/src/nginx/uri_parser.h \
   $ngx_addon_dir/src/nginx/util.h \
 "
 ngx_module_srcs=" \
-  $ngx_addon_dir/src/nginx/api.cpp \
   $ngx_addon_dir/src/nginx/environment.cpp \
+  $ngx_addon_dir/src/nginx/error.cpp \
   $ngx_addon_dir/src/nginx/handler.cpp \
   $ngx_addon_dir/src/nginx/header.cpp \
   $ngx_addon_dir/src/nginx/http.cpp \
   $ngx_addon_dir/src/nginx/http_filter.cpp \
   $ngx_addon_dir/src/nginx/module.cpp \
+  $ngx_addon_dir/src/nginx/stream.cpp \
   $ngx_addon_dir/src/nginx/uri_parser.cpp \
   $ngx_addon_dir/src/nginx/util.cpp \
 "

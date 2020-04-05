@@ -4,7 +4,11 @@ namespace weserv {
 namespace api {
 namespace parsers {
 
-using namespace enums;
+using enums::Canvas;
+using enums::FilterType;
+using enums::MaskType;
+using enums::Output;
+using enums::Position;
 
 // `&[precrop]=true`
 constexpr size_t MAX_KEY_LENGTH = sizeof("precrop") - 1;

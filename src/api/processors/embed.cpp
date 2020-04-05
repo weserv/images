@@ -4,7 +4,9 @@ namespace weserv {
 namespace api {
 namespace processors {
 
-using namespace enums;
+using enums::Canvas;
+using enums::Position;
+using parsers::Color;
 
 VImage Embed::process(const VImage &image) const {
     // Should we process the image?
@@ -14,20 +16,22 @@ VImage Embed::process(const VImage &image) const {
 
     int image_width = image.width();
     int image_height = image.height();
-    auto width = query_->get_if<int>("w",
-                                     [](int w) {
-                                         // A dimension needs to be higher than
-                                         // 0
-                                         return w > 0;
-                                     },
-                                     image_width);
-    auto height = query_->get_if<int>("h",
-                                      [](int h) {
-                                          // A dimension needs to be higher than
-                                          // 0
-                                          return h > 0;
-                                      },
-                                      image_height);
+    auto width = query_->get_if<int>(
+        "w",
+        [](int w) {
+            // A dimension needs to be higher than
+            // 0
+            return w > 0;
+        },
+        image_width);
+    auto height = query_->get_if<int>(
+        "h",
+        [](int h) {
+            // A dimension needs to be higher than
+            // 0
+            return h > 0;
+        },
+        image_height);
 
     // Return early when required dimensions are met
     if (image_width == width && image_height == height) {
@@ -35,7 +39,7 @@ VImage Embed::process(const VImage &image) const {
     }
 
     // A background color can be specified with the cbg parameter
-    auto bg = query_->get<parsers::Color>("cbg", parsers::Color::DEFAULT);
+    auto bg = query_->get<Color>("cbg", Color::DEFAULT);
 
     auto embed_position = query_->get<Position>("a", Position::Center);
 

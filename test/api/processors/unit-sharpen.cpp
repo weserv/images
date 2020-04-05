@@ -5,6 +5,7 @@
 
 #include <vips/vips8>
 
+using Catch::Matchers::Equals;
 using vips::VImage;
 
 TEST_CASE("sharpen", "[sharpen]") {
@@ -14,10 +15,7 @@ TEST_CASE("sharpen", "[sharpen]") {
         auto expected_image = fixtures->expected_dir + "/sharpen-10.jpg";
         auto params = "w=320&h=240&fit=cover&sharp=6";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -31,10 +29,7 @@ TEST_CASE("sharpen", "[sharpen]") {
         auto expected_image = fixtures->expected_dir + "/sharpen-3-0.5-2.5.jpg";
         auto params = "w=320&h=240&fit=cover&sharp=1.5&sharpf=0.5&sharpj=2.5";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -48,10 +43,7 @@ TEST_CASE("sharpen", "[sharpen]") {
         auto expected_image = fixtures->expected_dir + "/sharpen-5-2-4.jpg";
         auto params = "w=320&h=240&fit=cover&sharp=3.5&sharpf=2&sharpj=4";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -65,13 +57,9 @@ TEST_CASE("sharpen", "[sharpen]") {
         auto expected_image = fixtures->expected_dir + "/sharpen-rgba.png";
         auto params = "w=320&h=240&fit=cover&sharp=5&sharpf=4&sharpj=8";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".png");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("pngload_buffer"));
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -84,10 +72,7 @@ TEST_CASE("sharpen", "[sharpen]") {
         auto expected_image = fixtures->expected_dir + "/sharpen-mild.jpg";
         auto params = "w=320&h=240&fit=cover&sharp=true";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -100,10 +85,7 @@ TEST_CASE("sharpen", "[sharpen]") {
         auto expected_image = fixtures->expected_dir + "/sharpen-cmyk.jpg";
         auto params = "w=320&h=240&fit=cover&sharp=6";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.interpretation() == VIPS_INTERPRETATION_sRGB);
         CHECK(image.width() == 320);
@@ -117,10 +99,7 @@ TEST_CASE("sharpen", "[sharpen]") {
         auto expected_image = fixtures->expected_dir + "/sharpen-3-0.5-2.5.jpg";
         auto params = "w=320&h=240&fit=cover&sharp=0.5,2.5,1.5";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -132,10 +111,7 @@ TEST_CASE("sharpen", "[sharpen]") {
         auto test_image = fixtures->input_jpg;
         auto params = "sharp=-1,-1,-1,-1";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         // Check if the image is unchanged
         CHECK_THAT(image, is_similar_image(test_image));

@@ -19,8 +19,8 @@ done
 # Define variables
 version=${VIPS_VERSION}
 pre_version=${VIPS_PRE_VERSION}
-tar_version=${VIPS_TAR_VERSION}
-vips_tarball=https://github.com/libvips/libvips/releases/download/v${version}${pre_version:+-$pre_version}/vips-${tar_version:-$version}.tar.gz
+tag_version=${version}${pre_version:+-$pre_version}
+vips_tarball=https://github.com/libvips/libvips/releases/download/v${tag_version}/vips-${tag_version}.tar.gz
 
 # Exit immediately if a command exits with a non-zero status
 set -e
