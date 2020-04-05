@@ -51,6 +51,9 @@ struct Fixtures {
 
     std::string input_jpg_overlay_layer_2{dir + "/alpha-layer-2-ink.jpg"};
 
+    // https://images.unsplash.com/photo-1586015910630-34cc709e5f91
+    std::string input_jpg_saturate{dir + "/photo-1586015910630-34cc709e5f91.png"}
+
     // PNG images
 
     // https://c.searspartsdirect.com/lis_png/PLDM/50020484-00001.png
@@ -81,8 +84,8 @@ struct Fixtures {
     // https://www.flickr.com/photos/grizdave/2569067123/ (same as input_jpg)
     std::string input_png_rgb_with_alpha{dir + "/2569067123_aca715a2ee_o.png"};
 
-    // 
-    std::string input_png_saturate{dir + "/54781d55fbfc71a0112fe449e50ddba0d2919f7b.png"}
+    // https://images.unsplash.com/photo-1586015910630-34cc709e5f91 (same as input_jpg_saturate)
+    std::string input_png_saturate{dir + "/photo-1586015910630-34cc709e5f91.png"}
 
     // Other images formats
 
