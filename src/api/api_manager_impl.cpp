@@ -134,6 +134,7 @@ Status ApiManagerImpl::process(const std::string &query,
     auto tint = processors::Tint(query_holder);
     auto background = processors::Background(query_holder);
     auto mask = processors::Mask(query_holder);
+    auto saturate = processors::Saturate(query_holder);
 
     std::string buf;
     std::string extension;
@@ -156,7 +157,7 @@ Status ApiManagerImpl::process(const std::string &query,
 
         // Image processing phase 3 (adjustments, effects, etc.)
         image = image | embed | rotation | brightness | contrast | gamma |
-                sharpen | filter | blur | tint | background | mask;
+                sharpen | filter | blur | tint | background | mask | saturate;
 
         // Write the image to a buffer
         std::tie(buf, extension) = image_buffer.to_buffer(image);

@@ -21,6 +21,7 @@ set(HEADERS
         processors/mask.h
         processors/orientation.h
         processors/rotation.h
+        processors/saturate.h
         processors/sharpen.h
         processors/thumbnail.h
         processors/tint.h
@@ -46,6 +47,7 @@ set(SOURCES
         processors/mask.cpp
         processors/orientation.cpp
         processors/rotation.cpp
+        processors/saturate.cpp
         processors/sharpen.cpp
         processors/thumbnail.cpp
         processors/tint.cpp

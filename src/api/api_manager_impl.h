@@ -17,6 +17,7 @@
 #include "processors/mask.h"
 #include "processors/orientation.h"
 #include "processors/rotation.h"
+#include "processors/saturate.h"
 #include "processors/sharpen.h"
 #include "processors/thumbnail.h"
 #include "processors/tint.h"
