@@ -81,6 +81,9 @@ struct Fixtures {
     // https://www.flickr.com/photos/grizdave/2569067123/ (same as input_jpg)
     std::string input_png_rgb_with_alpha{dir + "/2569067123_aca715a2ee_o.png"};
 
+    // 
+    std::string input_png_saturate{dir + "/54781d55fbfc71a0112fe449e50ddba0d2919f7b.png"}
+
     // Other images formats
 
     // https://www.gstatic.com/webp/gallery/4.webp
