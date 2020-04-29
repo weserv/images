@@ -1,6 +1,5 @@
 #pragma once
 
-#include "enums.h"
 #include "utils/utility.h"
 
 #include <mpark/variant.hpp>
@@ -11,7 +10,8 @@ namespace weserv {
 namespace api {
 namespace parsers {
 
-using QueryVariant = mpark::variant<bool, int, std::vector<int>, float, Color>;
+using QueryVariant = mpark::variant<bool, int, float, Color, std::vector<int>,
+                                    std::vector<float>>;
 using QueryMap = std::unordered_map<std::string, QueryVariant>;
 
 class QueryHolder {

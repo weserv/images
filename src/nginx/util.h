@@ -11,12 +11,6 @@ namespace weserv {
 namespace nginx {
 
 /**
- * Copy string from std::string to ngx_str_t.
- */
-ngx_int_t ngx_str_copy_from_std(ngx_pool_t *pool, const std::string &src,
-                                ngx_str_t *dst);
-
-/**
  * Convert a ngx_str_t to std::string.
  */
 std::string ngx_str_to_std(const ngx_str_t &src);
@@ -31,6 +25,11 @@ bool has_valid_scheme(const ngx_str_t &url);
  * Is base64 output needed?
  */
 bool is_base64_needed(ngx_http_request_t *r);
+
+/**
+ * Converts an entire output chain to base64.
+ */
+ngx_int_t output_chain_to_base64(ngx_http_request_t *r, ngx_chain_t *out);
 
 /**
  * Get the Content-Disposition response header.

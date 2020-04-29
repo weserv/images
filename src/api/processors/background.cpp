@@ -4,8 +4,10 @@ namespace weserv {
 namespace api {
 namespace processors {
 
+using parsers::Color;
+
 VImage Background::process(const VImage &image) const {
-    auto bg = query_->get<parsers::Color>("bg", parsers::Color::DEFAULT);
+    auto bg = query_->get<Color>("bg", Color::DEFAULT);
 
     // Don't process the image if:
     // - The image doesn't have an alpha channel.
@@ -24,11 +26,6 @@ VImage Background::process(const VImage &image) const {
         // dimensions.
         auto background_image = image.new_from_image(background_rgba);
 
-        // Ensure background is premultiplied sRGB
-        if (query_->get<bool>("premultiplied", false)) {
-            background_image = background_image.premultiply();
-        }
-
         // Alpha composite src over dst.
         // Assumes alpha channels are already premultiplied and will be
         // unpremultiplied after.
@@ -39,30 +36,20 @@ VImage Background::process(const VImage &image) const {
         // If it's a 8bit-alpha channel image or the requested background color
         // hasn't an alpha channel; then flatten the alpha out of an image,
         // replacing it with a constant background color.
-        std::vector<double> background_color;
-        if (image.bands() > 2) {
-            background_color = {background_rgba[0], background_rgba[1],
-                                background_rgba[2]};
-        } else {
-            // Convert sRGB to greyscale
-            background_color = {0.2126 * background_rgba[0] +
-                                0.7152 * background_rgba[1] +
-                                0.0722 * background_rgba[2]};
-        }
+        background_rgba.pop_back();  // Drop the alpha channel
 
-        auto premultiplied = query_->get<bool>("premultiplied", false);
+        if (image.bands() <= 2) {
+            // Convert sRGB to greyscale
+            background_rgba = {0.2126 * background_rgba[0] +
+                               0.7152 * background_rgba[1] +
+                               0.0722 * background_rgba[2]};
+        }
 
         // The image no longer has an alpha channel
         query_->update("has_alpha", false);
 
-        // The image isn't premultiplied anymore
-        query_->update("premultiplied", false);
-
-        // Flatten on premultiplied images causes weird results,
-        // so unpremultiply if we have a premultiplied image.
-        return (premultiplied ? image.unpremultiply().cast(VIPS_FORMAT_UCHAR)
-                              : image)
-            .flatten(VImage::option()->set("background", background_color));
+        return image.flatten(
+            VImage::option()->set("background", background_rgba));
     }
 }
 

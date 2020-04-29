@@ -5,13 +5,14 @@ namespace api {
 namespace processors {
 
 VImage Trim::process(const VImage &image) const {
-    auto threshold = query_->get_if<int>("trim",
-                                         [](int t) {
-                                             // Threshold needs to be in the
-                                             // range of 1 - 254
-                                             return t >= 1 && t <= 254;
-                                         },
-                                         0);
+    auto threshold = query_->get_if<int>(
+        "trim",
+        [](int t) {
+            // Threshold needs to be in the
+            // range of 1 - 254
+            return t >= 1 && t <= 254;
+        },
+        0);
 
     // Make sure that trimming is required
     if (threshold == 0 || image.width() < 3 || image.height() < 3) {

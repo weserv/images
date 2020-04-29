@@ -5,6 +5,7 @@
 
 #include <vips/vips8>
 
+using Catch::Matchers::Equals;
 using vips::VImage;
 
 TEST_CASE("crop positions", "[alignment]") {
@@ -68,10 +69,7 @@ TEST_CASE("crop positions", "[alignment]") {
                           "&h=" + std::to_string(crop.height) +
                           "&fit=cover&a=" + crop.position;
 
-            std::string buffer;
-            std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-            VImage image = buffer_to_image(buffer);
+            VImage image = process_file<VImage>(test_image, params);
 
             CHECK(image.width() == crop.width);
             CHECK(image.height() == crop.height);
@@ -133,10 +131,7 @@ TEST_CASE("crop positions", "[alignment]") {
                           "&h=" + std::to_string(crop.height) +
                           "&fit=cover&a=" + crop.position;
 
-            std::string buffer;
-            std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-            VImage image = buffer_to_image(buffer);
+            VImage image = process_file<VImage>(test_image, params);
 
             CHECK(image.width() == crop.width);
             CHECK(image.height() == crop.height);
@@ -153,10 +148,7 @@ TEST_CASE("entropy crop", "[alignment]") {
             fixtures->expected_dir + "/crop-strategy-entropy.jpg";
         auto params = "w=80&h=320&fit=cover&a=entropy";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.bands() == 3);
         CHECK(image.width() == 80);
@@ -172,13 +164,9 @@ TEST_CASE("entropy crop", "[alignment]") {
             fixtures->expected_dir + "/crop-strategy-entropy.png";
         auto params = "w=320&h=80&fit=cover&a=entropy";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".png");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("pngload_buffer"));
 
         CHECK(image.bands() == 4);
         CHECK(image.width() == 320);
@@ -196,10 +184,7 @@ TEST_CASE("attention crop", "[alignment]") {
             fixtures->expected_dir + "/crop-strategy-attention.jpg";
         auto params = "w=80&h=320&fit=cover&a=attention";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.bands() == 3);
         CHECK(image.width() == 80);
@@ -215,13 +200,9 @@ TEST_CASE("attention crop", "[alignment]") {
             fixtures->expected_dir + "/crop-strategy-attention.png";
         auto params = "w=200&h=200&fit=cover&a=attention";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".png");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("pngload_buffer"));
 
         CHECK(image.bands() == 4);
         CHECK(image.width() == 200);
@@ -233,11 +214,13 @@ TEST_CASE("attention crop", "[alignment]") {
 }
 
 TEST_CASE("skip height in toilet-roll mode", "[alignment]") {
-    if (vips_type_find("VipsOperation", "gifload_buffer") == 0) {
+    if (vips_type_find("VipsOperation",
+                       pre_8_10 ? "gifload_buffer" : "gifload_source") == 0) {
         SUCCEED("no gif support, skipping test");
         return;
     }
-    if (vips_type_find("VipsOperation", "magicksave_buffer") == 0) {
+    if (vips_type_find("VipsOperation", pre_8_10 ? "magicksave_buffer"
+                                                 : "magicksave_target") == 0) {
         SUCCEED("no magick support, skipping test");
         return;
     }
@@ -245,10 +228,7 @@ TEST_CASE("skip height in toilet-roll mode", "[alignment]") {
     auto test_image = fixtures->input_gif_animated;
     auto params = "n=-1&w=300&h=300&fit=cover";
 
-    std::string buffer;
-    std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-    VImage image = buffer_to_image(buffer);
+    VImage image = process_file<VImage>(test_image, params);
 
     CHECK(image.width() == 300);
     CHECK(vips_image_get_page_height(image.get_image()) == 318);

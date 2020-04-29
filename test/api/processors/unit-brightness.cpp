@@ -5,6 +5,7 @@
 
 #include <vips/vips8>
 
+using Catch::Matchers::Equals;
 using vips::VImage;
 
 TEST_CASE("brightness", "[brightness]") {
@@ -14,10 +15,7 @@ TEST_CASE("brightness", "[brightness]") {
             fixtures->expected_dir + "/brightness-increase.jpg";
         auto params = "w=320&h=240&fit=cover&bri=30";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -31,10 +29,7 @@ TEST_CASE("brightness", "[brightness]") {
             fixtures->expected_dir + "/brightness-decrease.jpg";
         auto params = "w=320&h=240&fit=cover&bri=-30";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -47,13 +42,9 @@ TEST_CASE("brightness", "[brightness]") {
         auto expected_image = fixtures->expected_dir + "/brightness-trans.png";
         auto params = "w=320&h=240&fit=cover&bri=30";
 
-        std::string buffer;
-        std::string extension;
-        std::tie(buffer, extension) = process_file(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(extension == ".png");
-
-        VImage image = buffer_to_image(buffer);
+        CHECK_THAT(image.get_string("vips-loader"), Equals("pngload_buffer"));
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -65,10 +56,7 @@ TEST_CASE("brightness", "[brightness]") {
         auto test_image = fixtures->input_jpg;
         auto params = "bri=100000000";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         // Check if the image is unchanged
         CHECK_THAT(image, is_similar_image(test_image));

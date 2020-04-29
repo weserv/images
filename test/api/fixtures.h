@@ -132,4 +132,7 @@ struct Fixtures {
 
     // https://github.com/mozilla/pdf.js/blob/1c9a69db82773771216bc051f4f624ee1032e102/test/pdfs/sizes.pdf
     std::string input_pdf{dir + "/sizes.pdf"};
+
+    // http://www.anyhere.com/gward/pixformat/images/84y2.tif
+    std::string input_hdr{dir + "/84y2.hdr"};
 };

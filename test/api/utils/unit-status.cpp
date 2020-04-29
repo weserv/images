@@ -1,15 +1,16 @@
 #include <catch2/catch.hpp>
 
-#include "../base.h"
 #include <weserv/utils/status.h>
 
 using Catch::Matchers::Contains;
+using weserv::api::utils::Status;
 
 TEST_CASE("status", "[status]") {
     SECTION("ok returns true when appropriate") {
         CHECK(Status::OK.ok());
         CHECK(Status(0, "OK").ok());
         CHECK(Status(200, "OK").ok());
+        CHECK(Status(200, "", Status::ErrorCause::Internal) == Status::OK);
 
         CHECK(!Status(/*NGX_ERROR*/ -1, "Out of memory").ok());
         CHECK(!Status(400, "Unable to parse URI").ok());

@@ -20,9 +20,6 @@ VImage Gamma::process(const VImage &image) const {
 
     // Edit the gamma
     if (image.has_alpha()) {
-        // The image isn't premultiplied anymore
-        query_->update("premultiplied", false);
-
         // Separate alpha channel
         auto image_without_alpha = image.extract_band(
             0, VImage::option()->set("n", image.bands() - 1));

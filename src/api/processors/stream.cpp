@@ -1,10 +1,11 @@
-#include "processors/buffer.h"
+#include "processors/stream.h"
 
 namespace weserv {
 namespace api {
 namespace processors {
 
-using namespace enums;
+using enums::ImageType;
+using enums::Output;
 using vips::VError;
 
 // Should be plenty
@@ -27,10 +28,13 @@ const int MAX_IMAGE_SIZE = 71000000;
 // https://github.com/weserv/images/issues/194
 const bool FAIL_ON_ERROR = false;
 
+using io::Source;
+using io::Target;
+
 template <typename Comparator>
-int ImageBuffer::resolve_page(const std::string &buf, const std::string &loader,
-                              Comparator comp) const {
-    auto image = new_from_buffer(buf, loader,
+int Stream::resolve_page(const Source &source, const std::string &loader,
+                         Comparator comp) const {
+    auto image = new_from_source(source, loader,
                                  VImage::option()
                                      ->set("access", VIPS_ACCESS_SEQUENTIAL)
                                      ->set("fail", FAIL_ON_ERROR)
@@ -49,7 +53,7 @@ int ImageBuffer::resolve_page(const std::string &buf, const std::string &loader,
 
     for (int i = 1; i < n_pages; ++i) {
         auto image_page =
-            new_from_buffer(buf, loader,
+            new_from_source(source, loader,
                             VImage::option()
                                 ->set("access", VIPS_ACCESS_SEQUENTIAL)
                                 ->set("fail", FAIL_ON_ERROR)
@@ -68,38 +72,38 @@ int ImageBuffer::resolve_page(const std::string &buf, const std::string &loader,
 }
 
 std::pair<int, int>
-ImageBuffer::get_page_load_options(const std::string &buf,
-                                   const std::string &loader) const {
-    auto n =
-        query_->get_if<int>("n",
-                            [](int p) {
-                                // Number of pages needs to be in the range
-                                // of 1 - 256
-                                // -1 for all pages (animated GIF/WebP)
-                                return p == -1 || (p >= 1 && p <= MAX_PAGES);
-                            },
-                            1);
+Stream::get_page_load_options(const Source &source,
+                              const std::string &loader) const {
+    auto n = query_->get_if<int>(
+        "n",
+        [](int p) {
+            // Number of pages needs to be in the range
+            // of 1 - 256
+            // -1 for all pages (animated GIF/WebP)
+            return p == -1 || (p >= 1 && p <= MAX_PAGES);
+        },
+        1);
 
-    auto page = query_->get_if<int>("page",
-                                    [](int p) {
-                                        // Page needs to be in the range of
-                                        // 0 (numbered from zero) - 100000
-                                        // Or:
-                                        //  -1 = largest page
-                                        //  -2 = smallest page
-                                        return p == -1 || p == -2 ||
-                                               (p >= 0 && p <= 100000);
-                                    },
-                                    0);
+    auto page = query_->get_if<int>(
+        "page",
+        [](int p) {
+            // Page needs to be in the range of
+            // 0 (numbered from zero) - 100000
+            // Or:
+            //  -1 = largest page
+            //  -2 = smallest page
+            return p == -1 || p == -2 || (p >= 0 && p <= 100000);
+        },
+        0);
 
     if (page != -1 && page != -2) {
         return std::make_pair(n, page);
     }
 
     if (page == -1) {
-        page = resolve_page(buf, loader, std::greater<uint64_t>());
+        page = resolve_page(source, loader, std::greater<uint64_t>());
     } else {  // page == -2
-        page = resolve_page(buf, loader, std::less<uint64_t>());
+        page = resolve_page(source, loader, std::less<uint64_t>());
     }
 
     // Update page according to new value
@@ -108,18 +112,24 @@ ImageBuffer::get_page_load_options(const std::string &buf,
     return std::make_pair(n, page);
 }
 
-VImage ImageBuffer::new_from_buffer(const std::string &buf,
-                                    const std::string &loader,
-                                    vips::VOption *options) const {
+VImage Stream::new_from_source(const Source &source, const std::string &loader,
+                               vips::VOption *options) const {
     VImage out_image;
 
+#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+    try {
+        VImage::call(loader.c_str(),
+                     options->set("source", source)->set("out", &out_image));
+#else
     // We don't take a copy of the data or free it
-    auto *blob = vips_blob_new(nullptr, buf.c_str(), buf.size());
+    auto *blob =
+        vips_blob_new(nullptr, source.buffer().c_str(), source.buffer().size());
     options = options->set("buffer", blob)->set("out", &out_image);
     vips_area_unref(reinterpret_cast<VipsArea *>(blob));
 
     try {
         VImage::call(loader.c_str(), options);
+#endif
     } catch (const VError &err) {
         throw exceptions::UnreadableImageException(err.what());
     }
@@ -127,7 +137,7 @@ VImage ImageBuffer::new_from_buffer(const std::string &buf,
     return out_image;
 }
 
-void ImageBuffer::resolve_dimensions() const {
+void Stream::resolve_dimensions() const {
     auto width = query_->get<int>("w", 0);
     auto height = query_->get<int>("h", 0);
     auto pixel_ratio = query_->get<float>("dpr", -1.0F);
@@ -146,15 +156,16 @@ void ImageBuffer::resolve_dimensions() const {
     query_->update("h", std::max(0, std::min(height, VIPS_MAX_COORD)));
 }
 
-void ImageBuffer::resolve_rotation_and_flip(const VImage &image) const {
-    auto rotate = query_->get_if<int>("ro",
-                                      [](int r) {
-                                          // Only positive or negative angles
-                                          // that are a multiple of 90 degrees
-                                          // are valid.
-                                          return r % 90 == 0;
-                                      },
-                                      0);
+void Stream::resolve_rotation_and_flip(const VImage &image) const {
+    auto rotate = query_->get_if<int>(
+        "ro",
+        [](int r) {
+            // Only positive or negative angles
+            // that are a multiple of 90 degrees
+            // are valid.
+            return r % 90 == 0;
+        },
+        0);
 
     auto flip = query_->get<bool>("flip", false);
     auto flop = query_->get<bool>("flop", false);
@@ -200,15 +211,20 @@ void ImageBuffer::resolve_rotation_and_flip(const VImage &image) const {
     query_->update("flop", flop);
 }
 
-VImage ImageBuffer::from_buffer(const std::string &buf) const {
-    const char *loader = vips_foreign_find_load_buffer(buf.c_str(), buf.size());
+VImage Stream::new_from_source(const Source &source) const {
+#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+    const char *loader = vips_foreign_find_load_source(source.get_source());
+#else
+    const char *loader = vips_foreign_find_load_buffer(source.buffer().c_str(),
+                                                       source.buffer().size());
+#endif
 
     if (loader == nullptr) {
         throw exceptions::InvalidImageException(vips_error_buffer());
     }
 
     // Save the image type so that we can work out
-    // what options to pass to write_to_buffer()
+    // what options to pass to write_to_target()
     query_->update(
         "type", utils::underlying_value(utils::determine_image_type(loader)));
 
@@ -225,13 +241,13 @@ VImage ImageBuffer::from_buffer(const std::string &buf) const {
     int n = 1;
     if (utils::image_loader_supports_page(loader)) {
         int page = 0;
-        std::tie(n, page) = get_page_load_options(buf, loader);
+        std::tie(n, page) = get_page_load_options(source, loader);
 
         options->set("n", n);
         options->set("page", page);
     }
 
-    auto image = new_from_buffer(buf, loader, options);
+    auto image = new_from_source(source, loader, options);
 
     int size;
     if (utils::mul_overflow(image.width(), image.height(), &size) ||
@@ -269,15 +285,15 @@ VImage ImageBuffer::from_buffer(const std::string &buf) const {
 }
 
 template <>
-void ImageBuffer::append_save_options<Output::Jpeg>(
-    vips::VOption *options) const {
-    auto quality = query_->get_if<int>("q",
-                                       [](int q) {
-                                           // Quality needs to be in the range
-                                           // of 1 - 100
-                                           return q >= 1 && q <= 100;
-                                       },
-                                       DEFAULT_QUALITY);
+void Stream::append_save_options<Output::Jpeg>(vips::VOption *options) const {
+    auto quality = query_->get_if<int>(
+        "q",
+        [](int q) {
+            // Quality needs to be in the range
+            // of 1 - 100
+            return q >= 1 && q <= 100;
+        },
+        DEFAULT_QUALITY);
 
     // Set quality (default is 85)
     options->set("Q", quality);
@@ -290,15 +306,15 @@ void ImageBuffer::append_save_options<Output::Jpeg>(
 }
 
 template <>
-void ImageBuffer::append_save_options<Output::Png>(
-    vips::VOption *options) const {
-    auto level = query_->get_if<int>("l",
-                                     [](int l) {
-                                         // Level needs to be in the range of
-                                         // 0 (no Deflate) - 9 (maximum Deflate)
-                                         return l >= 0 && l <= 9;
-                                     },
-                                     DEFAULT_LEVEL);
+void Stream::append_save_options<Output::Png>(vips::VOption *options) const {
+    auto level = query_->get_if<int>(
+        "l",
+        [](int l) {
+            // Level needs to be in the range of
+            // 0 (no Deflate) - 9 (maximum Deflate)
+            return l >= 0 && l <= 9;
+        },
+        DEFAULT_LEVEL);
 
     auto filter = query_->get<bool>("af", false) ? VIPS_FOREIGN_PNG_FILTER_ALL
                                                  : VIPS_FOREIGN_PNG_FILTER_NONE;
@@ -314,15 +330,15 @@ void ImageBuffer::append_save_options<Output::Png>(
 }
 
 template <>
-void ImageBuffer::append_save_options<Output::Webp>(
-    vips::VOption *options) const {
-    auto quality = query_->get_if<int>("q",
-                                       [](int q) {
-                                           // Quality needs to be in the range
-                                           // of 1 - 100
-                                           return q >= 1 && q <= 100;
-                                       },
-                                       DEFAULT_QUALITY);
+void Stream::append_save_options<Output::Webp>(vips::VOption *options) const {
+    auto quality = query_->get_if<int>(
+        "q",
+        [](int q) {
+            // Quality needs to be in the range
+            // of 1 - 100
+            return q >= 1 && q <= 100;
+        },
+        DEFAULT_QUALITY);
 
     // Set quality (default is 85)
     options->set("Q", quality);
@@ -332,15 +348,15 @@ void ImageBuffer::append_save_options<Output::Webp>(
 }
 
 template <>
-void ImageBuffer::append_save_options<Output::Tiff>(
-    vips::VOption *options) const {
-    auto quality = query_->get_if<int>("q",
-                                       [](int q) {
-                                           // Quality needs to be in the range
-                                           // of 1 - 100
-                                           return q >= 1 && q <= 100;
-                                       },
-                                       DEFAULT_QUALITY);
+void Stream::append_save_options<Output::Tiff>(vips::VOption *options) const {
+    auto quality = query_->get_if<int>(
+        "q",
+        [](int q) {
+            // Quality needs to be in the range
+            // of 1 - 100
+            return q >= 1 && q <= 100;
+        },
+        DEFAULT_QUALITY);
 
     // Set quality (default is 85)
     options->set("Q", quality);
@@ -350,14 +366,13 @@ void ImageBuffer::append_save_options<Output::Tiff>(
 }
 
 template <>
-void ImageBuffer::append_save_options<Output::Gif>(
-    vips::VOption *options) const {
+void Stream::append_save_options<Output::Gif>(vips::VOption *options) const {
     // Set the format option to hint the file type
     options->set("format", "gif");
 }
 
-void ImageBuffer::append_save_options(const Output &output,
-                                      vips::VOption *options) const {
+void Stream::append_save_options(const Output &output,
+                                 vips::VOption *options) const {
     switch (output) {
         case Output::Jpeg:
             append_save_options<Output::Jpeg>(options);
@@ -378,15 +393,9 @@ void ImageBuffer::append_save_options(const Output &output,
     }
 }
 
-std::pair<std::string, std::string>
-ImageBuffer::to_buffer(const VImage &image) const {
+void Stream::write_to_target(const VImage &image, const Target &target) const {
     // Attaching metadata, need to copy the image
-    auto copy =
-        (query_->get<bool>("premultiplied", false)
-             // Unpremultiply image alpha and cast pixel values to integer
-             ? image.unpremultiply().cast(VIPS_FORMAT_UCHAR)
-             : image)
-            .copy();
+    auto copy = image.copy();
 
     // Update page height
     if (copy.get_typeof(VIPS_META_PAGE_HEIGHT) != 0) {
@@ -399,7 +408,11 @@ ImageBuffer::to_buffer(const VImage &image) const {
     // 2 - loop twice etc.
     auto loop = query_->get<int>("loop", -1);
     if (loop != -1) {
+#if VIPS_VERSION_AT_LEAST(8, 9, 0)
+        copy.set("loop", loop);
+#else
         copy.set("gif-loop", loop);
+#endif
     }
 
     // Set the frame delay(s)
@@ -416,19 +429,19 @@ ImageBuffer::to_buffer(const VImage &image) const {
 #else
         // Multiple delay values are not supported, set the gif-delay field.
         // Note: this is centiseconds (the GIF standard).
-        copy.set("gif-delay", std::rint(delays[0] / 10.0));
+        copy.set("gif-delay", static_cast<int>(std::rint(delays[0] / 10.0)));
 #endif
     }
 
     auto output = query_->get<Output>("output", Output::Origin);
     auto image_type = query_->get<ImageType>("type", ImageType::Unknown);
 
-    std::string out;
-    std::string extension;
-
     if (output == Output::Json) {
-        out = utils::image_to_json(copy, image_type);
-        extension = ".json";
+        std::string out = utils::image_to_json(copy, image_type);
+
+        target.setup(".json");
+        target.write(out.c_str(), out.size());
+        target.finish();
     } else {
         if (output == Output::Origin) {
             // We force the output to PNG if the image has alpha and doesn't
@@ -442,10 +455,7 @@ ImageBuffer::to_buffer(const VImage &image) const {
             }
         }
 
-        extension = utils::determine_image_extension(output);
-
-        void *buf;
-        size_t size;
+        std::string extension = utils::determine_image_extension(output);
 
         // Strip all metadata (EXIF, XMP, IPTC).
         // (all savers supports this option)
@@ -453,15 +463,24 @@ ImageBuffer::to_buffer(const VImage &image) const {
 
         append_save_options(output, save_options);
 
+        target.setup(extension);
+
+#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+        // Write the image to the target
+        copy.write_to_target(extension.c_str(), target, save_options);
+#else
+        void *buf;
+        size_t size;
+
         // Write the image to a formatted string
         copy.write_to_buffer(extension.c_str(), &buf, &size, save_options);
 
-        out.assign(static_cast<const char *>(buf), size);
+        target.write(buf, size);
+        target.finish();
 
         g_free(buf);
+#endif
     }
-
-    return std::make_pair(out, extension);
 }
 
 }  // namespace processors

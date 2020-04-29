@@ -34,7 +34,7 @@ list(APPEND NGX_CONFIGURE_OPTS
         "--add-module=${RATE_LIMIT_MODULE_SOURCE}"
         )
 
-# Install the echo module only in debug builds 
+# Install the echo module only in debug builds
 # (needed by the integration tests)
 if (CMAKE_BUILD_TYPE MATCHES "Debug")
     list(APPEND NGX_CONFIGURE_OPTS

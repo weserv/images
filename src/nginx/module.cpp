@@ -1,9 +1,11 @@
 #include "module.h"
 
 #include "alloc.h"
-#include "api.h"
 #include "environment.h"
+#include "error.h"
 #include "handler.h"
+#include "stream.h"
+#include "util.h"
 
 using ::weserv::api::utils::Status;
 
@@ -143,6 +145,7 @@ void *ngx_weserv_create_loc_conf(ngx_conf_t *cf) {
     lc->upstream_conf.read_timeout = NGX_CONF_UNSET_MSEC;
 
     // The hardcoded values
+    lc->upstream_conf.buffering = 1;
     lc->upstream_conf.buffer_size = ngx_pagesize;
     lc->upstream_conf.busy_buffers_size = 2 * ngx_pagesize;
     lc->upstream_conf.bufs.num = 256;
@@ -268,19 +271,11 @@ ngx_int_t ngx_weserv_image_header_filter(ngx_http_request_t *r) {
         return ngx_http_next_header_filter(r);
     }
 
-    auto *ctx = reinterpret_cast<ngx_weserv_filter_ctx_t *>(
+    auto *ctx = reinterpret_cast<ngx_weserv_base_ctx_t *>(
         ngx_http_get_module_ctx(r, ngx_weserv_module));
 
     if (ctx == nullptr) {
         return ngx_http_next_header_filter(r);
-    }
-
-    off_t len = r->headers_out.content_length_n;
-
-    if (len == -1) {
-        ctx->length = lc->max_size;
-    } else {
-        ctx->length = static_cast<size_t>(len);
     }
 
     if (r->headers_out.refresh) {
@@ -293,53 +288,6 @@ ngx_int_t ngx_weserv_image_header_filter(ngx_http_request_t *r) {
     return NGX_OK;
 }
 
-ngx_int_t ngx_weserv_image_read(ngx_http_request_t *r, ngx_chain_t *in,
-                                ngx_weserv_filter_ctx_t *ctx) {
-    if (ctx->image == nullptr) {
-        ctx->image =
-            reinterpret_cast<u_char *>(ngx_palloc(r->pool, ctx->length));
-        if (ctx->image == nullptr) {
-            return NGX_ERROR;
-        }
-
-        ctx->last = ctx->image;
-    }
-
-    u_char *p = ctx->last;
-    size_t size, rest;
-    ngx_buf_t *b;
-    ngx_chain_t *cl;
-
-    for (cl = in; cl; cl = cl->next) {
-        b = cl->buf;
-        size = b->last - b->pos;
-
-        ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-                       "image buf: %uz", size);
-
-        rest = ctx->image + ctx->length - p;
-
-        if (size > rest) {
-            ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-                          "weserv image filter: too big response");
-            return NGX_ERROR;
-        }
-
-        p = ngx_cpymem(p, b->pos, size);
-        b->pos += size;
-
-        if (b->last_buf) {
-            ctx->last = p;
-            return NGX_OK;
-        }
-    }
-
-    ctx->last = p;
-    r->connection->buffered |= NGX_WESERV_IMAGE_BUFFERED;
-
-    return NGX_AGAIN;
-}
-
 ngx_int_t ngx_weserv_finish(ngx_http_request_t *r, ngx_chain_t *out) {
     ngx_int_t rc = ngx_http_next_header_filter(r);
 
@@ -348,6 +296,103 @@ ngx_int_t ngx_weserv_finish(ngx_http_request_t *r, ngx_chain_t *out) {
     }
 
     return ngx_http_next_body_filter(r, out);
+}
+
+#if NGX_DEBUG
+ngx_int_t ngx_weserv_finish_debug(ngx_http_request_t *r, ngx_chain_t *out) {
+    off_t content_length = 0;
+
+    for (ngx_chain_t *cl = out; cl; cl = cl->next) {
+        content_length += cl->buf->last - cl->buf->pos;
+    }
+
+    r->headers_out.status = NGX_HTTP_OK;
+    r->headers_out.content_type_len = sizeof("text/plain") - 1;
+    ngx_str_set(&r->headers_out.content_type, "text/plain");
+    r->headers_out.content_type_lowcase = nullptr;
+    r->headers_out.content_length_n = content_length;
+
+    if (r->headers_out.content_length) {
+        r->headers_out.content_length->hash = 0;
+    }
+
+    r->headers_out.content_length = nullptr;
+
+    return ngx_weserv_finish(r, out);
+}
+#endif
+
+ngx_int_t ngx_weserv_image_filter_buffer(ngx_http_request_t *r,
+                                         ngx_weserv_base_ctx_t *ctx,
+                                         ngx_chain_t *in) {
+    ngx_chain_t *cl, **ll;
+
+    r->connection->buffered |= NGX_WESERV_IMAGE_BUFFERED;
+
+    ll = &ctx->in;
+
+    for (cl = ctx->in; cl; cl = cl->next) {
+        ll = &cl->next;
+    }
+
+    bool buffering = true;
+
+    while (in) {
+        cl = ngx_alloc_chain_link(r->pool);
+        if (cl == nullptr) {
+            return NGX_ERROR;
+        }
+
+        ngx_buf_t *b = in->buf;
+
+        size_t size = b->last - b->pos;
+
+        if (b->flush || b->last_buf) {
+            buffering = false;
+        }
+
+        if (buffering && size) {
+            ngx_buf_t *buf = ngx_create_temp_buf(r->pool, size);
+            if (buf == nullptr) {
+                return NGX_ERROR;
+            }
+
+            buf->last = ngx_cpymem(buf->pos, b->pos, size);
+
+            // Mark the buffer as consumed
+            b->pos = b->last;
+
+            buf->last_buf = b->last_buf;
+            buf->tag = reinterpret_cast<ngx_buf_tag_t>(&ngx_weserv_module);
+
+            cl->buf = buf;
+
+        } else {
+            cl->buf = b;
+        }
+
+        *ll = cl;
+        ll = &cl->next;
+        in = in->next;
+    }
+
+    *ll = nullptr;
+
+    return buffering ? NGX_OK : NGX_DONE;
+}
+
+void ngx_weserv_image_filter_free_buf(ngx_http_request_t *r,
+                                      ngx_weserv_base_ctx_t *ctx) {
+    for (ngx_chain_t *cl = ctx->in; cl; cl = cl->next) {
+        if (cl->buf->tag == (ngx_buf_tag_t)&ngx_weserv_module) {
+            ngx_pfree(r->pool, cl->buf->start);
+        } else {
+            ngx_free_chain(r->pool, cl);
+            break;
+        }
+    }
+
+    ctx->in = nullptr;
 }
 
 ngx_int_t ngx_weserv_image_body_filter(ngx_http_request_t *r, ngx_chain_t *in) {
@@ -373,15 +418,30 @@ ngx_int_t ngx_weserv_image_body_filter(ngx_http_request_t *r, ngx_chain_t *in) {
         return ngx_weserv_finish(r, in);
     }
 
-    if (ctx->id() == NGX_WESERV_UPSTREAM_CTX) {
-        auto *upstream = reinterpret_cast<ngx_weserv_upstream_ctx_t *>(ctx);
+#if NGX_DEBUG
+    bool debug_output = false;
+#endif
 
-        ngx_weserv_http_connection *http_connection = upstream->http_subrequest;
-        if (http_connection->redirecting) {
+    if (ctx->id() == NGX_WESERV_UPSTREAM_CTX) {
+        auto *upstream_ctx = reinterpret_cast<ngx_weserv_upstream_ctx_t *>(ctx);
+
+#if NGX_DEBUG
+        if (upstream_ctx->debug == 1) {
+            return ngx_weserv_finish_debug(r, ctx->in);
+        }
+
+        debug_output = upstream_ctx->debug != 0;
+#endif
+
+        if (upstream_ctx->redirecting) {
             return NGX_AGAIN;
-        } else if (!http_connection->response_status.ok()) {
+#if NGX_DEBUG
+        } else if (!debug_output && !upstream_ctx->response_status.ok()) {
+#else
+        } else if (!upstream_ctx->response_status.ok()) {
+#endif
             ngx_chain_t out;
-            if (ngx_weserv_return_error(r, http_connection->response_status,
+            if (ngx_weserv_return_error(r, upstream_ctx->response_status,
                                         &out) != NGX_OK) {
                 return NGX_ERROR;
             }
@@ -390,36 +450,53 @@ ngx_int_t ngx_weserv_image_body_filter(ngx_http_request_t *r, ngx_chain_t *in) {
         }
     }
 
-    auto *filter_ctx = reinterpret_cast<ngx_weserv_filter_ctx_t *>(ctx);
-
-    ngx_int_t rc = ngx_weserv_image_read(r, in, filter_ctx);
-    if (rc == NGX_AGAIN) {
-        return NGX_OK;
-    }
-
-    if (rc == NGX_ERROR) {
-        Status status = Status(Status::Code::ImageTooLarge,
-                               "The image is too large to be processed. "
-                               "Max image size: " +
-                                   std::to_string(lc->max_size) + " bytes",
-                               Status::ErrorCause::Application);
-
-        ngx_chain_t out;
-        if (ngx_weserv_return_error(r, status, &out) != NGX_OK) {
+    switch (ngx_weserv_image_filter_buffer(r, ctx, in)) {
+        case NGX_OK:
+            return NGX_OK;
+        case NGX_DONE:
+            in = nullptr;
+            break;
+        default: /* NGX_ERROR */
             return NGX_ERROR;
-        }
-
-        return ngx_weserv_finish(r, &out);
     }
+
+#if NGX_DEBUG
+    if (debug_output) {
+        r->connection->buffered &= ~NGX_WESERV_IMAGE_BUFFERED;
+
+        return ngx_weserv_finish_debug(r, ctx->in);
+    }
+#endif
+
+    auto *mc = reinterpret_cast<ngx_weserv_main_conf_t *>(
+        ngx_http_get_module_main_conf(r, ngx_weserv_module));
+
+    ngx_chain_t *out = nullptr;
+    Status status = mc->weserv->process(
+        ngx_str_to_std(r->args),
+        std::unique_ptr<api::io::SourceInterface>(new NgxSource(r, ctx->in)),
+        std::unique_ptr<api::io::TargetInterface>(new NgxTarget(r, &out)));
 
     r->connection->buffered &= ~NGX_WESERV_IMAGE_BUFFERED;
 
-    ngx_chain_t out;
-    if (ngx_weserv_process(r, filter_ctx, &out) != NGX_OK) {
-        return NGX_ERROR;
-    }
+    // We release the memory as soon as the output of an image is finished
+    // and don't wait for an entire response to be sent to the client.
+    ngx_weserv_image_filter_free_buf(r, ctx);
 
-    return ngx_weserv_finish(r, &out);
+    if (status.ok()) {
+        if (is_base64_needed(r) && output_chain_to_base64(r, out) != NGX_OK) {
+            return NGX_ERROR;
+        }
+
+        return ngx_weserv_finish(r, out);
+    } else {
+        ngx_chain_t error;
+        if (ngx_weserv_return_error(r, status, &error) != NGX_OK) {
+            return NGX_ERROR;
+        }
+
+        return ngx_weserv_finish(r, &error);
+    }
 }
 
 ngx_int_t ngx_weserv_postconfiguration(ngx_conf_t *cf) {

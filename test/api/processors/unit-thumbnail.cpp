@@ -13,10 +13,7 @@ TEST_CASE("inside", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=320&h=240";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 294);
         CHECK(image.height() == 240);
@@ -27,10 +24,7 @@ TEST_CASE("inside", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=160&h=120&dpr=2";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 294);
         CHECK(image.height() == 240);
@@ -41,10 +35,7 @@ TEST_CASE("inside", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=3000&fit=inside&we=false";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 3000);
         CHECK(image.height() == 2450);
@@ -55,10 +46,7 @@ TEST_CASE("inside", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=320&h=240&t=fit";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 294);
         CHECK(image.height() == 240);
@@ -69,10 +57,7 @@ TEST_CASE("inside", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=3000&t=fitup";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 3000);
         CHECK(image.height() == 2450);
@@ -86,10 +71,7 @@ TEST_CASE("fixed", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=320&fsol=0";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 261);
@@ -100,10 +82,7 @@ TEST_CASE("fixed", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "h=320&fsol=0";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 392);
         CHECK(image.height() == 320);
@@ -115,10 +94,7 @@ TEST_CASE("invalid height", "[thumbnail]") {
     auto test_image = fixtures->input_jpg;
     auto params = "w=320&h=100000000&fsol=0";
 
-    std::string buffer;
-    std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-    VImage image = buffer_to_image(buffer);
+    VImage image = process_file<VImage>(test_image, params);
 
     CHECK(image.width() == 320);
     CHECK(image.height() == 261);
@@ -128,10 +104,7 @@ TEST_CASE("invalid height", "[thumbnail]") {
 TEST_CASE("identity transform", "[thumbnail]") {
     auto test_image = fixtures->input_jpg;
 
-    std::string buffer;
-    std::tie(buffer, std::ignore) = process_file(test_image);
-
-    VImage image = buffer_to_image(buffer);
+    VImage image = process_file<VImage>(test_image);
 
     CHECK(image.width() == 2725);
     CHECK(image.height() == 2225);
@@ -143,10 +116,7 @@ TEST_CASE("cover", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=320&h=240&fit=cover";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -158,10 +128,7 @@ TEST_CASE("cover", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=123&h=100&fit=cover&we=true";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 123);
         CHECK(image.height() == 100);
@@ -173,10 +140,7 @@ TEST_CASE("cover", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=3000&h=3000&fit=cover&we=true";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 2725);
         CHECK(image.height() == 2225);
@@ -187,10 +151,7 @@ TEST_CASE("cover", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=3000";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 3000);
         CHECK(image.height() == 2450);
@@ -202,10 +163,7 @@ TEST_CASE("cover", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=2800&fit=cover&we=true";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 2725);
         CHECK(image.height() == 2225);
@@ -217,10 +175,7 @@ TEST_CASE("cover", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=2800&fit=cover&we=true";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 2725);
         CHECK(image.height() == 2225);
@@ -231,10 +186,7 @@ TEST_CASE("cover", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=320&h=240&t=square";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
@@ -245,10 +197,7 @@ TEST_CASE("cover", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=2800&t=squaredown";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 2725);
         CHECK(image.height() == 2225);
@@ -258,8 +207,12 @@ TEST_CASE("cover", "[thumbnail]") {
 
 TEST_CASE("tiff", "[thumbnail]") {
     SECTION("cover") {
-        if (vips_type_find("VipsOperation", "tiffload_buffer") == 0 ||
-            vips_type_find("VipsOperation", "tiffsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation",
+                           pre_8_10 ? "tiffload_buffer" : "tiffload_source") ==
+                0 ||
+            vips_type_find("VipsOperation",
+                           pre_8_10 ? "tiffsave_buffer" : "tiffsave_target") ==
+                0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -267,10 +220,7 @@ TEST_CASE("tiff", "[thumbnail]") {
         auto test_image = fixtures->input_tiff;
         auto params = "w=240&h=320&fit=cover";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 240);
         CHECK(image.height() == 320);
@@ -279,8 +229,12 @@ TEST_CASE("tiff", "[thumbnail]") {
 
     // Width or height considering ratio (portrait)
     SECTION("smaller axis") {
-        if (vips_type_find("VipsOperation", "tiffload_buffer") == 0 ||
-            vips_type_find("VipsOperation", "tiffsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation",
+                           pre_8_10 ? "tiffload_buffer" : "tiffload_source") ==
+                0 ||
+            vips_type_find("VipsOperation",
+                           pre_8_10 ? "tiffsave_buffer" : "tiffsave_target") ==
+                0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -288,10 +242,7 @@ TEST_CASE("tiff", "[thumbnail]") {
         auto test_image = fixtures->input_tiff;
         auto params = "w=320&h=320";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 243);
         CHECK(image.height() == 320);
@@ -299,8 +250,12 @@ TEST_CASE("tiff", "[thumbnail]") {
     }
 
     SECTION("pyramid") {
-        if (vips_type_find("VipsOperation", "tiffload_buffer") == 0 ||
-            vips_type_find("VipsOperation", "tiffsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation",
+                           pre_8_10 ? "tiffload_buffer" : "tiffload_source") ==
+                0 ||
+            vips_type_find("VipsOperation",
+                           pre_8_10 ? "tiffsave_buffer" : "tiffsave_target") ==
+                0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -309,19 +264,21 @@ TEST_CASE("tiff", "[thumbnail]") {
         auto expected_image = fixtures->expected_dir + "/tiff-pyramid.tiff";
         auto params = "w=500&h=103";  // page=3
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 500);
         CHECK(image.height() == 103);
+
         CHECK_THAT(image, is_similar_image(expected_image));
     }
 
     SECTION("pyramid skip shrink-on-load") {
-        if (vips_type_find("VipsOperation", "tiffload_buffer") == 0 ||
-            vips_type_find("VipsOperation", "tiffsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation",
+                           pre_8_10 ? "tiffload_buffer" : "tiffload_source") ==
+                0 ||
+            vips_type_find("VipsOperation",
+                           pre_8_10 ? "tiffsave_buffer" : "tiffsave_target") ==
+                0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -329,18 +286,19 @@ TEST_CASE("tiff", "[thumbnail]") {
         auto test_image = fixtures->input_tiff_pyramid;
         auto params = "w=4000&h=828";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 4000);
         CHECK(image.height() == 828);
     }
 
     SECTION("multi-page skip shrink-on-load") {
-        if (vips_type_find("VipsOperation", "tiffload_buffer") == 0 ||
-            vips_type_find("VipsOperation", "tiffsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation",
+                           pre_8_10 ? "tiffload_buffer" : "tiffload_source") ==
+                0 ||
+            vips_type_find("VipsOperation",
+                           pre_8_10 ? "tiffsave_buffer" : "tiffsave_target") ==
+                0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -348,10 +306,7 @@ TEST_CASE("tiff", "[thumbnail]") {
         auto test_image = fixtures->input_tiff_multi_page;
         auto params = "w=600&h=75";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 600);
         CHECK(image.height() == 75);
@@ -363,10 +318,7 @@ TEST_CASE("jpg ratio landscape", "[thumbnail]") {
     auto test_image = fixtures->input_jpg;
     auto params = "w=320&h=320&fsol=0";
 
-    std::string buffer;
-    std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-    VImage image = buffer_to_image(buffer);
+    VImage image = process_file<VImage>(test_image, params);
 
     CHECK(image.width() == 320);
     CHECK(image.height() == 261);
@@ -379,10 +331,7 @@ TEST_CASE("fill", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=320&h=320&fit=fill";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 320);
@@ -394,10 +343,7 @@ TEST_CASE("fill", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=320&fit=fill";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 2225);
@@ -409,10 +355,7 @@ TEST_CASE("fill", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "h=320&fit=fill";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 2725);
         CHECK(image.height() == 320);
@@ -424,10 +367,7 @@ TEST_CASE("fill", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=3000&h=3000&fit=fill";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 3000);
         CHECK(image.height() == 3000);
@@ -439,10 +379,7 @@ TEST_CASE("fill", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=3000&fit=fill";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 3000);
         CHECK(image.height() == 2225);
@@ -454,10 +391,7 @@ TEST_CASE("fill", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "h=3000&fit=fill";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 2725);
         CHECK(image.height() == 3000);
@@ -469,10 +403,7 @@ TEST_CASE("fill", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=320&h=3000&fit=fill";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 3000);
@@ -484,10 +415,7 @@ TEST_CASE("fill", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=3000&h=320&fit=fill";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 3000);
         CHECK(image.height() == 320);
@@ -498,10 +426,7 @@ TEST_CASE("fill", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "fit=fill";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 2725);
         CHECK(image.height() == 2225);
@@ -512,10 +437,7 @@ TEST_CASE("fill", "[thumbnail]") {
         auto test_image = fixtures->input_jpg;
         auto params = "w=320&h=320&t=absolute";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.width() == 320);
         CHECK(image.height() == 320);
@@ -529,10 +451,7 @@ TEST_CASE("from", "[thumbnail]") {
         auto test_image = fixtures->input_jpg_with_cmyk_profile;
         auto params = "w=320";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.interpretation() == VIPS_INTERPRETATION_sRGB);
         CHECK(image.width() == 320);
@@ -545,20 +464,19 @@ TEST_CASE("from", "[thumbnail]") {
             fixtures->expected_dir + "/colourspace.cmyk-without-profile.jpg";
         auto params = "w=320";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_file<VImage>(test_image, params);
 
         CHECK(image.interpretation() == VIPS_INTERPRETATION_sRGB);
         CHECK(image.width() == 320);
+
         CHECK_THAT(image, is_similar_image(expected_image));
     }
 }
 
 TEST_CASE("shortest edge is at least 1 pixel", "[thumbnail]") {
     SECTION("height") {
-        if (vips_type_find("VipsOperation", "svgload_buffer") == 0) {
+        if (vips_type_find("VipsOperation", pre_8_10 ? "svgload_buffer"
+                                                     : "svgload_source") == 0) {
             SUCCEED("no svg support, skipping test");
             return;
         }
@@ -566,17 +484,15 @@ TEST_CASE("shortest edge is at least 1 pixel", "[thumbnail]") {
         auto test_buffer = R"(<svg width="10" height="2"></svg>)";
         auto params = "w=2";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_buffer(test_buffer, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_buffer<VImage>(test_buffer, params);
 
         CHECK(image.width() == 2);
         CHECK(image.height() == 1);
     }
 
     SECTION("width") {
-        if (vips_type_find("VipsOperation", "svgload_buffer") == 0) {
+        if (vips_type_find("VipsOperation", pre_8_10 ? "svgload_buffer"
+                                                     : "svgload_source") == 0) {
             SUCCEED("no svg support, skipping test");
             return;
         }
@@ -584,17 +500,15 @@ TEST_CASE("shortest edge is at least 1 pixel", "[thumbnail]") {
         auto test_buffer = R"(<svg width="2" height="10"></svg>)";
         auto params = "h=2";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_buffer(test_buffer, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_buffer<VImage>(test_buffer, params);
 
         CHECK(image.width() == 1);
         CHECK(image.height() == 2);
     }
 
     SECTION("shrink-on-load") {
-        if (vips_type_find("VipsOperation", "svgload_buffer") == 0) {
+        if (vips_type_find("VipsOperation", pre_8_10 ? "svgload_buffer"
+                                                     : "svgload_source") == 0) {
             SUCCEED("no svg support, skipping test");
             return;
         }
@@ -602,10 +516,7 @@ TEST_CASE("shortest edge is at least 1 pixel", "[thumbnail]") {
         auto test_buffer = R"(<svg width="1" height="10"></svg>)";
         auto params = "h=5";
 
-        std::string buffer;
-        std::tie(buffer, std::ignore) = process_buffer(test_buffer, params);
-
-        VImage image = buffer_to_image(buffer);
+        VImage image = process_buffer<VImage>(test_buffer, params);
 
         CHECK(image.width() == 1);
         CHECK(image.height() == 5);
@@ -613,7 +524,8 @@ TEST_CASE("shortest edge is at least 1 pixel", "[thumbnail]") {
 }
 
 TEST_CASE("heif", "[thumbnail]") {
-    if (vips_type_find("VipsOperation", "heifload_buffer") == 0) {
+    if (vips_type_find("VipsOperation",
+                       pre_8_10 ? "heifload_buffer" : "heifload_source") == 0) {
         SUCCEED("no heic support, skipping test");
         return;
     }
@@ -622,19 +534,19 @@ TEST_CASE("heif", "[thumbnail]") {
     auto expected_image = fixtures->expected_dir + "/heif-thumbnail.jpg";
     auto params = "w=240&h=160&output=jpg";
 
-    std::string buffer;
-    std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-    VImage image = buffer_to_image(buffer);
+    VImage image = process_file<VImage>(test_image, params);
 
     CHECK(image.width() == 240);
     CHECK(image.height() == 160);
+
     CHECK_THAT(image, is_similar_image(expected_image));
 }
 
 TEST_CASE("animated webp page", "[thumbnail]") {
-    if (vips_type_find("VipsOperation", "webpload_buffer") == 0 ||
-        vips_type_find("VipsOperation", "webpsave_buffer") == 0) {
+    if (vips_type_find("VipsOperation",
+                       pre_8_10 ? "webpload_buffer" : "webpload_source") == 0 ||
+        vips_type_find("VipsOperation",
+                       pre_8_10 ? "webpsave_buffer" : "webpsave_target") == 0) {
         SUCCEED("no webp support, skipping test");
         return;
     }
@@ -643,12 +555,29 @@ TEST_CASE("animated webp page", "[thumbnail]") {
     auto expected_image = fixtures->expected_dir + "/individual-page.webp";
     auto params = "w=320&h=339&page=6";
 
-    std::string buffer;
-    std::tie(buffer, std::ignore) = process_file(test_image, params);
-
-    VImage image = buffer_to_image(buffer);
+    VImage image = process_file<VImage>(test_image, params);
 
     CHECK(image.width() == 320);
     CHECK(image.height() == 339);
+
+    CHECK_THAT(image, is_similar_image(expected_image));
+}
+
+TEST_CASE("radiance", "[thumbnail]") {
+    if (vips_type_find("VipsOperation",
+                       pre_8_10 ? "radload_buffer" : "radload_source") == 0) {
+        SUCCEED("no radiance support, skipping test");
+        return;
+    }
+
+    auto test_image = fixtures->input_hdr;
+    auto expected_image = fixtures->expected_dir + "/radiance.jpg";
+    auto params = "w=320&h=240&fit=cover&output=jpg";
+
+    VImage image = process_file<VImage>(test_image, params);
+
+    CHECK(image.width() == 320);
+    CHECK(image.height() == 240);
+
     CHECK_THAT(image, is_similar_image(expected_image));
 }

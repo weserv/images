@@ -11,13 +11,14 @@ VImage Sharpen::process(const VImage &image) const {
     }
 
     // Sigma of gaussian
-    auto sigma = query_->get_if<float>("sharp",
-                                       [](float s) {
-                                           // Sigma needs to be in range of
-                                           // 0.000001 - 10000
-                                           return s >= 0.000001 && s <= 10000;
-                                       },
-                                       -1.0F);
+    auto sigma = query_->get_if<float>(
+        "sharp",
+        [](float s) {
+            // Sigma needs to be in range of
+            // 0.000001 - 10000
+            return s >= 0.000001 && s <= 10000;
+        },
+        -1.0F);
 
     if (sigma == -1.0F) {
         // Fast, mild sharpen
@@ -31,22 +32,24 @@ VImage Sharpen::process(const VImage &image) const {
         return image.conv(sharpen);
     } else {
         // Slope for flat areas
-        auto flat = query_->get_if<float>("sharpf",
-                                          [](float f) {
-                                              // Slope for flat areas needs to
-                                              // be in range of 0 - 10000
-                                              return f >= 0 && f <= 10000;
-                                          },
-                                          1.0F);
+        auto flat = query_->get_if<float>(
+            "sharpf",
+            [](float f) {
+                // Slope for flat areas needs to
+                // be in range of 0 - 10000
+                return f >= 0 && f <= 10000;
+            },
+            1.0F);
 
         // Slope for jaggy areas
-        auto jagged = query_->get_if<float>("sharpj",
-                                            [](float j) {
-                                                // Slope for jaggy areas needs
-                                                // to be in range of 0 - 10000
-                                                return j >= 0 && j <= 10000;
-                                            },
-                                            2.0F);
+        auto jagged = query_->get_if<float>(
+            "sharpj",
+            [](float j) {
+                // Slope for jaggy areas needs
+                // to be in range of 0 - 10000
+                return j >= 0 && j <= 10000;
+            },
+            2.0F);
 
 #if !VIPS_VERSION_AT_LEAST(8, 9, 0)
         // Input colorspace needs to be restored before libvips 8.9.0. See:

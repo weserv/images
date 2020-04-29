@@ -86,7 +86,33 @@ ngx_int_t set_expires_header(ngx_http_request_t *r, time_t max_age) {
 }
 
 ngx_int_t set_content_disposition_header(ngx_http_request_t *r,
-                                         ngx_str_t *value) {
+                                         const std::string &extension) {
+    bool is_valid = false;
+
+    ngx_str_t filename;
+    if (ngx_http_arg(r, (u_char *)"filename", 8, &filename) == NGX_OK) {
+        // https://tools.ietf.org/html/rfc2183
+        is_valid = filename.len != 0 && filename.len <= 78 &&
+                   std::all_of(filename.data, filename.data + filename.len,
+                               [](u_char c) { return std::isalnum(c); });
+    }
+
+    if (!is_valid) {
+        filename = ngx_string("image");
+    }
+
+    size_t prefix_size = sizeof("inline; filename=") - 1;
+    size_t header_size = prefix_size + filename.len + extension.size();
+
+    auto *p = reinterpret_cast<u_char *>(ngx_pnalloc(r->pool, header_size));
+    if (p == nullptr) {
+        return NGX_ERROR;
+    }
+
+    u_char *o = ngx_cpymem(p, "inline; filename=", prefix_size);
+    o = ngx_cpymem(o, filename.data, filename.len);
+    o = ngx_cpymem(o, extension.data(), extension.size());
+
     auto *h = reinterpret_cast<ngx_table_elt_t *>(
         ngx_list_push(&r->headers_out.headers));
     if (h == nullptr) {
@@ -98,7 +124,8 @@ ngx_int_t set_content_disposition_header(ngx_http_request_t *r,
     h->hash = ngx_hash_key(const_cast<u_char *>(CONTENT_DISPOSITION_LOWCASE),
                            sizeof(CONTENT_DISPOSITION_LOWCASE) - 1);
 
-    h->value = *value;
+    h->value.data = p;
+    h->value.len = header_size;
 
     return NGX_OK;
 }

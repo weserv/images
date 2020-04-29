@@ -2,8 +2,6 @@
 
 #include "alloc.h"
 #include "http_filter.h"
-#include "http_request.h"
-#include "module.h"
 #include "uri_parser.h"
 #include "util.h"
 
@@ -181,32 +179,37 @@ inline void append(ngx_buf_t *buf, const char (&value)[N]) {
  * request within it, passing it back to NGINX for network communication.
  */
 ngx_int_t ngx_weserv_upstream_create_request(ngx_http_request_t *r) {
-    ngx_weserv_http_connection *http_connection = get_weserv_connection(r);
-    ngx_log_debug2(
-        NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-        "weserv: ngx_weserv_upstream_create_request (r=%p, http_connection=%p)",
-        r, http_connection);
+    if (r == nullptr) {
+        return NGX_ERROR;
+    }
 
-    if (http_connection == nullptr) {
+    auto *ctx = reinterpret_cast<ngx_weserv_upstream_ctx_t *>(
+        ngx_http_get_module_ctx(r, ngx_weserv_module));
+
+    ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                   "weserv: ngx_weserv_upstream_create_request (r=%p, ctx=%p)",
+                   r, ctx);
+
+    if (ctx == nullptr) {
         return NGX_ERROR;
     }
 
     // Accumulate buffer size
     size_t buffer_size = 0;
 
-    HTTPRequest *http_request = http_connection->request.get();
+    HTTPRequest *http_request = ctx->request.get();
 
     ngx_log_debug3(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                    "weserv: creating request (r=%p), %V%V", r,
-                   &http_connection->host_header, &http_connection->url_path);
+                   &ctx->host_header, &ctx->url_path);
 
     // 'GET' followed by a space
     buffer_size += sizeof("GET ") - 1;
     // <URL path> followed by 'HTTP/1.1' and a newline
-    buffer_size += http_connection->url_path.len + sizeof(" HTTP/1.1\r\n") - 1;
+    buffer_size += ctx->url_path.len + sizeof(" HTTP/1.1\r\n") - 1;
     // 'Host:' header, followed by a newline
     buffer_size += sizeof("Host: ") - 1;
-    buffer_size += http_connection->host_header.len;
+    buffer_size += ctx->host_header.len;
     buffer_size += sizeof("\r\n") - 1;
     buffer_size += sizeof("Connection: Keep-Alive\r\n") - 1;
 
@@ -231,12 +234,12 @@ ngx_int_t ngx_weserv_upstream_create_request(ngx_http_request_t *r) {
 
     // Append an HTTP request line
     append(buf, "GET ");
-    append(buf, http_connection->url_path);
+    append(buf, ctx->url_path);
     append(buf, " HTTP/1.1\r\n");
 
     // Append the Host and Connection headers
     append(buf, "Host: ");
-    append(buf, http_connection->host_header);
+    append(buf, ctx->host_header);
     append(buf, "\r\n");
     append(buf, "Connection: Keep-Alive\r\n");
 
@@ -260,11 +263,19 @@ ngx_int_t ngx_weserv_upstream_create_request(ngx_http_request_t *r) {
         return NGX_ERROR;
     }
 
-    chain->next = nullptr;
-    chain->buf = buf;
-
     // We are only sending one buffer
     buf->last_buf = 1;
+
+    chain->buf = buf;
+    chain->next = nullptr;
+
+#if NGX_DEBUG
+    if (ctx->debug == 1) {
+        ctx->in = chain;
+
+        return NGX_DONE;
+    }
+#endif
 
     // Attach the buffer to the request
     r->upstream->request_bufs = chain;
@@ -278,22 +289,28 @@ ngx_int_t ngx_weserv_upstream_create_request(ngx_http_request_t *r) {
  * state machine.
  */
 ngx_int_t ngx_weserv_upstream_reinit_request(ngx_http_request_t *r) {
-    ngx_weserv_http_connection *http_connection = get_weserv_connection(r);
-
-    ngx_log_debug2(
-        NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-        "weserv: ngx_weserv_upstream_reinit_request (r=%p, http_connection=%p)",
-        r, http_connection);
-
-    if (http_connection == nullptr) {
+    if (r == nullptr) {
         return NGX_ERROR;
     }
 
-    http_connection->chunked.state = 0;
+    auto *ctx = reinterpret_cast<ngx_weserv_upstream_ctx_t *>(
+        ngx_http_get_module_ctx(r, ngx_weserv_module));
+
+    ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                   "weserv: ngx_weserv_upstream_reinit_request (r=%p, ctx=%p)",
+                   r, ctx);
+
+    if (ctx == nullptr) {
+        return NGX_ERROR;
+    }
+
+    ngx_http_upstream_t *u = r->upstream;
 
     // We only reset state to start parsing status line again
-    r->upstream->process_header = ngx_weserv_upstream_process_status_line;
-    r->upstream->pipe->input_filter = ngx_weserv_copy_filter;
+    u->process_header = ngx_weserv_upstream_process_status_line;
+    u->pipe->input_filter = ngx_weserv_copy_filter;
+
+    ctx->chunked.state = 0;
     r->state = 0;
 
     return NGX_OK;
@@ -308,14 +325,19 @@ ngx_int_t ngx_weserv_upstream_reinit_request(ngx_http_request_t *r) {
  * implementations of upstream modules.
  */
 ngx_int_t ngx_weserv_upstream_process_status_line(ngx_http_request_t *r) {
-    ngx_weserv_http_connection *http_connection = get_weserv_connection(r);
+    if (r == nullptr) {
+        return NGX_ERROR;
+    }
 
-    ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-                   "weserv: ngx_weserv_upstream_process_status_line (r=%p, "
-                   "http_connection=%p)",
-                   r, http_connection);
+    auto *ctx = reinterpret_cast<ngx_weserv_upstream_ctx_t *>(
+        ngx_http_get_module_ctx(r, ngx_weserv_module));
 
-    if (http_connection == nullptr) {
+    ngx_log_debug2(
+        NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+        "weserv: ngx_weserv_upstream_process_status_line (r=%p, ctx=%p)", r,
+        ctx);
+
+    if (ctx == nullptr) {
         return NGX_ERROR;
     }
 
@@ -342,11 +364,17 @@ ngx_int_t ngx_weserv_upstream_process_status_line(ngx_http_request_t *r) {
     }
 
     // We assume that status codes between 300-308 are redirects
-    http_connection->redirecting = status.code >= 300 && status.code <= 308;
+    ctx->redirecting = status.code >= 300 && status.code <= 308;
 
-    // Don't parse further if a non 200 status code is returned
-    // and we're not redirecting.
-    if (status.code != 200 && !http_connection->redirecting) {
+    // Don't parse further if:
+    // - a non 200 status code is returned
+    // - we're not redirecting
+#if NGX_DEBUG
+    // - we're not debugging responses
+    if (ctx->debug == 0 && status.code != 200 && !ctx->redirecting) {
+#else
+    if (status.code != 200 && !ctx->redirecting) {
+#endif
         std::string message = "Response status code: ";
         if (status.start) {
             message += std::string(reinterpret_cast<const char *>(status.start),
@@ -354,14 +382,14 @@ ngx_int_t ngx_weserv_upstream_process_status_line(ngx_http_request_t *r) {
         }
 
         // Store the parsed error code
-        http_connection->response_status =
+        ctx->response_status =
             Status(status.code, message, Status::ErrorCause::Upstream);
 
         return NGX_HTTP_UPSTREAM_INVALID_HEADER;
     }
 
     // Store the parsed response status for later
-    http_connection->response_status =
+    ctx->response_status =
         Status(status.code, "", Status::ErrorCause::Upstream);
 
     if (status.http_version < NGX_HTTP_VERSION_11) {
@@ -377,14 +405,18 @@ ngx_int_t ngx_weserv_upstream_process_status_line(ngx_http_request_t *r) {
  * A handler called by NGINX to parse response headers.
  */
 ngx_int_t ngx_weserv_upstream_process_header(ngx_http_request_t *r) {
-    ngx_weserv_http_connection *http_connection = get_weserv_connection(r);
+    if (r == nullptr) {
+        return NGX_ERROR;
+    }
 
-    ngx_log_debug2(
-        NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-        "weserv: ngx_weserv_upstream_process_header (r=%p, http_connection=%p)",
-        r, http_connection);
+    auto *ctx = reinterpret_cast<ngx_weserv_upstream_ctx_t *>(
+        ngx_http_get_module_ctx(r, ngx_weserv_module));
 
-    if (http_connection == nullptr) {
+    ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                   "weserv: ngx_weserv_upstream_process_header (r=%p, ctx=%p)",
+                   r, ctx);
+
+    if (ctx == nullptr) {
         return NGX_ERROR;
     }
 
@@ -426,34 +458,45 @@ ngx_int_t ngx_weserv_upstream_process_header(ngx_http_request_t *r) {
                                 transfer_encoding.len) == 0 &&
                 value.len == chunked.len &&
                 ngx_strncasecmp(value.data, chunked.data, chunked.len) == 0) {
-                // Store chunked flag
+                // Store the chunked flag
                 u->headers_in.chunked = 1;
             }
 
             // Check if there was a redirection URI
             static ngx_str_t location = ngx_string("Location");
-            if (http_connection->redirecting && name.len == location.len &&
+            if (ctx->redirecting && name.len == location.len &&
                 ngx_strncasecmp(name.data, location.data, location.len) == 0) {
                 ngx_str_t absolute_url = value;
 
                 if (!has_valid_scheme(value)) {
                     // Relative URIs are allowed in the Location header, see:
                     // https://tools.ietf.org/html/rfc7231#section-7.1.2
-                    (void)concat_url(r->pool, http_connection->request->url(),
-                                     value, &absolute_url);
+                    (void)concat_url(r->pool, ctx->request->url(), value,
+                                     &absolute_url);
                 }
 
                 // Parse the absolute redirection URI.
-                (void)parse_url(r->pool, absolute_url,
-                                &http_connection->location);
+                (void)parse_url(r->pool, absolute_url, &ctx->location);
             }
         } else if (rc == NGX_HTTP_PARSE_HEADER_DONE) {
             // A whole header has been parsed successfully
             ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                            "weserv header done");
+#if NGX_DEBUG
+            if (ctx->debug == 2) {
+                u->headers_in.content_length_n =
+                    u->buffer.pos - u->buffer.start;
 
-            // Clear content length if response is chunked
+                u->buffer.end = u->buffer.pos;
+                u->buffer.pos = u->buffer.start;
+
+                // Don't need to store the chunked flag
+                u->headers_in.chunked = 0;
+            } else if (u->headers_in.chunked) {
+#else
             if (u->headers_in.chunked) {
+#endif
+                // Clear content length if response is chunked
                 u->headers_in.content_length_n = -1;
             }
 
@@ -467,7 +510,7 @@ ngx_int_t ngx_weserv_upstream_process_header(ngx_http_request_t *r) {
                     "upstream intended to send too large body: %O bytes",
                     u->headers_in.content_length_n);
 
-                http_connection->response_status =
+                ctx->response_status =
                     Status(413,
                            "The image is too large to be downloaded. "
                            "Max image size: " +
@@ -477,7 +520,7 @@ ngx_int_t ngx_weserv_upstream_process_header(ngx_http_request_t *r) {
                 return NGX_HTTP_UPSTREAM_INVALID_HEADER;
             }
 
-            if (http_connection->redirecting) {
+            if (ctx->redirecting) {
                 return NGX_HTTP_MOVED_PERMANENTLY;
             }
 
@@ -507,33 +550,37 @@ void ngx_weserv_upstream_abort_request(ngx_http_request_t *r) {
  * or on error, for example connection error, timeout, etc.
  */
 void ngx_weserv_upstream_finalize_request(ngx_http_request_t *r, ngx_int_t rc) {
-    ngx_weserv_http_connection *http_connection = get_weserv_connection(r);
+    if (r == nullptr) {
+        return;
+    }
+
+    auto *ctx = reinterpret_cast<ngx_weserv_upstream_ctx_t *>(
+        ngx_http_get_module_ctx(r, ngx_weserv_module));
 
     ngx_log_debug3(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-                   "weserv: finalizing request r=%p, rc=%d, http_connection=%p",
-                   r, rc, http_connection);
+                   "weserv: finalizing request r=%p, rc=%d, ctx=%p", r, rc,
+                   ctx);
 
-    if (http_connection == nullptr) {
+    if (ctx == nullptr) {
         return;
     }
 
     ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                    "ngx_weserv_upstream_finalize_request called: %V%V",
-                   &http_connection->host_header, &http_connection->url_path);
+                   &ctx->host_header, &ctx->url_path);
 
     if (rc != NGX_OK) {
-        if (http_connection->response_status.ok()) {
-            http_connection->response_status =
-                Status(rc, "Failed to connect to server",
-                       Status::ErrorCause::Upstream);
+        if (ctx->response_status.ok()) {
+            ctx->response_status = Status(rc, "Failed to connect to server",
+                                          Status::ErrorCause::Upstream);
         }
 
         // Reset redirect flag
-        http_connection->redirecting = 0;
-    } else if (http_connection->redirecting) {
+        ctx->redirecting = 0;
+    } else if (ctx->redirecting) {
         // Swap the initial HTTP request out
         std::unique_ptr<HTTPRequest> request;
-        request.swap(http_connection->request);
+        request.swap(ctx->request);
 
         ngx_str_t referer = request->url();
 
@@ -541,27 +588,27 @@ void ngx_weserv_upstream_finalize_request(ngx_http_request_t *r, ngx_int_t rc) {
         ++(*request);
 
         // Check redirection loop
-        if (http_connection->location.len == referer.len &&
-            ngx_strncasecmp(http_connection->location.data, referer.data,
-                            referer.len) == 0) {
-            http_connection->response_status =
+        if (ctx->location.len == referer.len &&
+            ngx_strncasecmp(ctx->location.data, referer.data, referer.len) ==
+                0) {
+            ctx->response_status =
                 Status(310, "Will not follow a redirection to itself",
                        Status::ErrorCause::Upstream);
 
             // Reset redirect flag
-            http_connection->redirecting = 0;
+            ctx->redirecting = 0;
         } else if (request->redirect_count() >= request->max_redirects()) {
-            http_connection->response_status = Status(
+            ctx->response_status = Status(
                 310,
                 "Will not follow more than " +
                     std::to_string(request->max_redirects()) + " redirects",
                 Status::ErrorCause::Upstream);
 
             // Reset redirect flag
-            http_connection->redirecting = 0;
+            ctx->redirecting = 0;
         } else {  // Redirect if there are redirects left
             // Set new redirection URI and referer
-            request->set_url(http_connection->location);
+            request->set_url(ctx->location);
             request->set_header("Referer", referer);
 
             ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
@@ -570,13 +617,13 @@ void ngx_weserv_upstream_finalize_request(ngx_http_request_t *r, ngx_int_t rc) {
                                request->redirect_count());
 
             // Swap the initial HTTP request out to the next iteration
-            http_connection->request = std::move(request);
+            ctx->request = std::move(request);
 
-            ngx_int_t rc = ngx_weserv_send_http_request(r, http_connection);
+            ngx_int_t rc = ngx_weserv_send_http_request(r, ctx);
 
             if (rc == NGX_ERROR) {
                 // Reset redirect flag
-                http_connection->redirecting = 0;
+                ctx->redirecting = 0;
             }
         }
     }
@@ -586,9 +633,8 @@ void ngx_weserv_upstream_finalize_request(ngx_http_request_t *r, ngx_int_t rc) {
  * Initializes the upstream data structures which NGINX upstream module uses to
  * call the server.
  */
-Status
-initialize_upstream_request(ngx_http_request_t *r,
-                            ngx_weserv_http_connection *http_connection) {
+Status initialize_upstream_request(ngx_http_request_t *r,
+                                   ngx_weserv_upstream_ctx_t *ctx) {
     // Create the NGINX upstream structures
     if (ngx_http_upstream_create(r) != NGX_OK) {
         return Status(NGX_ERROR, "Out of memory");
@@ -598,8 +644,7 @@ initialize_upstream_request(ngx_http_request_t *r,
 
     // Parse the URL provided by the caller
     Status status = ngx_weserv_upstream_set_url(
-        r->pool, u, http_connection->request->url(),
-        &http_connection->host_header, &http_connection->url_path);
+        r->pool, u, ctx->request->url(), &ctx->host_header, &ctx->url_path);
     if (!status.ok()) {
         return status;
     }
@@ -610,7 +655,7 @@ initialize_upstream_request(ngx_http_request_t *r,
         ngx_http_get_module_loc_conf(r, ngx_weserv_module));
 
     u->conf = &lc->upstream_conf;
-    u->buffering = 1;
+    u->buffering = lc->upstream_conf.buffering;
 
     // Set up the upstream handlers which create the request HTTP buffers, and
     // process the response data as the upstream module reads it from the wire.
@@ -620,10 +665,9 @@ initialize_upstream_request(ngx_http_request_t *r,
         return Status(NGX_ERROR, "Out of memory");
     }
 
-    u->pipe->input_filter = ngx_weserv_copy_filter;
-
     // The request filter context is the request object (ngx_request_t)
     u->pipe->input_ctx = r;
+    u->pipe->input_filter = ngx_weserv_copy_filter;
 
     u->input_filter_init = ngx_weserv_input_filter_init;
 
@@ -645,32 +689,12 @@ initialize_upstream_request(ngx_http_request_t *r,
 
 }  // namespace
 
-ngx_weserv_http_connection::ngx_weserv_http_connection()
-    : response_status(NGX_OK, "") {}
-
-ngx_weserv_http_connection *get_weserv_connection(ngx_http_request_t *r) {
-    if (r != nullptr) {
-        auto *ctx = reinterpret_cast<ngx_weserv_upstream_ctx_t *>(
-            ngx_http_get_module_ctx(r, ngx_weserv_module));
-        ngx_weserv_http_connection *whc = ctx->http_subrequest;
-
-        ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-                       "get_weserv_connection(%p) -> %p", r, whc);
-
-        return whc;
-    }
-
-    return nullptr;
-}
-
-ngx_int_t
-ngx_weserv_send_http_request(ngx_http_request_t *r,
-                             ngx_weserv_http_connection *http_connection) {
+ngx_int_t ngx_weserv_send_http_request(ngx_http_request_t *r,
+                                       ngx_weserv_upstream_ctx_t *ctx) {
     ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-                   "weserv: sending http request: %V",
-                   &http_connection->request->url());
+                   "weserv: sending http request: %V", &ctx->request->url());
 
-    Status status = initialize_upstream_request(r, http_connection);
+    Status status = initialize_upstream_request(r, ctx);
 
     if (status.ok()) {
         ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
@@ -681,16 +705,9 @@ ngx_weserv_send_http_request(ngx_http_request_t *r,
         // Initiate the upstream connection by calling NGINX upstream
         ngx_http_upstream_init(r);
 
-        /*ngx_int_t rc =
-            ngx_http_read_client_request_body(r, ngx_http_upstream_init);
-
-        if (rc >= NGX_HTTP_SPECIAL_RESPONSE) {
-            return rc;
-        }*/
-
         return NGX_DONE;
     } else {
-        http_connection->response_status = status;
+        ctx->response_status = status;
 
         return NGX_ERROR;
     }
