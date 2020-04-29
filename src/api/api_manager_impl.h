@@ -15,6 +15,7 @@
 #include "processors/filter.h"
 #include "processors/gamma.h"
 #include "processors/mask.h"
+#include "processors/modulate.h"
 #include "processors/orientation.h"
 #include "processors/rotation.h"
 #include "processors/sharpen.h"

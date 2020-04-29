@@ -19,6 +19,7 @@ set(HEADERS
         processors/filter.h
         processors/gamma.h
         processors/mask.h
+        processors/modulate.h
         processors/orientation.h
         processors/rotation.h
         processors/sharpen.h
@@ -46,6 +47,7 @@ set(SOURCES
         processors/filter.cpp
         processors/gamma.cpp
         processors/mask.cpp
+        processors/modulate.cpp
         processors/orientation.cpp
         processors/rotation.cpp
         processors/sharpen.cpp

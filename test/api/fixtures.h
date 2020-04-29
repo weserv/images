@@ -127,6 +127,9 @@ struct Fixtures {
 
     std::string input_svg_giant{dir + "/giant.svg"};
 
+    // https://commons.wikimedia.org/wiki/File:Tv-test-pattern-146649_640.png
+    std::string input_svg_test_pattern{dir + "/tv-test-pattern-146649.svg"};
+
     // https://octicons.github.com/favicon.ico
     std::string input_ico{dir + "/favicon.ico"};
 
