@@ -27,7 +27,7 @@ using QueryHolderPtr = std::shared_ptr<QueryHolder>;
 template <typename T>
 inline std::vector<T> tokenize(const std::string &data,
                                const std::string &delimiters,
-                               typename std::vector<T>::size_type max_items);
+                               size_t max_items);
 
 inline void add_value(QueryMap &map, const std::string &key,
                       const std::string &value, std::type_index type);

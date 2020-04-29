@@ -429,7 +429,7 @@ void Stream::write_to_target(const VImage &image, const Target &target) const {
 #else
         // Multiple delay values are not supported, set the gif-delay field.
         // Note: this is centiseconds (the GIF standard).
-        copy.set("gif-delay", std::rint(delays[0] / 10.0));
+        copy.set("gif-delay", static_cast<int>(std::rint(delays[0] / 10.0)));
 #endif
     }
 

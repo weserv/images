@@ -319,9 +319,11 @@ VImage Thumbnail::shrink_on_load(const VImage &image,
 #endif
                                     load_options->set("thumbnail", true));
 
-        // Use the thumbnail if, by using it, we could get a factor >= * 1.0,
-        // ie. we would not need to expand the thumbnail.
-        return resolve_common_shrink(thumb.width(), thumb.height()) >= 1.0
+        // Use the thumbnail if, by using it, we could get a factor > 1.0,
+        // i.e. we would not need to expand the thumbnail.
+        // Don't use >= since factor can be clipped to 1.0 under some
+        // resizing modes.
+        return resolve_common_shrink(thumb.width(), thumb.height()) > 1.0
                    ? thumb
                    : image;
 #endif

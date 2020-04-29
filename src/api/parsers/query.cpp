@@ -79,7 +79,7 @@ const SynonymMap &synonym_map = {
 
 template <typename T>
 std::vector<T> tokenize(const std::string &data, const std::string &delimiters,
-                        const typename std::vector<T>::size_type max_items) {
+                        size_t max_items) {
     // Skip delimiters at beginning
     size_t last_pos = data.find_first_not_of(delimiters, 0);
 
@@ -89,7 +89,7 @@ std::vector<T> tokenize(const std::string &data, const std::string &delimiters,
     std::vector<T> vector;
     vector.reserve(max_items);
 
-    int i = 0;
+    size_t i = 0;
     while (std::string::npos != pos || std::string::npos != last_pos) {
         try {
             // Found a token, add it to the vector
@@ -99,7 +99,7 @@ std::vector<T> tokenize(const std::string &data, const std::string &delimiters,
             vector.push_back(static_cast<T>(-1));
         }
 
-        if (i++ >= max_items) {
+        if (++i >= max_items) {
             break;
         }
 
@@ -132,43 +132,6 @@ void add_value(QueryMap &map, const std::string &key, const std::string &value,
         } catch (...) {
             // -1.0 by default
             map.emplace(key, -1.0F);
-        }
-    } else if (type == typeid(std::vector<int>)) {
-        if (key == "crop") {  // Deprecated
-            auto coordinates = tokenize<int>(value, ",", 4);
-
-            if (coordinates.size() == 4) {
-                map.emplace("cw", coordinates[0]);
-                map.emplace("ch", coordinates[1]);
-                map.emplace("cx", coordinates[2]);
-                map.emplace("cy", coordinates[3]);
-            }
-        } else {  // key == "delay"
-#if VIPS_VERSION_AT_LEAST(8, 9, 0)
-            // 256 is the maximum number of pages we're trying to load
-            // (should be plenty)
-            auto delays = tokenize<int>(value, ",", 256);
-#else
-            // Limit to 1 value if multiple delay values are not supported
-            auto delays = tokenize<int>(value, ",", 1);
-#endif
-            map.emplace(key, delays);
-        }
-    } else if (type == typeid(std::vector<float>)) {
-        auto params = tokenize<float>(value, ",", 3);
-
-        if (params.size() == 1) {
-            map.emplace("sharp", params[0]);
-        } else {
-            // Flat, jagged, sigma
-            std::vector<std::string> keys = {"sharpf", "sharpj", "sharp"};
-
-            for (size_t i = 0; i != params.size(); ++i) {
-                // A single piece needs to be in the range of 0 - 10000
-                if (params[i] >= 0 && params[i] <= 10000) {
-                    map.emplace(keys[i], params[i]);
-                }
-            }
         }
     } else if (type == typeid(Position)) {
         auto position = parse<Position>(value);
@@ -206,6 +169,39 @@ void add_value(QueryMap &map, const std::string &key, const std::string &value,
         map.emplace(key, utils::underlying_value(parse<Canvas>(value)));
     } else if (type == typeid(Color)) {
         map.emplace(key, parse<Color>(value));
+    } else if (key == "delay") {  // type == typeid(std::vector<int>)
+#if VIPS_VERSION_AT_LEAST(8, 9, 0)
+        // 256 is the maximum number of pages we're trying to load
+        // (should be plenty)
+        auto delays = tokenize<int>(value, ",", 256);
+#else
+        // Limit to 1 value if multiple delay values are not supported
+        auto delays = tokenize<int>(value, ",", 1);
+#endif
+        map.emplace(key, delays);
+    } else if (key == "sharp") {  // type == typeid(std::vector<float>)
+        auto params = tokenize<float>(value, ",", 3);
+
+        if (params.size() == 1) {
+            // Assume sigma if only 1 value is given (e.g. &sharp=5)
+            map.emplace(key, params[0]);
+        } else {
+            // Flat, jagged, sigma
+            std::vector<std::string> keys = {"sharpf", "sharpj", "sharp"};
+
+            for (size_t i = 0; i != params.size(); ++i) {
+                map.emplace(keys[i], params[i]);
+            }
+        }
+    } else if (key == "crop") {  // Deprecated
+        auto coordinates = tokenize<int>(value, ",", 4);
+
+        if (coordinates.size() == 4) {
+            map.emplace("cw", coordinates[0]);
+            map.emplace("ch", coordinates[1]);
+            map.emplace("cx", coordinates[2]);
+            map.emplace("cy", coordinates[3]);
+        }
     }
 }
 
