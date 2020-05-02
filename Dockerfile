@@ -89,8 +89,8 @@ RUN mkdir -p -m 700 /var/lib/nginx \
     # Forward request and error logs to docker log collector
     && ln -sf /dev/stdout /var/log/nginx/weserv-access.log \
     && ln -sf /dev/stderr /var/log/nginx/weserv-error.log \
-    # Copy nginx config to the appropriate location
-    && cp -r /var/www/imagesweserv/ngx_conf/. /etc/nginx
+    # Copy nginx configuration to the appropriate location
+    && cp /var/www/imagesweserv/ngx_conf/*.conf /etc/nginx
 
 EXPOSE 80
 
