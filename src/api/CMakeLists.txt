@@ -8,7 +8,6 @@ set(HEADERS
         parsers/enumeration.h
         parsers/numeric.h
         parsers/query.h
-        parsers/query_holder.h
         processors/alignment.h
         processors/background.h
         processors/base.h

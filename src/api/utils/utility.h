@@ -3,7 +3,6 @@
 #include "enums.h"
 
 #include <cmath>
-#include <limits>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -18,10 +17,6 @@ using enums::ImageType;
 using enums::Output;
 using enums::Position;
 using vips::VImage;
-
-#ifndef __has_builtin       // Optional of course.
-#define __has_builtin(x) 0  // Compatibility with non-clang compilers.
-#endif
 
 /**
  * Performs a compile-time version check for libvips.
@@ -451,24 +446,6 @@ inline std::string escape_string(const std::string &s) {  // LCOV_EXCL_START
 template <typename E>
 constexpr inline typename std::underlying_type<E>::type underlying_value(E e) {
     return static_cast<typename std::underlying_type<E>::type>(e);
-}
-
-/**
- * Handle an integer multiplication overflow.
- * @param a Value of the expression on the left hand side.
- * @param b Value of the expression on the right hand side.
- * @param result Pointer to the product of the two values.
- * @return A bool indicating whether the operation overflowed.
- */
-inline bool mul_overflow(int a, int b, int *result) {
-#if __GNUC__ >= 5 || __has_builtin(__builtin_smul_overflow)
-    return __builtin_smul_overflow(a, b, result);
-#else
-    int64_t t = static_cast<int64_t>(a) * b;
-    *result = static_cast<int>(t);
-    return t > std::numeric_limits<int>::max() ||
-           t < std::numeric_limits<int>::min();
-#endif
 }
 
 }  // namespace utils

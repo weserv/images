@@ -5,6 +5,7 @@ extern "C" {
 }
 
 #include <weserv/api_manager.h>
+#include <weserv/config.h>
 
 #include "http_request.h"
 
@@ -41,6 +42,11 @@ struct ngx_weserv_loc_conf_t {
      * Upstream connection configuration, timeouts etc.
      */
     ngx_http_upstream_conf_t upstream_conf;
+
+    /**
+     * API configuration, limits etc.
+     */
+    api::Config api_conf;
 
     ngx_flag_t enable;
 

@@ -13,7 +13,7 @@ using enums::Position;
 // `&[precrop]=true`
 constexpr size_t MAX_KEY_LENGTH = sizeof("precrop") - 1;
 
-// Note: We check the `MAX_VALUE_LENGTH` within `numeric.h`
+// Note: We check crazy numbers within `numeric.h`
 
 // clang-format off
 const TypeMap &type_map = {
@@ -78,8 +78,9 @@ const SynonymMap &synonym_map = {
 // clang-format on
 
 template <typename T>
-std::vector<T> tokenize(const std::string &data, const std::string &delimiters,
-                        size_t max_items) {
+std::vector<T> Query::tokenize(const std::string &data,
+                               const std::string &delimiters,
+                               size_t max_items) {
     // Skip delimiters at beginning
     size_t last_pos = data.find_first_not_of(delimiters, 0);
 
@@ -113,25 +114,25 @@ std::vector<T> tokenize(const std::string &data, const std::string &delimiters,
     return vector;
 }
 
-void add_value(QueryMap &map, const std::string &key, const std::string &value,
-               std::type_index type) {
+void Query::add_value(const std::string &key, const std::string &value,
+                      std::type_index type) {
     if (type == typeid(bool)) {
         // Only emplace `false` if it's explicitly specified because we
         // interpret empty strings (for e.g. `&we`) as `true`.
-        map.emplace(key, value != "false" && value != "0");
+        query_map_.emplace(key, value != "false" && value != "0");
     } else if (type == typeid(int)) {
         try {
-            map.emplace(key, parse<int>(value));
+            query_map_.emplace(key, parse<int>(value));
         } catch (...) {
             // -1 by default
-            map.emplace(key, -1);
+            query_map_.emplace(key, -1);
         }
     } else if (type == typeid(float)) {
         try {
-            map.emplace(key, parse<float>(value));
+            query_map_.emplace(key, parse<float>(value));
         } catch (...) {
             // -1.0 by default
-            map.emplace(key, -1.0F);
+            query_map_.emplace(key, -1.0F);
         }
     } else if (type == typeid(Position)) {
         auto position = parse<Position>(value);
@@ -149,66 +150,65 @@ void add_value(QueryMap &map, const std::string &key, const std::string &value,
                 }
             }
 
-            map.emplace("focal_x", focal[0]);
-            map.emplace("focal_y", focal[1]);
+            query_map_.emplace("focal_x", focal[0]);
+            query_map_.emplace("focal_y", focal[1]);
         }
 
-        map.emplace(key, utils::underlying_value(position));
+        query_map_.emplace(key, utils::underlying_value(position));
     } else if (type == typeid(FilterType)) {
-        map.emplace(key, utils::underlying_value(parse<FilterType>(value)));
+        query_map_.emplace(key,
+                           utils::underlying_value(parse<FilterType>(value)));
     } else if (type == typeid(MaskType)) {
-        map.emplace(key, utils::underlying_value(parse<MaskType>(value)));
+        query_map_.emplace(key,
+                           utils::underlying_value(parse<MaskType>(value)));
     } else if (type == typeid(Output)) {
-        map.emplace(key, utils::underlying_value(parse<Output>(value)));
+        query_map_.emplace(key, utils::underlying_value(parse<Output>(value)));
     } else if (type == typeid(Canvas)) {
         // Deprecated without enlargement parameters
         if (value == "fit" || value == "squaredown") {
-            map.emplace("we", true);
+            query_map_.emplace("we", true);
         }
 
-        map.emplace(key, utils::underlying_value(parse<Canvas>(value)));
+        query_map_.emplace(key, utils::underlying_value(parse<Canvas>(value)));
     } else if (type == typeid(Color)) {
-        map.emplace(key, parse<Color>(value));
+        query_map_.emplace(key, parse<Color>(value));
     } else if (key == "delay") {  // type == typeid(std::vector<int>)
 #if VIPS_VERSION_AT_LEAST(8, 9, 0)
-        // 256 is the maximum number of pages we're trying to load
-        // (should be plenty)
-        auto delays = tokenize<int>(value, ",", 256);
+        // Multiple delay values are supported, limit to config_.max_pages
+        auto delays =
+            tokenize<int>(value, ",", static_cast<size_t>(config_.max_pages));
 #else
         // Limit to 1 value if multiple delay values are not supported
         auto delays = tokenize<int>(value, ",", 1);
 #endif
-        map.emplace(key, delays);
+        query_map_.emplace(key, delays);
     } else if (key == "sharp") {  // type == typeid(std::vector<float>)
         auto params = tokenize<float>(value, ",", 3);
 
         if (params.size() == 1) {
             // Assume sigma if only 1 value is given (e.g. &sharp=5)
-            map.emplace(key, params[0]);
+            query_map_.emplace(key, params[0]);
         } else {
             // Flat, jagged, sigma
             std::vector<std::string> keys = {"sharpf", "sharpj", "sharp"};
 
             for (size_t i = 0; i != params.size(); ++i) {
-                map.emplace(keys[i], params[i]);
+                query_map_.emplace(keys[i], params[i]);
             }
         }
     } else if (key == "crop") {  // Deprecated
         auto coordinates = tokenize<int>(value, ",", 4);
 
         if (coordinates.size() == 4) {
-            map.emplace("cw", coordinates[0]);
-            map.emplace("ch", coordinates[1]);
-            map.emplace("cx", coordinates[2]);
-            map.emplace("cy", coordinates[3]);
+            query_map_.emplace("cw", coordinates[0]);
+            query_map_.emplace("ch", coordinates[1]);
+            query_map_.emplace("cx", coordinates[2]);
+            query_map_.emplace("cy", coordinates[3]);
         }
     }
 }
 
-template <>
-QueryHolderPtr parse(const std::string &value) {
-    QueryMap m;
-
+Query::Query(const std::string &value, const Config &config) : config_(config) {
     size_t key_pos = 0;
     size_t key_end;
     size_t val_pos;
@@ -252,15 +252,13 @@ QueryHolderPtr parse(const std::string &value) {
                 key_pos = key_end;
             }
 
-            add_value(m, key, val, type_it->second);
+            add_value(key, val, type_it->second);
         }
 
         if (key_pos != std::string::npos) {
             ++key_pos;
         }
     }
-
-    return std::make_shared<QueryHolder>(m);
 }
 
 }  // namespace parsers

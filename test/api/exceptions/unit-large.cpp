@@ -19,7 +19,7 @@ TEST_CASE("too large image ", "[large]") {
         CHECK(status.code() == static_cast<int>(Status::Code::ImageTooLarge));
         CHECK(status.error_cause() == Status::ErrorCause::Application);
         CHECK_THAT(status.message(),
-                   Contains("Image is too large for processing"));
+                   Contains("Input image exceeds pixel limit."));
     }
 
     SECTION("output") {
@@ -33,7 +33,7 @@ TEST_CASE("too large image ", "[large]") {
         CHECK(status.code() == static_cast<int>(Status::Code::ImageTooLarge));
         CHECK(status.error_cause() == Status::ErrorCause::Application);
         CHECK_THAT(status.message(),
-                   Contains("Requested image dimensions are too large"));
+                   Contains("Output image exceeds pixel limit."));
         CHECK(out_buf.empty());
     }
 }

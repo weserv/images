@@ -29,7 +29,7 @@ ngx_int_t ngx_weserv_upstream_process_status_line(ngx_http_request_t *r);
 ngx_int_t ngx_weserv_upstream_process_header(ngx_http_request_t *r);
 
 /**
- * Parses the request URL, identifies the URL scheme and default port,
+ * Parses the request URL, identifies the URL scheme and default port.
  */
 Status ngx_weserv_upstream_set_url(ngx_pool_t *pool,
                                    ngx_http_upstream_t *upstream, ngx_str_t url,
@@ -503,8 +503,8 @@ ngx_int_t ngx_weserv_upstream_process_header(ngx_http_request_t *r) {
             auto *lc = reinterpret_cast<ngx_weserv_loc_conf_t *>(
                 ngx_http_get_module_loc_conf(r, ngx_weserv_module));
 
-            if (u->headers_in.content_length_n >
-                static_cast<off_t>(lc->max_size)) {
+            if (lc->max_size > 0 && u->headers_in.content_length_n >
+                                        static_cast<off_t>(lc->max_size)) {
                 ngx_log_error(
                     NGX_LOG_ERR, r->connection->log, 0,
                     "upstream intended to send too large body: %O bytes",

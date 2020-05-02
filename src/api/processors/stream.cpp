@@ -8,26 +8,6 @@ using enums::ImageType;
 using enums::Output;
 using vips::VError;
 
-// Should be plenty
-const int MAX_PAGES = 256;
-
-// The default quality of 85 usually produces excellent results
-const int DEFAULT_QUALITY = 85;
-
-// A default compromise between speed and compression (Z_DEFAULT_COMPRESSION)
-const int DEFAULT_LEVEL = 6;
-
-// = 71 megapixels
-const int MAX_IMAGE_SIZE = 71000000;
-
-// Do a "best effort" to decode images, even if the data is corrupt or invalid.
-// Set this flag to `true` if you would rather to halt processing and raise an
-// error when loading invalid images.
-// See: CVE-2019-6976
-// https://blog.silentsignal.eu/2019/04/18/drop-by-drop-bleeding-through-libvips/
-// https://github.com/weserv/images/issues/194
-const bool FAIL_ON_ERROR = false;
-
 using io::Source;
 using io::Target;
 
@@ -37,17 +17,16 @@ int Stream::resolve_page(const Source &source, const std::string &loader,
     auto image = new_from_source(source, loader,
                                  VImage::option()
                                      ->set("access", VIPS_ACCESS_SEQUENTIAL)
-                                     ->set("fail", FAIL_ON_ERROR)
+                                     ->set("fail", config_.fail_on_error == 1)
                                      ->set("page", 0));
 
     int n_pages = 1;
     if (image.get_typeof(VIPS_META_N_PAGES) != 0) {
-        n_pages =
-            std::max(1, std::min(image.get_int(VIPS_META_N_PAGES), MAX_PAGES));
+        n_pages = std::max(1, std::min(image.get_int(VIPS_META_N_PAGES),
+                                       static_cast<int>(config_.max_pages)));
     }
 
-    uint64_t size = static_cast<uint64_t>(image.height()) *
-                    static_cast<uint64_t>(image.width());
+    uint64_t size = static_cast<uint64_t>(image.height()) * image.width();
 
     int target_page = 0;
 
@@ -56,11 +35,11 @@ int Stream::resolve_page(const Source &source, const std::string &loader,
             new_from_source(source, loader,
                             VImage::option()
                                 ->set("access", VIPS_ACCESS_SEQUENTIAL)
-                                ->set("fail", FAIL_ON_ERROR)
+                                ->set("fail", config_.fail_on_error == 1)
                                 ->set("page", i));
 
-        uint64_t page_size = static_cast<uint64_t>(image_page.height()) *
-                             static_cast<uint64_t>(image_page.width());
+        uint64_t page_size =
+            static_cast<uint64_t>(image_page.height()) * image_page.width();
 
         if (comp(page_size, size)) {
             target_page = i;
@@ -76,11 +55,11 @@ Stream::get_page_load_options(const Source &source,
                               const std::string &loader) const {
     auto n = query_->get_if<int>(
         "n",
-        [](int p) {
+        [this](int p) {
             // Number of pages needs to be in the range
-            // of 1 - 256
+            // of 1 - config_.max_pages
             // -1 for all pages (animated GIF/WebP)
-            return p == -1 || (p >= 1 && p <= MAX_PAGES);
+            return p == -1 || (p >= 1 && p <= config_.max_pages);
         },
         1);
 
@@ -236,7 +215,7 @@ VImage Stream::new_from_source(const Source &source) const {
 
     vips::VOption *options = VImage::option()
                                  ->set("access", access_method)
-                                 ->set("fail", FAIL_ON_ERROR);
+                                 ->set("fail", config_.fail_on_error == 1);
 
     int n = 1;
     if (utils::image_loader_supports_page(loader)) {
@@ -249,20 +228,23 @@ VImage Stream::new_from_source(const Source &source) const {
 
     auto image = new_from_source(source, loader, options);
 
-    int size;
-    if (utils::mul_overflow(image.width(), image.height(), &size) ||
-        size > MAX_IMAGE_SIZE) {
+    // Limit input images to a given number of pixels, where
+    // pixels = width * height
+    if (config_.limit_input_pixels > 0 &&
+        static_cast<uint64_t>(image.width()) * image.height() >
+            config_.limit_input_pixels) {
         throw exceptions::TooLargeImageException(
-            "Image is too large for processing. Width x height should be less "
-            "than 71 megapixels.");
+            "Input image exceeds pixel limit. "
+            "Width x height should be less than " +
+            std::to_string(config_.limit_input_pixels));
     }
 
     if (n == -1) {
         // Resolve the number of pages if we need to render until
         // the end of the document.
         n = image.get_typeof(VIPS_META_N_PAGES) != 0
-                ? std::max(
-                      1, std::min(image.get_int(VIPS_META_N_PAGES), MAX_PAGES))
+                ? std::max(1, std::min(image.get_int(VIPS_META_N_PAGES),
+                                       static_cast<int>(config_.max_pages)))
                 : 1;
     }
 
@@ -293,7 +275,7 @@ void Stream::append_save_options<Output::Jpeg>(vips::VOption *options) const {
             // of 1 - 100
             return q >= 1 && q <= 100;
         },
-        DEFAULT_QUALITY);
+        static_cast<int>(config_.default_quality));
 
     // Set quality (default is 85)
     options->set("Q", quality);
@@ -314,7 +296,7 @@ void Stream::append_save_options<Output::Png>(vips::VOption *options) const {
             // 0 (no Deflate) - 9 (maximum Deflate)
             return l >= 0 && l <= 9;
         },
-        DEFAULT_LEVEL);
+        static_cast<int>(config_.default_level));
 
     auto filter = query_->get<bool>("af", false) ? VIPS_FOREIGN_PNG_FILTER_ALL
                                                  : VIPS_FOREIGN_PNG_FILTER_NONE;
@@ -338,7 +320,7 @@ void Stream::append_save_options<Output::Webp>(vips::VOption *options) const {
             // of 1 - 100
             return q >= 1 && q <= 100;
         },
-        DEFAULT_QUALITY);
+        static_cast<int>(config_.default_quality));
 
     // Set quality (default is 85)
     options->set("Q", quality);
@@ -356,7 +338,7 @@ void Stream::append_save_options<Output::Tiff>(vips::VOption *options) const {
             // of 1 - 100
             return q >= 1 && q <= 100;
         },
-        DEFAULT_QUALITY);
+        static_cast<int>(config_.default_quality));
 
     // Set quality (default is 85)
     options->set("Q", quality);
@@ -416,7 +398,14 @@ void Stream::write_to_target(const VImage &image, const Target &target) const {
     }
 
     // Set the frame delay(s)
-    auto delays = query_->get<std::vector<int>>("delay", {});
+    auto delays = query_->get_if<std::vector<int>>(
+        "delay",
+        [](std::vector<int> v) {
+            // A single delay must be greater than or equal to zero.
+            return std::all_of(v.begin(), v.end(),
+                               [](int d) { return d >= 0; });
+        },
+        {});
     if (!delays.empty()) {
 #if VIPS_VERSION_AT_LEAST(8, 9, 0)
         if (delays.size() == 1) {

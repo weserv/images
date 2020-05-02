@@ -7,15 +7,6 @@ namespace processors {
 using enums::Canvas;
 using enums::ImageType;
 
-// See `stream.cpp`
-const int MAX_PAGES = 256;
-
-// See `stream.cpp`
-const int MAX_TARGET_SIZE = 71000000;
-
-// See `stream.cpp`
-const bool FAIL_ON_ERROR = false;
-
 // Set to true in order to have a greater advantage of the JPEG
 // shrink-on-load feature. You can set this to false for more
 // consistent results and to avoid occasional small image shifting.
@@ -140,8 +131,8 @@ int Thumbnail::resolve_tiff_pyramid(const VImage &image, const Source &source,
                                     int width, int height) const {
     int n_pages = 1;
     if (image.get_typeof(VIPS_META_N_PAGES) != 0) {
-        n_pages =
-            std::max(1, std::min(image.get_int(VIPS_META_N_PAGES), MAX_PAGES));
+        n_pages = std::max(1, std::min(image.get_int(VIPS_META_N_PAGES),
+                                       static_cast<int>(config_.max_pages)));
     }
 
     // Only one page? Can't be
@@ -154,14 +145,16 @@ int Thumbnail::resolve_tiff_pyramid(const VImage &image, const Source &source,
     for (int i = n_pages - 1; i >= 0; i--) {
         auto page =
 #if VIPS_VERSION_AT_LEAST(8, 10, 0)
-            VImage::new_from_source(source, "",
+            VImage::new_from_source(
+                source, "",
 #else
-            VImage::new_from_buffer(source.buffer(), "",
+            VImage::new_from_buffer(
+                source.buffer(), "",
 #endif
-                                    VImage::option()
-                                        ->set("access", VIPS_ACCESS_SEQUENTIAL)
-                                        ->set("fail", FAIL_ON_ERROR)
-                                        ->set("page", i));
+                VImage::option()
+                    ->set("access", VIPS_ACCESS_SEQUENTIAL)
+                    ->set("fail", config_.fail_on_error == 1)
+                    ->set("page", i));
 
         int level_width = page.width();
         int level_height = page.height();
@@ -194,22 +187,25 @@ int Thumbnail::resolve_tiff_pyramid(const VImage &image, const Source &source,
 /*int Thumbnail::resolve_open_slide_level(const VImage &image) const {
     int level_count = 1;
     if (image.get_typeof("openslide.level-count") != 0) {
-        level_count = std::max(
-            1, std::min(image.get_int("openslide.level-count"), MAX_PAGES));
+        level_count =
+            std::max(1, std::min(image.get_int("openslide.level-count"),
+                                 static_cast<int>(config_.max_pages)));
     }
 
     for (int level = level_count - 1; level >= 0; level--) {
         auto level_str = "openslide.level[" + std::to_string(level) + "]";
-        auto level_width_field = (level_str + ".width").c_str();
-        auto level_height_field = (level_str + ".height").c_str();
+        auto level_width_field = level_str + ".width";
+        auto level_height_field = level_str + ".height";
 
-        if (image.get_typeof(level_width_field) == 0 ||
-            image.get_typeof(level_height_field) == 0) {
+        if (image.get_typeof(level_width_field.c_str()) == 0 ||
+            image.get_typeof(level_height_field.c_str()) == 0) {
             continue;
         }
 
-        auto level_width = std::stoi(image.get_string(level_width_field));
-        auto level_height = std::stoi(image.get_string(level_height_field));
+        auto level_width =
+            std::stoi(image.get_string(level_width_field.c_str()));
+        auto level_height =
+            std::stoi(image.get_string(level_height_field.c_str()));
 
         if (resolve_common_shrink(level_width, level_height) >= 1.0) {
             return level;
@@ -251,7 +247,7 @@ VImage Thumbnail::shrink_on_load(const VImage &image,
 
     vips::VOption *load_options = VImage::option()
                                       ->set("access", VIPS_ACCESS_SEQUENTIAL)
-                                      ->set("fail", FAIL_ON_ERROR);
+                                      ->set("fail", config_.fail_on_error == 1);
 
     auto image_type = query_->get<ImageType>("type", ImageType::Unknown);
 
@@ -383,23 +379,27 @@ VImage Thumbnail::process(const VImage &image) const {
         static_cast<int>(std::rint(static_cast<double>(thumb_width) / hshrink));
     int target_page_height =
         static_cast<int>(std::rint(static_cast<double>(page_height) / vshrink));
-
-    int size;
-    if (utils::mul_overflow(target_width, target_page_height, &size) ||
-        size > MAX_TARGET_SIZE) {
-        throw exceptions::TooLargeImageException(
-            "Requested image dimensions are too large. Width x height should "
-            "be less than 71 megapixels.");
-    }
+    int target_image_height = target_page_height;
 
     // In toilet-roll mode, we must adjust vshrink so that we exactly hit
     // page_height or we'll have pixels straddling pixel boundaries.
     if (thumb_height > page_height) {
         auto n_pages = query_->get<int>("n", 1);
-        int target_image_height = target_page_height * n_pages;
+        target_image_height = target_page_height * n_pages;
 
         vshrink = static_cast<double>(thumb_height) /
                   static_cast<double>(target_image_height);
+    }
+
+    // Limit output images to a given number of pixels, where
+    // pixels = width * height
+    if (config_.limit_output_pixels > 0 &&
+        static_cast<uint64_t>(target_width) * target_image_height >
+            config_.limit_output_pixels) {
+        throw exceptions::TooLargeImageException(
+            "Output image exceeds pixel limit. "
+            "Width x height should be less than " +
+            std::to_string(config_.limit_output_pixels));
     }
 
     thumb = thumb.resize(1.0 / hshrink,

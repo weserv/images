@@ -8,13 +8,16 @@
 #include <cmath>
 #include <string>
 
+#include <weserv/config.h>
+
 namespace weserv {
 namespace api {
 namespace processors {
 
 class Thumbnail : ImageProcessor {
  public:
-    using ImageProcessor::ImageProcessor;
+    Thumbnail(std::shared_ptr<parsers::Query> query, const Config &config)
+        : ImageProcessor(std::move(query)), config_(config) {}
 
     /**
      * Use any shrink-on-load features available in the file import library.
@@ -27,6 +30,11 @@ class Thumbnail : ImageProcessor {
     VImage process(const VImage &image) const override;
 
  private:
+    /**
+     * Config.
+     */
+    const Config &config_;
+
     /**
      * Calculate the shrink factor, taking into account auto-rotate, the fit
      * mode, and so on. The hshrink/vshrink are the amount to shrink the input

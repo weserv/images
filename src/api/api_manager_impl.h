@@ -29,6 +29,7 @@
 
 #include <vips/vips8>
 #include <weserv/api_manager.h>
+#include <weserv/config.h>
 
 namespace weserv {
 namespace api {
@@ -44,19 +45,23 @@ class ApiManagerImpl : public ApiManager {
 
     utils::Status process(const std::string &query,
                           std::unique_ptr<io::SourceInterface> source,
-                          std::unique_ptr<io::TargetInterface> target) override;
+                          std::unique_ptr<io::TargetInterface> target,
+                          const Config &config) override;
 
     utils::Status process_file(const std::string &query,
                                const std::string &in_file,
-                               const std::string &out_file) override;
+                               const std::string &out_file,
+                               const Config &config) override;
 
     utils::Status process_file(const std::string &query,
-                               const std::string &in_file,
-                               std::string *out_buf) override;
+                               const std::string &in_file, 
+                               std::string *out_buf,
+                               const Config &config) override;
 
     utils::Status process_buffer(const std::string &query,
                                  const std::string &in_buf,
-                                 std::string *out_buf) override;
+                                 std::string *out_buf,
+                                 const Config &config) override;
 
  private:
     /**
@@ -76,10 +81,11 @@ class ApiManagerImpl : public ApiManager {
      * @param query Query string.
      * @param source Source to read from.
      * @param target target to write to.
+     * @param config API configuration.
      * @return A Status object to represent an error or an OK state.
      */
     utils::Status process(const std::string &query, const io::Source &source,
-                          const io::Target &target);
+                          const io::Target &target, const Config &config);
 
     /**
      * Global environment across multiple services

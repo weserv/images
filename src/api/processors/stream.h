@@ -12,13 +12,16 @@
 #include <utility>
 #include <vector>
 
+#include <weserv/config.h>
+
 namespace weserv {
 namespace api {
 namespace processors {
 
 class Stream {
  public:
-    explicit Stream(parsers::QueryHolderPtr query) : query_(std::move(query)) {}
+    Stream(std::shared_ptr<parsers::Query> query, const Config &config)
+        : query_(std::move(query)), config_(config) {}
 
     VImage new_from_source(const io::Source &source) const;
 
@@ -28,7 +31,12 @@ class Stream {
     /**
      * Query holder.
      */
-    const parsers::QueryHolderPtr query_;
+    const std::shared_ptr<parsers::Query> query_;
+
+    /**
+     * Config.
+     */
+    const Config &config_;
 
     /**
      * Finds the largest/smallest page in the range [0, VIPS_META_N_PAGES].

@@ -42,58 +42,124 @@ ngx_conf_enum_t ngx_weserv_mode[] = {
     {ngx_null_string, 0}  // last entry
 };
 
+// clang-format off
 /**
  * The module commands contain list of configurable properties for this module.
  */
 ngx_command_t ngx_weserv_commands[] = {
-    {
-        ngx_string("weserv"),
-        NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
-            NGX_CONF_FLAG,
-        ngx_conf_set_flag_slot,
-        NGX_HTTP_LOC_CONF_OFFSET,
-        offsetof(ngx_weserv_loc_conf_t, enable),
-        nullptr,
-    },
-    {ngx_string("weserv_mode"), NGX_HTTP_LOC_CONF | NGX_CONF_TAKE1,
-     ngx_conf_set_enum_slot, NGX_HTTP_LOC_CONF_OFFSET,
-     offsetof(ngx_weserv_loc_conf_t, mode), &ngx_weserv_mode},
+    {ngx_string("weserv"),
+     NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF | NGX_CONF_FLAG,
+     ngx_conf_set_flag_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, enable),
+     nullptr},
+
+    {ngx_string("weserv_mode"),
+     NGX_HTTP_LOC_CONF | NGX_HTTP_LIF_CONF | NGX_CONF_TAKE1,
+     ngx_conf_set_enum_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, mode),
+     &ngx_weserv_mode},
+
     {ngx_string("weserv_connect_timeout"),
      NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
          NGX_CONF_TAKE1,
-     ngx_conf_set_msec_slot, NGX_HTTP_LOC_CONF_OFFSET,
-     offsetof(ngx_weserv_loc_conf_t, upstream_conf.connect_timeout), nullptr},
+     ngx_conf_set_msec_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, upstream_conf.connect_timeout),
+     nullptr},
+
     {ngx_string("weserv_send_timeout"),
      NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
          NGX_CONF_TAKE1,
-     ngx_conf_set_msec_slot, NGX_HTTP_LOC_CONF_OFFSET,
-     offsetof(ngx_weserv_loc_conf_t, upstream_conf.send_timeout), nullptr},
+     ngx_conf_set_msec_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, upstream_conf.send_timeout),
+     nullptr},
+
     {ngx_string("weserv_read_timeout"),
      NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
          NGX_CONF_TAKE1,
-     ngx_conf_set_msec_slot, NGX_HTTP_LOC_CONF_OFFSET,
-     offsetof(ngx_weserv_loc_conf_t, upstream_conf.read_timeout), nullptr},
+     ngx_conf_set_msec_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, upstream_conf.read_timeout),
+     nullptr},
+
     {ngx_string("weserv_user_agent"),
      NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
-         NGX_CONF_TAKE1,
-     ngx_conf_set_str_slot, NGX_HTTP_LOC_CONF_OFFSET,
-     offsetof(ngx_weserv_loc_conf_t, user_agent), nullptr},
-    {
-        ngx_string("weserv_max_size"),
-        NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
-            NGX_CONF_TAKE1,
-        ngx_conf_set_size_slot,
-        NGX_HTTP_LOC_CONF_OFFSET,
-        offsetof(ngx_weserv_loc_conf_t, max_size),
-        nullptr,
-    },
+         NGX_HTTP_LIF_CONF | NGX_CONF_TAKE1,
+     ngx_conf_set_str_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, user_agent),
+     nullptr},
+
+    {ngx_string("weserv_max_size"),
+     NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
+         NGX_HTTP_LIF_CONF | NGX_CONF_TAKE1,
+     ngx_conf_set_size_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, max_size),
+     nullptr},
+
     {ngx_string("weserv_max_redirects"),
      NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
-         NGX_CONF_TAKE1,
-     ngx_conf_set_num_slot, NGX_HTTP_LOC_CONF_OFFSET,
-     offsetof(ngx_weserv_loc_conf_t, max_redirects), nullptr},
+         NGX_HTTP_LIF_CONF | NGX_CONF_TAKE1,
+     ngx_conf_set_num_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, max_redirects),
+     nullptr},
+
+    {ngx_string("weserv_max_pages"),
+     NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
+         NGX_HTTP_LIF_CONF | NGX_CONF_TAKE1,
+     ngx_conf_set_num_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, api_conf.max_pages),
+     nullptr},
+
+    {ngx_string("weserv_limit_input_pixels"),
+     NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
+         NGX_HTTP_LIF_CONF | NGX_CONF_TAKE1,
+     ngx_conf_set_num_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, api_conf.limit_input_pixels),
+     nullptr},
+
+    {ngx_string("weserv_limit_output_pixels"),
+     NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
+         NGX_HTTP_LIF_CONF | NGX_CONF_TAKE1,
+     ngx_conf_set_num_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, api_conf.limit_output_pixels),
+      nullptr},
+
+    {ngx_string("weserv_default_quality"),
+     NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
+         NGX_HTTP_LIF_CONF | NGX_CONF_TAKE1,
+     ngx_conf_set_num_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, api_conf.default_quality),
+     nullptr},
+
+    {ngx_string("weserv_default_level"),
+     NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
+         NGX_HTTP_LIF_CONF | NGX_CONF_TAKE1,
+     ngx_conf_set_num_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, api_conf.default_level),
+     nullptr},
+
+    {ngx_string("weserv_fail_on_error"),
+     NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
+         NGX_HTTP_LIF_CONF | NGX_CONF_FLAG,
+     ngx_conf_set_flag_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, api_conf.fail_on_error),
+     nullptr},
+
     ngx_null_command  // last entry
 };
+// clang-format on
 
 /**
  * The module context contains initialization and configuration callbacks.
@@ -201,6 +267,14 @@ void *ngx_weserv_create_loc_conf(ngx_conf_t *cf) {
     lc->max_size = NGX_CONF_UNSET_SIZE;
     lc->max_redirects = NGX_CONF_UNSET_UINT;
 
+    // API configuration
+    lc->api_conf.limit_input_pixels = NGX_CONF_UNSET_UINT;
+    lc->api_conf.limit_output_pixels = NGX_CONF_UNSET_UINT;
+    lc->api_conf.max_pages = NGX_CONF_UNSET;
+    lc->api_conf.default_quality = NGX_CONF_UNSET;
+    lc->api_conf.default_level = NGX_CONF_UNSET;
+    lc->api_conf.fail_on_error = NGX_CONF_UNSET;
+
     return lc;
 }
 
@@ -229,8 +303,34 @@ char *ngx_weserv_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child) {
     ngx_conf_merge_size_value(conf->max_size, prev->max_size,
                               100 * 1024 * 1024);
 
-    // We follow 10 redirects by default
+    // Follow 10 redirects by default
     ngx_conf_merge_uint_value(conf->max_redirects, prev->max_redirects, 10);
+
+    // Process at the maximum 256 pages, which should be plenty
+    ngx_conf_merge_value(conf->api_conf.max_pages, prev->api_conf.max_pages,
+                         256);
+
+    // Do not process images where the number of pixels exceeds 71000000
+    ngx_conf_merge_uint_value(conf->api_conf.limit_input_pixels,
+                              prev->api_conf.limit_input_pixels, 71000000);
+
+    // Do not output images where the number of pixels exceeds 71000000
+    ngx_conf_merge_uint_value(conf->api_conf.limit_output_pixels,
+                              prev->api_conf.limit_output_pixels, 71000000);
+
+    // The default quality of 85 usually produces excellent results
+    ngx_conf_merge_value(conf->api_conf.default_quality,
+                         prev->api_conf.default_quality, 85);
+
+    // A default compromise between speed and compression
+    // (Z_DEFAULT_COMPRESSION)
+    ngx_conf_merge_value(conf->api_conf.default_level,
+                         prev->api_conf.default_level, 6);
+
+    // Do a "best effort" to decode images, even if the data is corrupt or
+    // invalid
+    ngx_conf_merge_value(conf->api_conf.fail_on_error,
+                         prev->api_conf.fail_on_error, 0);
 
     return reinterpret_cast<char *>(NGX_CONF_OK);
 }
@@ -475,7 +575,8 @@ ngx_int_t ngx_weserv_image_body_filter(ngx_http_request_t *r, ngx_chain_t *in) {
     Status status = mc->weserv->process(
         ngx_str_to_std(r->args),
         std::unique_ptr<api::io::SourceInterface>(new NgxSource(r, ctx->in)),
-        std::unique_ptr<api::io::TargetInterface>(new NgxTarget(r, &out)));
+        std::unique_ptr<api::io::TargetInterface>(new NgxTarget(r, &out)),
+        lc->api_conf);
 
     r->connection->buffered &= ~NGX_WESERV_IMAGE_BUFFERED;
 

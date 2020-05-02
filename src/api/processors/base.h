@@ -16,7 +16,7 @@ using vips::VImage;
 
 class ImageProcessor {
  public:
-    explicit ImageProcessor(parsers::QueryHolderPtr query)
+    explicit ImageProcessor(std::shared_ptr<parsers::Query> query)
         : query_(std::move(query)) {}
 
     virtual VImage process(const VImage &image) const = 0;
@@ -30,7 +30,7 @@ class ImageProcessor {
     /**
      * Query holder.
      */
-    const parsers::QueryHolderPtr query_;
+    const std::shared_ptr<parsers::Query> query_;
 };
 
 }  // namespace processors

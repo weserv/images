@@ -32,10 +32,13 @@ ApiManagerImpl::ApiManagerImpl(std::unique_ptr<ApiEnvInterface> env)
     : env_(std::move(env)) {
     int vips_result = vips_init("weserv");
     if (vips_result == 0) {
-        /* Disable the libvips cache -- it won't help and will just burn
-         * memory.
-         */
+        // Disable the libvips cache -- it won't help and will just burn memory
         vips_cache_set_max(0);
+
+#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+        // We limit the pipe within the nginx module
+        vips_pipe_read_limit_set(-1);
+#endif
 
         handler_id_ = g_log_set_handler(
             "VIPS", static_cast<GLogLevelFlags>(G_LOG_LEVEL_WARNING),
@@ -108,8 +111,9 @@ Status ApiManagerImpl::exception_handler(const std::string &query) {
 
 utils::Status ApiManagerImpl::process(const std::string &query,
                                       const Source &source,
-                                      const Target &target) {
-    auto query_holder = parsers::parse<parsers::QueryHolderPtr>(query);
+                                      const Target &target,
+                                      const Config &config) {
+    auto query_holder = std::make_shared<parsers::Query>(query, config);
 
     // Note: the disadvantage of pre-resize extraction behaviour is that none
     // of the very fast shrink-on-load tricks are possible. This can make
@@ -117,11 +121,11 @@ utils::Status ApiManagerImpl::process(const std::string &query,
     auto precrop = query_holder->get<bool>("precrop", false);
 
     // Stream processor
-    auto stream = processors::Stream(query_holder);
+    auto stream = processors::Stream(query_holder, config);
 
     // Image processors
     auto trim = processors::Trim(query_holder);
-    auto thumbnail = processors::Thumbnail(query_holder);
+    auto thumbnail = processors::Thumbnail(query_holder, config);
     auto orientation = processors::Orientation(query_holder);
     auto alignment = processors::Alignment(query_holder);
     auto crop = processors::Crop(query_holder);
@@ -168,22 +172,24 @@ utils::Status ApiManagerImpl::process(const std::string &query,
 utils::Status
 ApiManagerImpl::process(const std::string &query,
                         std::unique_ptr<io::SourceInterface> source,
-                        std::unique_ptr<io::TargetInterface> target) {
+                        std::unique_ptr<io::TargetInterface> target,
+                        const Config &config) {
     try {
         return process(query, Source::new_from_pointer(std::move(source)),
-                       Target::new_to_pointer(std::move(target)));
+                       Target::new_to_pointer(std::move(target)), config);
     } catch (...) {
-        // We'll pass the query string for debugging purposes.
+        // We'll pass the query string for debugging purposes
         return exception_handler(query);
     }
 }
 
 utils::Status ApiManagerImpl::process_file(const std::string &query,
                                            const std::string &in_file,
-                                           const std::string &out_file) {
+                                           const std::string &out_file,
+                                           const Config &config) {
     try {
         return process(query, Source::new_from_file(in_file),
-                       Target::new_to_file(out_file));
+                       Target::new_to_file(out_file), config);
     } catch (...) {
         return exception_handler(query);
     }
@@ -191,14 +197,16 @@ utils::Status ApiManagerImpl::process_file(const std::string &query,
 
 utils::Status ApiManagerImpl::process_file(const std::string &query,
                                            const std::string &in_file,
-                                           std::string *out_buf) {
+                                           std::string *out_buf,
+                                           const Config &config) {
     try {
 #if VIPS_VERSION_AT_LEAST(8, 10, 0)
         auto target = Target::new_to_memory();
 #else
         auto target = Target::new_to_memory(out_buf);
 #endif
-        Status status = process(query, Source::new_from_file(in_file), target);
+        Status status =
+            process(query, Source::new_from_file(in_file), target, config);
 
 #if VIPS_VERSION_AT_LEAST(8, 10, 0)
         if (status.ok() && out_buf != nullptr) {
@@ -216,14 +224,16 @@ utils::Status ApiManagerImpl::process_file(const std::string &query,
 
 utils::Status ApiManagerImpl::process_buffer(const std::string &query,
                                              const std::string &in_buf,
-                                             std::string *out_buf) {
+                                             std::string *out_buf,
+                                             const Config &config) {
     try {
 #if VIPS_VERSION_AT_LEAST(8, 10, 0)
         auto target = Target::new_to_memory();
 #else
         auto target = Target::new_to_memory(out_buf);
 #endif
-        Status status = process(query, Source::new_from_buffer(in_buf), target);
+        Status status =
+            process(query, Source::new_from_buffer(in_buf), target, config);
 
 #if VIPS_VERSION_AT_LEAST(8, 10, 0)
         if (status.ok() && out_buf != nullptr) {

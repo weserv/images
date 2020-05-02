@@ -13,7 +13,7 @@ ngx_int_t check_image_too_large(ngx_event_pipe_t *p) {
     auto *lc = reinterpret_cast<ngx_weserv_loc_conf_t *>(
         ngx_http_get_module_loc_conf(r, ngx_weserv_module));
 
-    if (p->read_length > static_cast<off_t>(lc->max_size)) {
+    if (lc->max_size > 0 && p->read_length > static_cast<off_t>(lc->max_size)) {
         if (r == nullptr) {
             return NGX_ERROR;
         }
