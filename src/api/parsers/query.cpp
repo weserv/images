@@ -36,6 +36,9 @@ const TypeMap &type_map = {
         {"flip",    typeid(bool)},
         {"flop",    typeid(bool)},
         {"bri",     typeid(int)},
+        {"mod",     typeid(std::vector<float>)},
+        {"sat",     typeid(float)},
+        {"hue",     typeid(int)},
         {"con",     typeid(int)},
         {"gam",     typeid(float)},
         {"sharp",   typeid(std::vector<float>)},
@@ -67,6 +70,8 @@ const SynonymMap &synonym_map = {
         {"strim",   "mtrim"},  // &strim= was deprecated since API version 4
         {"or",      "ro"},     // &or= was deprecated since API version 5
         {"t",       "fit"},    // &t= was deprecated since API version 5
+        // TODO(kleisauke): Synonym this within a major release (since it breaks backwards compatibility).
+        //{"bri",     "mod"},
         // Some handy synonyms
         {"pages",   "n"},
         {"width",   "w"},
@@ -195,6 +200,17 @@ void Query::add_value(const std::string &key, const std::string &value,
             for (size_t i = 0; i != params.size(); ++i) {
                 query_map_.emplace(keys[i], params[i]);
             }
+        }
+    } else if (key == "mod") {  // type == typeid(std::vector<float>)
+        auto params = tokenize<float>(value, ",", 3);
+
+        // Brightness, saturation, hue
+        std::vector<std::string> keys = {/*"bri"*/key, "sat", "hue"};
+
+        for (size_t i = 0; i != params.size(); ++i) {
+            /*keys[i] == "hue"*/ i == 2  // Hue needs to be casted to a integer
+                ? query_map_.emplace(keys[i], static_cast<int>(params[i]))
+                : query_map_.emplace(keys[i], params[i]);
         }
     } else if (key == "crop") {  // Deprecated
         auto coordinates = tokenize<int>(value, ",", 4);

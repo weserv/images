@@ -132,6 +132,7 @@ utils::Status ApiManagerImpl::process(const std::string &query,
     auto embed = processors::Embed(query_holder);
     auto rotation = processors::Rotation(query_holder);
     auto brightness = processors::Brightness(query_holder);
+    auto modulate = processors::Modulate(query_holder);
     auto contrast = processors::Contrast(query_holder);
     auto gamma = processors::Gamma(query_holder);
     auto sharpen = processors::Sharpen(query_holder);
@@ -157,8 +158,8 @@ utils::Status ApiManagerImpl::process(const std::string &query,
     }
 
     // Image processing phase 3 (adjustments, effects, etc.)
-    image = image | embed | rotation | brightness | contrast | gamma | sharpen |
-            filter | blur | tint | background | mask;
+    image = image | embed | rotation | brightness | modulate | contrast |
+            gamma | sharpen | filter | blur | tint | background | mask;
 
     // Write the image to a target
     stream.write_to_target(image, target);
