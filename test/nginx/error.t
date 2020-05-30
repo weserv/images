@@ -22,8 +22,8 @@ __DATA__
 --- http_config eval: $::HttpConfig
 --- config
     location /images {
-         weserv on;
-         weserv_mode proxy;
+        weserv on;
+        weserv_mode proxy;
     }
 --- request
     GET /images?url=http:\\foobar
@@ -40,13 +40,13 @@ Content-Type: application/json
 --- http_config eval: $::HttpConfig
 --- config
     location /302 {
-         default_type text/plain;
-         return 302 "$TEST_NGINX_URI/302";
+        default_type text/plain;
+        return 302 "$TEST_NGINX_URI/302";
     }
 
     location /images {
-         weserv on;
-         weserv_mode proxy;
+        weserv on;
+        weserv_mode proxy;
     }
 --- request eval
 "GET /images?url=$ENV{TEST_NGINX_URI}/302"
@@ -63,23 +63,23 @@ Content-Type: application/json
 --- http_config eval: $::HttpConfig
 --- config
     location /1 {
-         default_type text/plain;
-         return 302 "$TEST_NGINX_URI/2";
+        default_type text/plain;
+        return 302 "$TEST_NGINX_URI/2";
     }
 
     location /2 {
-         default_type text/plain;
-         return 302 "$TEST_NGINX_URI/redirect";
+        default_type text/plain;
+        return 302 "$TEST_NGINX_URI/redirect";
     }
 
     location /redirect {
-         default_type text/plain;
-         return 302 "$TEST_NGINX_URI/1";
+        default_type text/plain;
+        return 302 "$TEST_NGINX_URI/1";
     }
 
     location /images {
-         weserv on;
-         weserv_mode proxy;
+        weserv on;
+        weserv_mode proxy;
     }
 --- request eval
 "GET /images?url=$ENV{TEST_NGINX_URI}/redirect"
@@ -96,13 +96,13 @@ Content-Type: application/json
 --- http_config eval: $::HttpConfig
 --- config
     location /418 {
-         default_type text/plain;
-         return 418 "418 I'm a teapot\n";
+        default_type text/plain;
+        return 418 "418 I'm a teapot\n";
     }
 
     location /images {
-         weserv on;
-         weserv_mode proxy;
+        weserv on;
+        weserv_mode proxy;
     }
 --- request eval
 "GET /images?url=$ENV{TEST_NGINX_URI}/418"
@@ -119,14 +119,14 @@ Content-Type: application/json
 --- http_config eval: $::HttpConfig
 --- config
     location /200 {
-         default_type text/plain;
-         return 200 "200 OK\n";
+        default_type text/plain;
+        return 200 "200 OK\n";
     }
 
     location /images {
-         weserv on;
-         weserv_max_size 5;
-         weserv_mode proxy;
+        weserv on;
+        weserv_max_size 5;
+        weserv_mode proxy;
     }
 --- request eval
 "GET /images?url=$ENV{TEST_NGINX_URI}/200"

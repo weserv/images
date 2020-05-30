@@ -22,18 +22,18 @@ __DATA__
 --- http_config eval: $::HttpConfig
 --- config
     location /418 {
-         default_type text/plain;
-         return 418 "418 I'm a teapot\n";
+        default_type text/plain;
+        return 418 "418 I'm a teapot\n";
     }
 
     location /sub/302 {
-         default_type text/plain;
-         return 302 "./../418";
+        default_type text/plain;
+        return 302 "./../418";
     }
 
     location /images {
-         weserv on;
-         weserv_mode proxy;
+        weserv on;
+        weserv_mode proxy;
     }
 --- request eval
 "GET /images?url=$ENV{TEST_NGINX_URI}/sub/302"
@@ -50,18 +50,18 @@ Content-Type: application/json
 --- http_config eval: $::HttpConfig
 --- config
     location /418 {
-         default_type text/plain;
-         return 418 "418 I'm a teapot\n";
+        default_type text/plain;
+        return 418 "418 I'm a teapot\n";
     }
 
     location /301 {
-         default_type text/plain;
-         return 301 " /418";
+        default_type text/plain;
+        return 301 " /418";
     }
 
     location /images {
-         weserv on;
-         weserv_mode proxy;
+        weserv on;
+        weserv_mode proxy;
     }
 --- request eval
 "GET /images?url=$ENV{TEST_NGINX_URI}/301"
@@ -92,9 +92,9 @@ Content-Type: application/json
     }
 
     location /images {
-         weserv on;
-         weserv_mode proxy;
-         weserv_user_agent "Mozilla/5.0 (compatible; ImageFetcher/8.0; +http://images.weserv.nl/)";
+        weserv on;
+        weserv_mode proxy;
+        weserv_user_agent "Mozilla/5.0 (compatible; ImageFetcher/9.0; +http://images.weserv.nl/)";
     }
 --- request eval
 "GET /images?url=$ENV{TEST_NGINX_URI}/user_agent"
@@ -125,13 +125,13 @@ Content-Type: application/json
     }
 
     location /referer {
-         default_type text/plain;
-         return 301 "$TEST_NGINX_URI/418";
+        default_type text/plain;
+        return 301 "$TEST_NGINX_URI/418";
     }
 
     location /images {
-         weserv on;
-         weserv_mode proxy;
+        weserv on;
+        weserv_mode proxy;
     }
 --- request eval
 "GET /images?url=$ENV{TEST_NGINX_URI}/referer"
@@ -148,14 +148,14 @@ Content-Type: application/json
 --- http_config eval: $::HttpConfig
 --- config
     location /chunked {
-         default_type image/svg+xml;
-         chunked_transfer_encoding on;
-         echo '<svg xmlns="http://www.w3.org/2000/svg"/>';
+        default_type image/svg+xml;
+        chunked_transfer_encoding on;
+        echo '<svg xmlns="http://www.w3.org/2000/svg"/>';
     }
 
     location /images {
-         weserv on;
-         weserv_mode proxy;
+        weserv on;
+        weserv_mode proxy;
     }
 --- request eval
 "GET /images?url=$ENV{TEST_NGINX_URI}/chunked&output=json"

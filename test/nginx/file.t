@@ -30,8 +30,8 @@ sub unhex {
 }
 
 sub gif_size {
-   my $content = shift;
-   return join ' ', unpack("x6v2", $content);
+    my $content = shift;
+    return join ' ', unpack("x6v2", $content);
 }
 
 no_long_string();

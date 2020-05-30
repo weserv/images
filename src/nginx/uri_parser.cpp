@@ -211,25 +211,27 @@ ngx_int_t punycode_encode(u_char *input, size_t input_length,
 uintptr_t escape_path(u_char *dst, u_char *src, size_t size) {
     static u_char hex[] = "0123456789ABCDEF";
 
-    // " ", """, %00-%1F, %7F-%FF
+    // NGX_ESCAPE_URI_COMPONENT without the percent sign and
+    // reserved characters. That is:
+    // " ", """, "<", ">", "\", "^", "`", "{", "|", "}", %00-%1F, %7F-%FF
 
     // clang-format off
     static uint32_t escape[] = {
         0xffffffff, // 1111 1111 1111 1111  1111 1111 1111 1111
 
-                    //  ?>=< ;:98 7654 3210  /.-, +*)( '&%$ #"! 
-        0x00000005, //  0000 0000 0000 0000  0000 0000 0000 0101 
+                    // ?>=< ;:98 7654 3210  /.-, +*)( '&%$ #"! 
+        0x50000005, // 0101 0000 0000 0000  0000 0000 0000 0101
 
                     // _^]\ [ZYX WVUT SRQP  ONML KJIH GFED CBA@
-        0x00000000, // 0000 0000 0000 0000  0000 0000 0000 0000
+        0x50000000, // 0101 0000 0000 0000  0000 0000 0000 0000
 
-                    //   ~}| {zyx wvut srqp  onml kjih gfed cba`
-        0x80000000, //  1000 0000 0000 0000  0000 0000 0000 0000
+                    //  ~}| {zyx wvut srqp  onml kjih gfed cba`
+        0xb8000001, // 1011 1000 0000 0000  0000 0000 0000 0001
 
-        0xffffffff, //  1111 1111 1111 1111  1111 1111 1111 1111
-        0xffffffff, //  1111 1111 1111 1111  1111 1111 1111 1111 
-        0xffffffff, //  1111 1111 1111 1111  1111 1111 1111 1111
-        0xffffffff  //  1111 1111 1111 1111  1111 1111 1111 1111 
+        0xffffffff, // 1111 1111 1111 1111  1111 1111 1111 1111
+        0xffffffff, // 1111 1111 1111 1111  1111 1111 1111 1111
+        0xffffffff, // 1111 1111 1111 1111  1111 1111 1111 1111
+        0xffffffff  // 1111 1111 1111 1111  1111 1111 1111 1111
     };
     // clang-format on
 

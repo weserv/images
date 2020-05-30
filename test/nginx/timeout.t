@@ -22,9 +22,9 @@ __DATA__
 --- http_config eval: $::HttpConfig
 --- config
     location /images {
-         weserv on;
-         weserv_mode proxy;
-         weserv_connect_timeout 1s;
+        weserv on;
+        weserv_mode proxy;
+        weserv_connect_timeout 1s;
     }
 --- request
     GET /images?url=10.255.255.1
@@ -42,14 +42,14 @@ Content-Type: application/json
 --- http_config eval: $::HttpConfig
 --- config
     location /sleep {
-         echo_sleep 2;
-         echo "200 OK";
+        echo_sleep 2;
+        echo "200 OK";
     }
 
     location /images {
-         weserv on;
-         weserv_mode proxy;
-         weserv_read_timeout 1s;
+        weserv on;
+        weserv_mode proxy;
+        weserv_read_timeout 1s;
     }
 --- request eval
 "GET /images?url=$ENV{TEST_NGINX_URI}/sleep"

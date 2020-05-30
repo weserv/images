@@ -30,8 +30,8 @@ sub unhex {
 }
 
 sub gif_size {
-   my $content = shift;
-   return join ' ', unpack("x6v2", $content);
+    my $content = shift;
+    return join ' ', unpack("x6v2", $content);
 }
 
 no_long_string();
@@ -136,8 +136,8 @@ Content-Disposition: inline; filename=image.gif
 --- http_config eval: $::HttpConfig
 --- config
     location /images {
-         weserv on;
-         weserv_mode proxy;
+        weserv on;
+        weserv_mode proxy;
     }
 --- request
     GET /images?url=http:\\foobar&default=https://example.org
