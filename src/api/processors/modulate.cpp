@@ -19,22 +19,18 @@ VImage Modulate::process(const VImage &image) const {
             return s >= 0 && s <= 10000;
         },
         1.0F);
-    auto hue = query_->get_if<int>(
-        "hue",
-        [](int h) {
-            // Hue needs to be higher or equal to 0
-            // Note: it's normalized to [0, 360] below
-            return h >= 0;
-        },
-        0);
+    auto hue = query_->get<int>("hue", 0);  // Normalized to [0, 360] below
 
     // Should we process the image?
     if (brightness == 1.0 && saturation == 1.0 && hue == 0) {
         return image;
     }
 
-    // Normalize hue to [0, 360]
+    // Normalize hue rotation to [0, 360]
     hue %= 360;
+    if (hue < 0) {
+        hue = 360 + hue;
+    }
 
     // Get original colorspace
     VipsInterpretation type_before_modulate = image.interpretation();

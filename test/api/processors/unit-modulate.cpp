@@ -13,7 +13,7 @@ TEST_CASE("modulate", "[modulate]") {
         auto test_image = fixtures->input_jpg;
         auto expected_image =
             fixtures->expected_dir + "/modulate-hue-120.jpg";
-        auto params = "w=320&h=240&fit=cover&hue=120";
+        auto params = "w=320&h=240&fit=cover&hue=-240";
 
         VImage image = process_file<VImage>(test_image, params);
 
