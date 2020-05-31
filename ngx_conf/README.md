@@ -140,7 +140,7 @@ not specified.
 | **default:** | `off`                                          |
 | **context:** | `http`, `server`, `location`, `if in location` |
 
-Sets the processing behavior when loading invalid images. By default the Weserv
+Sets the processing behavior when loading invalid images. By default, the Weserv
 module does a "best effort" to decode images, even if the data is corrupt or
 invalid. Set  this flag to `on` if you would rather to halt processing and raise
 an error when loading invalid images.

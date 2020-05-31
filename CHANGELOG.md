@@ -115,7 +115,7 @@ With the magical help of [libvips](https://github.com/libvips/libvips) and the P
 ## [2.0.0] - started 2015-12-27
 
 ### Note
-This version was never used in production, it's only used for testing purposes and it was a beginning to re-write the entire image proxy (which is in production since 2007).
+This version was never used in production, it's only used for testing purposes, and it was a beginning to re-write the entire image proxy (which is in production since 2007).
 
 ### Added
 - Add CHANGELOG.md based on [’Keep a CHANGELOG’](https://github.com/olivierlacan/keep-a-changelog).
@@ -129,7 +129,7 @@ This version was never used in production, it's only used for testing purposes a
 The start of our image proxy. See for more details [here](https://github.com/weserv/images/wiki).
 
 ### Added / Changed / Fixed
-We never kept a changelog from 2007 till 2015.
+We never kept a changelog from 2007 to 2015.
 For a quick overview what we've added, changed or fixed in the past see our [completed label](https://github.com/weserv/images/issues?utf8=%E2%9C%93&q=label%3Acompleted%20no%3Amilestone) on our issue tracker. Or take a look at our [1.x branch](https://github.com/weserv/images/tree/1.x).
 
 [5.0.0]: https://github.com/weserv/images/compare/4.x...5.x
