@@ -1,8 +1,8 @@
 FROM centos:8
 
-ARG NGINX_VERSION=1.17.10
+ARG NGINX_VERSION=1.19.0
 
-LABEL maintainer "Kleis Auke Wolthuizen <info@kleisauke.nl>"
+LABEL maintainer="Kleis Auke Wolthuizen <info@kleisauke.nl>"
 
 # Set default timezone
 # An alternative way to set timezone is to run container with: -e "TZ=Continent/City"

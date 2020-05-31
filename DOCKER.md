@@ -4,12 +4,12 @@ This document describes how to use images.weserv.nl with Docker.
 
 ## Installation
 
-1. Build/run containers with (with and without detached mode)
+1. Build/run containers
 
     ```bash
     docker build . \
         -t imagesweserv \
-        --build-arg NGINX_VERSION=1.17.10
+        --build-arg NGINX_VERSION=1.19.0
     docker run \
         --shm-size=1gb \
         -p 80:80 \
