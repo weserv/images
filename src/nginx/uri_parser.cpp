@@ -466,6 +466,14 @@ ngx_int_t parse_url(ngx_pool_t *pool, ngx_str_t &uri, ngx_str_t *output) {
         path = last;
     }
 
+    // Remove the fragment part of the path. Per RFC 3986, this is always the
+    // last part of the URI. We are looking for the first '#' so that we deal
+    // gracefully with non conformant URI such as http://example.com#foo#bar.
+    u_char *fragment = reinterpret_cast<u_char *>(ngx_strlchr(path, last, '#'));
+    if (fragment != nullptr) {
+        last = fragment;
+    }
+
     size_t path_length = (size_t)(last - path);
 
     // Note: each escaped character is replaced by 3 characters.
