@@ -6,7 +6,7 @@ using Catch::Matchers::Contains;
 
 TEST_CASE("unreadable image", "[unreadable]") {
     SECTION("buffer") {
-        if (vips_type_find("VipsOperation", pre_8_10 ? "gifload_buffer"
+        if (vips_type_find("VipsOperation", pre_8_11 ? "gifload_buffer"
                                                      : "gifload_source") == 0) {
             SUCCEED("no gif support, skipping test");
             return;
@@ -22,7 +22,7 @@ TEST_CASE("unreadable image", "[unreadable]") {
         CHECK_THAT(status.message(), Contains("Image not readable"));
     }
     SECTION("source") {
-        // TODO: This test can be moved to unit-invalid when libvips >= 8.10
+        // TODO: This test can be moved to unit-invalid when libvips >= 8.11
         class UnreadableSource : public SourceInterface {
             int64_t read(void * /* unsused */, size_t /* unsused */) override {
                 return -1;
@@ -38,11 +38,11 @@ TEST_CASE("unreadable image", "[unreadable]") {
 
         CHECK(!status.ok());
         CHECK(status.code() ==
-              static_cast<int>(pre_8_10 ? Status::Code::ImageNotReadable
+              static_cast<int>(pre_8_11 ? Status::Code::ImageNotReadable
                                         : Status::Code::InvalidImage));
         CHECK(status.error_cause() == Status::ErrorCause::Application);
         CHECK_THAT(status.message(),
-                   Contains(pre_8_10 ? "Image not readable"
+                   Contains(pre_8_11 ? "Image not readable"
                                      : "Invalid or unsupported image format"));
     }
 }

@@ -95,7 +95,7 @@ VImage Stream::new_from_source(const Source &source, const std::string &loader,
                                vips::VOption *options) const {
     VImage out_image;
 
-#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+#if VIPS_VERSION_AT_LEAST(8, 11, 0)
     try {
         VImage::call(loader.c_str(),
                      options->set("source", source)->set("out", &out_image));
@@ -191,7 +191,7 @@ void Stream::resolve_rotation_and_flip(const VImage &image) const {
 }
 
 VImage Stream::new_from_source(const Source &source) const {
-#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+#if VIPS_VERSION_AT_LEAST(8, 11, 0)
     const char *loader = vips_foreign_find_load_source(source.get_source());
 #else
     const char *loader = vips_foreign_find_load_buffer(source.buffer().c_str(),
@@ -454,7 +454,7 @@ void Stream::write_to_target(const VImage &image, const Target &target) const {
 
         target.setup(extension);
 
-#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+#if VIPS_VERSION_AT_LEAST(8, 11, 0)
         // Write the image to the target
         copy.write_to_target(extension.c_str(), target, save_options);
 #else

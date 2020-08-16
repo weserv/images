@@ -8,7 +8,7 @@
 
 #include "utils/utility.h"
 
-#if !VIPS_VERSION_AT_LEAST(8, 10, 0)
+#if !VIPS_VERSION_AT_LEAST(8, 11, 0)
 #include "exceptions/unreadable.h"
 #include <fstream>
 #include <utility>
@@ -18,7 +18,7 @@ namespace weserv {
 namespace api {
 namespace io {
 
-#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+#if VIPS_VERSION_AT_LEAST(8, 11, 0)
 struct WeservSourceClass {
     VipsSourceClass parent_class;
 };
@@ -81,7 +81,7 @@ class Source {
      */
     static Source new_from_buffer(const std::string &buffer);
 
-#if !VIPS_VERSION_AT_LEAST(8, 10, 0)
+#if !VIPS_VERSION_AT_LEAST(8, 11, 0)
     /**
      * @return the buffer held by this source.
      */

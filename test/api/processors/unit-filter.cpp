@@ -136,10 +136,10 @@ TEST_CASE("negate filter", "[filter]") {
 
     SECTION("webp") {
         if (vips_type_find("VipsOperation",
-                           pre_8_10 ? "webpload_buffer" : "webpload_source") ==
+                           pre_8_11 ? "webpload_buffer" : "webpload_source") ==
                 0 ||
             vips_type_find("VipsOperation",
-                           pre_8_10 ? "webpsave_buffer" : "webpsave_target") ==
+                           pre_8_11 ? "webpsave_buffer" : "webpsave_target") ==
                 0) {
             SUCCEED("no webp support, skipping test");
             return;
@@ -159,10 +159,10 @@ TEST_CASE("negate filter", "[filter]") {
 
     SECTION("webp transparent") {
         if (vips_type_find("VipsOperation",
-                           pre_8_10 ? "webpload_buffer" : "webpload_source") ==
+                           pre_8_11 ? "webpload_buffer" : "webpload_source") ==
                 0 ||
             vips_type_find("VipsOperation",
-                           pre_8_10 ? "webpsave_buffer" : "webpsave_target") ==
+                           pre_8_11 ? "webpsave_buffer" : "webpsave_target") ==
                 0) {
             SUCCEED("no webp support, skipping test");
             return;

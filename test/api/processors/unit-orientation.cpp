@@ -57,7 +57,7 @@ TEST_CASE("auto rotate", "[orientation]") {
             VImage image = process_file<VImage>(test_image, "w=320");
 
             CHECK(image.width() == 320);
-            CHECK(image.height() == 240);
+            CHECK(image.height() == 213);
 
             // Check if the EXIF orientation header is removed
             CHECK(image.get_typeof(VIPS_META_ORIENTATION) == 0);
@@ -86,7 +86,7 @@ TEST_CASE("auto rotate", "[orientation]") {
             VImage image = process_file<VImage>(test_image, "w=320");
 
             CHECK(image.width() == 320);
-            CHECK(image.height() == 427);
+            CHECK(image.height() == 480);
 
             // Check if the EXIF orientation header is removed
             CHECK(image.get_typeof(VIPS_META_ORIENTATION) == 0);

@@ -9,8 +9,8 @@
 std::shared_ptr<Fixtures> fixtures;
 std::shared_ptr<weserv::api::ApiManager> api_manager;
 
-bool pre_8_10 = /*false*/
-    vips_version(0) < 8 || (vips_version(0) == 8 && vips_version(1) < 10);
+bool pre_8_11 = /*false*/
+    vips_version(0) < 8 || (vips_version(0) == 8 && vips_version(1) < 11);
 
 VImage buffer_to_image(const std::string &buf) {
     const char *operation_name =

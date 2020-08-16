@@ -33,9 +33,8 @@ class CliEnvironment : public weserv::api::ApiEnvInterface {
                 break;
         }
 
-        auto t = std::time(nullptr);
-        auto tm = *std::localtime(&t);
-        std::cout << std::put_time(&tm, "%Y/%m/%d %H:%M:%S") << " ["
-                  << str_level << "]: " << message << std::endl;
+        auto now = std::time(nullptr);
+        std::cout << std::put_time(std::localtime(&now), "%Y/%m/%d %H:%M:%S")
+                  << " [" << str_level << "]: " << message << std::endl;
     }
 };

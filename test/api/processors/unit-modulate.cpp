@@ -1,8 +1,8 @@
 #include <catch2/catch.hpp>
 
 #include "../base.h"
-#include "../similar_image.h"
 #include "../max_color_distance.h"
+#include "../similar_image.h"
 
 #include <vips/vips8>
 
@@ -11,8 +11,7 @@ using vips::VImage;
 TEST_CASE("modulate", "[modulate]") {
     SECTION("hue-rotate") {
         auto test_image = fixtures->input_jpg;
-        auto expected_image =
-            fixtures->expected_dir + "/modulate-hue-120.jpg";
+        auto expected_image = fixtures->expected_dir + "/modulate-hue-120.jpg";
         auto params = "w=320&h=240&fit=cover&hue=-240";
 
         VImage image = process_file<VImage>(test_image, params);
@@ -39,7 +38,8 @@ TEST_CASE("modulate", "[modulate]") {
 
     SECTION("unbrighten") {
         auto test_image = fixtures->input_jpg;
-        auto expected_image = fixtures->expected_dir + "/modulate-brightness-0-5.jpg";
+        auto expected_image =
+            fixtures->expected_dir + "/modulate-brightness-0-5.jpg";
         auto params = "w=320&h=240&fit=cover&mod=0.5";
 
         VImage image = process_file<VImage>(test_image, params);
@@ -52,7 +52,8 @@ TEST_CASE("modulate", "[modulate]") {
 
     SECTION("desaturate") {
         auto test_image = fixtures->input_jpg;
-        auto expected_image = fixtures->expected_dir + "/modulate-saturation-0.5.jpg";
+        auto expected_image =
+            fixtures->expected_dir + "/modulate-saturation-0.5.jpg";
         auto params = "w=320&h=240&fit=cover&sat=0.5";
 
         VImage image = process_file<VImage>(test_image, params);
@@ -79,7 +80,8 @@ TEST_CASE("modulate", "[modulate]") {
     SECTION("hue-rotate") {
         auto test_image = fixtures->input_svg_test_pattern;
 
-        std::vector<int> angles{30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360};
+        std::vector<int> angles{30,  60,  90,  120, 150, 180,
+                                210, 240, 270, 300, 330, 360};
 
         for (const auto &angle : angles) {
             std::string angle_str = std::to_string(angle);

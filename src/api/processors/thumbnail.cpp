@@ -144,7 +144,7 @@ int Thumbnail::resolve_tiff_pyramid(const VImage &image, const Source &source,
 
     for (int i = n_pages - 1; i >= 0; i--) {
         auto page =
-#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+#if VIPS_VERSION_AT_LEAST(8, 11, 0)
             VImage::new_from_source(
                 source, "",
 #else
@@ -254,7 +254,7 @@ VImage Thumbnail::shrink_on_load(const VImage &image,
     if (image_type == ImageType::Jpeg) {
         auto shrink = resolve_jpeg_shrink(width, height);
 
-#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+#if VIPS_VERSION_AT_LEAST(8, 11, 0)
         return VImage::new_from_source(source, "",
 #else
         return VImage::new_from_buffer(source.buffer(), "",
@@ -266,7 +266,7 @@ VImage Thumbnail::shrink_on_load(const VImage &image,
         auto scale =
             1.0 / resolve_common_shrink(width, utils::get_page_height(image));
 
-#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+#if VIPS_VERSION_AT_LEAST(8, 11, 0)
         return VImage::new_from_source(source, "",
 #else
         return VImage::new_from_buffer(source.buffer(), "",
@@ -277,7 +277,7 @@ VImage Thumbnail::shrink_on_load(const VImage &image,
 
         // We've found a pyramid
         if (page != -1) {
-#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+#if VIPS_VERSION_AT_LEAST(8, 11, 0)
             return VImage::new_from_source(source, "",
 #else
             return VImage::new_from_buffer(source.buffer(), "",
@@ -292,7 +292,7 @@ VImage Thumbnail::shrink_on_load(const VImage &image,
     } else if (image_type == ImageType::Svg) {
         auto scale = 1.0 / resolve_common_shrink(width, height);
 
-#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+#if VIPS_VERSION_AT_LEAST(8, 11, 0)
         return VImage::new_from_source(source, "",
 #else
         return VImage::new_from_buffer(source.buffer(), "",
@@ -306,7 +306,7 @@ VImage Thumbnail::shrink_on_load(const VImage &image,
         append_page_options(load_options);
 
         // Fetch the size of the stored thumbnail
-#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+#if VIPS_VERSION_AT_LEAST(8, 11, 0)
         auto thumb =
             VImage::new_from_source(source, "",
 #else

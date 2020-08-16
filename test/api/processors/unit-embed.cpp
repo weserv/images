@@ -12,10 +12,10 @@ TEST_CASE("embed", "[embed]") {
     // TIFF letterbox known to cause rounding errors
     SECTION("tiff") {
         if (vips_type_find("VipsOperation",
-                           pre_8_10 ? "tiffload_buffer" : "tiffload_source") ==
+                           pre_8_11 ? "tiffload_buffer" : "tiffload_source") ==
                 0 ||
             vips_type_find("VipsOperation",
-                           pre_8_10 ? "tiffsave_buffer" : "tiffsave_target") ==
+                           pre_8_11 ? "tiffsave_buffer" : "tiffsave_target") ==
                 0) {
             SUCCEED("no tiff support, skipping test");
             return;
@@ -36,7 +36,7 @@ TEST_CASE("embed", "[embed]") {
     // Letterbox TIFF in LAB colourspace onto RGBA background
     SECTION("tiff on rgba") {
         if (vips_type_find("VipsOperation",
-                           pre_8_10 ? "tiffload_buffer" : "tiffload_source") ==
+                           pre_8_11 ? "tiffload_buffer" : "tiffload_source") ==
             0) {
             SUCCEED("no tiff support, skipping test");
             return;
@@ -183,11 +183,11 @@ TEST_CASE("skip", "[embed]") {
 
 TEST_CASE("skip height in toilet-roll mode", "[embed]") {
     if (vips_type_find("VipsOperation",
-                       pre_8_10 ? "gifload_buffer" : "gifload_source") == 0) {
+                       pre_8_11 ? "gifload_buffer" : "gifload_source") == 0) {
         SUCCEED("no gif support, skipping test");
         return;
     }
-    if (vips_type_find("VipsOperation", pre_8_10 ? "magicksave_buffer"
+    if (vips_type_find("VipsOperation", pre_8_11 ? "magicksave_buffer"
                                                  : "magicksave_target") == 0) {
         SUCCEED("no magick support, skipping test");
         return;

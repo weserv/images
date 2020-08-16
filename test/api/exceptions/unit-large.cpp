@@ -6,7 +6,7 @@ using Catch::Matchers::Contains;
 
 TEST_CASE("too large image ", "[large]") {
     SECTION("input") {
-        if (vips_type_find("VipsOperation", pre_8_10 ? "svgload_buffer"
+        if (vips_type_find("VipsOperation", pre_8_11 ? "svgload_buffer"
                                                      : "svgload_source") == 0) {
             SUCCEED("no svg support, skipping test");
             return;

@@ -201,7 +201,7 @@ utils::Status ApiManagerImpl::process_file(const std::string &query,
                                            std::string *out_buf,
                                            const Config &config) {
     try {
-#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+#if VIPS_VERSION_AT_LEAST(8, 11, 0)
         auto target = Target::new_to_memory();
 #else
         auto target = Target::new_to_memory(out_buf);
@@ -209,7 +209,7 @@ utils::Status ApiManagerImpl::process_file(const std::string &query,
         Status status =
             process(query, Source::new_from_file(in_file), target, config);
 
-#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+#if VIPS_VERSION_AT_LEAST(8, 11, 0)
         if (status.ok() && out_buf != nullptr) {
             size_t length;
             const void *out = vips_blob_get(target.get_target()->blob, &length);
@@ -228,7 +228,7 @@ utils::Status ApiManagerImpl::process_buffer(const std::string &query,
                                              std::string *out_buf,
                                              const Config &config) {
     try {
-#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+#if VIPS_VERSION_AT_LEAST(8, 11, 0)
         auto target = Target::new_to_memory();
 #else
         auto target = Target::new_to_memory(out_buf);
@@ -236,7 +236,7 @@ utils::Status ApiManagerImpl::process_buffer(const std::string &query,
         Status status =
             process(query, Source::new_from_buffer(in_buf), target, config);
 
-#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+#if VIPS_VERSION_AT_LEAST(8, 11, 0)
         if (status.ok() && out_buf != nullptr) {
             size_t length;
             const void *out = vips_blob_get(target.get_target()->blob, &length);

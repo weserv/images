@@ -3,7 +3,7 @@ dist: bionic
 
 env:
   global:
-    - VIPS_VERSION=8.9.2
+    - VIPS_VERSION=8.10.0
     - VIPS_WARNING=0
     - JOBS=`nproc`
     - LD_LIBRARY_PATH=$HOME/vips/lib:$LD_LIBRARY_PATH
@@ -61,7 +61,8 @@ addons:
 install:
   - |
     bash .ci/install-vips.sh \
-      --disable-dependency-tracking
+      --disable-dependency-tracking \
+      --disable-deprecated
 
 script:
   - mkdir -p build && cd build

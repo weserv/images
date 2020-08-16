@@ -8,7 +8,7 @@
 
 #include "utils/utility.h"
 
-#if !VIPS_VERSION_AT_LEAST(8, 10, 0)
+#if !VIPS_VERSION_AT_LEAST(8, 11, 0)
 #include <utility>
 #endif
 
@@ -16,7 +16,7 @@ namespace weserv {
 namespace api {
 namespace io {
 
-#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+#if VIPS_VERSION_AT_LEAST(8, 11, 0)
 struct WeservTargetClass {
     VipsTargetClass parent_class;
 };
@@ -113,7 +113,7 @@ class Target {
      */
     static Target new_to_file(const std::string &filename);
 
-#if VIPS_VERSION_AT_LEAST(8, 10, 0)
+#if VIPS_VERSION_AT_LEAST(8, 11, 0)
     /**
      * Create a target which will output to a memory area.
      * @return A new Target class.
@@ -134,7 +134,7 @@ class Target {
 
     void finish() const;
 
-#if !VIPS_VERSION_AT_LEAST(8, 10, 0)
+#if !VIPS_VERSION_AT_LEAST(8, 11, 0)
  private:
     std::unique_ptr<io::TargetInterface> target_;
 #endif

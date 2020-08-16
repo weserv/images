@@ -41,10 +41,10 @@ TEST_CASE("partial image extract", "[crop]") {
 
     SECTION("webp") {
         if (vips_type_find("VipsOperation",
-                           pre_8_10 ? "webpload_buffer" : "webpload_source") ==
+                           pre_8_11 ? "webpload_buffer" : "webpload_source") ==
                 0 ||
             vips_type_find("VipsOperation",
-                           pre_8_10 ? "webpsave_buffer" : "webpsave_target") ==
+                           pre_8_11 ? "webpsave_buffer" : "webpsave_target") ==
                 0) {
             SUCCEED("no webp support, skipping test");
             return;
@@ -66,10 +66,10 @@ TEST_CASE("partial image extract", "[crop]") {
 
     SECTION("tiff") {
         if (vips_type_find("VipsOperation",
-                           pre_8_10 ? "tiffload_buffer" : "tiffload_source") ==
+                           pre_8_11 ? "tiffload_buffer" : "tiffload_source") ==
                 0 ||
             vips_type_find("VipsOperation",
-                           pre_8_10 ? "tiffsave_buffer" : "tiffsave_target") ==
+                           pre_8_11 ? "tiffsave_buffer" : "tiffsave_target") ==
                 0) {
             SUCCEED("no tiff support, skipping test");
             return;
@@ -120,7 +120,7 @@ TEST_CASE("image extract before resize", "[crop]") {
 
 TEST_CASE("image resize and extract svg 72 dpi", "[crop]") {
     if (vips_type_find("VipsOperation",
-                       pre_8_10 ? "svgload_buffer" : "svgload_source") == 0) {
+                       pre_8_11 ? "svgload_buffer" : "svgload_source") == 0) {
         SUCCEED("no svg support, skipping test");
         return;
     }
@@ -209,11 +209,11 @@ TEST_CASE("bad extract area", "[crop]") {
 
 TEST_CASE("skip height in toilet-roll mode", "[crop]") {
     if (vips_type_find("VipsOperation",
-                       pre_8_10 ? "gifload_buffer" : "gifload_source") == 0) {
+                       pre_8_11 ? "gifload_buffer" : "gifload_source") == 0) {
         SUCCEED("no gif support, skipping test");
         return;
     }
-    if (vips_type_find("VipsOperation", pre_8_10 ? "magicksave_buffer"
+    if (vips_type_find("VipsOperation", pre_8_11 ? "magicksave_buffer"
                                                  : "magicksave_target") == 0) {
         SUCCEED("no magick support, skipping test");
         return;
