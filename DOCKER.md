@@ -9,7 +9,7 @@ This document describes how to use images.weserv.nl with Docker.
     ```bash
     docker build . \
         -t imagesweserv \
-        --build-arg NGINX_VERSION=1.19.0
+        --build-arg NGINX_VERSION=1.19.2
     docker run \
         --shm-size=1gb \
         -p 80:80 \
