@@ -25,7 +25,7 @@ ngx_int_t check_image_too_large(ngx_event_pipe_t *p) {
             return NGX_ERROR;
         }
 
-        ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
+        ngx_log_error(NGX_LOG_ERR, p->log, 0,
                       "upstream has sent an too large body: %O bytes",
                       p->read_length);
 
@@ -47,6 +47,24 @@ ngx_int_t ngx_weserv_copy_filter(ngx_event_pipe_t *p, ngx_buf_t *buf) {
     ngx_chain_t *cl;
 
     if (buf->pos == buf->last) {
+        return NGX_OK;
+    }
+
+    if (p->upstream_done) {
+        ngx_log_debug0(NGX_LOG_DEBUG_HTTP, p->log, 0,
+                       "weserv data after close");
+        return NGX_OK;
+    }
+
+    if (p->length == 0) {
+        ngx_log_error(NGX_LOG_WARN, p->log, 0,
+                      "upstream sent more data than specified in "
+                      "\"Content-Length\" header");
+
+        auto *r = reinterpret_cast<ngx_http_request_t *>(p->input_ctx);
+        r->upstream->keepalive = 0;
+        p->upstream_done = 1;
+
         return NGX_OK;
     }
 
@@ -84,20 +102,21 @@ ngx_int_t ngx_weserv_copy_filter(ngx_event_pipe_t *p, ngx_buf_t *buf) {
         return NGX_OK;
     }
 
+    if (b->last - b->pos > p->length) {
+        ngx_log_error(NGX_LOG_WARN, p->log, 0,
+                      "upstream sent more data than specified in "
+                      "\"Content-Length\" header");
+        b->last = b->pos + p->length;
+        p->upstream_done = 1;
+
+        return NGX_OK;
+    }
+
     p->length -= b->last - b->pos;
 
     if (p->length == 0) {
         auto *r = reinterpret_cast<ngx_http_request_t *>(p->input_ctx);
-        p->upstream_done = 1;
         r->upstream->keepalive = !r->upstream->headers_in.connection_close;
-
-    } else if (p->length < 0) {
-        auto *r = reinterpret_cast<ngx_http_request_t *>(p->input_ctx);
-        p->upstream_done = 1;
-
-        ngx_log_error(NGX_LOG_WARN, r->connection->log, 0,
-                      "upstream sent more data than specified in "
-                      "\"Content-Length\" header");
     }
 
     return NGX_OK;
@@ -125,6 +144,22 @@ ngx_int_t ngx_weserv_chunked_filter(ngx_event_pipe_t *p, ngx_buf_t *buf) {
 
     if (ctx == nullptr) {
         return NGX_ERROR;
+    }
+
+    if (p->upstream_done) {
+        ngx_log_debug0(NGX_LOG_DEBUG_HTTP, p->log, 0,
+                       "weserv data after close");
+        return NGX_OK;
+    }
+
+    if (p->length == 0) {
+        ngx_log_error(NGX_LOG_WARN, p->log, 0,
+                      "upstream sent data after final chunk");
+
+        r->upstream->keepalive = 0;
+        p->upstream_done = 1;
+
+        return NGX_OK;
     }
 
     b = nullptr;
@@ -185,8 +220,14 @@ ngx_int_t ngx_weserv_chunked_filter(ngx_event_pipe_t *p, ngx_buf_t *buf) {
         if (rc == NGX_DONE) {
             // a whole response has been parsed successfully
 
-            p->upstream_done = 1;
+            p->length = 0;
             r->upstream->keepalive = !r->upstream->headers_in.connection_close;
+
+            if (buf->pos != buf->last) {
+                ngx_log_error(NGX_LOG_WARN, p->log, 0,
+                              "upstream sent data after final chunk");
+                r->upstream->keepalive = 0;
+            }
 
             break;
         }
@@ -200,15 +241,15 @@ ngx_int_t ngx_weserv_chunked_filter(ngx_event_pipe_t *p, ngx_buf_t *buf) {
         }
 
         // invalid response
-        ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
+        ngx_log_error(NGX_LOG_ERR, p->log, 0,
                       "upstream sent invalid chunked response");
 
         return NGX_ERROR;
     }
 
-    ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-                   "http proxy chunked state %ui, length %O",
-                   ctx->chunked.state, p->length);
+    ngx_log_debug2(NGX_LOG_DEBUG_HTTP, p->log, 0,
+                   "weserv chunked state %ui, length %O", ctx->chunked.state,
+                   p->length);
 
     if (check_image_too_large(p) != NGX_OK) {
         p->upstream_done = 1;

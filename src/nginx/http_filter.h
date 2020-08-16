@@ -19,6 +19,8 @@ ngx_int_t ngx_weserv_copy_filter(ngx_event_pipe_t *p, ngx_buf_t *buf);
  *
  * The data pointer is provided to NGINX via input_filter_ctx. Below, we
  * set it to the request object.
+ *
+ * Reference: ngx_http_proxy_input_filter_init
  */
 ngx_int_t ngx_weserv_input_filter_init(void *data);
 
