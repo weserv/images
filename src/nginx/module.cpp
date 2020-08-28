@@ -338,8 +338,9 @@ char *ngx_weserv_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child) {
 /**
  * weserv module initialization.
  */
-ngx_int_t ngx_weserv_init_module(ngx_cycle_t *cycle) {
-    ngx_log_debug0(NGX_LOG_DEBUG_HTTP, cycle->log, 0, "ngx_weserv_init_module");
+ngx_int_t ngx_weserv_init_process(ngx_cycle_t *cycle) {
+    ngx_log_debug0(NGX_LOG_DEBUG_HTTP, cycle->log, 0,
+                   "ngx_weserv_init_process");
 
     auto *mc = reinterpret_cast<ngx_weserv_main_conf_t *>(
         ngx_http_cycle_get_module_main_conf(cycle, ngx_weserv_module));
@@ -640,9 +641,9 @@ ngx_module_t ngx_weserv_module = {
     // ngx_int_t (*init_master)(ngx_log_t *log)
     nullptr,
     // ngx_int_t (*init_module)(ngx_cycle_t *cycle);
-    ::weserv::nginx::ngx_weserv_init_module,
-    // ngx_int_t (*init_process)(ngx_cycle_t *cycle);
     nullptr,
+    // ngx_int_t (*init_process)(ngx_cycle_t *cycle);
+    ::weserv::nginx::ngx_weserv_init_process,
     // ngx_int_t (*init_thread)(ngx_cycle_t *cycle);
     nullptr,
     // void (*exit_thread)(ngx_cycle_t *cycle);
