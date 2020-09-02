@@ -381,7 +381,12 @@ void Stream::write_to_target(const VImage &image, const Target &target) const {
 
     // Update page height
     if (copy.get_typeof(VIPS_META_PAGE_HEIGHT) != 0) {
-        copy.set(VIPS_META_PAGE_HEIGHT, query_->get<int>("page_height"));
+        // Only use the page_height in toilet-roll mode, to ensure that
+        // non-animated images are retained
+        // See: https://github.com/weserv/images/issues/242
+        copy.set(VIPS_META_PAGE_HEIGHT, query_->get<int>("n") > 1
+                                            ? query_->get<int>("page_height")
+                                            : copy.height());
     }
 
     // Set the number of loops, libvips uses iterations like this:

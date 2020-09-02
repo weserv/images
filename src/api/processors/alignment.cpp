@@ -40,7 +40,7 @@ VImage Alignment::process(const VImage &image) const {
     auto min_width = std::min(image_width, width);
     auto min_height = std::min(image_height, height);
 
-    auto n_pages = query_->get<int>("n", 1);
+    auto n_pages = query_->get<int>("n");
 
     // Skip smart crop for multi-page images
     if (n_pages == 1 && (crop_position == Position::Entropy ||

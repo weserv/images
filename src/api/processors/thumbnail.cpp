@@ -384,7 +384,7 @@ VImage Thumbnail::process(const VImage &image) const {
     // In toilet-roll mode, we must adjust vshrink so that we exactly hit
     // page_height or we'll have pixels straddling pixel boundaries.
     if (thumb_height > page_height) {
-        auto n_pages = query_->get<int>("n", 1);
+        auto n_pages = query_->get<int>("n");
         target_image_height = target_page_height * n_pages;
 
         vshrink = static_cast<double>(thumb_height) /

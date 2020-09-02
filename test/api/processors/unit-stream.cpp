@@ -326,6 +326,23 @@ TEST_CASE("gif options", "[stream]") {
         CHECK_THAT(buffer, Contains(R"("pageHeight":1050)"));
         CHECK_THAT(buffer, Contains(R"("delay":[200)"));
     }
+
+    SECTION("page height") {
+        if (vips_type_find("VipsOperation", pre_8_11 ? "gifload_buffer"
+                                                     : "gifload_source") == 0) {
+            SUCCEED("no gif support, skipping test");
+            return;
+        }
+
+        auto test_image = fixtures->input_gif_animated;
+        auto params = "fit=contain&w=990&h=2100&output=json";
+
+        std::string buffer = process_file<std::string>(test_image, params);
+
+        CHECK_THAT(buffer, Contains(R"("format":"gif")"));
+        CHECK_THAT(buffer, Contains(R"("pages":8)"));
+        CHECK_THAT(buffer, Contains(R"("pageHeight":2100)"));
+    }
 }
 
 TEST_CASE("metadata", "[stream]") {

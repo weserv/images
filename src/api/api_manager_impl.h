@@ -55,7 +55,7 @@ class ApiManagerImpl : public ApiManager {
                                const Config &config) override;
 
     utils::Status process_file(const std::string &query,
-                               const std::string &in_file, 
+                               const std::string &in_file,
                                std::string *out_buf,
                                const Config &config) override;
 
