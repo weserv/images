@@ -90,7 +90,7 @@ Sets the maximum number of redirection-followings allowed.
 | **context:** | `http`, `server`, `location`, `if in location` |
 
 Sets the maximum number of pages to extract for multi-page input (GIF, TIFF,
-PDF, WebP).
+PDF, WebP). Set to `0` to remove this limit.
 
 ### `weserv_limit_input_pixels`
 

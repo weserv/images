@@ -13,6 +13,9 @@ using enums::Position;
 // `&[precrop]=true`
 constexpr size_t MAX_KEY_LENGTH = sizeof("precrop") - 1;
 
+// A vector must not have more than 65536 elements.
+const size_t MAX_VECTOR_SIZE = 65536;
+
 // Note: We check crazy numbers within `numeric.h`
 
 // clang-format off
@@ -180,8 +183,10 @@ void Query::add_value(const std::string &key, const std::string &value,
     } else if (key == "delay") {  // type == typeid(std::vector<int>)
 #if VIPS_VERSION_AT_LEAST(8, 9, 0)
         // Multiple delay values are supported, limit to config_.max_pages
-        auto delays =
-            tokenize<int>(value, ",", static_cast<size_t>(config_.max_pages));
+        auto delays = tokenize<int>(value, ",",
+                                    config_.max_pages > 0
+                                        ? static_cast<size_t>(config_.max_pages)
+                                        : MAX_VECTOR_SIZE);
 #else
         // Limit to 1 value if multiple delay values are not supported
         auto delays = tokenize<int>(value, ",", 1);

@@ -20,10 +20,16 @@ int Stream::resolve_page(const Source &source, const std::string &loader,
                                      ->set("fail", config_.fail_on_error == 1)
                                      ->set("page", 0));
 
-    int n_pages = 1;
-    if (image.get_typeof(VIPS_META_N_PAGES) != 0) {
-        n_pages = std::max(1, std::min(image.get_int(VIPS_META_N_PAGES),
-                                       static_cast<int>(config_.max_pages)));
+    int n_pages = image.get_typeof(VIPS_META_N_PAGES) != 0
+                      ? image.get_int(VIPS_META_N_PAGES)
+                      : 1;
+
+    // Limit the number of pages
+    if (config_.max_pages > 0 && n_pages > config_.max_pages) {
+        throw exceptions::TooLargeImageException(
+            "Input image exceeds the maximum number of pages. "
+            "Number of pages should be less than " +
+            std::to_string(config_.max_pages));
     }
 
     uint64_t size = static_cast<uint64_t>(image.height()) * image.width();
@@ -55,11 +61,11 @@ Stream::get_page_load_options(const Source &source,
                               const std::string &loader) const {
     auto n = query_->get_if<int>(
         "n",
-        [this](int p) {
-            // Number of pages needs to be in the range
-            // of 1 - config_.max_pages
-            // -1 for all pages (animated GIF/WebP)
-            return p == -1 || (p >= 1 && p <= config_.max_pages);
+        [](int p) {
+            // Number of pages needs to be higher than 0
+            // or -1 for all pages (animated GIF/WebP)
+            // Note: This is checked against config_.max_pages below.
+            return p == -1 || p > 0;
         },
         1);
 
@@ -243,9 +249,16 @@ VImage Stream::new_from_source(const Source &source) const {
         // Resolve the number of pages if we need to render until
         // the end of the document.
         n = image.get_typeof(VIPS_META_N_PAGES) != 0
-                ? std::max(1, std::min(image.get_int(VIPS_META_N_PAGES),
-                                       static_cast<int>(config_.max_pages)))
+                ? image.get_int(VIPS_META_N_PAGES)
                 : 1;
+    }
+
+    // Limit the number of pages
+    if (config_.max_pages > 0 && n > config_.max_pages) {
+        throw exceptions::TooLargeImageException(
+            "Input image exceeds the maximum number of pages. "
+            "Number of pages should be less than " +
+            std::to_string(config_.max_pages));
     }
 
     // Always store the number of pages to load
@@ -382,7 +395,7 @@ void Stream::write_to_target(const VImage &image, const Target &target) const {
     // Update page height
     if (copy.get_typeof(VIPS_META_PAGE_HEIGHT) != 0) {
         // Only use the page_height in toilet-roll mode, to ensure that
-        // non-animated images are retained
+        // non-animated images are retained.
         // See: https://github.com/weserv/images/issues/242
         copy.set(VIPS_META_PAGE_HEIGHT, query_->get<int>("n") > 1
                                             ? query_->get<int>("page_height")

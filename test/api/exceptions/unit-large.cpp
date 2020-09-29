@@ -37,3 +37,49 @@ TEST_CASE("too large image ", "[large]") {
         CHECK(out_buf.empty());
     }
 }
+
+TEST_CASE("too many pages ", "[large]") {
+    SECTION("input") {
+        if (vips_type_find("VipsOperation", pre_8_11 ? "gifload_buffer"
+                                                     : "gifload_source") == 0) {
+            SUCCEED("no gif support, skipping test");
+            return;
+        }
+
+        auto test_image = fixtures->input_gif_animated_max_pages;
+        auto params = "n=-1";
+
+        std::string out_buf;
+        Status status = process_file(test_image, &out_buf, params);
+
+        CHECK(!status.ok());
+        CHECK(status.code() == static_cast<int>(Status::Code::ImageTooLarge));
+        CHECK(status.error_cause() == Status::ErrorCause::Application);
+        CHECK_THAT(
+            status.message(),
+            Contains("Input image exceeds the maximum number of pages."));
+        CHECK(out_buf.empty());
+    }
+
+    SECTION("input and special page") {
+        if (vips_type_find("VipsOperation", pre_8_11 ? "gifload_buffer"
+                                                     : "gifload_source") == 0) {
+            SUCCEED("no gif support, skipping test");
+            return;
+        }
+
+        auto test_image = fixtures->input_gif_animated_max_pages;
+        auto params = "page=-1";
+
+        std::string out_buf;
+        Status status = process_file(test_image, &out_buf, params);
+
+        CHECK(!status.ok());
+        CHECK(status.code() == static_cast<int>(Status::Code::ImageTooLarge));
+        CHECK(status.error_cause() == Status::ErrorCause::Application);
+        CHECK_THAT(
+            status.message(),
+            Contains("Input image exceeds the maximum number of pages."));
+        CHECK(out_buf.empty());
+    }
+}
