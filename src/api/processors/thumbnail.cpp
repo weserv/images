@@ -355,17 +355,6 @@ VImage Thumbnail::process(const VImage &image) const {
     // etc.
     thumb = thumb.colourspace(VIPS_INTERPRETATION_sRGB);
 
-    // If there's an alpha, we have to premultiply before shrinking. See
-    // https://github.com/libvips/libvips/issues/291
-    VipsBandFormat unpremultiplied_format = VIPS_FORMAT_NOTSET;
-    if (thumb.has_alpha()) {
-        // .premultiply() makes a float image. When we .unpremultiply() below,
-        // we need to cast back to the pre-premultiply format.
-        unpremultiplied_format = thumb.format();
-
-        thumb = thumb.premultiply();
-    }
-
     int thumb_width = thumb.width();
     int thumb_height = thumb.height();
 
@@ -400,6 +389,17 @@ VImage Thumbnail::process(const VImage &image) const {
             "Output image exceeds pixel limit. "
             "Width x height should be less than " +
             std::to_string(config_.limit_output_pixels));
+    }
+
+    // If there's an alpha, we have to premultiply before shrinking. See
+    // https://github.com/libvips/libvips/issues/291
+    VipsBandFormat unpremultiplied_format = VIPS_FORMAT_NOTSET;
+    if (thumb.has_alpha() && hshrink != 1.0 && vshrink != 1.0) {
+        // .premultiply() makes a float image. When we .unpremultiply() below,
+        // we need to cast back to the pre-premultiply format.
+        unpremultiplied_format = thumb.format();
+
+        thumb = thumb.premultiply();
     }
 
     thumb = thumb.resize(1.0 / hshrink,
