@@ -312,13 +312,8 @@ VImage Mask::process(const VImage &image) const {
             svg_mask, "",
             VImage::option()->set("access", VIPS_ACCESS_SEQUENTIAL));
 
-        // Ensure image to composite is premultiplied sRGB
-        mask = mask.premultiply();
-
         // Cutout via dest-in
-        output_image = output_image.composite2(
-            mask, VIPS_BLEND_MODE_DEST_IN,
-            VImage::option()->set("premultiplied", true));
+        output_image = output_image.composite2(mask, VIPS_BLEND_MODE_DEST_IN);
 
         // The image now has an alpha channel
         query_->update("has_alpha", true);
