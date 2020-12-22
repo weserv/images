@@ -14,7 +14,7 @@ jobs:
           # - os: ubuntu-20.04
           #   libvips-version: master
           - os: ubuntu-20.04
-            libvips-version: 8.10.0
+            libvips-version: 8.10.5
             coverage: true
     steps:
       - name: Checkout code
