@@ -85,17 +85,18 @@ int Status::http_code() const {
 
 std::string Status::to_json() const {
     std::ostringstream http_out;
+    auto return_code = http_code();
 
-    if (code_ == 200 || code_ == 0) {
+    if (return_code == 200) {
         http_out << "{";
         http_out << R"("status":"success",)";
-        http_out << "\"code\":" << code_ << ",";
+        http_out << "\"code\":" << return_code << ",";
         http_out << R"("message":"OK")";
         http_out << "}";
-    } else if (code_ == 500) {
+    } else if (return_code == 500) {
         http_out << "{";
         http_out << R"("status":"error",)";
-        http_out << "\"code\":" << code_ << ",";
+        http_out << "\"code\":" << return_code << ",";
         http_out << R"("message":"Something's wrong! )";
         http_out << "It looks as though we've broken something on our system. ";
         http_out
@@ -104,7 +105,7 @@ std::string Status::to_json() const {
     } else {
         http_out << "{";
         http_out << R"("status":"error",)";
-        http_out << "\"code\":" << http_code() << ",";
+        http_out << "\"code\":" << return_code << ",";
         http_out << R"("message":")";
 
         switch (error_cause_) {

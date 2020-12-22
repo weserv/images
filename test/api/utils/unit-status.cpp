@@ -65,12 +65,11 @@ TEST_CASE("status", "[status]") {
         CHECK_THAT(json, Contains(R"("code":500)"));
         CHECK_THAT(json, Contains(R"("message":"Something's wrong!)"));
 
-        json = Status(/*NGX_ERROR*/ -1, "Out of memory").to_json();
+        json = Status(/*NGX_BUSY*/ -3, "Too many requests").to_json();
 
         CHECK_THAT(json, Contains(R"("status":"error")"));
-        CHECK_THAT(json, Contains(R"("code":500)"));
-        CHECK_THAT(json, Contains(R"("message":"NGINX returned error: -1)"));
-        CHECK_THAT(json, Contains("(message: Out of memory)"));
+        CHECK_THAT(json, Contains(R"("message":"NGINX returned error: -3)"));
+        CHECK_THAT(json, Contains("(message: Too many requests)"));
 
         json = Status(408, "", Status::ErrorCause::Upstream).to_json();
 
@@ -78,6 +77,14 @@ TEST_CASE("status", "[status]") {
         CHECK_THAT(json, Contains(R"("code":404)"));
         CHECK_THAT(json,
                    Contains(R"("message":"The requested URL timed out.")"));
+
+        // https://github.com/weserv/images/issues/264
+        json = Status(500, "", Status::ErrorCause::Upstream).to_json();
+
+        CHECK_THAT(json, Contains(R"("status":"error")"));
+        CHECK_THAT(json, Contains(R"("code":404)"));
+        CHECK_THAT(json,
+                   Contains(R"("message":"The requested URL returned error: 500")"));
 
         json = Status(502, "", Status::ErrorCause::Upstream).to_json();
 
