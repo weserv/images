@@ -155,6 +155,8 @@ inline std::string determine_image_extension(const Output &output) {
             return ".jpg";
         case Output::Webp:
             return ".webp";
+        case Output::Avif:
+            return ".avif";
         case Output::Tiff:
             return ".tiff";
         case Output::Gif:
@@ -176,6 +178,8 @@ inline Output to_output(const ImageType &image_type) {
             return Output::Jpeg;
         case ImageType::Webp:
             return Output::Webp;
+        case ImageType::Heif:
+            return Output::Avif;
         case ImageType::Tiff:
             return Output::Tiff;
         case ImageType::Gif:
@@ -269,7 +273,8 @@ inline std::string image_type_id(const ImageType &image_type) {
  */
 inline bool support_alpha_channel(const ImageType &image_type) {
     return image_type == ImageType::Png || image_type == ImageType::Webp ||
-           image_type == ImageType::Tiff || image_type == ImageType::Gif;
+           image_type == ImageType::Heif || image_type == ImageType::Tiff ||
+           image_type == ImageType::Gif;
 }
 
 /**

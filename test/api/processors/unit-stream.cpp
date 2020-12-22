@@ -46,6 +46,33 @@ TEST_CASE("output", "[stream]") {
         CHECK(image.height() == 300);
     }
 
+    SECTION("avif") {
+        if (vips_type_find("VipsOperation",
+                           pre_8_11 ? "heifload_buffer" : "heifload_source") ==
+                0 ||
+            vips_type_find("VipsOperation",
+                           pre_8_11 ? "heifsave_buffer" : "heifsave_target") ==
+                0) {
+            SUCCEED("no avif support, skipping test");
+            return;
+        }
+
+        auto test_image = fixtures->input_avif;
+        auto params = "w=300&h=300&fit=cover&output=avif";
+
+        VImage image = process_file<VImage>(test_image, params);
+
+        CHECK_THAT(image.get_string("vips-loader"), Equals("heifload_buffer"));
+
+        // "heif-compression" metadata added in vips 8.11
+        if (!pre_8_11) {
+            CHECK_THAT(image.get_string("heif-compression"), Equals("av1"));
+        }
+
+        CHECK(image.width() == 300);
+        CHECK(image.height() == 300);
+    }
+
     SECTION("tiff") {
         if (vips_type_find("VipsOperation",
                            pre_8_11 ? "tiffload_buffer" : "tiffload_source") ==
@@ -247,6 +274,30 @@ TEST_CASE("quality and compression", "[stream]") {
         CHECK(buffer_85.size() < buffer_95.size());
     }
 
+    SECTION("avif quality") {
+        if (vips_type_find("VipsOperation",
+                           pre_8_11 ? "heifload_buffer" : "heifload_source") ==
+                0 ||
+            vips_type_find("VipsOperation",
+                           pre_8_11 ? "heifsave_buffer" : "heifsave_target") ==
+                0) {
+            SUCCEED("no avif support, skipping test");
+            return;
+        }
+
+        auto test_image = fixtures->input_avif;
+        auto params_75 = "w=320&h=240&fit=cover&q=75";
+        auto params_95 = "w=320&h=240&fit=cover&q=95";
+
+        std::string buffer_75 =
+            process_file<std::string>(test_image, params_75);
+
+        std::string buffer_95 =
+            process_file<std::string>(test_image, params_95);
+
+        CHECK(buffer_75.size() < buffer_95.size());
+    }
+
     SECTION("tiff quality") {
         if (vips_type_find("VipsOperation",
                            pre_8_11 ? "tiffload_buffer" : "tiffload_source") ==
@@ -384,6 +435,22 @@ TEST_CASE("metadata", "[stream]") {
         CHECK_THAT(buffer, Contains(R"("format":"webp")"));
     }
 
+    SECTION("avif") {
+        if (vips_type_find("VipsOperation",
+                           pre_8_11 ? "heifload_buffer" : "heifload_source") ==
+            0) {
+            SUCCEED("no avif support, skipping test");
+            return;
+        }
+
+        auto test_image = fixtures->input_avif;
+        auto params = "output=json";
+
+        std::string buffer = process_file<std::string>(test_image, params);
+
+        CHECK_THAT(buffer, Contains(R"("format":"heif")"));
+    }
+
     SECTION("tiff") {
         if (vips_type_find("VipsOperation",
                            pre_8_11 ? "tiffload_buffer" : "tiffload_source") ==
@@ -430,7 +497,7 @@ TEST_CASE("metadata", "[stream]") {
         CHECK_THAT(buffer, Contains(R"("format":"pdf")"));
     }
 
-    SECTION("heif") {
+    SECTION("heic") {
         if (vips_type_find("VipsOperation",
                            pre_8_11 ? "heifload_buffer" : "heifload_source") ==
             0) {

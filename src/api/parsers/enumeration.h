@@ -105,6 +105,8 @@ inline enums::Output parse(const std::string &value) {
         return enums::Output::Tiff;
     } else if (value == "webp") {
         return enums::Output::Webp;
+    } else if (value == "avif" || value == "av1") {
+        return enums::Output::Avif;
     } else if (value == "json") {
         return enums::Output::Json;
     } else /*if (value == "origin")*/ {

@@ -142,4 +142,7 @@ struct Fixtures {
 
     // http://www.anyhere.com/gward/pixformat/images/84y2.tif
     std::string input_hdr{dir + "/84y2.hdr"};
+
+    // CC by-nc-nd https://github.com/AOMediaCodec/av1-avif/tree/master/testFiles/Netflix
+    std::string input_avif{dir + "/cosmos_frame12924_yuv420_10bpc_bt2020_pq_q50.avif"};
 };

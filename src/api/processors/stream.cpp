@@ -343,6 +343,29 @@ void Stream::append_save_options<Output::Webp>(vips::VOption *options) const {
 }
 
 template <>
+void Stream::append_save_options<Output::Avif>(vips::VOption *options) const {
+    auto quality = query_->get_if<int>(
+        "q",
+        [](int q) {
+            // Quality needs to be in the range
+            // of 1 - 100
+            return q >= 1 && q <= 100;
+        },
+        static_cast<int>(config_.default_quality));
+
+    // Set quality (default is 85)
+    options->set("Q", quality);
+
+    // Set compression format to AV1
+    options->set("compression", VIPS_FOREIGN_HEIF_COMPRESSION_AV1);
+
+#if VIPS_VERSION_AT_LEAST(8, 10, 2)
+    // Control the CPU effort spent on improving compression
+    options->set("speed", 6);
+#endif
+}
+
+template <>
 void Stream::append_save_options<Output::Tiff>(vips::VOption *options) const {
     auto quality = query_->get_if<int>(
         "q",
@@ -374,6 +397,9 @@ void Stream::append_save_options(const Output &output,
             break;
         case Output::Webp:
             append_save_options<Output::Webp>(options);
+            break;
+        case Output::Avif:
+            append_save_options<Output::Avif>(options);
             break;
         case Output::Tiff:
             append_save_options<Output::Tiff>(options);

@@ -61,6 +61,7 @@ enum class Output {
     Jpeg,
     Png,
     Webp,
+    Avif,
     Tiff,
     Gif,
     Json

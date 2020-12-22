@@ -109,6 +109,8 @@ ngx_str_t extension_to_mime_type(const std::string &extension) {
         return ngx_string("image/png");
     } else if (extension == ".webp") {
         return ngx_string("image/webp");
+    } else if (extension == ".avif") {
+        return ngx_string("image/avif");
     } else if (extension == ".tiff") {
         return ngx_string("image/tiff");
     } else if (extension == ".gif") {
