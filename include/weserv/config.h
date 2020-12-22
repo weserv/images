@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <weserv/enums.h>
 
 namespace weserv {
 namespace api {
@@ -10,9 +11,15 @@ namespace api {
  */
 struct Config {
     explicit Config()
-        : limit_input_pixels(71000000), limit_output_pixels(71000000),
+        : savers(static_cast<uintptr_t>(enums::Output::All)),
+          limit_input_pixels(71000000), limit_output_pixels(71000000),
           max_pages(256), default_quality(85), default_level(6),
           fail_on_error(0) {}
+
+    // Enables or disables image savers to be used within the `&output=` query
+    // parameter.
+    // All supported savers are enabled by default.
+    uintptr_t savers;
 
     // Do not process input images where the number of pixels (width x height)
     // exceeds this limit. Assumes image dimensions contained in the input

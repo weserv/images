@@ -49,7 +49,7 @@ VImage Alignment::process(const VImage &image) const {
         return image.copy_memory().smartcrop(
             min_width, min_height,
             VImage::option()->set("interesting",
-                                  utils::underlying_value(crop_position)));
+                                  static_cast<int>(crop_position)));
     } else {
         int left;
         int top;

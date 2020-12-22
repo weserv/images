@@ -210,8 +210,8 @@ VImage Stream::new_from_source(const Source &source) const {
 
     // Save the image type so that we can work out
     // what options to pass to write_to_target()
-    query_->update(
-        "type", utils::underlying_value(utils::determine_image_type(loader)));
+    query_->update("type",
+                   static_cast<int>(utils::determine_image_type(loader)));
 
     // Don't use sequential mode read, if we're doing a trim.
     // (it will scan the whole image once to find the crop area)
@@ -458,27 +458,34 @@ void Stream::write_to_target(const VImage &image, const Target &target) const {
     auto output = query_->get<Output>("output", Output::Origin);
     auto image_type = query_->get<ImageType>("type", ImageType::Unknown);
 
+    if (output == Output::Origin) {
+        // We force the output to PNG if the image has alpha and doesn't have
+        // the right extension to output alpha (useful for masking and
+        // embedding).
+        if (query_->get<bool>("has_alpha", false) &&
+            !utils::support_alpha_channel(image_type)) {
+            output = Output::Png;
+        } else {
+            output = utils::to_output(image_type);
+        }
+    }
+
+    std::string extension = utils::determine_image_extension(output);
+
+    if ((config_.savers & static_cast<uintptr_t>(output)) == 0) {
+        throw exceptions::UnsupportedSaverException(
+            "Saving to " + extension.substr(1) +
+            " is disabled. Supported savers: " +
+            utils::supported_savers_string(config_.savers));
+    }
+
     if (output == Output::Json) {
         std::string out = utils::image_to_json(copy, image_type);
 
-        target.setup(".json");
+        target.setup(extension);
         target.write(out.c_str(), out.size());
         target.finish();
     } else {
-        if (output == Output::Origin) {
-            // We force the output to PNG if the image has alpha and doesn't
-            // have the right extension to output alpha (useful for masking and
-            // embedding).
-            if (query_->get<bool>("has_alpha", false) &&
-                !utils::support_alpha_channel(image_type)) {
-                output = Output::Png;
-            } else {
-                output = utils::to_output(image_type);
-            }
-        }
-
-        std::string extension = utils::determine_image_extension(output);
-
         // Strip all metadata (EXIF, XMP, IPTC).
         // (all savers supports this option)
         vips::VOption *save_options = VImage::option()->set("strip", true);

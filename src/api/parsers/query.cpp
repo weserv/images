@@ -162,22 +162,20 @@ void Query::add_value(const std::string &key, const std::string &value,
             query_map_.emplace("focal_y", focal[1]);
         }
 
-        query_map_.emplace(key, utils::underlying_value(position));
+        query_map_.emplace(key, static_cast<int>(position));
     } else if (type == typeid(FilterType)) {
-        query_map_.emplace(key,
-                           utils::underlying_value(parse<FilterType>(value)));
+        query_map_.emplace(key, static_cast<int>(parse<FilterType>(value)));
     } else if (type == typeid(MaskType)) {
-        query_map_.emplace(key,
-                           utils::underlying_value(parse<MaskType>(value)));
+        query_map_.emplace(key, static_cast<int>(parse<MaskType>(value)));
     } else if (type == typeid(Output)) {
-        query_map_.emplace(key, utils::underlying_value(parse<Output>(value)));
+        query_map_.emplace(key, static_cast<int>(parse<Output>(value)));
     } else if (type == typeid(Canvas)) {
         // Deprecated without enlargement parameters
         if (value == "fit" || value == "squaredown") {
             query_map_.emplace("we", true);
         }
 
-        query_map_.emplace(key, utils::underlying_value(parse<Canvas>(value)));
+        query_map_.emplace(key, static_cast<int>(parse<Canvas>(value)));
     } else if (type == typeid(Color)) {
         query_map_.emplace(key, parse<Color>(value));
     } else if (key == "delay") {  // type == typeid(std::vector<int>)

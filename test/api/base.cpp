@@ -37,15 +37,17 @@ VImage buffer_to_image(const std::string &buf) {
 
 Status process(std::unique_ptr<SourceInterface> source,
                std::unique_ptr<TargetInterface> target,
-               const std::string &query) {
-    return api_manager->process(query, std::move(source), std::move(target));
+               const std::string &query, const Config &config) {
+    return api_manager->process(query, std::move(source), std::move(target),
+                                config);
 }
 
 template <>
 std::string process_buffer<std::string>(const std::string &buffer,
-                                        const std::string &query) {
+                                        const std::string &query,
+                                        const Config &config) {
     std::string out_buf;
-    auto status = api_manager->process_buffer(query, buffer, &out_buf);
+    auto status = api_manager->process_buffer(query, buffer, &out_buf, config);
     if (status.ok()) {
         return out_buf;
     }
@@ -55,20 +57,21 @@ std::string process_buffer<std::string>(const std::string &buffer,
 
 template <>
 VImage process_buffer<VImage>(const std::string &buffer,
-                              const std::string &query) {
-    return buffer_to_image(process_buffer<std::string>(buffer, query));
+                              const std::string &query, const Config &config) {
+    return buffer_to_image(process_buffer<std::string>(buffer, query, config));
 }
 
 Status process_buffer(const std::string &buffer, std::string *out_buf,
-                      const std::string &query) {
-    return api_manager->process_buffer(query, buffer, out_buf);
+                      const std::string &query, const Config &config) {
+    return api_manager->process_buffer(query, buffer, out_buf, config);
 }
 
 template <>
 std::string process_file<std::string>(const std::string &file,
-                                      const std::string &query) {
+                                      const std::string &query,
+                                      const Config &config) {
     std::string out_buf;
-    auto status = api_manager->process_file(query, file, &out_buf);
+    auto status = api_manager->process_file(query, file, &out_buf, config);
 
     if (status.ok()) {
         return out_buf;
@@ -78,20 +81,21 @@ std::string process_file<std::string>(const std::string &file,
 }
 
 template <>
-VImage process_file<VImage>(const std::string &file, const std::string &query) {
-    return buffer_to_image(process_file<std::string>(file, query));
+VImage process_file<VImage>(const std::string &file, const std::string &query,
+                            const Config &config) {
+    return buffer_to_image(process_file<std::string>(file, query, config));
 }
 
 template <>
 VImage process_file<VImage>(const std::string &in_file, std::string *out_file,
-                            const std::string &query) {
+                            const std::string &query, const Config &config) {
     char tmpname[] = "/tmp/imageXXXXXX";
     int fd = mkstemp(tmpname);
     if (fd == -1) {
         throw std::runtime_error("mkstemp temporary file failed");
     }
 
-    auto status = api_manager->process_file(query, in_file, tmpname);
+    auto status = api_manager->process_file(query, in_file, tmpname, config);
     if (status.ok()) {
         VImage image = VImage::new_from_file(
             tmpname, VImage::option()->set("access", VIPS_ACCESS_SEQUENTIAL));
@@ -114,13 +118,13 @@ VImage process_file<VImage>(const std::string &in_file, std::string *out_file,
 }
 
 Status process_file(const std::string &in_file, const std::string &out_file,
-                    const std::string &query) {
-    return api_manager->process_file(query, in_file, out_file);
+                    const std::string &query, const Config &config) {
+    return api_manager->process_file(query, in_file, out_file, config);
 }
 
 Status process_file(const std::string &file, std::string *out_buf,
-                    const std::string &query) {
-    return api_manager->process_file(query, file, out_buf);
+                    const std::string &query, const Config &config) {
+    return api_manager->process_file(query, file, out_buf, config);
 }
 
 int main(const int argc, const char *argv[]) {

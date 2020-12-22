@@ -4,7 +4,7 @@
 
 using Catch::Matchers::Contains;
 
-TEST_CASE("invalid image ", "[invalid]") {
+TEST_CASE("invalid image", "[invalid]") {
     SECTION("buffer") {
         auto test_buffer = "<!DOCTYPE html>";
         Status status = process_buffer(test_buffer);

@@ -56,17 +56,6 @@ enum class ImageType {
     Unknown
 };
 
-enum class Output {
-    Origin,  // Default
-    Jpeg,
-    Png,
-    Webp,
-    Avif,
-    Tiff,
-    Gif,
-    Json
-};
-
 enum class Canvas {
     Max,  // Default
     Min,

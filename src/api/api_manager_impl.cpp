@@ -88,6 +88,9 @@ Status ApiManagerImpl::exception_handler(const std::string &query) {
     } catch (const exceptions::TooLargeImageException &e) {
         return Status(Status::Code::ImageTooLarge, e.what(),
                       Status::ErrorCause::Application);
+    } catch (const exceptions::UnsupportedSaverException &e) {
+        return Status(Status::Code::UnsupportedSaver, e.what(),
+                      Status::ErrorCause::Application);
     } catch (const VError &e) {  // LCOV_EXCL_START
         std::string error_str = e.what();
 

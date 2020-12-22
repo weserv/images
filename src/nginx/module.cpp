@@ -7,6 +7,7 @@
 #include "stream.h"
 #include "util.h"
 
+using ::weserv::api::enums::Output;
 using ::weserv::api::utils::Status;
 
 namespace weserv {
@@ -44,6 +45,17 @@ ngx_http_output_body_filter_pt ngx_http_next_body_filter;
 ngx_conf_enum_t ngx_weserv_mode[] = {
     {ngx_string("proxy"), NGX_WESERV_PROXY_MODE},
     {ngx_string("filter"), NGX_WESERV_FILTER_MODE},
+    {ngx_null_string, 0}  // last entry
+};
+
+ngx_conf_bitmask_t ngx_weserv_savers[] = {
+    {ngx_string("jpg"), static_cast<ngx_uint_t>(Output::Jpeg)},
+    {ngx_string("png"), static_cast<ngx_uint_t>(Output::Png)},
+    {ngx_string("webp"), static_cast<ngx_uint_t>(Output::Webp)},
+    {ngx_string("avif"), static_cast<ngx_uint_t>(Output::Avif)},
+    {ngx_string("tiff"), static_cast<ngx_uint_t>(Output::Tiff)},
+    {ngx_string("gif"), static_cast<ngx_uint_t>(Output::Gif)},
+    {ngx_string("json"), static_cast<ngx_uint_t>(Output::Json)},
     {ngx_null_string, 0}  // last entry
 };
 
@@ -106,6 +118,14 @@ ngx_command_t ngx_weserv_commands[] = {
      NGX_HTTP_LOC_CONF_OFFSET,
      offsetof(ngx_weserv_loc_conf_t, max_redirects),
      nullptr},
+
+    {ngx_string("weserv_savers"),
+     NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
+         NGX_CONF_1MORE,
+     ngx_conf_set_bitmask_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, api_conf.savers),
+     &ngx_weserv_savers},
 
     {ngx_string("weserv_max_pages"),
      NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
@@ -288,6 +308,7 @@ void *ngx_weserv_create_loc_conf(ngx_conf_t *cf) {
     lc->max_redirects = NGX_CONF_UNSET_UINT;
 
     // API configuration
+    lc->api_conf.savers = 0;
     lc->api_conf.limit_input_pixels = NGX_CONF_UNSET_UINT;
     lc->api_conf.limit_output_pixels = NGX_CONF_UNSET_UINT;
     lc->api_conf.max_pages = NGX_CONF_UNSET;
@@ -325,6 +346,11 @@ char *ngx_weserv_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child) {
 
     // Follow 10 redirects by default
     ngx_conf_merge_uint_value(conf->max_redirects, prev->max_redirects, 10);
+
+    // All supported savers are enabled by default
+    ngx_conf_merge_bitmask_value(
+        conf->api_conf.savers, prev->api_conf.savers,
+        (NGX_CONF_BITMASK_SET | static_cast<ngx_uint_t>(Output::All)));
 
     // Process at the maximum 256 pages, which should be plenty
     ngx_conf_merge_value(conf->api_conf.max_pages, prev->api_conf.max_pages,

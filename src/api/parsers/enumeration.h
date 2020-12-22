@@ -3,6 +3,8 @@
 #include "enums.h"
 #include "parsers/base.h"
 
+#include <weserv/enums.h>
+
 namespace weserv {
 namespace api {
 namespace parsers {

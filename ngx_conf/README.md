@@ -75,6 +75,16 @@ limit.
 
 Sets the maximum number of redirection-followings allowed.
 
+### `weserv_savers`
+
+| syntax:      | `weserv_savers [jpg] [png] [webp] [avif] [tiff] [gif] [json]` |
+| :----------- | :------------------------------------------------------------ |
+| **default:** | `jpg png webp avif tiff gif json`                             |
+| **context:** | `http`, `server`, `location`                                  |
+
+Enables or disables image savers to be used within the `&output=` query parameter.
+This directive accepts multiple parameters.
+
 ### `weserv_max_pages`
 
 | syntax:      | `weserv_max_pages <pages>`                     |
@@ -92,7 +102,7 @@ PDF, WebP). Set to `0` to remove this limit.
 | **default:** | `71000000`                                     |
 | **context:** | `http`, `server`, `location`, `if in location` |
 
-Sets the maximum number of pixels (width x height) of an input image to be
+Sets the maximum number of pixels (width × height) of an input image to be
 processed. Assumes image dimensions contained in the input metadata can be
 trusted. Set to `0` to remove this limit.
 
@@ -103,7 +113,7 @@ trusted. Set to `0` to remove this limit.
 | **default:** | `71000000`                                     |
 | **context:** | `http`, `server`, `location`, `if in location` |
 
-Sets the maximum number of pixels (width x height) of an output image, after
+Sets the maximum number of pixels (width × height) of an output image, after
 any upscaling. Set to `0` to remove this limit.
 
 ### `weserv_default_quality`

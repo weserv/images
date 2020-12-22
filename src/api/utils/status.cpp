@@ -75,6 +75,7 @@ int Status::http_code() const {
         case Code::ImageTooLarge:
             return 404;
         case Code::InvalidUri:
+        case Code::UnsupportedSaver:
         case Code::LibvipsError:
             return 400;
         case Code::Unknown:

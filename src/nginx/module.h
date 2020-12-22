@@ -6,6 +6,7 @@ extern "C" {
 
 #include <weserv/api_manager.h>
 #include <weserv/config.h>
+#include <weserv/enums.h>
 
 #include "http_request.h"
 

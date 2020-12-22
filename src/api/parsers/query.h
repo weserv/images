@@ -34,9 +34,9 @@ class Query {
      * the other functions do not allow this.
      */
     inline E get(const std::string &key, const E &default_val) const {
-        // Get the value as a compile-time constant and call get().
-        // Then convert it back to an enum
-        auto casted = utils::underlying_value(default_val);
+        // Get the value as an int and call get(), then convert it back to an
+        // enum
+        auto casted = static_cast<int>(default_val);
         return static_cast<E>(get(key, casted));
     }
 

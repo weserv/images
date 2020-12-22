@@ -26,8 +26,9 @@ class Status final {
         InvalidImage = 2,
         ImageNotReadable = 3,
         ImageTooLarge = 4,
-        LibvipsError = 5,
-        Unknown = 6,
+        UnsupportedSaver = 5,
+        LibvipsError = 6,
+        Unknown = 7,
     };
 
     /**

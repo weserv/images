@@ -45,6 +45,9 @@ TEST_CASE("status", "[status]") {
         CHECK(Status(Status::Code::InvalidUri, "",
                      Status::ErrorCause::Application)
                   .http_code() == 400);
+        CHECK(Status(Status::Code::UnsupportedSaver, "",
+                     Status::ErrorCause::Application)
+                  .http_code() == 400);
         CHECK(Status(Status::Code::LibvipsError, "",
                      Status::ErrorCause::Application)
                   .http_code() == 400);

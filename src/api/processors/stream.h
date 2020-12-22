@@ -3,6 +3,7 @@
 #include "exceptions/invalid.h"
 #include "exceptions/large.h"
 #include "exceptions/unreadable.h"
+#include "exceptions/unsupported.h"
 #include "io/source.h"
 #include "io/target.h"
 #include "processors/base.h"

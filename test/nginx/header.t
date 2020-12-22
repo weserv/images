@@ -143,3 +143,24 @@ Location: https://example.org/
 --- no_error_log
 [error]
 [warn]
+
+=== TEST 6: unsupported saver
+--- http_config eval: $::HttpConfig
+--- config
+    location /images {
+        weserv filter;
+        weserv_savers jpg;
+        alias $TEST_NGINX_HTML_DIR;
+    }
+--- request
+    GET /images/test.gif?output=json
+--- user_files eval
+">>> test.gif
+$::TestGif"
+--- response_headers
+Content-Type: application/json
+--- response_body_like: ^.*"code":400,"message":"Saving to json is disabled. Supported savers: jpg".*$
+--- error_code: 400
+--- no_error_log
+[error]
+[warn]

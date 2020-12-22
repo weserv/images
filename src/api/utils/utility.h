@@ -8,6 +8,7 @@
 #include <vector>
 
 #include <vips/vips8>
+#include <weserv/enums.h>
 
 namespace weserv {
 namespace api {
@@ -161,10 +162,38 @@ inline std::string determine_image_extension(const Output &output) {
             return ".tiff";
         case Output::Gif:
             return ".gif";
+        case Output::Json:
+            return ".json";
         case Output::Png:
         default:
             return ".png";
     }
+}
+
+/**
+ * Get the supported savers as a comma-separated string.
+ * @param msk The savers mask.
+ * @return The supported savers as a comma-separated string.
+ */
+inline std::string supported_savers_string(const uintptr_t msk) {
+    std::string result;
+
+    for (int i = 1; i <= 7; ++i) {
+        uintptr_t output = 1U << i;
+        if ((msk & output) != 0) {
+            std::string saver =
+                determine_image_extension(static_cast<Output>(output))
+                    .substr(1);
+
+            if (result.empty()) {
+                result = saver;
+            } else {
+                result += ", " + saver;
+            }
+        }
+    }
+
+    return result;
 }
 
 /**
@@ -429,15 +458,6 @@ inline std::string escape_string(const std::string &s) {  // LCOV_EXCL_START
     return o.str();
 }
 // LCOV_EXCL_STOP
-
-/**
- * Template function which takes a strongly typed enumerator
- * and returns its value as a compile-time constant.
- */
-template <typename E>
-constexpr inline typename std::underlying_type<E>::type underlying_value(E e) {
-    return static_cast<typename std::underlying_type<E>::type>(e);
-}
 
 }  // namespace utils
 }  // namespace api

@@ -2,6 +2,7 @@ set(HEADERS
         exceptions/invalid.h
         exceptions/large.h
         exceptions/unreadable.h
+        exceptions/unsupported.h
         io/source.h
         io/target.h
         parsers/color.h

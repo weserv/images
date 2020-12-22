@@ -7,6 +7,7 @@
 #include <utility>
 
 #include <vips/vips8>
+#include <weserv/enums.h>
 
 namespace weserv {
 namespace api {
