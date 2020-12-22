@@ -77,7 +77,7 @@ find_package(mpark_variant 1.3.0 QUIET)
 
 # Find libvips (required)
 find_package(PkgConfig)
-pkg_check_modules(VIPS vips-cpp>=8.8 REQUIRED)
+pkg_check_modules(VIPS vips-cpp>=8.9 REQUIRED)
 
 # Build mpark/variant (an implementation of C++17 std::variant for C++11/14/17), if necessary
 if (NOT mpark_variant_FOUND)

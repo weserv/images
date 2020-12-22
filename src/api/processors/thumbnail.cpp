@@ -297,10 +297,6 @@ VImage Thumbnail::shrink_on_load(const VImage &image,
         return VImage::new_from_buffer(source.buffer(), "",
 #endif
                                        load_options->set("scale", scale));
-#if VIPS_VERSION_AT_LEAST(8, 9, 0)
-    // Retrieving a non-existent thumbnail from a HEIF image was terribly
-    // slow before libvips 8.9.0. See:
-    // https://github.com/libvips/libvips/commit/1ef1b2d9870d8be9c1a063a47f0c745c04a127d3
     } else if (image_type == ImageType::Heif) {
         append_page_options(load_options);
 
@@ -321,7 +317,6 @@ VImage Thumbnail::shrink_on_load(const VImage &image,
         return resolve_common_shrink(thumb.width(), thumb.height()) > 1.0
                    ? thumb
                    : image;
-#endif
     }
 
     // Still here? The loader probably doesn't support shrink-on-load.

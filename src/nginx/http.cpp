@@ -94,8 +94,7 @@ Status ngx_weserv_upstream_set_url(ngx_pool_t *pool,
 
     // Populate the upstream config structure with the parsed URL
 
-    upstream->resolved = reinterpret_cast<ngx_http_upstream_resolved_t *>(
-        ngx_pcalloc(pool, sizeof(ngx_http_upstream_resolved_t)));
+    upstream->resolved = new (pool) ngx_http_upstream_resolved_t;
     if (upstream->resolved == nullptr) {
         return Status(NGX_ERROR, "Out of memory");
     }
@@ -659,8 +658,7 @@ Status initialize_upstream_request(ngx_http_request_t *r,
 
     // Set up the upstream handlers which create the request HTTP buffers, and
     // process the response data as the upstream module reads it from the wire.
-    u->pipe = reinterpret_cast<ngx_event_pipe_t *>(
-        ngx_pcalloc(r->pool, sizeof(ngx_event_pipe_t)));
+    u->pipe = new (r->pool) ngx_event_pipe_t;
     if (u->pipe == nullptr) {
         return Status(NGX_ERROR, "Out of memory");
     }

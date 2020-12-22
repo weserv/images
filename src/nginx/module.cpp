@@ -200,8 +200,7 @@ void *ngx_weserv_create_main_conf(ngx_conf_t *cf) {
  * Create weserv module's location config.
  */
 void *ngx_weserv_create_loc_conf(ngx_conf_t *cf) {
-    auto *lc = reinterpret_cast<ngx_weserv_loc_conf_t *>(
-        ngx_pcalloc(cf->pool, sizeof(ngx_weserv_loc_conf_t)));
+    auto *lc = new (cf->pool) ngx_weserv_loc_conf_t;
     if (lc == nullptr) {
         return nullptr;
     }

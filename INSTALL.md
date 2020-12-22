@@ -6,7 +6,7 @@
  * `g++` => 5.0
  * `libpcre3` (for nginx rewrite module)
  * `openssl` (for nginx ssl support)
- * `libvips` >= 8.8
+ * `libvips` >= 8.9
 
 ## Install instructions
 
@@ -29,7 +29,7 @@ dnf config-manager --set-enabled remi
 # Enable the PowerTools repository since EPEL packages may depend on packages from it
 dnf config-manager --set-enabled PowerTools
 
-# Install libvips 8.9 (full-fat version)
+# Install libvips 8.10 (full-fat version)
 yum install vips-full-devel
 
 # Install build requirements

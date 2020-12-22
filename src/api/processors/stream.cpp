@@ -408,11 +408,7 @@ void Stream::write_to_target(const VImage &image, const Target &target) const {
     // 2 - loop twice etc.
     auto loop = query_->get<int>("loop", -1);
     if (loop != -1) {
-#if VIPS_VERSION_AT_LEAST(8, 9, 0)
         copy.set("loop", loop);
-#else
-        copy.set("gif-loop", loop);
-#endif
     }
 
     // Set the frame delay(s)
@@ -425,19 +421,12 @@ void Stream::write_to_target(const VImage &image, const Target &target) const {
         },
         {});
     if (!delays.empty()) {
-#if VIPS_VERSION_AT_LEAST(8, 9, 0)
         if (delays.size() == 1) {
             // We have just one delay, repeat that value for all frames
             delays.insert(delays.end(), query_->get<int>("n") - 1, delays[0]);
         }
 
-        // Multiple delay values are supported, set an array of ints instead
         copy.set("delay", delays);
-#else
-        // Multiple delay values are not supported, set the gif-delay field.
-        // Note: this is centiseconds (the GIF standard).
-        copy.set("gif-delay", static_cast<int>(std::rint(delays[0] / 10.0)));
-#endif
     }
 
     auto output = query_->get<Output>("output", Output::Origin);

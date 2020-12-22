@@ -363,16 +363,9 @@ inline std::string image_to_json(const VImage &image,
         json << R"("pageHeight":)" << image.get_int(VIPS_META_PAGE_HEIGHT)
              << ",";
     }
-#if VIPS_VERSION_AT_LEAST(8, 9, 0)
     if (image.get_typeof("loop") != 0) {
         json << R"("loop":)" << image.get_int("loop") << ",";
     }
-#else
-    if (image.get_typeof("gif-loop") != 0) {
-        json << R"("loop":)" << image.get_int("gif-loop") << ",";
-    }
-#endif
-#if VIPS_VERSION_AT_LEAST(8, 9, 0)
     if (image.get_typeof("delay") != 0) {
         std::vector<int> delays = image.get_array_int("delay");
 
@@ -385,13 +378,6 @@ inline std::string image_to_json(const VImage &image,
         }
         json << "],";
     }
-#else
-    if (image.get_typeof("gif-delay") != 0) {
-        // libvips uses centiseconds (the GIF standard),
-        // we use milliseconds for delays.
-        json << R"("delay":[)" << image.get_int("gif-delay") * 10 << "],";
-    }
-#endif
     if (image.get_typeof("heif-primary") != 0) {
         json << R"("pagePrimary":)" << image.get_int("heif-primary") << ",";
     }

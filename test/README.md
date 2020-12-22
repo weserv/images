@@ -15,7 +15,7 @@ information on how to extend the tests.
 The test suite is run with GitHub Actions but can also be run manually, the 
 following dependencies are required to run the unit tests:
 
-* libvips version >= 8.8
+* libvips version >= 8.9
 
 Other dependencies (such as [Catch2](https://github.com/catchorg/Catch2) and 
 [MPark.Variant](https://github.com/mpark/variant)) are installed using the 

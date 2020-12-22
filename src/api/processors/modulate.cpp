@@ -35,14 +35,6 @@ VImage Modulate::process(const VImage &image) const {
     // Get original colorspace
     VipsInterpretation type_before_modulate = image.interpretation();
 
-#if !VIPS_VERSION_AT_LEAST(8, 9, 0)
-    // Need to tag generic RGB interpretation as sRGB before libvips 8.9.0. See:
-    // https://github.com/libvips/libvips/commit/e48f45187b350344ca90add63b4602f1d1f5a0a0
-    if (type_before_modulate == VIPS_INTERPRETATION_RGB) {
-        type_before_modulate = VIPS_INTERPRETATION_sRGB;
-    }
-#endif
-
     // Modulate brightness, saturation and hue
     if (image.has_alpha()) {
         // Separate alpha channel
