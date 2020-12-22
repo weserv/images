@@ -1,0 +1,15 @@
+# Ignore all subdirectories
+*/*
+
+# Allow the source files to be included in the Docker container
+!include/
+!ngx_conf/
+!public/
+!src/
+!third_party/
+
+# Ignore unnecessary files within the top-level directory
+.clang*
+.editorconfig
+.git*
+*.md

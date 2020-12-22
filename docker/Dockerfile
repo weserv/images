@@ -13,10 +13,11 @@ RUN rpm --import https://sourceforge.net/projects/libjpeg-turbo/files/LJT-GPG-KE
     && rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial \
     && dnf update -y
 
-# Install the latest version of libjpeg-turbo,
+# Install the latest stable version of libjpeg-turbo,
 # since the version on CentOS is too old (v1.5.3)
 RUN dnf install -y dnf-utils \
     && dnf config-manager --add-repo https://libjpeg-turbo.org/pmwiki/uploads/Downloads/libjpeg-turbo.repo \
+    && sed -i '/^exclude=/ s/$/,libjpeg-turbo-*.*.9[0-9]-*/' /etc/yum.repos.d/libjpeg-turbo.repo \
     && dnf install -y libjpeg-turbo-official \
     && echo '/opt/libjpeg-turbo/lib64' >> /etc/ld.so.conf.d/libjpeg-turbo-official-x86_64.conf \
     && ldconfig
@@ -28,7 +29,7 @@ ENV PKG_CONFIG_PATH=/opt/libjpeg-turbo/lib64/pkgconfig${PKG_CONFIG_PATH:+:${PKG_
 # Install libvips and needed dependencies
 RUN dnf install -y epel-release \
     && rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-8 \
-    && dnf config-manager --set-enabled PowerTools \
+    && dnf config-manager --set-enabled powertools \
     && dnf install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm \
     && rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-remi.el8 \
     && dnf config-manager --set-enabled remi \
@@ -49,8 +50,8 @@ RUN dnf install -y epel-release \
 RUN groupadd nginx \
     && useradd -r -g nginx -s /sbin/nologin -c "Nginx web server" nginx
 
-# Clone the repository
-RUN git clone --depth=1 --recurse-submodules --shallow-submodules https://github.com/weserv/images.git /var/www/imagesweserv
+# Copy the contents of this repository to the container
+COPY . /var/www/imagesweserv
 
 WORKDIR /var/www/imagesweserv/build
 
@@ -58,6 +59,7 @@ WORKDIR /var/www/imagesweserv/build
 ARG NGINX_VERSION=1.19.6
 RUN cmake3 .. \
        -DCMAKE_BUILD_TYPE=Release \
+       -DBUILD_TOOLS=ON \
        -DNGX_VERSION=$NGINX_VERSION \
        -DCUSTOM_NGX_FLAGS="--prefix=/usr/share/nginx;\
 --sbin-path=/usr/sbin/nginx;\
