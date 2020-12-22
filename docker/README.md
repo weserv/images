@@ -1,4 +1,4 @@
-# Docker
+# Images.weserv.nl dockerized
 
 This document describes how to use images.weserv.nl with Docker.
 
@@ -7,15 +7,17 @@ This document describes how to use images.weserv.nl with Docker.
 1. Build/run containers
 
     ```bash
-    docker build . \
-        -t imagesweserv \
-        --build-arg NGINX_VERSION=1.19.6
+    docker build \
+        --build-arg NGINX_VERSION=1.19.6 \
+        -t weserv/images \
+        -f docker/Dockerfile \
+        .
     docker run \
-        --shm-size=1gb \
-        -p 80:80 \
         -d \
+        -p 80:80 \
+        --shm-size=1gb \
         --name=imagesweserv \
-        imagesweserv
+        weserv/images
     ```
 
 2. Update your system host file (add images.weserv.test)
@@ -34,11 +36,11 @@ This document describes how to use images.weserv.nl with Docker.
 Just run:
 ```bash
 docker run \
-    --shm-size=1gb \
-    -p 80:80 \
     -d \
+    -p 80:80 \
+    --shm-size=1gb \
     --name=imagesweserv \
-    imagesweserv
+    weserv/images
 ```
 then visit [images.weserv.test](http://images.weserv.test)
 
