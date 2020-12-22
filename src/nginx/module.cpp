@@ -14,6 +14,11 @@ namespace nginx {
 
 namespace {
 /**
+ * The module's location callback directive.
+ */
+char *ngx_weserv(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
+
+/**
  * Configuration - function declarations.
  */
 
@@ -38,7 +43,7 @@ ngx_http_output_body_filter_pt ngx_http_next_body_filter;
 
 ngx_conf_enum_t ngx_weserv_mode[] = {
     {ngx_string("proxy"), NGX_WESERV_PROXY_MODE},
-    {ngx_string("file"), NGX_WESERV_FILE_MODE},
+    {ngx_string("filter"), NGX_WESERV_FILTER_MODE},
     {ngx_null_string, 0}  // last entry
 };
 
@@ -48,15 +53,8 @@ ngx_conf_enum_t ngx_weserv_mode[] = {
  */
 ngx_command_t ngx_weserv_commands[] = {
     {ngx_string("weserv"),
-     NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF | NGX_CONF_FLAG,
-     ngx_conf_set_flag_slot,
-     NGX_HTTP_LOC_CONF_OFFSET,
-     offsetof(ngx_weserv_loc_conf_t, enable),
-     nullptr},
-
-    {ngx_string("weserv_mode"),
      NGX_HTTP_LOC_CONF | NGX_HTTP_LIF_CONF | NGX_CONF_TAKE1,
-     ngx_conf_set_enum_slot,
+     ngx_weserv,
      NGX_HTTP_LOC_CONF_OFFSET,
      offsetof(ngx_weserv_loc_conf_t, mode),
      &ngx_weserv_mode},
@@ -182,6 +180,29 @@ ngx_http_module_t ngx_weserv_module_ctx = {
     // char *(*merge_loc_conf)(ngx_conf_t *cf, void *prev, void *conf);
     ngx_weserv_merge_loc_conf,
 };
+
+/**
+ * The module's location callback directive.
+ */
+char *ngx_weserv(ngx_conf_t *cf, ngx_command_t *cmd, void *conf) {
+    auto *clcf = reinterpret_cast<ngx_http_core_loc_conf_t *>(
+        ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module));
+    auto *lc = reinterpret_cast<ngx_weserv_loc_conf_t *>(conf);
+
+    char *rv = ngx_conf_set_enum_slot(cf, cmd, conf);
+    if (rv != NGX_CONF_OK) {
+        return rv;
+    }
+
+    // Only register the request handler for proxy mode
+    if (lc->mode == NGX_WESERV_PROXY_MODE) {
+        clcf->handler = ngx_weserv_request_handler;
+    }
+
+    lc->enable = 1;
+
+    return NGX_CONF_OK;
+}
 
 /**
  * Create weserv module's main context configuration
@@ -374,7 +395,8 @@ ngx_int_t ngx_weserv_image_header_filter(ngx_http_request_t *r) {
     auto *ctx = reinterpret_cast<ngx_weserv_base_ctx_t *>(
         ngx_http_get_module_ctx(r, ngx_weserv_module));
 
-    if (ctx == nullptr) {
+    // Context must always be available for proxy mode
+    if (ctx == nullptr && lc->mode == NGX_WESERV_PROXY_MODE) {
         return ngx_http_next_header_filter(r);
     }
 
@@ -515,14 +537,29 @@ ngx_int_t ngx_weserv_image_body_filter(ngx_http_request_t *r, ngx_chain_t *in) {
         ngx_http_get_module_ctx(r, ngx_weserv_module));
 
     if (ctx == nullptr) {
-        return ngx_weserv_finish(r, in);
+        // Context must always be available for proxy mode
+        if (lc->mode == NGX_WESERV_PROXY_MODE) {
+            return ngx_weserv_finish(r, in);
+        }
+
+        // For filter mode; we allocate and register a weserv base module
+        // context on first use
+        ctx = register_pool_cleanup(r->pool,
+                                    new (r->pool) ngx_weserv_base_ctx_t());
+
+        if (ctx == nullptr) {
+            return NGX_ERROR;
+        }
+
+        // Set the request's weserv module context
+        ngx_http_set_ctx(r, ctx, ngx_weserv_module);
     }
 
 #if NGX_DEBUG
     bool debug_output = false;
 #endif
 
-    if (ctx->id() == NGX_WESERV_UPSTREAM_CTX) {
+    if (lc->mode == NGX_WESERV_PROXY_MODE) {
         auto *upstream_ctx = reinterpret_cast<ngx_weserv_upstream_ctx_t *>(ctx);
 
 #if NGX_DEBUG
@@ -606,18 +643,6 @@ ngx_int_t ngx_weserv_postconfiguration(ngx_conf_t *cf) {
 
     ngx_http_next_body_filter = ngx_http_top_body_filter;
     ngx_http_top_body_filter = ngx_weserv_image_body_filter;
-
-    auto *cmcf = reinterpret_cast<ngx_http_core_main_conf_t *>(
-        ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module));
-
-    auto *h = reinterpret_cast<ngx_http_handler_pt *>(
-        ngx_array_push(&cmcf->phases[NGX_HTTP_CONTENT_PHASE].handlers));
-
-    if (h == nullptr) {
-        return NGX_ERROR;
-    }
-
-    *h = ngx_weserv_request_handler;
 
     return NGX_OK;
 }

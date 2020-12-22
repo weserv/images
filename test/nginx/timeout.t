@@ -22,8 +22,7 @@ __DATA__
 --- http_config eval: $::HttpConfig
 --- config
     location /images {
-        weserv on;
-        weserv_mode proxy;
+        weserv proxy;
         weserv_connect_timeout 1s;
     }
 --- request
@@ -47,8 +46,7 @@ Content-Type: application/json
     }
 
     location /images {
-        weserv on;
-        weserv_mode proxy;
+        weserv proxy;
         weserv_read_timeout 1s;
     }
 --- request eval

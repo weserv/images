@@ -22,8 +22,7 @@ __DATA__
 --- http_config eval: $::HttpConfig
 --- config
     location /images {
-        weserv on;
-        weserv_mode proxy;
+        weserv proxy;
     }
 --- request
     GET /images?url=http://♥.localhost
@@ -55,8 +54,7 @@ no resolver defined to resolve xn--g6h.localhost
     }
 
     location /images {
-        weserv on;
-        weserv_mode proxy;
+        weserv proxy;
     }
 --- request eval
 "GET /images?url=$ENV{TEST_NGINX_URI}/r/\x21\x2a\x27\x28\x29\x3b\x3a\x40\x3d\x2b\x24\x2c\x5b\x5d\x2d\x5f\x2e\x7e"
@@ -87,8 +85,7 @@ Content-Type: application/json
     }
 
     location /images {
-        weserv on;
-        weserv_mode proxy;
+        weserv proxy;
     }
 --- request eval
 "GET /images?url=$ENV{TEST_NGINX_URI}/s/\x22\x3c\x3e\x5c\x5e\x60\x7b\x7c\x7d"
@@ -120,8 +117,7 @@ Content-Type: application/json
     }
 
     location /images {
-        weserv on;
-        weserv_mode proxy;
+        weserv proxy;
     }
 --- request eval
 "GET /images?url=$ENV{TEST_NGINX_URI}/esc/%252D%252E%255F%257E%2521%2524%2527%2528%2529%252A%252B%252C%253B%253D%253A%252F%253F%2523%2540%2525"

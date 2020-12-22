@@ -44,8 +44,7 @@ __DATA__
 --- http_config eval: $::HttpConfig
 --- config
     location /images {
-        weserv on;
-        weserv_mode file;
+        weserv filter;
         alias $TEST_NGINX_HTML_DIR;
     }
 --- request
@@ -67,8 +66,7 @@ Content-Disposition: inline; filename=image.gif
 --- http_config eval: $::HttpConfig
 --- config
     location /images {
-        weserv on;
-        weserv_mode file;
+        weserv filter;
         alias $TEST_NGINX_HTML_DIR;
     }
 --- request
@@ -88,8 +86,7 @@ $::TestGif"
 --- http_config eval: $::HttpConfig
 --- config
     location /images {
-        weserv on;
-        weserv_mode file;
+        weserv filter;
         alias $TEST_NGINX_HTML_DIR;
     }
 --- request

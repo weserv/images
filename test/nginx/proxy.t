@@ -32,8 +32,7 @@ __DATA__
     }
 
     location /images {
-        weserv on;
-        weserv_mode proxy;
+        weserv proxy;
     }
 --- request eval
 "GET /images?url=$ENV{TEST_NGINX_URI}/sub/302"
@@ -60,8 +59,7 @@ Content-Type: application/json
     }
 
     location /images {
-        weserv on;
-        weserv_mode proxy;
+        weserv proxy;
     }
 --- request eval
 "GET /images?url=$ENV{TEST_NGINX_URI}/301"
@@ -92,8 +90,7 @@ Content-Type: application/json
     }
 
     location /images {
-        weserv on;
-        weserv_mode proxy;
+        weserv proxy;
         weserv_user_agent "Mozilla/5.0 (compatible; ImageFetcher/9.0; +http://images.weserv.nl/)";
     }
 --- request eval
@@ -130,8 +127,7 @@ Content-Type: application/json
     }
 
     location /images {
-        weserv on;
-        weserv_mode proxy;
+        weserv proxy;
     }
 --- request eval
 "GET /images?url=$ENV{TEST_NGINX_URI}/referer"
@@ -154,8 +150,7 @@ Content-Type: application/json
     }
 
     location /images {
-        weserv on;
-        weserv_mode proxy;
+        weserv proxy;
     }
 --- request eval
 "GET /images?url=$ENV{TEST_NGINX_URI}/chunked&output=json"

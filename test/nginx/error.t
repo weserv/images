@@ -22,8 +22,7 @@ __DATA__
 --- http_config eval: $::HttpConfig
 --- config
     location /images {
-        weserv on;
-        weserv_mode proxy;
+        weserv proxy;
     }
 --- request
     GET /images?url=http:\\foobar
@@ -45,8 +44,7 @@ Content-Type: application/json
     }
 
     location /images {
-        weserv on;
-        weserv_mode proxy;
+        weserv proxy;
     }
 --- request eval
 "GET /images?url=$ENV{TEST_NGINX_URI}/302"
@@ -78,8 +76,7 @@ Content-Type: application/json
     }
 
     location /images {
-        weserv on;
-        weserv_mode proxy;
+        weserv proxy;
     }
 --- request eval
 "GET /images?url=$ENV{TEST_NGINX_URI}/redirect"
@@ -101,8 +98,7 @@ Content-Type: application/json
     }
 
     location /images {
-        weserv on;
-        weserv_mode proxy;
+        weserv proxy;
     }
 --- request eval
 "GET /images?url=$ENV{TEST_NGINX_URI}/418"
@@ -124,9 +120,8 @@ Content-Type: application/json
     }
 
     location /images {
-        weserv on;
+        weserv proxy;
         weserv_max_size 5;
-        weserv_mode proxy;
     }
 --- request eval
 "GET /images?url=$ENV{TEST_NGINX_URI}/200"

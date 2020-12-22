@@ -44,8 +44,7 @@ __DATA__
 --- http_config eval: $::HttpConfig
 --- config
     location /images {
-        weserv on;
-        weserv_mode file;
+        weserv filter;
         alias $TEST_NGINX_HTML_DIR;
     }
 --- request
@@ -67,8 +66,7 @@ Cache-Control: public, max-age=2678400
 --- http_config eval: $::HttpConfig
 --- config
     location /images {
-        weserv on;
-        weserv_mode file;
+        weserv filter;
         alias $TEST_NGINX_HTML_DIR;
     }
 --- request
@@ -90,8 +88,7 @@ Cache-Control: public, max-age=31536000
 --- http_config eval: $::HttpConfig
 --- config
     location /images {
-        weserv on;
-        weserv_mode file;
+        weserv filter;
         alias $TEST_NGINX_HTML_DIR;
     }
 --- request
@@ -113,8 +110,7 @@ Content-Disposition: inline; filename=test.gif
 --- http_config eval: $::HttpConfig
 --- config
     location /images {
-        weserv on;
-        weserv_mode file;
+        weserv filter;
         alias $TEST_NGINX_HTML_DIR;
     }
 --- request
@@ -136,8 +132,7 @@ Content-Disposition: inline; filename=image.gif
 --- http_config eval: $::HttpConfig
 --- config
     location /images {
-        weserv on;
-        weserv_mode proxy;
+        weserv proxy;
     }
 --- request
     GET /images?url=http:\\foobar&default=https://example.org

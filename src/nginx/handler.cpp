@@ -15,28 +15,9 @@ ngx_int_t ngx_weserv_request_handler(ngx_http_request_t *r) {
     auto *lc = reinterpret_cast<ngx_weserv_loc_conf_t *>(
         ngx_http_get_module_loc_conf(r, ngx_weserv_module));
 
-    if (!lc->enable) {
-        return NGX_DECLINED;
-    }
-
     // Response to 'GET' and 'HEAD' requests only
     if (!(r->method & (NGX_HTTP_GET | NGX_HTTP_HEAD))) {
         return NGX_HTTP_NOT_ALLOWED;
-    }
-
-    if (lc->mode == NGX_WESERV_FILE_MODE) {
-        // Allocate a weserv base module context
-        auto *ctx = register_pool_cleanup(r->pool, new (r->pool)
-                                                       ngx_weserv_base_ctx_t());
-
-        if (ctx == nullptr) {
-            return NGX_HTTP_INTERNAL_SERVER_ERROR;
-        }
-
-        // Set the request's weserv module context
-        ngx_http_set_ctx(r, ctx, ngx_weserv_module);
-
-        return NGX_DECLINED;
     }
 
     // Discard request body, since we don't need it here

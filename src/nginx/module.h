@@ -16,10 +16,7 @@ extern "C" {
 #define NGX_WESERV_IMAGE_BUFFERED 0x08
 
 #define NGX_WESERV_PROXY_MODE 0
-#define NGX_WESERV_FILE_MODE 1
-
-#define NGX_WESERV_BASE_CTX 0
-#define NGX_WESERV_UPSTREAM_CTX 1
+#define NGX_WESERV_FILTER_MODE 1
 
 namespace weserv {
 namespace nginx {
@@ -72,10 +69,6 @@ struct ngx_weserv_base_ctx_t {
      * The incoming chain.
      */
     ngx_chain_t *in;
-
-    virtual int id() const {
-        return NGX_WESERV_BASE_CTX;
-    }
 };
 
 /**
@@ -138,10 +131,6 @@ struct ngx_weserv_upstream_ctx_t : ngx_weserv_base_ctx_t {
      */
     off_t debug;
 #endif
-
-    int id() const override {
-        return NGX_WESERV_UPSTREAM_CTX;
-    }
 };
 
 }  // namespace nginx
