@@ -1,7 +1,5 @@
 FROM centos:8
 
-ARG NGINX_VERSION=1.19.2
-
 LABEL maintainer="Kleis Auke Wolthuizen <info@kleisauke.nl>"
 
 # Set default timezone
@@ -57,6 +55,7 @@ RUN git clone --depth=1 --recurse-submodules --shallow-submodules https://github
 WORKDIR /var/www/imagesweserv/build
 
 # Build CMake-based project
+ARG NGINX_VERSION=1.19.6
 RUN cmake3 .. \
        -DCMAKE_BUILD_TYPE=Release \
        -DNGX_VERSION=$NGINX_VERSION \
