@@ -4,10 +4,10 @@
 
 [![Author](https://img.shields.io/badge/author-andrieslouw-blue.svg)](https://github.com/andrieslouw)
 [![Author](https://img.shields.io/badge/author-kleisauke-blue.svg)](https://github.com/kleisauke)
-[![Source Code](https://img.shields.io/badge/source-weserv/images-blue.svg)](https://github.com/weserv/images)
-[![Software License](https://img.shields.io/github/license/weserv/images.svg)](https://opensource.org/licenses/BSD-3-Clause)
-[![Build Status](https://travis-ci.org/weserv/images.svg?branch=5.x)](https://travis-ci.org/weserv/images)
-[![Coverage Status](https://codecov.io/gh/weserv/images/branch/5.x/graph/badge.svg)](https://codecov.io/gh/weserv/images)
+[![Source code](https://img.shields.io/badge/source-weserv/images-blue.svg)](https://github.com/weserv/images)
+[![Software license](https://img.shields.io/github/license/weserv/images.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![CI status](https://github.com/weserv/images/workflows/CI/badge.svg?branch=5.x)](https://github.com/weserv/images/actions)
+[![Coverage status](https://codecov.io/gh/weserv/images/branch/5.x/graph/badge.svg)](https://codecov.io/gh/weserv/images)
 
 Source code of images.weserv.nl, to be used on your own server(s). 
 Images.weserv.nl leverages powerful libraries like [libvips](https://github.com/libvips/libvips) 

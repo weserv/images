@@ -1,0 +1,93 @@
+name: CI
+on:
+  - push
+  - pull_request
+jobs:
+  CI:
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.libvips-version == 'master' }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          # TODO(kleisauke): Enable once {tiff,magick}save_target is supported in libvips master
+          # - os: ubuntu-20.04
+          #   libvips-version: master
+          - os: ubuntu-20.04
+            libvips-version: 8.10.0
+            coverage: true
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Cache libvips
+        if: matrix.libvips-version != 'master'
+        id: cache-libvips
+        uses: actions/cache@v2
+        with:
+          path: ~/vips
+          key: ${{ matrix.libvips-version }}
+      - name: Install dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
+          APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE: 1
+        run: |
+          # for Test::Nginx
+          curl -sSL "https://openresty.org/package/pubkey.gpg" | sudo -E apt-key add -
+          echo "deb https://openresty.org/package/ubuntu $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/openresty.list
+          # add support for HEIC/AVIF files
+          sudo apt-add-repository -y "ppa:strukturag/libheif"
+          sudo apt-add-repository -y "ppa:strukturag/libde265"
+          # install dependencies
+          # TODO(kleisauke): Remove libaom-dev libde265-dev libx265-dev, see: https://github.com/strukturag/libheif/issues/404
+          sudo apt-get update
+          sudo -E apt-get install -y \
+            libexif-dev libexpat1-dev libfftw3-dev \
+            libgif-dev libgsf-1-dev libheif-dev \
+            liblcms2-dev libmagickwand-dev liborc-0.4-dev \
+            libpango1.0-dev libpng-dev libpoppler-glib-dev \
+            librsvg2-dev libtiff5-dev libwebp-dev \
+            gtk-doc-tools gobject-introspection \
+            libtest-nginx-perl \
+            lcov \
+            libaom-dev libde265-dev libx265-dev
+      - name: Install libvips
+        if: steps.cache-libvips.outputs.cache-hit != 'true'
+        env:
+          VIPS_VERSION: ${{ matrix.libvips-version }}
+          VIPS_PRE_VERSION: ${{ matrix.libvips-pre-version }}
+        run: .ci/install-vips.sh --disable-deprecated
+      - name: Prepare environment
+        run: |
+          echo "$HOME/vips/bin" >> $GITHUB_PATH
+          echo "$HOME/nginx/sbin" >> $GITHUB_PATH
+          echo "LD_LIBRARY_PATH=$HOME/vips/lib" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=$HOME/vips/lib/pkgconfig" >> $GITHUB_ENV
+          mkdir -p build
+      - name: Build
+        working-directory: build
+        run: |
+          cmake .. \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCUSTOM_NGX_FLAGS="--prefix=$HOME/nginx" \
+            -DENABLE_COVERAGE=$([ "${{ matrix.coverage }}" = true ] && echo "ON" || echo "OFF") \
+            -DBUILD_TESTS=ON
+          make -j$(nproc)
+      - name: Run unit tests
+        env:
+          VIPS_WARNING: 0
+          CTEST_OUTPUT_ON_FAILURE: 1
+        working-directory: build
+        run: CTEST_PARALLEL_LEVEL=$(nproc) make test
+      - name: Run integration tests
+        env:
+          TEST_NGINX_SERVROOT: ${{ github.workspace }}/servroot
+        run: prove -r test/nginx
+      - name: Generate coverage report
+        if: matrix.coverage
+        working-directory: build
+        run: make coverage
+      - name: Upload coverage to Codecov
+        if: matrix.coverage
+        uses: codecov/codecov-action@v1
+        with:
+          file: build/coverage.info

@@ -1,9 +1,9 @@
 # Images.weserv.nl test suite
 
-Tests are automatically run on Travis CI (using 
-[this configuration](../.travis.yml)) whenever new commits are made to the 
-repository or when new pull requests are opened. If something breaks, you'll 
-be informed by Travis.
+Tests are automatically run on GitHub Actions (using 
+[this configuration](../.github/workflows/ci.yml)) whenever new commits are 
+made to the repository or when new pull requests are opened. If something 
+breaks, you'll be informed by GitHub.
 
 The unit test cases are written using 
 [Catch2](https://github.com/catchorg/Catch2) as C++ test framework. We use the 
@@ -12,7 +12,7 @@ scaffolding for the integration tests. Consult the previous links for
 information on how to extend the tests.
 
 ## Dependencies
-The test suite is run with Travis CI but can also be run manually, the 
+The test suite is run with GitHub Actions but can also be run manually, the 
 following dependencies are required to run the unit tests:
 
 * libvips version >= 8.8
