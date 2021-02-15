@@ -38,7 +38,6 @@ jobs:
           sudo apt-add-repository -y "ppa:strukturag/libheif"
           sudo apt-add-repository -y "ppa:strukturag/libde265"
           # install dependencies
-          # TODO(kleisauke): Remove libaom-dev libde265-dev libx265-dev, see: https://github.com/strukturag/libheif/issues/404
           sudo apt-get update
           sudo -E apt-get install -y \
             libexif-dev libexpat1-dev libfftw3-dev \
@@ -48,8 +47,7 @@ jobs:
             librsvg2-dev libtiff5-dev libwebp-dev \
             gtk-doc-tools gobject-introspection \
             libtest-nginx-perl \
-            lcov \
-            libaom-dev libde265-dev libx265-dev
+            lcov
       - name: Install libvips
         if: steps.cache-libvips.outputs.cache-hit != 'true'
         env:
