@@ -32,6 +32,8 @@ const TypeMap &type_map = {
         {"ch",      typeid(int)},
         {"precrop", typeid(bool)},
         {"a",       typeid(Position)},
+        {"fpx",     typeid(float)},
+        {"fpy",     typeid(float)},
         {"mask",    typeid(MaskType)},
         {"mtrim",   typeid(bool)},
         {"mbg",     typeid(Color)},
@@ -99,7 +101,7 @@ std::vector<T> Query::tokenize(const std::string &data,
     vector.reserve(max_items);
 
     size_t i = 0;
-    while (std::string::npos != pos || std::string::npos != last_pos) {
+    while (pos != std::string::npos || last_pos != std::string::npos) {
         try {
             // Found a token, add it to the vector
             vector.push_back(parse<T>(data.substr(last_pos, pos - last_pos)));
@@ -144,22 +146,26 @@ void Query::add_value(const std::string &key, const std::string &value,
         }
     } else if (type == typeid(Position)) {
         auto position = parse<Position>(value);
-        if (position == Position::Focal) {
-            // Center on default
-            std::vector<int> focal = {50, 50};
 
-            auto values = value.substr(value.find_first_of('-') + 1);
+        // Deprecated &a=focal-x%-y%
+        size_t pos;
+        if (position == Position::Focal &&
+            (pos = value.find_first_of('-')) != std::string::npos) {
+            // Center on default
+            std::vector<float> focal = {0.5F, 0.5F};
+
+            auto values = value.substr(pos + 1);
             auto params = tokenize<int>(values, "-", 2);
 
             for (size_t i = 0; i != params.size(); ++i) {
                 // A single percentage needs to be in the range of 0 - 100
                 if (params[i] >= 0 && params[i] <= 100) {
-                    focal[i] = params[i];
+                    focal[i] = params[i] / 100.0F;
                 }
             }
 
-            query_map_.emplace("focal_x", focal[0]);
-            query_map_.emplace("focal_y", focal[1]);
+            query_map_.emplace("fpx", focal[0]);
+            query_map_.emplace("fpy", focal[1]);
         }
 
         query_map_.emplace(key, static_cast<int>(position));

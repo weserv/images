@@ -144,6 +144,37 @@ inline VipsAngle resolve_angle_rotation(const int angle) {
 }
 
 /**
+ * Backport of `std::clamp` from C++17.
+ * @tparam T Comparison type.
+ * @tparam Comparator Comparison function type.
+ * @param v The value to be clamped.
+ * @param lo The lower bound of the result.
+ * @param hi The upper bound of the result.
+ * @param comp Comparison function object.
+ * @return Reference to lo if v is less than lo, reference to hi if hi is less
+ * than hi, otherwise reference to v.
+ */
+template <typename T, typename Comparator>
+inline constexpr const T &clamp(const T &v, const T &lo, const T &hi,
+                                Comparator comp) {
+    return comp(v, lo) ? lo : comp(hi, v) ? hi : v;
+}
+
+/**
+ * Backport of `std::clamp` from C++17.
+ * @tparam T Comparison type.
+ * @param v The value to be clamped.
+ * @param lo The lower bound of the result.
+ * @param hi The upper bound of the result.
+ * @return Reference to lo if v is less than lo, reference to hi if hi is less
+ * than hi, otherwise reference to v.
+ */
+template <typename T>
+inline constexpr const T &clamp(const T &v, const T &lo, const T &hi) {
+    return clamp(v, lo, hi, std::less<T>());
+}
+
+/**
  * Determine image extension from the output enum.
  * @note The return value also defines which extension is allowed to
  *       pass on to the selected save operation.
@@ -354,6 +385,41 @@ calculate_position(const int in_width, const int in_height, const int out_width,
             left = (out_width - in_width) / 2;
             top = (out_height - in_height) / 2;
     }
+
+    return std::make_pair(left, top);
+}
+
+/**
+ * Calculate the (left, top) coordinates with a given focal point.
+ * @param fpx Focal point x-position.
+ * @param fpy Focal point y-position.
+ * @param in_width Original image width.
+ * @param in_height Original image height.
+ * @param target_width Target image width.
+ * @param target_height Target image height.
+ * @param image_width Image width.
+ * @param image_height Image height.
+ * @return The (left, top) position as pair.
+ */
+inline std::pair<int, int>
+calculate_focal_point(const float fpx, const float fpy, const int in_width,
+                      const int in_height, const int target_width,
+                      const int target_height, const int image_width,
+                      const int image_height) {
+    auto ratio_x =
+        static_cast<double>(in_width) / static_cast<double>(target_width);
+    auto ratio_y =
+        static_cast<double>(in_height) / static_cast<double>(target_height);
+    auto factor = std::min(ratio_x, ratio_y);
+
+    auto center_x = (fpx * static_cast<float>(in_width)) / factor;
+    auto center_y = (fpy * static_cast<float>(in_height)) / factor;
+
+    auto left = static_cast<int>(std::round(center_x - target_width / 2.0));
+    left = clamp(left, 0, image_width - target_width);
+
+    auto top = static_cast<int>(std::round(center_y - target_height / 2.0));
+    top = clamp(top, 0, image_height - target_height);
 
     return std::make_pair(left, top);
 }

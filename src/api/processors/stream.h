@@ -43,6 +43,7 @@ class Stream {
      * Finds the largest/smallest page in the range [0, VIPS_META_N_PAGES].
      * Pages are compared using the given comparison function.
      * See: https://github.com/weserv/images/issues/170.
+     * @tparam T Comparison type.
      * @param source Source to read from.
      * @param loader Image loader.
      * @param comp Comparison function object.

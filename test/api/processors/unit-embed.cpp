@@ -149,7 +149,7 @@ TEST_CASE("embed", "[embed]") {
     SECTION("enlarge focal point") {
         auto test_image = fixtures->input_png_with_one_color;
         auto expected_image = fixtures->expected_dir + "/embed-focal.png";
-        auto params = "w=320&h=240&fit=contain&a=focal-0-50&cbg=black";
+        auto params = "w=320&h=240&fit=contain&a=focal&fpx=0&cbg=black";
 
         VImage image = process_file<VImage>(test_image, params);
 

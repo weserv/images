@@ -19,16 +19,14 @@ VImage Embed::process(const VImage &image) const {
     auto width = query_->get_if<int>(
         "w",
         [](int w) {
-            // A dimension needs to be higher than
-            // 0
+            // A dimension needs to be higher than 0
             return w > 0;
         },
         image_width);
     auto height = query_->get_if<int>(
         "h",
         [](int h) {
-            // A dimension needs to be higher than
-            // 0
+            // A dimension needs to be higher than 0
             return h > 0;
         },
         image_height);
@@ -46,11 +44,13 @@ VImage Embed::process(const VImage &image) const {
     int left;
     int top;
     if (embed_position == Position::Focal) {
-        left = static_cast<int>(std::round(
-            (width - image_width) * (query_->get<int>("focal_x", 50) / 100.0)));
-        top = static_cast<int>(
-            std::round((height - image_height) *
-                       (query_->get<int>("focal_y", 50) / 100.0)));
+        auto fpx = query_->get_if<float>(
+            "fpx", [](float x) { return x >= 0.0 && x <= 1.0; }, 0.5F);
+        auto fpy = query_->get_if<float>(
+            "fpy", [](float y) { return y >= 0.0 && y <= 1.0; }, 0.5F);
+
+        left = static_cast<int>(std::round((width - image_width) * fpx));
+        top = static_cast<int>(std::round((height - image_height) * fpy));
     } else {
         std::tie(left, top) = utils::calculate_position(
             image_width, image_height, width, height, embed_position);

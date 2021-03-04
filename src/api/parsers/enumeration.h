@@ -41,7 +41,7 @@ inline enums::Position parse(const std::string &value) {
         return enums::Position::Bottom;
     } else if (value == "bottom-right") {
         return enums::Position::BottomRight;
-    } else if (value.rfind("focal-", 0) == 0) {
+    } else if (value.rfind("focal", 0) == 0) {
         return enums::Position::Focal;
     } else if (value == "entropy") {
         return enums::Position::Entropy;

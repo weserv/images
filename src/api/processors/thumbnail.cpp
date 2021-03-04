@@ -358,11 +358,11 @@ VImage Thumbnail::process(const VImage &image) const {
     // Shrink to page_height, so we work for multi-page images
     std::tie(hshrink, vshrink) = resolve_shrink(thumb_width, page_height);
 
-    int target_width =
+    auto target_width =
         static_cast<int>(std::rint(static_cast<double>(thumb_width) / hshrink));
-    int target_page_height =
+    auto target_page_height =
         static_cast<int>(std::rint(static_cast<double>(page_height) / vshrink));
-    int target_image_height = target_page_height;
+    auto target_image_height = target_page_height;
 
     // In toilet-roll mode, we must adjust vshrink so that we exactly hit
     // page_height or we'll have pixels straddling pixel boundaries.

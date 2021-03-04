@@ -137,8 +137,8 @@ void Stream::resolve_dimensions() const {
 
     // Update the width and height parameters,
     // a dimension needs to be d >= 0 && d <= VIPS_MAX_COORD.
-    query_->update("w", std::max(0, std::min(width, VIPS_MAX_COORD)));
-    query_->update("h", std::max(0, std::min(height, VIPS_MAX_COORD)));
+    query_->update("w", utils::clamp(width, 0, VIPS_MAX_COORD));
+    query_->update("h", utils::clamp(height, 0, VIPS_MAX_COORD));
 }
 
 void Stream::resolve_rotation_and_flip(const VImage &image) const {
@@ -275,6 +275,11 @@ VImage Stream::new_from_source(const Source &source) const {
     // because some libvips operations (for e.g. composite and embed) may change
     // the alpha.
     query_->update("has_alpha", image.has_alpha());
+
+    // Store the original image width and height, handy for the focal point
+    // calculations.
+    query_->update("input_width", image.width());
+    query_->update("input_height", image.height());
 
     return image;
 }
