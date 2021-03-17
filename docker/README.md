@@ -8,7 +8,7 @@ This document describes how to use images.weserv.nl with Docker.
 
     ```bash
     docker build \
-        --build-arg NGINX_VERSION=1.19.7 \
+        --build-arg NGINX_VERSION=1.19.8 \
         -t weserv/images \
         -f docker/Dockerfile \
         .
