@@ -1,7 +1,14 @@
 name: CI
 on:
-  - push
-  - pull_request
+  # Only trigger this workflow for the 5.x branch
+  push:
+    branches:
+      - 5.x
+    tags:
+      - v*
+  pull_request:
+    branches:
+      - 5.x
 jobs:
   CI:
     runs-on: ${{ matrix.os }}
@@ -17,8 +24,7 @@ jobs:
             libvips-version: 8.10.5
             coverage: true
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
       - name: Cache libvips
         if: matrix.libvips-version != 'master'
         id: cache-libvips
@@ -89,3 +95,37 @@ jobs:
         uses: codecov/codecov-action@v1
         with:
           file: build/coverage.info
+  docker-publish:
+    needs: CI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Docker meta
+        id: docker_meta
+        uses: crazy-max/ghaction-docker-meta@v1
+        with:
+          images: ghcr.io/${{ github.repository }}
+          # Add git short SHA as Docker tag
+          tag-sha: true
+          # Disable latest tag convention on push tag event
+          tag-latest: false
+          label-custom: |
+            org.opencontainers.image.authors=admin@weserv.nl
+            org.opencontainers.image.documentation=https://github.com/weserv/images/tree/5.x/docker
+            org.opencontainers.image.description=Images.weserv.nl dockerized
+            org.opencontainers.image.vendor=images.weserv.nl
+      - name: Login to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.CR_USER }}
+          password: ${{ secrets.CR_PAT }}
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./docker/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.docker_meta.outputs.tags }}
+          labels: ${{ steps.docker_meta.outputs.labels }}
