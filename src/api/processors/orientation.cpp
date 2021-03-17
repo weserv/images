@@ -18,7 +18,7 @@ VImage Orientation::process(const VImage &image) const {
     auto output_image = image;
 
     // Rotation by any multiple of 90 degrees
-    // Skip for for multi-page images
+    // Skip for multi-page images
     if (angle != 0 && query_->get<int>("n", 1) == 1) {
         // Need to copy to memory, we have to stay seq
         output_image = output_image.copy_memory().rot(

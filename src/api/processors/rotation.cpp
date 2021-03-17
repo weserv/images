@@ -12,7 +12,7 @@ VImage Rotation::process(const VImage &image) const {
         "ro", [](int r) { return r % 90 != 0; }, 0);
 
     // Should we process the image?
-    // Skip for for multi-page images
+    // Skip for multi-page images
     if (rotation == 0 || query_->get<int>("n", 1) > 1) {
         return image;
     }
@@ -20,15 +20,26 @@ VImage Rotation::process(const VImage &image) const {
     // A background color can be specified with the rbg parameter
     auto bg = query_->get<Color>("rbg", Color::DEFAULT);
 
-    if (!query_->get<bool>("has_alpha", false)) {
-        // The image may now have an alpha channel
-        query_->update("has_alpha", bg.has_alpha_channel());
+    std::vector<double> background_rgba = bg.to_rgba();
+    bool opaque = bg.is_opaque();
+    bool has_alpha = image.has_alpha();
+
+    // Drop the alpha channel of the background if it's opaque and the image has
+    // no alpha channel
+    if (opaque && !has_alpha) {
+        background_rgba.pop_back();
     }
 
+    // Internal copy to ensure that the image has an alpha channel, if missing
+    auto output_image =
+        opaque || has_alpha
+            ? image
+            : image.bandjoin_const({255});  // Assumes images are always 8-bit
+
     // Need to copy to memory, we have to stay seq
-    return utils::ensure_alpha(image).copy_memory().rotate(
+    return output_image.copy_memory().rotate(
         static_cast<double>(rotation),
-        VImage::option()->set("background", bg.to_rgba()));
+        VImage::option()->set("background", background_rgba));
 }
 
 }  // namespace processors

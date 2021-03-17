@@ -56,22 +56,32 @@ VImage Embed::process(const VImage &image) const {
             image_width, image_height, width, height, embed_position);
     }
 
-    if (!query_->get<bool>("has_alpha", false)) {
-        // The image may now have an alpha channel
-        query_->update("has_alpha", bg.has_alpha_channel());
-    }
-
     // Leave the height unchanged in toilet-roll mode
     if (query_->get<int>("n", 1) > 1) {
         top = 0;
         height = image_height;
     }
 
-    return utils::ensure_alpha(image).embed(
-        left, top, width, height,
-        VImage::option()
-            ->set("extend", VIPS_EXTEND_BACKGROUND)
-            ->set("background", bg.to_rgba()));
+    std::vector<double> background_rgba = bg.to_rgba();
+    bool opaque = bg.is_opaque();
+    bool has_alpha = image.has_alpha();
+
+    // Drop the alpha channel of the background if it's opaque and the image has
+    // no alpha channel
+    if (opaque && !has_alpha) {
+        background_rgba.pop_back();
+    }
+
+    // Internal copy to ensure that the image has an alpha channel, if missing
+    auto output_image =
+        opaque || has_alpha
+            ? image
+            : image.bandjoin_const({255});  // Assumes images are always 8-bit
+
+    return output_image.embed(left, top, width, height,
+                              VImage::option()
+                                  ->set("extend", VIPS_EXTEND_BACKGROUND)
+                                  ->set("background", background_rgba));
 }
 
 }  // namespace processors

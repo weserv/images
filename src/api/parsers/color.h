@@ -33,10 +33,10 @@ class Color {
     bool is_transparent() const;
 
     /**
-     * Indicates if this color has an alpha channel.
-     * @return A bool indicating if the color has an alpha channel.
+     * Indicates if this color is opaque.
+     * @return A bool indicating if the color is opaque.
      */
-    bool has_alpha_channel() const;
+    bool is_opaque() const;
 
     /**
      * Color to RGBA vector.

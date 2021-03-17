@@ -275,7 +275,7 @@ VImage Mask::process(const VImage &image) const {
     auto mask_type = query_->get<MaskType>("mask", MaskType::None);
 
     // Should we process the image?
-    // Skip for for multi-page images
+    // Skip for multi-page images
     if (mask_type == MaskType::None || query_->get<int>("n", 1) > 1) {
         return image;
     }
@@ -291,13 +291,13 @@ VImage Mask::process(const VImage &image) const {
                                  &y_min, &mask_width, &mask_height);
 
     auto mask_background = query_->get<Color>("mbg", Color::DEFAULT);
-    bool bg_has_alpha = mask_background.has_alpha_channel();
 
     // Internal copy, we need to re-assign a few times
     auto output_image = image;
 
-    // Cutout first if the image or mask background has an alpha channel
-    if (output_image.has_alpha() || bg_has_alpha) {
+    // Cut out first if the mask background is not opaque or when the image has
+    // an alpha channel
+    if (!mask_background.is_opaque() || output_image.has_alpha()) {
         std::ostringstream svg;
         svg << R"(<svg xmlns="http://www.w3.org/2000/svg" version="1.1")"
             << " width=\"" << image_width << "\" height=\"" << image_height
@@ -314,9 +314,6 @@ VImage Mask::process(const VImage &image) const {
 
         // Cutout via dest-in
         output_image = output_image.composite2(mask, VIPS_BLEND_MODE_DEST_IN);
-
-        // The image now has an alpha channel
-        query_->update("has_alpha", true);
     }
 
     // If the mask background is not completely transparent; overlay the frame

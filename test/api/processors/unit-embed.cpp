@@ -139,7 +139,7 @@ TEST_CASE("embed", "[embed]") {
 
         VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(image.bands() == 4);
+        CHECK(image.bands() == 3);
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
 
@@ -153,7 +153,7 @@ TEST_CASE("embed", "[embed]") {
 
         VImage image = process_file<VImage>(test_image, params);
 
-        CHECK(image.bands() == 4);
+        CHECK(image.bands() == 3);
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
 

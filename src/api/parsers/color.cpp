@@ -156,8 +156,8 @@ bool Color::is_transparent() const {
     return alpha_ == 0;
 }
 
-bool Color::has_alpha_channel() const {
-    return alpha_ < 255;
+bool Color::is_opaque() const {
+    return alpha_ == 255;
 }
 
 std::vector<double> Color::to_rgba() const {

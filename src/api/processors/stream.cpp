@@ -271,11 +271,6 @@ VImage Stream::new_from_source(const Source &source) const {
     // for the given exif orientation and query parameters.
     resolve_rotation_and_flip(image);
 
-    // We need to store the image alpha channel predicate in the query map
-    // because some libvips operations (for e.g. composite and embed) may change
-    // the alpha.
-    query_->update("has_alpha", image.has_alpha());
-
     // Store the original image width and height, handy for the focal point
     // calculations.
     query_->update("input_width", image.width());
@@ -438,7 +433,7 @@ void Stream::write_to_target(const VImage &image, const Target &target) const {
     // 1 - loop once
     // 2 - loop twice etc.
     auto loop = query_->get<int>("loop", -1);
-    if (loop != -1) {
+    if (loop >= 0) {
         copy.set("loop", loop);
     }
 
@@ -467,12 +462,9 @@ void Stream::write_to_target(const VImage &image, const Target &target) const {
         // We force the output to PNG if the image has alpha and doesn't have
         // the right extension to output alpha (useful for masking and
         // embedding).
-        if (query_->get<bool>("has_alpha", false) &&
-            !utils::support_alpha_channel(image_type)) {
-            output = Output::Png;
-        } else {
-            output = utils::to_output(image_type);
-        }
+        output = utils::support_alpha_channel(image_type) || !copy.has_alpha()
+                     ? utils::to_output(image_type)
+                     : Output::Png;
     }
 
     std::string extension = utils::determine_image_extension(output);

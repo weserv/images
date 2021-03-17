@@ -39,16 +39,6 @@ inline bool is_16_bit(const VipsInterpretation interpretation) {
 }
 
 /**
- * Return the image alpha maximum. Useful for combining alpha bands. scRGB
- * images are 0 - 1 for image data, but the alpha is 0 - 255.
- * @param interpretation The VipsInterpretation.
- * @return The image alpha maximum.
- */
-inline int maximum_image_alpha(const VipsInterpretation interpretation) {
-    return is_16_bit(interpretation) ? 65535 : 255;
-}
-
-/**
  * Does this image have an embedded profile?
  * @param image The source image.
  * @return A bool indicating if this image have an embedded profile.
@@ -94,20 +84,6 @@ inline int exif_orientation(const VImage &image) {
     return image.get_typeof(VIPS_META_ORIENTATION) != 0
                ? image.get_int(VIPS_META_ORIENTATION)
                : 0;
-}
-
-/**
- * Ensures alpha channel, if missing.
- * @param image The source image.
- * @return An image with an alpha channel.
- */
-inline VImage ensure_alpha(const VImage &image) {
-    if (!image.has_alpha()) {
-        std::vector<double> alpha;
-        alpha.emplace_back(maximum_image_alpha(image.interpretation()));
-        return image.bandjoin_const(alpha);
-    }
-    return image;
 }
 
 /**
