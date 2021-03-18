@@ -160,7 +160,7 @@ With the magical help of [libvips](https://github.com/libvips/libvips) and the P
 - Load a given page (`&page=`, for PDF, TIFF and multi-size ICO files).
 - Support for non-standard ports ([#10](https://github.com/weserv/images/issues/10)).
 - A privacy policy. See [Privacy-Policy.md](Privacy-Policy.md).
-- A Docker image for easier deployment. See the [Docker installation instructions](DOCKER.md).
+- A Docker image for easier deployment. See the [Docker installation instructions](docker/README.md).
 
 ### Changed
 - Dropped [Intervention Image](http://image.intervention.io/) in favor of [php-vips](https://github.com/libvips/php-vips) because resizing an image with [libvips](https://github.com/libvips/libvips) is typically 4x-5x faster than using the quickest ImageMagick.
