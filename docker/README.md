@@ -2,7 +2,19 @@
 
 This document describes how to use images.weserv.nl with Docker.
 
-## Installation
+## Hosted image on [github packages](https://github.com/orgs/weserv/packages/container/package/images)
+
+1. Pull and run `ghcr.io/weserv/images` container
+
+    ```bash
+    docker run -d -p 8000:80 --shm-size=1gb --name=imagesweserv ghcr.io/weserv/images:5.x
+    ```
+
+2. Go to http://localhost:8000/?url=images.weserv.nl/lichtenstein.jpg&w=300&h=300
+
+3. Enjoy :-)
+
+## Manual installation
 
 1. Build/run containers
 

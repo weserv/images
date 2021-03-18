@@ -1,4 +1,4 @@
-FROM centos:8
+FROM centos:8 as builder
 
 LABEL maintainer="Kleis Auke Wolthuizen <info@kleisauke.nl>"
 
@@ -79,6 +79,24 @@ RUN cmake3 .. \
     && make -j$(nproc) \
     && ldconfig
 
+# from https://myheutagogy.com/2020/04/28/minimizing-the-size-of-docker-images-using-multi-stage-builds/
+# https://web.archive.org/web/20201031151931/https://myheutagogy.com/2020/04/28/minimizing-the-size-of-docker-images-using-multi-stage-builds/
+RUN ldd /usr/sbin/nginx | cut -d" " -f3 | xargs tar --dereference --absolute-names -cf libs.tar
+
+######################
+FROM builder as runner
+
+# Copy nginx to the appropriate location
+COPY --from=builder /usr/sbin/nginx /usr/sbin/nginx
+
+# Copy nginx configuration to the appropriate location
+COPY --from=builder /var/www/imagesweserv/ngx_conf/*.conf /etc/nginx/
+
+# Copy linked libs
+COPY --from=builder /var/www/imagesweserv/build/libs.tar /
+RUN tar --absolute-names -xf libs.tar \
+    && rm *.tar
+
 WORKDIR /var/www/imagesweserv
 
 # Ensure nginx directories exist
@@ -89,9 +107,7 @@ RUN mkdir -p -m 700 /var/lib/nginx \
     && mkdir -p -m 755 /usr/lib64/nginx/modules \
     # Forward request and error logs to docker log collector
     && ln -sf /dev/stdout /var/log/nginx/weserv-access.log \
-    && ln -sf /dev/stderr /var/log/nginx/weserv-error.log \
-    # Copy nginx configuration to the appropriate location
-    && cp /var/www/imagesweserv/ngx_conf/*.conf /etc/nginx
+    && ln -sf /dev/stderr /var/log/nginx/weserv-error.log
 
 EXPOSE 80
 
