@@ -21,7 +21,7 @@ jobs:
           # - os: ubuntu-20.04
           #   libvips-version: master
           - os: ubuntu-20.04
-            libvips-version: 8.10.5
+            libvips-version: 8.10.6
             coverage: true
     steps:
       - uses: actions/checkout@v2
