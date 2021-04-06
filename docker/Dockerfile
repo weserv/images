@@ -56,7 +56,7 @@ COPY . /var/www/imagesweserv
 WORKDIR /var/www/imagesweserv/build
 
 # Build CMake-based project
-ARG NGINX_VERSION=1.19.8
+ARG NGINX_VERSION=1.19.9
 RUN cmake3 .. \
        -DCMAKE_BUILD_TYPE=Release \
        -DBUILD_TOOLS=ON \
