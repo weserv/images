@@ -29,7 +29,7 @@ See our [wiki documentation](https://github.com/weserv/images/wiki) or
 ## Docker deployment
 
 For information on Docker deployment, please read the 
-[Docker installation instructions](DOCKER.md).
+[Docker installation instructions](docker/README.md).
 
 ## Submitting Bugs and Suggestions
 
