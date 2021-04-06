@@ -2,47 +2,33 @@
 
 This document describes how to use images.weserv.nl with Docker.
 
-## Installation
+## Hosted image on [GitHub Container Registry](https://github.com/orgs/weserv/packages/container/package/images)
 
-1. Build/run containers
+1. Pull and run the `ghcr.io/weserv/images` container.
+   ```bash
+   docker run -d -p 8000:80 --shm-size=1gb --name=imagesweserv ghcr.io/weserv/images:5.x
+   ```
+   (this maps TCP port 80 in the container to port 8080 on the Docker host)
 
-    ```bash
-    docker build \
-        --build-arg NGINX_VERSION=1.19.9 \
-        -t weserv/images \
-        -f docker/Dockerfile \
-        .
-    docker run \
-        -d \
-        -p 80:80 \
-        --shm-size=1gb \
-        --name=imagesweserv \
-        weserv/images
-    ```
+2. Visit [`http://localhost:8080/`](http://localhost:8080/).
 
-2. Update your system host file (add images.weserv.test)
+3. Enjoy!
 
-    ```bash
-    # UNIX only: get containers IP address and update host (replace IP according to your configuration) (on Windows, edit C:\Windows\System32\drivers\etc\hosts)
-    sudo echo $(docker network inspect bridge | grep Gateway | grep -o -E '[0-9\.]+') "images.weserv.test" >> /etc/hosts
-    ```
+## Manual installation
 
-    **Note:** For **OS X**, please take a look [here](https://docs.docker.com/docker-for-mac/networking/) and for **Windows** read [this](https://docs.docker.com/docker-for-windows/networking/).
+1. Build the container (with a specified nginx version).
+   ```bash
+   docker build --build-arg NGINX_VERSION=1.19.9 -t weserv/images -f docker/Dockerfile .
+   ```
 
-3. Enjoy :-)
+2. Run the container (same as above, but using the recently built tag).
+   ```bash
+   docker run -d -p 8080:80 --shm-size=1gb --name=imagesweserv weserv/images
+   ```
 
-## Usage
+3. Visit [`http://localhost:8080/`](http://localhost:8080/).
 
-Just run:
-```bash
-docker run \
-    -d \
-    -p 80:80 \
-    --shm-size=1gb \
-    --name=imagesweserv \
-    weserv/images
-```
-then visit [images.weserv.test](http://images.weserv.test)
+4. Enjoy!
 
 ## Useful commands
 
@@ -55,6 +41,9 @@ docker exec imagesweserv nginx -t
 
 # Reload the nginx configuration file
 docker exec imagesweserv nginx -s reload
+
+# Update RPM packages
+docker exec imagesweserv dnf update -y
 
 # Retrieve an IP Address
 docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -f name=imagesweserv -q)
