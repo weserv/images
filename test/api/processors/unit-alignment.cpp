@@ -86,31 +86,31 @@ TEST_CASE("crop positions", "[alignment]") {
             // Top left
             {80,  320, "focal&fpx=0&fpy=0",     "/position-left.jpg"},
             // Top
-            {320, 80,  "focal&fpx=0.5&fpy=0",    "/position-top.jpg"},
+            {320, 80,  "focal&fpx=0.5&fpy=0",   "/position-top.jpg"},
             // Top right
-            {320, 80,  "focal&fpx=1&fpy=0",   "/position-top.jpg"},
+            {320, 80,  "focal&fpx=1&fpy=0",     "/position-top.jpg"},
             // Top right
-            {80,  320, "focal&fpx=1&fpy=0",   "/position-right.jpg"},
+            {80,  320, "focal&fpx=1&fpy=0",     "/position-right.jpg"},
             // Left
-            {80,  320, "focal&fpx=0&fpy=0.5",    "/position-left.jpg"},
+            {80,  320, "focal&fpx=0&fpy=0.5",   "/position-left.jpg"},
             // Center
-            {320, 80,  "focal&fpx=0.5&fpy=0.5",   "/position-center.jpg"},
+            {320, 80,  "focal&fpx=0.5&fpy=0.5", "/position-center.jpg"},
             // Centre
-            {80,  320, "focal&fpx=0.5&fpy=0.5",   "/position-centre.jpg"},
+            {80,  320, "focal&fpx=0.5&fpy=0.5", "/position-centre.jpg"},
             // Default (centre)
-            {80,  320, "focal", "/position-centre.jpg"},
+            {80,  320, "focal",                 "/position-centre.jpg"},
             // Right
-            {80,  320, "focal&fpx=1&fpy=0.5",  "/position-right.jpg"},
+            {80,  320, "focal&fpx=1&fpy=0.5",   "/position-right.jpg"},
             // Bottom left
-            {320, 80,  "focal&fpx=0&fpy=1",   "/position-bottom.jpg"},
+            {320, 80,  "focal&fpx=0&fpy=1",     "/position-bottom.jpg"},
             // Bottom left
-            {80,  320, "focal&fpx=0&fpy=1",   "/position-left.jpg"},
+            {80,  320, "focal&fpx=0&fpy=1",     "/position-left.jpg"},
             // Bottom
-            {320, 80,  "focal&fpx=0.5&fpy=1",  "/position-bottom.jpg"},
+            {320, 80,  "focal&fpx=0.5&fpy=1",   "/position-bottom.jpg"},
             // Bottom right
-            {320, 80,  "focal&fpx=1&fpy=1", "/position-bottom.jpg"},
+            {320, 80,  "focal&fpx=1&fpy=1",     "/position-bottom.jpg"},
             // Bottom right
-            {80,  320, "focal&fpx=1&fpy=1", "/position-right.jpg"},
+            {80,  320, "focal&fpx=1&fpy=1",     "/position-right.jpg"},
             // Deprecated parameters
             // Top
             {320, 80,  "focal-50-0",   "/position-top.jpg"},
@@ -121,13 +121,13 @@ TEST_CASE("crop positions", "[alignment]") {
             // Bottom
             {320, 80,  "focal-50-100", "/position-bottom.jpg"},
             // Top
-            {320, 80,  "crop-50-0",   "/position-top.jpg"},
+            {320, 80,  "crop-50-0",    "/position-top.jpg"},
             // Left
-            {80,  320, "crop-0-50",   "/position-left.jpg"},
+            {80,  320, "crop-0-50",    "/position-left.jpg"},
             // Right
-            {80,  320, "crop-100-50", "/position-right.jpg"},
+            {80,  320, "crop-100-50",  "/position-right.jpg"},
             // Bottom
-            {320, 80,  "crop-50-100", "/position-bottom.jpg"},
+            {320, 80,  "crop-50-100",  "/position-bottom.jpg"},
             // End of deprecated parameters
         };
         // clang-format on

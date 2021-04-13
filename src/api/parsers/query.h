@@ -10,6 +10,7 @@
 #include <string>
 #include <typeindex>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include <mpark/variant.hpp>
@@ -22,6 +23,7 @@ namespace parsers {
 
 using TypeMap = std::unordered_map<std::string, std::type_index>;
 using SynonymMap = std::unordered_map<std::string, std::string>;
+using NginxKeySet = std::unordered_set<std::string>;
 
 class Query {
  public:

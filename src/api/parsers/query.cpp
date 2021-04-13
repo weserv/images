@@ -20,70 +20,79 @@ const size_t MAX_VECTOR_SIZE = 65536;
 
 // clang-format off
 const TypeMap &type_map = {
-        {"w",       typeid(int)},
-        {"h",       typeid(int)},
-        {"dpr",     typeid(float)},
-        {"fit",     typeid(Canvas)},
-        {"we",      typeid(bool)},
-        {"crop",    typeid(std::vector<int>)},  // Deprecated
-        {"cx",      typeid(int)},
-        {"cy",      typeid(int)},
-        {"cw",      typeid(int)},
-        {"ch",      typeid(int)},
-        {"precrop", typeid(bool)},
-        {"a",       typeid(Position)},
-        {"fpx",     typeid(float)},
-        {"fpy",     typeid(float)},
-        {"mask",    typeid(MaskType)},
-        {"mtrim",   typeid(bool)},
-        {"mbg",     typeid(Color)},
-        {"ro",      typeid(int)},
-        {"flip",    typeid(bool)},
-        {"flop",    typeid(bool)},
-        {"bri",     typeid(int)},
-        {"mod",     typeid(std::vector<float>)},
-        {"sat",     typeid(float)},
-        {"hue",     typeid(int)},
-        {"con",     typeid(int)},
-        {"gam",     typeid(float)},
-        {"sharp",   typeid(std::vector<float>)},
-        {"sharpf",  typeid(float)},
-        {"sharpj",  typeid(float)},
-        {"trim",    typeid(int)},
-        {"blur",    typeid(float)},
-        {"filt",    typeid(FilterType)},
-        {"start",   typeid(Color)},
-        {"stop",    typeid(Color)},
-        {"bg",      typeid(Color)},
-        {"cbg",     typeid(Color)},
-        {"rbg",     typeid(Color)},
-        {"tint",    typeid(Color)},
-        {"q",       typeid(int)},
-        {"l",       typeid(int)},
-        {"output",  typeid(Output)},
-        {"il",      typeid(bool)},
-        {"af",      typeid(bool)},
-        {"page",    typeid(int)},
-        {"n",       typeid(int)},
-        {"loop",    typeid(int)},               // TODO(kleisauke): Documentation needed.
-        {"delay",   typeid(std::vector<int>)},  // TODO(kleisauke): Documentation needed.
-        {"fsol",    typeid(bool)},              // TODO(kleisauke): Documentation needed.
+    {"w",       typeid(int)},
+    {"h",       typeid(int)},
+    {"dpr",     typeid(float)},
+    {"fit",     typeid(Canvas)},
+    {"we",      typeid(bool)},
+    {"crop",    typeid(std::vector<int>)},  // Deprecated
+    {"cx",      typeid(int)},
+    {"cy",      typeid(int)},
+    {"cw",      typeid(int)},
+    {"ch",      typeid(int)},
+    {"precrop", typeid(bool)},
+    {"a",       typeid(Position)},
+    {"fpx",     typeid(float)},
+    {"fpy",     typeid(float)},
+    {"mask",    typeid(MaskType)},
+    {"mtrim",   typeid(bool)},
+    {"mbg",     typeid(Color)},
+    {"ro",      typeid(int)},
+    {"flip",    typeid(bool)},
+    {"flop",    typeid(bool)},
+    {"bri",     typeid(int)},
+    {"mod",     typeid(std::vector<float>)},
+    {"sat",     typeid(float)},
+    {"hue",     typeid(int)},
+    {"con",     typeid(int)},
+    {"gam",     typeid(float)},
+    {"sharp",   typeid(std::vector<float>)},
+    {"sharpf",  typeid(float)},
+    {"sharpj",  typeid(float)},
+    {"trim",    typeid(int)},
+    {"blur",    typeid(float)},
+    {"filt",    typeid(FilterType)},
+    {"start",   typeid(Color)},
+    {"stop",    typeid(Color)},
+    {"bg",      typeid(Color)},
+    {"cbg",     typeid(Color)},
+    {"rbg",     typeid(Color)},
+    {"tint",    typeid(Color)},
+    {"q",       typeid(int)},
+    {"l",       typeid(int)},
+    {"output",  typeid(Output)},
+    {"il",      typeid(bool)},
+    {"af",      typeid(bool)},
+    {"page",    typeid(int)},
+    {"n",       typeid(int)},
+    {"loop",    typeid(int)},               // TODO(kleisauke): Documentation needed.
+    {"delay",   typeid(std::vector<int>)},  // TODO(kleisauke): Documentation needed.
+    {"fsol",    typeid(bool)},              // TODO(kleisauke): Documentation needed.
 };
 
 const SynonymMap &synonym_map = {
-        {"shape",   "mask"},   // &shape= was deprecated since API version 4
-        {"strim",   "mtrim"},  // &strim= was deprecated since API version 4
-        {"or",      "ro"},     // &or= was deprecated since API version 5
-        {"t",       "fit"},    // &t= was deprecated since API version 5
-        // TODO(kleisauke): Synonym this within a major release (since it breaks backwards compatibility).
-        //{"bri",     "mod"},
-        // Some handy synonyms
-        {"pages",   "n"},
-        {"width",   "w"},
-        {"height",  "h"},
-        {"align",   "a"},
-        {"level",   "l"},
-        {"quality", "q"},
+    {"shape",   "mask"},   // &shape= was deprecated since API version 4
+    {"strim",   "mtrim"},  // &strim= was deprecated since API version 4
+    {"or",      "ro"},     // &or= was deprecated since API version 5
+    {"t",       "fit"},    // &t= was deprecated since API version 5
+    // TODO(kleisauke): Synonym this within a major release (since it breaks BC).
+    //{"bri",     "mod"},
+    // Some handy synonyms
+    {"pages",   "n"},
+    {"width",   "w"},
+    {"height",  "h"},
+    {"align",   "a"},
+    {"level",   "l"},
+    {"quality", "q"},
+};
+
+const NginxKeySet &nginx_keys = {
+    "url",
+    "default",
+    "errorredirect",  // Deprecated
+    "filename",
+    "encoding",
+    "maxage",
 };
 // clang-format on
 
@@ -229,55 +238,52 @@ void Query::add_value(const std::string &key, const std::string &value,
 }
 
 Query::Query(const std::string &value, const Config &config) : config_(config) {
-    size_t key_pos = 0;
-    size_t key_end;
-    size_t val_pos;
-    size_t val_end;
+    size_t begin = 0;
+    size_t end;
 
     size_t max_pos = value.size();
 
-    while (key_pos < max_pos) {
-        key_end = value.find_first_of("=&", key_pos);
-        if (key_end == std::string::npos) {
-            key_end = max_pos;
+    while (begin < max_pos) {
+        // Search key
+        end = value.find_first_of("=&", begin);
+        if (end == std::string::npos) {
+            end = max_pos;
         }
 
-        std::string key = value.substr(key_pos, key_end - key_pos);
+        std::string key = value.substr(begin, end - begin);
 
+        // Skip empty, invalid, or keys already handled in the nginx module
         if (key.empty() || key.size() > MAX_KEY_LENGTH ||
-            // Handled in the nginx module
-            key == "url" || key == "default" || key == "errorredirect" ||
-            key == "filename" || key == "encoding" || key == "maxage") {
-            key_pos = key_end + 1;
+            nginx_keys.find(key) != nginx_keys.end()) {
+            end = value.find('&', end + 1);
+            begin = end == std::string::npos ? max_pos : end + 1;
             continue;
         }
 
+        // Handle synonyms
         auto synonym_it = synonym_map.find(key);
         if (synonym_it != synonym_map.end()) {
             key = synonym_it->second;
         }
 
+        // Check whether the key is defined by the API
         auto type_it = type_map.find(key);
         if (type_it != type_map.end()) {
-            std::string val;
-            if (key_end < max_pos && value.at(key_end) == '=') {
-                val_pos = key_end + 1;
-                val_end = value.find('&', val_pos);
+            // -1 by default
+            std::string val = "-1";
 
-                val = value.substr(val_pos, val_end - val_pos);
+            // Handle optional value
+            if (end < max_pos && value.at(end) == '=') {
+                begin = end + 1;
+                end = value.find('&', begin);
 
-                key_pos = val_end;
-            } else {
-                val = "-1";
-                key_pos = key_end;
+                val = value.substr(begin, end - begin);
             }
 
             add_value(key, val, type_it->second);
         }
 
-        if (key_pos != std::string::npos) {
-            ++key_pos;
-        }
+        begin = end == std::string::npos ? max_pos : end + 1;
     }
 }
 
