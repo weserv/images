@@ -6,7 +6,7 @@ This document describes how to use images.weserv.nl with Docker.
 
 1. Pull and run the `ghcr.io/weserv/images` container.
    ```bash
-   docker run -d -p 8000:80 --shm-size=1gb --name=imagesweserv ghcr.io/weserv/images:5.x
+   docker run -d -p 8080:80 --shm-size=1gb --name=imagesweserv ghcr.io/weserv/images:5.x
    ```
    (this maps TCP port 80 in the container to port 8080 on the Docker host)
 
