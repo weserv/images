@@ -16,7 +16,7 @@ using weserv::api::utils::Status;
 extern std::shared_ptr<Fixtures> fixtures;
 extern std::shared_ptr<weserv::api::ApiManager> api_manager;
 
-extern bool pre_8_11;
+extern bool pre_8_12;
 
 extern Status process(std::unique_ptr<SourceInterface> source,
                       std::unique_ptr<TargetInterface> target,

@@ -223,11 +223,11 @@ TEST_CASE("attention crop", "[alignment]") {
 
 TEST_CASE("skip height in toilet-roll mode", "[alignment]") {
     if (vips_type_find("VipsOperation",
-                       pre_8_11 ? "gifload_buffer" : "gifload_source") == 0) {
+                       pre_8_12 ? "gifload_buffer" : "gifload_source") == 0) {
         SUCCEED("no gif support, skipping test");
         return;
     }
-    if (vips_type_find("VipsOperation", pre_8_11 ? "magicksave_buffer"
+    if (vips_type_find("VipsOperation", pre_8_12 ? "magicksave_buffer"
                                                  : "magicksave_target") == 0) {
         SUCCEED("no magick support, skipping test");
         return;

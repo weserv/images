@@ -4,7 +4,7 @@ namespace weserv {
 namespace api {
 namespace io {
 
-#if VIPS_VERSION_AT_LEAST(8, 11, 0)
+#if VIPS_VERSION_AT_LEAST(8, 12, 0)
 /* Class implementation */
 
 // We need C linkage for this.
