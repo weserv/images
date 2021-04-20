@@ -240,7 +240,8 @@ inline ImageType determine_image_type(const std::string &loader) {
         return ImageType::Webp;
     } else if (loader.rfind("VipsForeignLoadTiff", 0) == 0) {
         return ImageType::Tiff;
-    } else if (loader.rfind("VipsForeignLoadGif", 0) == 0) {
+    } else if (loader.rfind("VipsForeignLoadGif", 0) == 0 ||
+               loader.rfind("VipsForeignLoadNsgif", 0) == 0) {
         return ImageType::Gif;
     } else if (loader.rfind("VipsForeignLoadSvg", 0) == 0) {
         return ImageType::Svg;
@@ -264,6 +265,7 @@ inline ImageType determine_image_type(const std::string &loader) {
 inline bool image_loader_supports_page(const std::string &loader) {
     return loader.rfind("VipsForeignLoadPdf", 0) == 0 ||
            loader.rfind("VipsForeignLoadGif", 0) == 0 ||
+           loader.rfind("VipsForeignLoadNsgif", 0) == 0 ||
            loader.rfind("VipsForeignLoadTiff", 0) == 0 ||
            loader.rfind("VipsForeignLoadWebp", 0) == 0 ||
            loader.rfind("VipsForeignLoadHeif", 0) == 0 ||
