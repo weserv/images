@@ -84,11 +84,10 @@ RUN cmake3 .. \
 WORKDIR /var/www/imagesweserv
 
 # Ensure nginx directories exist
-RUN mkdir -p -m 700 /var/lib/nginx \
-    && mkdir -p -m 700 /var/lib/nginx/tmp \
-    && mkdir -p -m 700 /var/log/nginx \
-    && mkdir -p -m 755 /usr/share/nginx/html \
-    && mkdir -p -m 755 /usr/lib64/nginx/modules \
+RUN mkdir -m 700 /var/lib/nginx \
+    && mkdir -m 700 /var/lib/nginx/tmp \
+    && mkdir -m 700 /usr/lib64/nginx \
+    && mkdir -m 755 /usr/lib64/nginx/modules \
     # Forward request and error logs to docker log collector
     && ln -sf /dev/stdout /var/log/nginx/weserv-access.log \
     && ln -sf /dev/stderr /var/log/nginx/weserv-error.log \
