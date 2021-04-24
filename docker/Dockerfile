@@ -78,7 +78,7 @@ RUN cmake3 .. \
 --lock-path=/run/lock/subsys/nginx;\
 --user=nginx;\
 --group=nginx" \
-    && make -j$(nproc) \
+    && make -j"$(nproc)" \
     && ldconfig
 
 WORKDIR /var/www/imagesweserv
