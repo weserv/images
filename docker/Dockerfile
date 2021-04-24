@@ -20,7 +20,8 @@ RUN dnf install -y dnf-utils \
     && sed -i '/^exclude=/ s/$/,libjpeg-turbo-*.*.9[0-9]-*/' /etc/yum.repos.d/libjpeg-turbo.repo \
     && dnf install -y libjpeg-turbo-official \
     && echo '/opt/libjpeg-turbo/lib64' >> /etc/ld.so.conf.d/libjpeg-turbo-official-x86_64.conf \
-    && ldconfig
+    && ldconfig \
+    && dnf clean all
 
 # Update the PKG_CONFIG_PATH environment variable,
 # since libjpeg-turbo is installed in a non-standard prefix
@@ -44,7 +45,8 @@ RUN dnf install -y epel-release \
         gcc-c++ \
         openssl-devel \
         pcre-devel \
-        zlib-devel
+        zlib-devel \
+    && dnf clean all
 
 # Create nginx user and group
 RUN groupadd nginx \
