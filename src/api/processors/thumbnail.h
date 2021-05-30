@@ -31,7 +31,7 @@ class Thumbnail : ImageProcessor {
 
  private:
     /**
-     * Config.
+     * Global config.
      */
     const Config &config_;
 
@@ -39,9 +39,9 @@ class Thumbnail : ImageProcessor {
      * Calculate the shrink factor, taking into account auto-rotate, the fit
      * mode, and so on. The hshrink/vshrink are the amount to shrink the input
      * image axes by in order for the output axes (ie. after rotation) to match
-     * the required thumbnail width/height and fit mode
-     * @param width Input width
-     * @param height Input height
+     * the required thumbnail width/height and fit mode.
+     * @param width Input width.
+     * @param height Input height.
      * @return The (hshrink, vshrink) factor as pair.
      */
     std::pair<double, double> resolve_shrink(int width, int height) const;
@@ -59,7 +59,7 @@ class Thumbnail : ImageProcessor {
      * Find the best jpeg preload shrink.
      * @param width Input width.
      * @param height Input height.
-     * @return The pyramid level.
+     * @return The jpeg shrink level.
      */
     int resolve_jpeg_shrink(int width, int height) const;
 

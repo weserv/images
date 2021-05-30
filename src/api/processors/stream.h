@@ -35,7 +35,7 @@ class Stream {
     const std::shared_ptr<parsers::Query> query_;
 
     /**
-     * Config.
+     * Global config.
      */
     const Config &config_;
 

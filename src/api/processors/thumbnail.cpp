@@ -178,7 +178,7 @@ int Thumbnail::resolve_tiff_pyramid(const VImage &image, const Source &source,
     return target_page;
 }
 
-// TODO(kleisauke): No openslideload_source (?)
+// TODO(kleisauke): Support whole-slide images(?)
 /*int Thumbnail::resolve_open_slide_level(const VImage &image) const {
     int level_count = 1;
     if (image.get_typeof("openslide.level-count") != 0) {
@@ -282,7 +282,11 @@ VImage Thumbnail::shrink_on_load(const VImage &image,
     /*} else if (image_type == ImageType::OpenSlide) {
         auto level = resolve_open_slide_level(image);
 
+#if VIPS_VERSION_AT_LEAST(8, 12, 0)
         return VImage::new_from_source(source, "",
+#else
+        return VImage::new_from_buffer(source.buffer(), "",
+#endif
                                        load_options->set("level", level));*/
     } else if (image_type == ImageType::Svg) {
         auto scale = 1.0 / resolve_common_shrink(width, height);

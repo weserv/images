@@ -19,7 +19,7 @@ ngx_int_t ngx_weserv_return_error(ngx_http_request_t *r, Status status,
     ngx_str_t redirect_uri;
     if (ngx_http_arg(r, (u_char *)"default", 7, &redirect_uri) == NGX_OK ||
         ngx_http_arg(r, (u_char *)"errorredirect", 13, &redirect_uri) ==
-        NGX_OK) {
+            NGX_OK) {
         // TODO(kleisauke): Should we remove all 'default' and 'errorredirect'
         // query parameters from the redirect URI to avoid redirection loops?
         // (perhaps it might be useful to return an error(?))

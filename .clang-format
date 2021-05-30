@@ -14,6 +14,4 @@ AlwaysBreakTemplateDeclarations: Yes
 AllowShortFunctionsOnASingleLine: Empty
 # Override the access modifier offset (cpplint)
 AccessModifierOffset: -3
-# https://reviews.llvm.org/D57687
-# AllowShortLambdasOnASingleLine: None
 ...
