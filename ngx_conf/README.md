@@ -116,25 +116,88 @@ trusted. Set to `0` to remove this limit.
 Sets the maximum number of pixels (width × height) of an output image, after
 any upscaling. Set to `0` to remove this limit.
 
-### `weserv_default_quality`
+### `weserv_quality`
 
-| syntax:      | `weserv_default_quality <quality>`             |
+| syntax:      | `weserv_quality <quality>`                     |
 | :----------- | :--------------------------------------------- |
-| **default:** | `85`                                           |
+| **default:** | `80`                                           |
 | **context:** | `http`, `server`, `location`, `if in location` |
 
-Sets the default quality (1-100) to use for JPEG, WebP and TIFF images when
-`&q=` is not specified.
+Sets the default quality to use for JPEG, WebP, TIFF and AVIF images when
+`&q=` is not specified. Acceptable values are in the range from 1 to 100.
 
-### `weserv_default_level`
+### `weserv_avif_quality`
 
-| syntax:      | `weserv_default_level <level>`                 |
+| syntax:      | `weserv_avif_quality <quality>`                |
+| :----------- | :--------------------------------------------- |
+| **default:** | —                                              |
+| **context:** | `http`, `server`, `location`, `if in location` |
+
+Sets the default quality to use for AVIF images when `&q=` is not specified.
+Acceptable values are in the range from 1 to 100.
+
+If the directive is not present, then the quality specified in `weserv_quality`
+is used.
+
+### `weserv_jpeg_quality`
+
+| syntax:      | `weserv_jpeg_quality <quality>`                |
+| :----------- | :--------------------------------------------- |
+| **default:** | —                                              |
+| **context:** | `http`, `server`, `location`, `if in location` |
+
+Sets the default quality to use for JPEG images when `&q=` is not specified.
+Acceptable values are in the range from 1 to 100.
+
+If the directive is not present, then the quality specified in `weserv_quality`
+is used.
+
+### `weserv_tiff_quality`
+
+| syntax:      | `weserv_tiff_quality <quality>`                |
+| :----------- | :--------------------------------------------- |
+| **default:** | —                                              |
+| **context:** | `http`, `server`, `location`, `if in location` |
+
+Sets the default quality to use for TIFF images when `&q=` is not specified.
+Acceptable values are in the range from 1 to 100.
+
+If the directive is not present, then the quality specified in `weserv_quality`
+is used.
+
+### `weserv_webp_quality`
+
+| syntax:      | `weserv_webp_quality <quality>`                |
+| :----------- | :--------------------------------------------- |
+| **default:** | —                                              |
+| **context:** | `http`, `server`, `location`, `if in location` |
+
+Sets the default quality to use for WebP images when `&q=` is not specified.
+Acceptable values are in the range from 1 to 100.
+
+If the directive is not present, then the quality specified in `weserv_quality`
+is used.
+
+### `weserv_avif_speed`
+
+| syntax:      | `weserv_avif_speed <speed>`                    |
+| :----------- | :----------------------------------------------|
+| **default:** | `5`                                            |
+| **context:** | `http`, `server`, `location`, `if in location` |
+
+Controls the CPU effort spent on improving AVIF compression. Acceptable
+values are in the range from 0 (slowest/smallest) to 9 (fastest/largest).
+
+### `weserv_zlib_level`
+
+| syntax:      | `weserv_zlib_level <level>`                    |
 | :----------- | :--------------------------------------------- |
 | **default:** | `6`                                            |
 | **context:** | `http`, `server`, `location`, `if in location` |
 
-Sets the default zlib compression (0-9) to use for PNG images when `&l=` is
-not specified.
+Sets the default zlib compression to use for PNG images when `&l=` is not
+specified. Acceptable values are in the range from 0 (fastest/largest) to
+9 (slowest/smallest).
 
 ### `weserv_fail_on_error`
 

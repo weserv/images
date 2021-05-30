@@ -59,6 +59,19 @@ ngx_conf_bitmask_t ngx_weserv_savers[] = {
     {ngx_null_string, 0}  // last entry
 };
 
+ngx_conf_num_bounds_t ngx_weserv_quality_bounds = {
+    ngx_conf_check_num_bounds, 1, 100
+};
+
+ngx_conf_num_bounds_t ngx_weserv_avif_speed_bounds = {
+    ngx_conf_check_num_bounds, 0, 9
+};
+
+ngx_conf_num_bounds_t ngx_weserv_zlib_level_bounds = {
+    ngx_conf_check_num_bounds, 0, 9
+};
+
+
 // clang-format off
 /**
  * The module commands contain list of configurable properties for this module.
@@ -151,21 +164,61 @@ ngx_command_t ngx_weserv_commands[] = {
      offsetof(ngx_weserv_loc_conf_t, api_conf.limit_output_pixels),
       nullptr},
 
-    {ngx_string("weserv_default_quality"),
+    {ngx_string("weserv_quality"),
      NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
          NGX_HTTP_LIF_CONF | NGX_CONF_TAKE1,
      ngx_conf_set_num_slot,
      NGX_HTTP_LOC_CONF_OFFSET,
-     offsetof(ngx_weserv_loc_conf_t, api_conf.default_quality),
-     nullptr},
+     offsetof(ngx_weserv_loc_conf_t, api_conf.quality),
+     &ngx_weserv_quality_bounds},
 
-    {ngx_string("weserv_default_level"),
+    {ngx_string("weserv_avif_quality"),
      NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
          NGX_HTTP_LIF_CONF | NGX_CONF_TAKE1,
      ngx_conf_set_num_slot,
      NGX_HTTP_LOC_CONF_OFFSET,
-     offsetof(ngx_weserv_loc_conf_t, api_conf.default_level),
-     nullptr},
+     offsetof(ngx_weserv_loc_conf_t, api_conf.avif_quality),
+     &ngx_weserv_quality_bounds},
+
+    {ngx_string("weserv_jpeg_quality"),
+     NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
+         NGX_HTTP_LIF_CONF | NGX_CONF_TAKE1,
+     ngx_conf_set_num_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, api_conf.jpeg_quality),
+     &ngx_weserv_quality_bounds},
+
+    {ngx_string("weserv_tiff_quality"),
+     NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
+         NGX_HTTP_LIF_CONF | NGX_CONF_TAKE1,
+     ngx_conf_set_num_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, api_conf.tiff_quality),
+     &ngx_weserv_quality_bounds},
+
+    {ngx_string("weserv_webp_quality"),
+     NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
+         NGX_HTTP_LIF_CONF | NGX_CONF_TAKE1,
+     ngx_conf_set_num_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, api_conf.webp_quality),
+     &ngx_weserv_quality_bounds},
+
+    {ngx_string("weserv_avif_speed"),
+     NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
+         NGX_HTTP_LIF_CONF | NGX_CONF_TAKE1,
+     ngx_conf_set_num_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, api_conf.avif_speed),
+     &ngx_weserv_avif_speed_bounds},
+
+    {ngx_string("weserv_zlib_level"),
+     NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
+         NGX_HTTP_LIF_CONF | NGX_CONF_TAKE1,
+     ngx_conf_set_num_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, api_conf.zlib_level),
+     &ngx_weserv_zlib_level_bounds},
 
     {ngx_string("weserv_fail_on_error"),
      NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
@@ -312,8 +365,13 @@ void *ngx_weserv_create_loc_conf(ngx_conf_t *cf) {
     lc->api_conf.limit_input_pixels = NGX_CONF_UNSET_UINT;
     lc->api_conf.limit_output_pixels = NGX_CONF_UNSET_UINT;
     lc->api_conf.max_pages = NGX_CONF_UNSET;
-    lc->api_conf.default_quality = NGX_CONF_UNSET;
-    lc->api_conf.default_level = NGX_CONF_UNSET;
+    lc->api_conf.quality = NGX_CONF_UNSET;
+    lc->api_conf.avif_quality = NGX_CONF_UNSET;
+    lc->api_conf.jpeg_quality = NGX_CONF_UNSET;
+    lc->api_conf.tiff_quality = NGX_CONF_UNSET;
+    lc->api_conf.webp_quality = NGX_CONF_UNSET;
+    lc->api_conf.avif_speed = NGX_CONF_UNSET;
+    lc->api_conf.zlib_level = NGX_CONF_UNSET;
     lc->api_conf.fail_on_error = NGX_CONF_UNSET;
 
     return lc;
@@ -364,14 +422,23 @@ char *ngx_weserv_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child) {
     ngx_conf_merge_uint_value(conf->api_conf.limit_output_pixels,
                               prev->api_conf.limit_output_pixels, 71000000);
 
-    // The default quality of 85 usually produces excellent results
-    ngx_conf_merge_value(conf->api_conf.default_quality,
-                         prev->api_conf.default_quality, 85);
+    // The default quality of 80 usually produces excellent results
+    ngx_conf_merge_value(conf->api_conf.quality, prev->api_conf.quality, 80);
+    ngx_conf_merge_value(conf->api_conf.avif_quality,
+                         prev->api_conf.avif_quality, conf->api_conf.quality);
+    ngx_conf_merge_value(conf->api_conf.jpeg_quality,
+                         prev->api_conf.jpeg_quality, conf->api_conf.quality);
+    ngx_conf_merge_value(conf->api_conf.tiff_quality,
+                         prev->api_conf.tiff_quality, conf->api_conf.quality);
+    ngx_conf_merge_value(conf->api_conf.webp_quality,
+                         prev->api_conf.webp_quality, conf->api_conf.quality);
 
-    // A default compromise between speed and compression
-    // (Z_DEFAULT_COMPRESSION)
-    ngx_conf_merge_value(conf->api_conf.default_level,
-                         prev->api_conf.default_level, 6);
+    // A default compromise between speed and compression effectiveness
+    // (corresponds to the default values in libvips)
+    ngx_conf_merge_value(conf->api_conf.avif_speed, prev->api_conf.avif_speed,
+                         5);
+    ngx_conf_merge_value(conf->api_conf.zlib_level, prev->api_conf.zlib_level,
+                         6);
 
     // Do a "best effort" to decode images, even if the data is corrupt or
     // invalid

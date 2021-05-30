@@ -288,9 +288,9 @@ void Stream::append_save_options<Output::Jpeg>(vips::VOption *options) const {
             // of 1 - 100
             return q >= 1 && q <= 100;
         },
-        static_cast<int>(config_.default_quality));
+        static_cast<int>(config_.jpeg_quality));
 
-    // Set quality (default is 85)
+    // Set quality (default is 80)
     options->set("Q", quality);
 
     // Use progressive (interlace) scan, if necessary
@@ -309,7 +309,7 @@ void Stream::append_save_options<Output::Png>(vips::VOption *options) const {
             // 0 (no Deflate) - 9 (maximum Deflate)
             return l >= 0 && l <= 9;
         },
-        static_cast<int>(config_.default_level));
+        static_cast<int>(config_.zlib_level));
 
     auto filter = query_->get<bool>("af", false) ? VIPS_FOREIGN_PNG_FILTER_ALL
                                                  : VIPS_FOREIGN_PNG_FILTER_NONE;
@@ -333,9 +333,9 @@ void Stream::append_save_options<Output::Webp>(vips::VOption *options) const {
             // of 1 - 100
             return q >= 1 && q <= 100;
         },
-        static_cast<int>(config_.default_quality));
+        static_cast<int>(config_.webp_quality));
 
-    // Set quality (default is 85)
+    // Set quality (default is 80)
     options->set("Q", quality);
 
     // Set quality of alpha layer to 100
@@ -351,17 +351,17 @@ void Stream::append_save_options<Output::Avif>(vips::VOption *options) const {
             // of 1 - 100
             return q >= 1 && q <= 100;
         },
-        static_cast<int>(config_.default_quality));
+        static_cast<int>(config_.avif_quality));
 
-    // Set quality (default is 85)
+    // Set quality (default is 80)
     options->set("Q", quality);
 
     // Set compression format to AV1
     options->set("compression", VIPS_FOREIGN_HEIF_COMPRESSION_AV1);
 
 #if VIPS_VERSION_AT_LEAST(8, 10, 2)
-    // Control the CPU effort spent on improving compression
-    options->set("speed", 6);
+    // Control the CPU effort spent on improving compression (default 5)
+    options->set("speed", static_cast<int>(config_.avif_speed));
 #endif
 }
 
@@ -374,9 +374,9 @@ void Stream::append_save_options<Output::Tiff>(vips::VOption *options) const {
             // of 1 - 100
             return q >= 1 && q <= 100;
         },
-        static_cast<int>(config_.default_quality));
+        static_cast<int>(config_.tiff_quality));
 
-    // Set quality (default is 85)
+    // Set quality (default is 80)
     options->set("Q", quality);
 
     // Set the tiff compression to jpeg

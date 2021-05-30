@@ -13,7 +13,8 @@ struct Config {
     explicit Config()
         : savers(static_cast<uintptr_t>(enums::Output::All)),
           limit_input_pixels(71000000), limit_output_pixels(71000000),
-          max_pages(256), default_quality(85), default_level(6),
+          max_pages(256), quality(80), avif_quality(80), jpeg_quality(80),
+          tiff_quality(80), webp_quality(80), avif_speed(5), zlib_level(6),
           fail_on_error(0) {}
 
     // Enables or disables image savers to be used within the `&output=` query
@@ -40,18 +41,43 @@ struct Config {
     // weserv_max_pages 256;
     intptr_t max_pages;
 
-    // The default quality to use for JPEG, WebP and TIFF images.
-    // Defaults to `85` which usually produces excellent results.
+    // The default quality to use for JPEG, WebP, TIFF and AVIF images.
+    // Defaults to `80` which usually produces excellent results.
     // NOTE: Can be overridden with `&q=`.
-    // weserv_default_quality 85;
-    intptr_t default_quality;
+    // weserv_quality 80;
+    intptr_t quality;
+
+    // The default quality to use for AVIF images.
+    // NOTE: Can be overridden with `&q=`.
+    // weserv_avif_quality 50;
+    intptr_t avif_quality;
+
+    // The default quality to use for JPEG images.
+    // NOTE: Can be overridden with `&q=`.
+    // weserv_jpeg_quality 80;
+    intptr_t jpeg_quality;
+
+    // The default quality to use for TIFF images.
+    // NOTE: Can be overridden with `&q=`.
+    // weserv_tiff_quality 80;
+    intptr_t tiff_quality;
+
+    // The default quality to use for WebP images.
+    // NOTE: Can be overridden with `&q=`.
+    // weserv_webp_quality 80;
+    intptr_t webp_quality;
+
+    // Controls the CPU effort spent on improving AVIF compression.
+    // Defaults to 5.
+    // weserv_avif_speed 5;
+    intptr_t avif_speed;
 
     // zlib compression level, 0-9.
     // Defaults to 6 (`Z_DEFAULT_COMPRESSION`) which is intended to be a good
     // compromise between speed and compression effectiveness.
     // NOTE: Can be overridden `&l=`.
-    // weserv_default_level 6;
-    intptr_t default_level;
+    // weserv_zlib_level 6;
+    intptr_t zlib_level;
 
     // Do a "best effort" to decode images, even if the data is corrupt or
     // invalid. Set this flag to `on` if you would rather to halt processing and
