@@ -387,13 +387,14 @@ TEST_CASE("gif options", "[stream]") {
         }
 
         auto test_image = fixtures->input_gif_animated;
-        auto params = "fit=contain&w=990&h=2100&output=json";
+        auto params = "fit=contain&n=-1&w=900&h=955&output=json";
 
         std::string buffer = process_file<std::string>(test_image, params);
 
         CHECK_THAT(buffer, Contains(R"("format":"gif")"));
         CHECK_THAT(buffer, Contains(R"("pages":8)"));
-        CHECK_THAT(buffer, Contains(R"("pageHeight":2100)"));
+        CHECK_THAT(buffer, Contains(R"("height":7640)"));
+        CHECK_THAT(buffer, Contains(R"("pageHeight":955)"));
     }
 }
 
