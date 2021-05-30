@@ -28,17 +28,15 @@ std::pair<double, double> Thumbnail::resolve_shrink(int width,
     double hshrink = 1.0;
     double vshrink = 1.0;
 
-    auto target_resize_width = query_->get<int>("w");
-    auto target_resize_height = query_->get<int>("h");
+    auto target_width = query_->get<int>("w");
+    auto target_height = query_->get<int>("h");
 
     auto canvas = query_->get<Canvas>("fit", Canvas::Max);
 
-    if (target_resize_width > 0 && target_resize_height > 0) {
+    if (target_width > 0 && target_height > 0) {
         // Fixed width and height
-        hshrink = static_cast<double>(width) /
-                  static_cast<double>(target_resize_width);
-        vshrink = static_cast<double>(height) /
-                  static_cast<double>(target_resize_height);
+        hshrink = static_cast<double>(width) / target_width;
+        vshrink = static_cast<double>(height) / target_height;
 
         switch (canvas) {
             case Canvas::Crop:
@@ -63,19 +61,17 @@ std::pair<double, double> Thumbnail::resolve_shrink(int width,
                 }
                 break;
         }
-    } else if (target_resize_width > 0) {
+    } else if (target_width > 0) {
         // Fixed width
-        hshrink = static_cast<double>(width) /
-                  static_cast<double>(target_resize_width);
+        hshrink = static_cast<double>(width) / target_width;
 
         if (canvas != Canvas::IgnoreAspect) {
             // Auto height
             vshrink = hshrink;
         }
-    } else if (target_resize_height > 0) {
+    } else if (target_height > 0) {
         // Fixed height
-        vshrink = static_cast<double>(height) /
-                  static_cast<double>(target_resize_height);
+        vshrink = static_cast<double>(height) / target_height;
 
         if (canvas != Canvas::IgnoreAspect) {
             // Auto width
@@ -334,7 +330,6 @@ VImage Thumbnail::process(const VImage &image) const {
 
     // So page_height is after pre-shrink, but before the main shrink stage
     int page_height = utils::get_page_height(thumb);
-    query_->update("page_height", page_height);
 
     // RAD needs special unpacking.
     if (thumb.coding() == VIPS_CODING_RAD) {
@@ -368,10 +363,9 @@ VImage Thumbnail::process(const VImage &image) const {
     // page_height or we'll have pixels straddling pixel boundaries.
     if (thumb_height > page_height) {
         auto n_pages = query_->get<int>("n");
-        target_image_height = target_page_height * n_pages;
+        target_image_height *= n_pages;
 
-        vshrink = static_cast<double>(thumb_height) /
-                  static_cast<double>(target_image_height);
+        vshrink = static_cast<double>(thumb_height) / target_image_height;
     }
 
     // Limit output images to a given number of pixels, where

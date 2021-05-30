@@ -384,14 +384,12 @@ calculate_focal_point(const float fpx, const float fpy, const int in_width,
                       const int in_height, const int target_width,
                       const int target_height, const int image_width,
                       const int image_height) {
-    auto ratio_x =
-        static_cast<double>(in_width) / static_cast<double>(target_width);
-    auto ratio_y =
-        static_cast<double>(in_height) / static_cast<double>(target_height);
+    auto ratio_x = static_cast<double>(in_width) / target_width;
+    auto ratio_y = static_cast<double>(in_height) / target_height;
     auto factor = std::min(ratio_x, ratio_y);
 
-    auto center_x = (fpx * static_cast<float>(in_width)) / factor;
-    auto center_y = (fpy * static_cast<float>(in_height)) / factor;
+    auto center_x = (fpx * in_width) / factor;
+    auto center_y = (fpy * in_height) / factor;
 
     auto left = static_cast<int>(std::round(center_x - target_width / 2.0));
     left = clamp(left, 0, image_width - target_width);

@@ -12,9 +12,9 @@ std::string Mask::svg_path_by_type(const int width, const int height,
                                    int *out_x_min, int *out_y_min,
                                    int *out_width, int *out_height) const {
     int min = std::min(width, height);
-    float outer_radius = static_cast<float>(min) / 2.0F;
-    float mid_x = static_cast<float>(width) / 2.0F;
-    float mid_y = static_cast<float>(height) / 2.0F;
+    float outer_radius = static_cast<float>(min) / 2.0;
+    float mid_x = static_cast<float>(width) / 2.0;
+    float mid_y = static_cast<float>(height) / 2.0;
 
     if (mask == MaskType::Heart) {
         std::vector<PathCoordinate> coordinates =
@@ -214,15 +214,13 @@ Mask::translation_and_scaling(const int image_width, const int image_height,
                               const int mask_x, const int mask_y,
                               int *mask_width, int *mask_height) const {
     // How much bigger is the image relative to the path in each dimension?
-    auto scale_based_on_width =
-        static_cast<double>(image_width) / static_cast<double>(*mask_width);
-    auto scale_based_on_height =
-        static_cast<double>(image_height) / static_cast<double>(*mask_height);
+    auto ratio_x = static_cast<double>(image_width) / *mask_width;
+    auto ratio_y = static_cast<double>(image_height) / *mask_height;
 
     // Of the scaling factors determined in each dimension,
     // use the smaller one; otherwise portions of the path
     // is outside the viewport.
-    double scale = std::min(scale_based_on_width, scale_based_on_height);
+    double scale = std::min(ratio_x, ratio_y);
 
     // Calculate the bounding box parameters
     // after the path has been scaled relative to the origin
