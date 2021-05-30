@@ -20,7 +20,8 @@ RUN dnf install -y dnf-utils \
     && sed -i '/^exclude=/ s/$/,libjpeg-turbo-*.*.9[0-9]-*/' /etc/yum.repos.d/libjpeg-turbo.repo \
     && dnf install -y libjpeg-turbo-official \
     && echo '/opt/libjpeg-turbo/lib64' >> /etc/ld.so.conf.d/libjpeg-turbo-official-x86_64.conf \
-    && ldconfig
+    && ldconfig \
+    && dnf clean all
 
 # Update the PKG_CONFIG_PATH environment variable,
 # since libjpeg-turbo is installed in a non-standard prefix
@@ -44,7 +45,8 @@ RUN dnf install -y epel-release \
         gcc-c++ \
         openssl-devel \
         pcre-devel \
-        zlib-devel
+        zlib-devel \
+    && dnf clean all
 
 # Create nginx user and group
 RUN groupadd nginx \
@@ -76,17 +78,16 @@ RUN cmake3 .. \
 --lock-path=/run/lock/subsys/nginx;\
 --user=nginx;\
 --group=nginx" \
-    && make -j$(nproc) \
+    && make -j"$(nproc)" \
     && ldconfig
 
 WORKDIR /var/www/imagesweserv
 
 # Ensure nginx directories exist
-RUN mkdir -p -m 700 /var/lib/nginx \
-    && mkdir -p -m 700 /var/lib/nginx/tmp \
-    && mkdir -p -m 700 /var/log/nginx \
-    && mkdir -p -m 755 /usr/share/nginx/html \
-    && mkdir -p -m 755 /usr/lib64/nginx/modules \
+RUN mkdir -m 700 /var/lib/nginx \
+    && mkdir -m 700 /var/lib/nginx/tmp \
+    && mkdir -m 700 /usr/lib64/nginx \
+    && mkdir -m 755 /usr/lib64/nginx/modules \
     # Forward request and error logs to docker log collector
     && ln -sf /dev/stdout /var/log/nginx/weserv-access.log \
     && ln -sf /dev/stderr /var/log/nginx/weserv-error.log \
