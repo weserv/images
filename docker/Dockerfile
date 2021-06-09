@@ -38,7 +38,7 @@ RUN dnf install -y epel-release \
     && rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-free-el-8  \
     && dnf install -y --setopt=tsflags=nodocs \
         git \
-        cmake3 \
+        cmake \
         vips-full-devel \
         make \
         gcc \
@@ -59,7 +59,7 @@ WORKDIR /var/www/imagesweserv/build
 
 # Build CMake-based project
 ARG NGINX_VERSION=1.21.0
-RUN cmake3 .. \
+RUN cmake .. \
        -DCMAKE_BUILD_TYPE=Release \
        -DBUILD_TOOLS=ON \
        -DNGX_VERSION=$NGINX_VERSION \
