@@ -60,7 +60,7 @@ To run the unit tests without installing the Nginx module:
 git clone https://github.com/weserv/images.git
 cd images
 mkdir build && cd build
-cmake3 .. \
+cmake .. \
   -DCMAKE_BUILD_TYPE=Debug \
   -DBUILD_TESTS=ON \
   -DINSTALL_NGX_MODULE=OFF
@@ -76,7 +76,7 @@ To run the integration tests in the default testing mode:
 git clone https://github.com/weserv/images.git
 cd images
 mkdir build && cd build
-cmake3 .. \
+cmake .. \
   -DCMAKE_BUILD_TYPE=Debug
 make
 

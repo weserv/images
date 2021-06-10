@@ -36,7 +36,7 @@ yum install vips-full-devel
 yum install \
   autoconf \
   automake \
-  cmake3 \
+  cmake \
   make \
   gcc \
   gcc-c++ \
@@ -54,7 +54,7 @@ yum install \
 git clone --recurse-submodules https://github.com/weserv/images.git
 cd images
 mkdir build && cd build
-cmake3 .. \
+cmake .. \
   -DCMAKE_BUILD_TYPE=Release
 sudo make
 ```
