@@ -39,7 +39,9 @@ RUN dnf install -y epel-release \
     && dnf install -y --setopt=tsflags=nodocs \
         git \
         cmake \
-        vips-full-devel \
+        vips-devel \
+        vips-heif \
+        vips-magick-im6 \
         make \
         gcc \
         gcc-c++ \

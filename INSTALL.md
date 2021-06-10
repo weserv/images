@@ -29,11 +29,11 @@ dnf config-manager --set-enabled remi
 # Enable the PowerTools repository since EPEL packages may depend on packages from it
 dnf config-manager --set-enabled PowerTools
 
-# Install libvips 8.10 (full-fat version)
-yum install vips-full-devel
+# Install libvips 8.11 (full-fat version)
+dnf install vips-devel vips-heif vips-magick-im6
 
 # Install build requirements
-yum install \
+dnf install \
   autoconf \
   automake \
   cmake \
