@@ -211,9 +211,16 @@ ngx_int_t punycode_encode(u_char *input, size_t input_length,
 uintptr_t escape_path(u_char *dst, u_char *src, size_t size) {
     static u_char hex[] = "0123456789ABCDEF";
 
-    // NGX_ESCAPE_URI_COMPONENT without the percent sign and
-    // reserved characters. That is:
-    // " ", """, "<", ">", "\", "^", "`", "{", "|", "}", %00-%1F, %7F-%FF
+    // Per RFC 3986 only the following chars are allowed in URIs unescaped:
+    //
+    // unreserved    = ALPHA / DIGIT / "-" / "." / "_" / "~"
+    // gen-delims    = ":" / "/" / "?" / "#" / "[" / "]" / "@"
+    // sub-delims    = "!" / "$" / "&" / "'" / "(" / ")"
+    //               / "*" / "+" / "," / ";" / "="
+    //
+    // And "%" can appear as a part of escaping itself.  The following
+    // characters are not allowed and need to be escaped: %00-%1F, %7F-%FF,
+    // " ", """, "<", ">", "\", "^", "`", "{", "|", "}".
 
     // clang-format off
     static uint32_t escape[] = {
