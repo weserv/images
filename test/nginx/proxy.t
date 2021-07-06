@@ -146,7 +146,7 @@ Content-Type: application/json
     location /chunked {
         default_type image/svg+xml;
         chunked_transfer_encoding on;
-        echo '<svg xmlns="http://www.w3.org/2000/svg"/>';
+        echo '<svg viewBox="0 0 1 1"></svg>';
     }
 
     location /images {
