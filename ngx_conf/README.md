@@ -178,15 +178,15 @@ Acceptable values are in the range from 1 to 100.
 If the directive is not present, then the quality specified in `weserv_quality`
 is used.
 
-### `weserv_avif_speed`
+### `weserv_avif_effort`
 
-| syntax:      | `weserv_avif_speed <speed>`                    |
+| syntax:      | `weserv_avif_effort <effort>`                  |
 | :----------- | :----------------------------------------------|
-| **default:** | `5`                                            |
+| **default:** | `4`                                            |
 | **context:** | `http`, `server`, `location`, `if in location` |
 
 Controls the CPU effort spent on improving AVIF compression. Acceptable
-values are in the range from 0 (slowest/smallest) to 9 (fastest/largest).
+values are in the range from 0 (fastest/largest) to 9 (slowest/smallest).
 
 ### `weserv_zlib_level`
 

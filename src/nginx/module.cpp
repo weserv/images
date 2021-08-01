@@ -63,7 +63,7 @@ ngx_conf_num_bounds_t ngx_weserv_quality_bounds = {
     ngx_conf_check_num_bounds, 1, 100
 };
 
-ngx_conf_num_bounds_t ngx_weserv_avif_speed_bounds = {
+ngx_conf_num_bounds_t ngx_weserv_avif_effort_bounds = {
     ngx_conf_check_num_bounds, 0, 9
 };
 
@@ -204,13 +204,13 @@ ngx_command_t ngx_weserv_commands[] = {
      offsetof(ngx_weserv_loc_conf_t, api_conf.webp_quality),
      &ngx_weserv_quality_bounds},
 
-    {ngx_string("weserv_avif_speed"),
+    {ngx_string("weserv_avif_effort"),
      NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
          NGX_HTTP_LIF_CONF | NGX_CONF_TAKE1,
      ngx_conf_set_num_slot,
      NGX_HTTP_LOC_CONF_OFFSET,
-     offsetof(ngx_weserv_loc_conf_t, api_conf.avif_speed),
-     &ngx_weserv_avif_speed_bounds},
+     offsetof(ngx_weserv_loc_conf_t, api_conf.avif_effort),
+     &ngx_weserv_avif_effort_bounds},
 
     {ngx_string("weserv_zlib_level"),
      NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
@@ -370,7 +370,7 @@ void *ngx_weserv_create_loc_conf(ngx_conf_t *cf) {
     lc->api_conf.jpeg_quality = NGX_CONF_UNSET;
     lc->api_conf.tiff_quality = NGX_CONF_UNSET;
     lc->api_conf.webp_quality = NGX_CONF_UNSET;
-    lc->api_conf.avif_speed = NGX_CONF_UNSET;
+    lc->api_conf.avif_effort = NGX_CONF_UNSET;
     lc->api_conf.zlib_level = NGX_CONF_UNSET;
     lc->api_conf.fail_on_error = NGX_CONF_UNSET;
 
@@ -435,8 +435,8 @@ char *ngx_weserv_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child) {
 
     // A default compromise between speed and compression effectiveness
     // (corresponds to the default values in libvips)
-    ngx_conf_merge_value(conf->api_conf.avif_speed, prev->api_conf.avif_speed,
-                         5);
+    ngx_conf_merge_value(conf->api_conf.avif_effort, prev->api_conf.avif_effort,
+                         4);
     ngx_conf_merge_value(conf->api_conf.zlib_level, prev->api_conf.zlib_level,
                          6);
 

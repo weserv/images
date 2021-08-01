@@ -360,8 +360,8 @@ void Stream::append_save_options<Output::Avif>(vips::VOption *options) const {
     options->set("compression", VIPS_FOREIGN_HEIF_COMPRESSION_AV1);
 
 #if VIPS_VERSION_AT_LEAST(8, 10, 2)
-    // Control the CPU effort spent on improving compression (default 5)
-    options->set("speed", static_cast<int>(config_.avif_speed));
+    // Control the CPU effort spent on improving compression (default 4)
+    options->set("speed", 9 - static_cast<int>(config_.avif_effort));
 #endif
 }
 
