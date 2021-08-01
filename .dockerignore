@@ -13,4 +13,3 @@
 .editorconfig
 .git*
 *.md
-docker/
