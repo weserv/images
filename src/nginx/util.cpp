@@ -90,16 +90,18 @@ time_t parse_max_age(ngx_str_t &s) {
         return NGX_ERROR;
     }
 
-    switch (max_age) {
-        case 60 * 60 * 24 * 31:      // 1 month
-        case 60 * 60 * 24 * 31 * 2:  // 2 months
-        case 60 * 60 * 24 * 31 * 3:  // 3 months
-        case 60 * 60 * 24 * 31 * 6:  // 6 months
-        case 60 * 60 * 24 * 365:     // 1 year
-            return max_age;
-        default:
-            return NGX_ERROR;
+    // We don't want shorter max-ages than 1 day, see:
+    // https://github.com/weserv/images/issues/292
+    if (max_age < 60 * 60 * 24) {
+        return NGX_ERROR;
     }
+
+    // One year is advised as a standard max value as per RFC2616, 14.21 Expires
+    if (max_age > 60 * 60 * 24 * 365) {
+        return NGX_ERROR;
+    }
+
+    return max_age;
 }
 
 ngx_str_t extension_to_mime_type(const std::string &extension) {
