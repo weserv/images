@@ -14,8 +14,8 @@ struct Config {
         : savers(static_cast<uintptr_t>(enums::Output::All)),
           limit_input_pixels(71000000), limit_output_pixels(71000000),
           max_pages(256), quality(80), avif_quality(80), jpeg_quality(80),
-          tiff_quality(80), webp_quality(80), avif_effort(4), zlib_level(6),
-          fail_on_error(0) {}
+          tiff_quality(80), webp_quality(80), avif_effort(4), gif_effort(7),
+          zlib_level(6), fail_on_error(0) {}
 
     // Enables or disables image savers to be used within the `&output=` query
     // parameter.
@@ -71,6 +71,11 @@ struct Config {
     // Defaults to 4.
     // weserv_avif_effort 4;
     intptr_t avif_effort;
+
+    // Controls the CPU effort spent on improving GIF compression.
+    // Defaults to 7.
+    // weserv_gif_effort 7;
+    intptr_t gif_effort;
 
     // zlib compression level, 0-9.
     // Defaults to 6 (`Z_DEFAULT_COMPRESSION`) which is intended to be a good

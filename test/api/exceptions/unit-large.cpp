@@ -6,8 +6,9 @@ using Catch::Matchers::Contains;
 
 TEST_CASE("too large image", "[large]") {
     SECTION("input") {
-        if (vips_type_find("VipsOperation", pre_8_12 ? "svgload_buffer"
-                                                     : "svgload_source") == 0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "svgload_source"
+                                                : "svgload_buffer") == 0) {
             SUCCEED("no svg support, skipping test");
             return;
         }
@@ -40,8 +41,9 @@ TEST_CASE("too large image", "[large]") {
 
 TEST_CASE("too many pages", "[large]") {
     SECTION("input") {
-        if (vips_type_find("VipsOperation", pre_8_12 ? "gifload_buffer"
-                                                     : "gifload_source") == 0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "gifload_source"
+                                                : "gifload_buffer") == 0) {
             SUCCEED("no gif support, skipping test");
             return;
         }
@@ -62,8 +64,9 @@ TEST_CASE("too many pages", "[large]") {
     }
 
     SECTION("input and special page") {
-        if (vips_type_find("VipsOperation", pre_8_12 ? "gifload_buffer"
-                                                     : "gifload_source") == 0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "gifload_source"
+                                                : "gifload_buffer") == 0) {
             SUCCEED("no gif support, skipping test");
             return;
         }

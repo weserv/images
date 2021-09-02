@@ -25,12 +25,12 @@ TEST_CASE("output", "[stream]") {
     }
 
     SECTION("webp") {
-        if (vips_type_find("VipsOperation",
-                           pre_8_12 ? "webpload_buffer" : "webpload_source") ==
-                0 ||
-            vips_type_find("VipsOperation",
-                           pre_8_12 ? "webpsave_buffer" : "webpsave_target") ==
-                0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "webpload_source"
+                                                : "webpload_buffer") == 0 ||
+            vips_type_find("VipsOperation", true_streaming
+                                                ? "webpsave_target"
+                                                : "webpsave_buffer") == 0) {
             SUCCEED("no webp support, skipping test");
             return;
         }
@@ -47,12 +47,12 @@ TEST_CASE("output", "[stream]") {
     }
 
     SECTION("avif") {
-        if (vips_type_find("VipsOperation",
-                           pre_8_12 ? "heifload_buffer" : "heifload_source") ==
-                0 ||
-            vips_type_find("VipsOperation",
-                           pre_8_12 ? "heifsave_buffer" : "heifsave_target") ==
-                0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "heifload_source"
+                                                : "heifload_buffer") == 0 ||
+            vips_type_find("VipsOperation", true_streaming
+                                                ? "heifsave_target"
+                                                : "heifsave_buffer") == 0) {
             SUCCEED("no avif support, skipping test");
             return;
         }
@@ -75,12 +75,12 @@ TEST_CASE("output", "[stream]") {
     }
 
     SECTION("tiff") {
-        if (vips_type_find("VipsOperation",
-                           pre_8_12 ? "tiffload_buffer" : "tiffload_source") ==
-                0 ||
-            vips_type_find("VipsOperation",
-                           pre_8_12 ? "tiffsave_buffer" : "tiffsave_target") ==
-                0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "tiffload_source"
+                                                : "tiffload_buffer") == 0 ||
+            vips_type_find("VipsOperation", true_streaming
+                                                ? "tiffsave_target"
+                                                : "tiffsave_buffer") == 0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -97,15 +97,13 @@ TEST_CASE("output", "[stream]") {
     }
 
     SECTION("gif") {
-        if (vips_type_find("VipsOperation", pre_8_12 ? "gifload_buffer"
-                                                     : "gifload_source") == 0) {
-            SUCCEED("no gif support, skipping test");
-            return;
-        }
-        if (vips_type_find("VipsOperation", pre_8_12
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "gifload_source"
+                                                : "gifload_buffer") == 0 ||
+            vips_type_find("VipsOperation", pre_8_12
                                                 ? "magicksave_buffer"
-                                                : "magicksave_target") == 0) {
-            SUCCEED("no magick support, skipping test");
+                                                : "gifsave_target") == 0) {
+            SUCCEED("no gif support, skipping test");
             return;
         }
 
@@ -171,9 +169,9 @@ TEST_CASE("output", "[stream]") {
 
 TEST_CASE("special page", "[stream]") {
     SECTION("largest") {
-        if (vips_type_find("VipsOperation", pre_8_12
-                                                ? "magickload_buffer"
-                                                : "magickload_source") == 0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "magickload_source"
+                                                : "magickload_buffer") == 0) {
             SUCCEED("no magick support, skipping test");
             return;
         }
@@ -190,9 +188,9 @@ TEST_CASE("special page", "[stream]") {
     }
 
     SECTION("smallest") {
-        if (vips_type_find("VipsOperation", pre_8_12
-                                                ? "magickload_buffer"
-                                                : "magickload_source") == 0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "magickload_source"
+                                                : "magickload_buffer") == 0) {
             SUCCEED("no magick support, skipping test");
             return;
         }
@@ -247,12 +245,12 @@ TEST_CASE("quality and compression", "[stream]") {
     }
 
     SECTION("webp quality") {
-        if (vips_type_find("VipsOperation",
-                           pre_8_12 ? "webpload_buffer" : "webpload_source") ==
-                0 ||
-            vips_type_find("VipsOperation",
-                           pre_8_12 ? "webpsave_buffer" : "webpsave_target") ==
-                0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "webpload_source"
+                                                : "webpload_buffer") == 0 ||
+            vips_type_find("VipsOperation", true_streaming
+                                                ? "webpsave_target"
+                                                : "webpsave_buffer") == 0) {
             SUCCEED("no webp support, skipping test");
             return;
         }
@@ -276,12 +274,12 @@ TEST_CASE("quality and compression", "[stream]") {
     }
 
     SECTION("avif quality") {
-        if (vips_type_find("VipsOperation",
-                           pre_8_12 ? "heifload_buffer" : "heifload_source") ==
-                0 ||
-            vips_type_find("VipsOperation",
-                           pre_8_12 ? "heifsave_buffer" : "heifsave_target") ==
-                0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "heifload_source"
+                                                : "heifload_buffer") == 0 ||
+            vips_type_find("VipsOperation", true_streaming
+                                                ? "heifsave_target"
+                                                : "heifsave_buffer") == 0) {
             SUCCEED("no avif support, skipping test");
             return;
         }
@@ -300,12 +298,12 @@ TEST_CASE("quality and compression", "[stream]") {
     }
 
     SECTION("tiff quality") {
-        if (vips_type_find("VipsOperation",
-                           pre_8_12 ? "tiffload_buffer" : "tiffload_source") ==
-                0 ||
-            vips_type_find("VipsOperation",
-                           pre_8_12 ? "tiffsave_buffer" : "tiffsave_target") ==
-                0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "tiffload_source"
+                                                : "tiffload_buffer") == 0 ||
+            vips_type_find("VipsOperation", true_streaming
+                                                ? "tiffsave_target"
+                                                : "tiffsave_buffer") == 0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -344,8 +342,9 @@ TEST_CASE("without adaptive filtering generates smaller file", "[stream]") {
 
 TEST_CASE("gif options", "[stream]") {
     SECTION("loop count") {
-        if (vips_type_find("VipsOperation", pre_8_12 ? "gifload_buffer"
-                                                     : "gifload_source") == 0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "gifload_source"
+                                                : "gifload_buffer") == 0) {
             SUCCEED("no gif support, skipping test");
             return;
         }
@@ -362,8 +361,9 @@ TEST_CASE("gif options", "[stream]") {
     }
 
     SECTION("frame delay") {
-        if (vips_type_find("VipsOperation", pre_8_12 ? "gifload_buffer"
-                                                     : "gifload_source") == 0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "gifload_source"
+                                                : "gifload_buffer") == 0) {
             SUCCEED("no gif support, skipping test");
             return;
         }
@@ -380,8 +380,9 @@ TEST_CASE("gif options", "[stream]") {
     }
 
     SECTION("page height") {
-        if (vips_type_find("VipsOperation", pre_8_12 ? "gifload_buffer"
-                                                     : "gifload_source") == 0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "gifload_source"
+                                                : "gifload_buffer") == 0) {
             SUCCEED("no gif support, skipping test");
             return;
         }
@@ -422,9 +423,9 @@ TEST_CASE("metadata", "[stream]") {
     }
 
     SECTION("webp") {
-        if (vips_type_find("VipsOperation",
-                           pre_8_12 ? "webpload_buffer" : "webpload_source") ==
-            0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "webpload_source"
+                                                : "webpload_buffer") == 0) {
             SUCCEED("no webp support, skipping test");
             return;
         }
@@ -438,9 +439,9 @@ TEST_CASE("metadata", "[stream]") {
     }
 
     SECTION("avif") {
-        if (vips_type_find("VipsOperation",
-                           pre_8_12 ? "heifload_buffer" : "heifload_source") ==
-            0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "heifload_source"
+                                                : "heifload_buffer") == 0) {
             SUCCEED("no avif support, skipping test");
             return;
         }
@@ -454,9 +455,9 @@ TEST_CASE("metadata", "[stream]") {
     }
 
     SECTION("tiff") {
-        if (vips_type_find("VipsOperation",
-                           pre_8_12 ? "tiffload_buffer" : "tiffload_source") ==
-            0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "tiffload_source"
+                                                : "tiffload_buffer") == 0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -470,8 +471,9 @@ TEST_CASE("metadata", "[stream]") {
     }
 
     SECTION("svg") {
-        if (vips_type_find("VipsOperation", pre_8_12 ? "svgload_buffer"
-                                                     : "svgload_source") == 0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "svgload_source"
+                                                : "svgload_buffer") == 0) {
             SUCCEED("no svg support, skipping test");
             return;
         }
@@ -485,8 +487,9 @@ TEST_CASE("metadata", "[stream]") {
     }
 
     SECTION("pdf") {
-        if (vips_type_find("VipsOperation", pre_8_12 ? "pdfload_buffer"
-                                                     : "pdfload_source") == 0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "pdfload_source"
+                                                : "pdfload_buffer") == 0) {
             SUCCEED("no pdf support, skipping test");
             return;
         }
@@ -500,9 +503,9 @@ TEST_CASE("metadata", "[stream]") {
     }
 
     SECTION("heic") {
-        if (vips_type_find("VipsOperation",
-                           pre_8_12 ? "heifload_buffer" : "heifload_source") ==
-            0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "heifload_source"
+                                                : "heifload_buffer") == 0) {
             SUCCEED("no heif support, skipping test");
             return;
         }
@@ -517,9 +520,9 @@ TEST_CASE("metadata", "[stream]") {
     }
 
     SECTION("magick") {
-        if (vips_type_find("VipsOperation", pre_8_12
-                                                ? "magickload_buffer"
-                                                : "magickload_source") == 0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "magickload_source"
+                                                : "magickload_buffer") == 0) {
             SUCCEED("no magick support, skipping test");
             return;
         }

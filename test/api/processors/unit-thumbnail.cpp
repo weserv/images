@@ -207,12 +207,12 @@ TEST_CASE("cover", "[thumbnail]") {
 
 TEST_CASE("tiff", "[thumbnail]") {
     SECTION("cover") {
-        if (vips_type_find("VipsOperation",
-                           pre_8_12 ? "tiffload_buffer" : "tiffload_source") ==
-                0 ||
-            vips_type_find("VipsOperation",
-                           pre_8_12 ? "tiffsave_buffer" : "tiffsave_target") ==
-                0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "tiffload_source"
+                                                : "tiffload_buffer") == 0 ||
+            vips_type_find("VipsOperation", true_streaming
+                                                ? "tiffsave_target"
+                                                : "tiffsave_buffer") == 0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -229,12 +229,12 @@ TEST_CASE("tiff", "[thumbnail]") {
 
     // Width or height considering ratio (portrait)
     SECTION("smaller axis") {
-        if (vips_type_find("VipsOperation",
-                           pre_8_12 ? "tiffload_buffer" : "tiffload_source") ==
-                0 ||
-            vips_type_find("VipsOperation",
-                           pre_8_12 ? "tiffsave_buffer" : "tiffsave_target") ==
-                0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "tiffload_source"
+                                                : "tiffload_buffer") == 0 ||
+            vips_type_find("VipsOperation", true_streaming
+                                                ? "tiffsave_target"
+                                                : "tiffsave_buffer") == 0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -250,12 +250,12 @@ TEST_CASE("tiff", "[thumbnail]") {
     }
 
     SECTION("pyramid") {
-        if (vips_type_find("VipsOperation",
-                           pre_8_12 ? "tiffload_buffer" : "tiffload_source") ==
-                0 ||
-            vips_type_find("VipsOperation",
-                           pre_8_12 ? "tiffsave_buffer" : "tiffsave_target") ==
-                0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "tiffload_source"
+                                                : "tiffload_buffer") == 0 ||
+            vips_type_find("VipsOperation", true_streaming
+                                                ? "tiffsave_target"
+                                                : "tiffsave_buffer") == 0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -273,12 +273,12 @@ TEST_CASE("tiff", "[thumbnail]") {
     }
 
     SECTION("pyramid skip shrink-on-load") {
-        if (vips_type_find("VipsOperation",
-                           pre_8_12 ? "tiffload_buffer" : "tiffload_source") ==
-                0 ||
-            vips_type_find("VipsOperation",
-                           pre_8_12 ? "tiffsave_buffer" : "tiffsave_target") ==
-                0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "tiffload_source"
+                                                : "tiffload_buffer") == 0 ||
+            vips_type_find("VipsOperation", true_streaming
+                                                ? "tiffsave_target"
+                                                : "tiffsave_buffer") == 0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -293,12 +293,12 @@ TEST_CASE("tiff", "[thumbnail]") {
     }
 
     SECTION("multi-page skip shrink-on-load") {
-        if (vips_type_find("VipsOperation",
-                           pre_8_12 ? "tiffload_buffer" : "tiffload_source") ==
-                0 ||
-            vips_type_find("VipsOperation",
-                           pre_8_12 ? "tiffsave_buffer" : "tiffsave_target") ==
-                0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "tiffload_source"
+                                                : "tiffload_buffer") == 0 ||
+            vips_type_find("VipsOperation", true_streaming
+                                                ? "tiffsave_target"
+                                                : "tiffsave_buffer") == 0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -475,8 +475,9 @@ TEST_CASE("from", "[thumbnail]") {
 
 TEST_CASE("shortest edge is at least 1 pixel", "[thumbnail]") {
     SECTION("height") {
-        if (vips_type_find("VipsOperation", pre_8_12 ? "svgload_buffer"
-                                                     : "svgload_source") == 0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "svgload_source"
+                                                : "svgload_buffer") == 0) {
             SUCCEED("no svg support, skipping test");
             return;
         }
@@ -491,8 +492,9 @@ TEST_CASE("shortest edge is at least 1 pixel", "[thumbnail]") {
     }
 
     SECTION("width") {
-        if (vips_type_find("VipsOperation", pre_8_12 ? "svgload_buffer"
-                                                     : "svgload_source") == 0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "svgload_source"
+                                                : "svgload_buffer") == 0) {
             SUCCEED("no svg support, skipping test");
             return;
         }
@@ -507,8 +509,9 @@ TEST_CASE("shortest edge is at least 1 pixel", "[thumbnail]") {
     }
 
     SECTION("shrink-on-load") {
-        if (vips_type_find("VipsOperation", pre_8_12 ? "svgload_buffer"
-                                                     : "svgload_source") == 0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "svgload_source"
+                                                : "svgload_buffer") == 0) {
             SUCCEED("no svg support, skipping test");
             return;
         }
@@ -524,8 +527,9 @@ TEST_CASE("shortest edge is at least 1 pixel", "[thumbnail]") {
 }
 
 TEST_CASE("heif", "[thumbnail]") {
-    if (vips_type_find("VipsOperation",
-                       pre_8_12 ? "heifload_buffer" : "heifload_source") == 0) {
+    if (vips_type_find("VipsOperation", true_streaming
+                                            ? "heifload_source"
+                                            : "heifload_buffer") == 0) {
         SUCCEED("no heic support, skipping test");
         return;
     }
@@ -543,10 +547,12 @@ TEST_CASE("heif", "[thumbnail]") {
 }
 
 TEST_CASE("animated webp page", "[thumbnail]") {
-    if (vips_type_find("VipsOperation",
-                       pre_8_12 ? "webpload_buffer" : "webpload_source") == 0 ||
-        vips_type_find("VipsOperation",
-                       pre_8_12 ? "webpsave_buffer" : "webpsave_target") == 0) {
+    if (vips_type_find("VipsOperation", true_streaming
+                                            ? "webpload_source"
+                                            : "webpload_buffer") == 0 ||
+        vips_type_find("VipsOperation", true_streaming
+                                            ? "webpsave_target"
+                                            : "webpsave_buffer") == 0) {
         SUCCEED("no webp support, skipping test");
         return;
     }
@@ -564,8 +570,9 @@ TEST_CASE("animated webp page", "[thumbnail]") {
 }
 
 TEST_CASE("radiance", "[thumbnail]") {
-    if (vips_type_find("VipsOperation",
-                       pre_8_12 ? "radload_buffer" : "radload_source") == 0) {
+    if (vips_type_find("VipsOperation", true_streaming
+                                            ? "radload_buffer"
+                                            : "radload_source") == 0) {
         SUCCEED("no radiance support, skipping test");
         return;
     }

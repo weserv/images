@@ -6,8 +6,9 @@ using Catch::Matchers::Contains;
 
 TEST_CASE("unreadable image", "[unreadable]") {
     SECTION("buffer") {
-        if (vips_type_find("VipsOperation", pre_8_12 ? "gifload_buffer"
-                                                     : "gifload_source") == 0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "gifload_source"
+                                                : "gifload_buffer") == 0) {
             SUCCEED("no gif support, skipping test");
             return;
         }
@@ -38,11 +39,13 @@ TEST_CASE("unreadable image", "[unreadable]") {
 
         CHECK(!status.ok());
         CHECK(status.code() ==
-              static_cast<int>(pre_8_12 ? Status::Code::ImageNotReadable
-                                        : Status::Code::InvalidImage));
+              static_cast<int>(true_streaming
+                                   ? Status::Code::InvalidImage
+                                   : Status::Code::ImageNotReadable));
         CHECK(status.error_cause() == Status::ErrorCause::Application);
         CHECK_THAT(status.message(),
-                   Contains(pre_8_12 ? "Image not readable"
-                                     : "Invalid or unsupported image format"));
+                   Contains(true_streaming
+                                ? "Invalid or unsupported image format"
+                                : "Image not readable"));
     }
 }

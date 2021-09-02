@@ -4,7 +4,7 @@ namespace weserv {
 namespace api {
 namespace io {
 
-#if VIPS_VERSION_AT_LEAST(8, 12, 0)
+#ifdef WESERV_ENABLE_TRUE_STREAMING
 /* Class implementation */
 
 // We need C linkage for this.

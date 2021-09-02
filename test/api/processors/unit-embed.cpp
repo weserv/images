@@ -11,12 +11,12 @@ using vips::VImage;
 TEST_CASE("embed", "[embed]") {
     // TIFF letterbox known to cause rounding errors
     SECTION("tiff") {
-        if (vips_type_find("VipsOperation",
-                           pre_8_12 ? "tiffload_buffer" : "tiffload_source") ==
-                0 ||
-            vips_type_find("VipsOperation",
-                           pre_8_12 ? "tiffsave_buffer" : "tiffsave_target") ==
-                0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "tiffload_source"
+                                                : "tiffload_buffer") == 0 ||
+            vips_type_find("VipsOperation", true_streaming
+                                                ? "tiffsave_target"
+                                                : "tiffsave_buffer") == 0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -35,9 +35,9 @@ TEST_CASE("embed", "[embed]") {
 
     // Letterbox TIFF in LAB colourspace onto RGBA background
     SECTION("tiff on rgba") {
-        if (vips_type_find("VipsOperation",
-                           pre_8_12 ? "tiffload_buffer" : "tiffload_source") ==
-            0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "tiffload_buffer"
+                                                : "tiffload_source") == 0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -182,14 +182,13 @@ TEST_CASE("skip", "[embed]") {
 }
 
 TEST_CASE("skip height in toilet-roll mode", "[embed]") {
-    if (vips_type_find("VipsOperation",
-                       pre_8_12 ? "gifload_buffer" : "gifload_source") == 0) {
+    if (vips_type_find("VipsOperation", true_streaming
+                                            ? "gifload_source"
+                                            : "gifload_buffer") == 0 ||
+        vips_type_find("VipsOperation", pre_8_12
+                                            ? "magicksave_buffer"
+                                            : "gifsave_target") == 0) {
         SUCCEED("no gif support, skipping test");
-        return;
-    }
-    if (vips_type_find("VipsOperation", pre_8_12 ? "magicksave_buffer"
-                                                 : "magicksave_target") == 0) {
-        SUCCEED("no magick support, skipping test");
         return;
     }
 

@@ -79,15 +79,13 @@ TEST_CASE("trim", "[trim]") {
     }
 
     SECTION("skip height in toilet-roll mode") {
-        if (vips_type_find("VipsOperation", pre_8_12 ? "gifload_buffer"
-                                                     : "gifload_source") == 0) {
-            SUCCEED("no gif support, skipping test");
-            return;
-        }
-        if (vips_type_find("VipsOperation", pre_8_12
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "gifload_source"
+                                                : "gifload_buffer") == 0 ||
+            vips_type_find("VipsOperation", pre_8_12
                                                 ? "magicksave_buffer"
-                                                : "magicksave_target") == 0) {
-            SUCCEED("no magick support, skipping test");
+                                                : "gifsave_target") == 0) {
+            SUCCEED("no gif support, skipping test");
             return;
         }
 

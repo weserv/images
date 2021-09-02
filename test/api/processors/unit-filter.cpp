@@ -135,12 +135,12 @@ TEST_CASE("negate filter", "[filter]") {
     }
 
     SECTION("webp") {
-        if (vips_type_find("VipsOperation",
-                           pre_8_12 ? "webpload_buffer" : "webpload_source") ==
-                0 ||
-            vips_type_find("VipsOperation",
-                           pre_8_12 ? "webpsave_buffer" : "webpsave_target") ==
-                0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "webpload_source"
+                                                : "webpload_buffer") == 0 ||
+            vips_type_find("VipsOperation", true_streaming
+                                                ? "webpsave_target"
+                                                : "webpsave_buffer") == 0) {
             SUCCEED("no webp support, skipping test");
             return;
         }
@@ -158,12 +158,12 @@ TEST_CASE("negate filter", "[filter]") {
     }
 
     SECTION("webp transparent") {
-        if (vips_type_find("VipsOperation",
-                           pre_8_12 ? "webpload_buffer" : "webpload_source") ==
-                0 ||
-            vips_type_find("VipsOperation",
-                           pre_8_12 ? "webpsave_buffer" : "webpsave_target") ==
-                0) {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "webpload_source"
+                                                : "webpload_buffer") == 0 ||
+            vips_type_find("VipsOperation", true_streaming
+                                                ? "webpsave_target"
+                                                : "webpsave_buffer") == 0) {
             SUCCEED("no webp support, skipping test");
             return;
         }

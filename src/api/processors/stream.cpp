@@ -113,7 +113,7 @@ VImage Stream::new_from_source(const Source &source, const std::string &loader,
                                vips::VOption *options) const {
     VImage out_image;
 
-#if VIPS_VERSION_AT_LEAST(8, 12, 0)
+#ifdef WESERV_ENABLE_TRUE_STREAMING
     try {
         VImage::call(loader.c_str(),
                      options->set("source", source)->set("out", &out_image));
@@ -209,7 +209,7 @@ void Stream::resolve_rotation_and_flip(const VImage &image) const {
 }
 
 VImage Stream::new_from_source(const Source &source) const {
-#if VIPS_VERSION_AT_LEAST(8, 12, 0)
+#ifdef WESERV_ENABLE_TRUE_STREAMING
     const char *loader = vips_foreign_find_load_source(source.get_source());
 #else
     const char *loader = vips_foreign_find_load_buffer(source.buffer().c_str(),
@@ -394,8 +394,14 @@ void Stream::append_save_options<Output::Tiff>(vips::VOption *options) const {
 
 template <>
 void Stream::append_save_options<Output::Gif>(vips::VOption *options) const {
+// libvips 8.12 features a gifsave operation that uses cgif and libimagequant
+#if VIPS_VERSION_AT_LEAST(8, 12, 0)
+    // Control the CPU effort spent on improving compression (default 7)
+    options->set("effort", static_cast<int>(config_.gif_effort));
+#else  // libvips prior to 8.12 uses *magick for saving to gif
     // Set the format option to hint the file type
     options->set("format", "gif");
+#endif
 }
 
 void Stream::append_save_options(const Output &output,
@@ -482,6 +488,19 @@ void Stream::write_to_target(const VImage &image, const Target &target) const {
             utils::supported_savers_string(config_.savers));
     }
 
+#if VIPS_VERSION_AT_LEAST(8, 12, 0)
+    // Disable gif output when the gifsave operation (introduced in libvips
+    // 8.12) is not available. This ensures that we don't accidentally
+    // save with *magick.
+    if (output == Output::Gif &&
+        vips_type_find("VipsOperation", "gifsave_target") == 0) {
+        throw exceptions::UnsupportedSaverException(
+            "Saving to gif is disabled by policy. Supported savers: " +
+            utils::supported_savers_string(config_.savers &
+                                           ~static_cast<uintptr_t>(output)));
+    }
+#endif
+
     if (output == Output::Json) {
         std::string out = utils::image_to_json(copy, image_type);
 
@@ -497,7 +516,7 @@ void Stream::write_to_target(const VImage &image, const Target &target) const {
 
         target.setup(extension);
 
-#if VIPS_VERSION_AT_LEAST(8, 12, 0)
+#ifdef WESERV_ENABLE_TRUE_STREAMING
         // Write the image to the target
         copy.write_to_target(extension.c_str(), target, save_options);
 #else

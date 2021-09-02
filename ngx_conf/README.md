@@ -188,6 +188,16 @@ is used.
 Controls the CPU effort spent on improving AVIF compression. Acceptable
 values are in the range from 0 (fastest/largest) to 9 (slowest/smallest).
 
+### `weserv_gif_effort`
+
+| syntax:      | `weserv_gif_effort <effort>`                   |
+| :----------- | :----------------------------------------------|
+| **default:** | `7`                                            |
+| **context:** | `http`, `server`, `location`, `if in location` |
+
+Controls the CPU effort spent on improving GIF compression. Acceptable
+values are in the range from 1 (fastest/largest) to 10 (slowest/smallest).
+
 ### `weserv_zlib_level`
 
 | syntax:      | `weserv_zlib_level <level>`                    |
