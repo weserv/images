@@ -33,6 +33,10 @@ ngx_int_t output_chain_to_base64(ngx_http_request_t *r, ngx_chain_t *out) {
 
     ngx_str_t src;
     src.data = reinterpret_cast<u_char *>(ngx_palloc(r->pool, content_length));
+    if (src.data == nullptr) {
+        return NGX_ERROR;
+    }
+
     u_char *p = src.data;
 
     for (ngx_chain_t *cl = out; cl; cl = cl->next) {
@@ -53,15 +57,17 @@ ngx_int_t output_chain_to_base64(ngx_http_request_t *r, ngx_chain_t *out) {
 
     src.len = p - src.data;
 
-    ngx_str_t dst;
-    int enc_len = ngx_base64_encoded_length(src.len);
-    dst.data = reinterpret_cast<u_char *>(ngx_pcalloc(r->pool, enc_len + 1));
+    ngx_str_t base64;
+    base64.len = ngx_base64_encoded_length(src.len);
+    base64.data = reinterpret_cast<u_char *>(ngx_palloc(r->pool, base64.len));
+    if (base64.data == nullptr) {
+        return NGX_ERROR;
+    }
 
-    ngx_encode_base64(&dst, &src);
-    dst.data[dst.len] = '\0';
+    ngx_encode_base64(&base64, &src);
 
     ngx_str_t mime_type = r->headers_out.content_type;
-    content_length = prefix_size + mime_type.len + suffix_size + dst.len;
+    content_length = prefix_size + mime_type.len + suffix_size + base64.len;
 
     ngx_buf_t *buf = ngx_create_temp_buf(r->pool, content_length);
     if (buf == nullptr) {
@@ -73,7 +79,7 @@ ngx_int_t output_chain_to_base64(ngx_http_request_t *r, ngx_chain_t *out) {
     buf->last = ngx_cpymem(buf->last, "data:", prefix_size);
     buf->last = ngx_cpymem(buf->last, mime_type.data, mime_type.len);
     buf->last = ngx_cpymem(buf->last, ";base64,", suffix_size);
-    buf->last = ngx_cpymem(buf->last, dst.data, dst.len);
+    buf->last = ngx_cpymem(buf->last, base64.data, base64.len);
 
     r->headers_out.content_length_n = content_length;
     r->headers_out.content_type_len = sizeof("text/plain") - 1;
