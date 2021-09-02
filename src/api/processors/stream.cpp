@@ -349,9 +349,6 @@ void Stream::append_save_options<Output::Webp>(vips::VOption *options) const {
 
     // Set quality (default is 80)
     options->set("Q", quality);
-
-    // Set quality of alpha layer to 100
-    options->set("alpha_q", 100);
 }
 
 template <>
