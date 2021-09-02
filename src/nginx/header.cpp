@@ -2,6 +2,8 @@
 
 #include "util.h"
 
+#include <algorithm>
+
 namespace weserv {
 namespace nginx {
 

@@ -1,4 +1,4 @@
-#include "processors/brightness.h"
+#include "brightness.h"
 
 namespace weserv {
 namespace api {

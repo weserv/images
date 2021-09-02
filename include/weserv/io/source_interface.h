@@ -1,7 +1,7 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
-#include <cstdio>
 
 namespace weserv {
 namespace api {

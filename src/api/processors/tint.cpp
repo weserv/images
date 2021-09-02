@@ -1,4 +1,6 @@
-#include "processors/tint.h"
+#include "tint.h"
+
+#include <vector>
 
 namespace weserv {
 namespace api {

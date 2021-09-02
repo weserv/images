@@ -1,8 +1,6 @@
 #pragma once
 
-#include "processors/base.h"
-
-#include <vector>
+#include "base.h"
 
 namespace weserv {
 namespace api {

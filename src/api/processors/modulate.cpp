@@ -1,4 +1,4 @@
-#include "processors/modulate.h"
+#include "modulate.h"
 
 namespace weserv {
 namespace api {

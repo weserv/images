@@ -4,9 +4,9 @@ extern "C" {
 #include <ngx_http.h>
 }
 
-#include <weserv/utils/status.h>
-
 #include "module.h"
+
+#include <weserv/utils/status.h>
 
 namespace weserv {
 namespace nginx {

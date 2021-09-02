@@ -1,6 +1,7 @@
 #pragma once
 
-#include <cstdio>
+#include <cstddef>
+#include <cstdint>
 #include <string>
 
 namespace weserv {

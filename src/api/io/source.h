@@ -1,18 +1,12 @@
 #pragma once
 
-#include <weserv/io/source_interface.h>
+#include "../utils/utility.h"
 
 #include <memory>
 #include <string>
-#include <vips/vips8>
+#include <utility>  // for move
 
-#include "utils/utility.h"
-
-#if !VIPS_VERSION_AT_LEAST(8, 12, 0)
-#include "exceptions/unreadable.h"
-#include <fstream>
-#include <utility>
-#endif
+#include <weserv/io/source_interface.h>
 
 namespace weserv {
 namespace api {

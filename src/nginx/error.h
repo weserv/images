@@ -6,8 +6,6 @@ extern "C" {
 
 #include <weserv/utils/status.h>
 
-#include <string>
-
 namespace weserv {
 namespace nginx {
 

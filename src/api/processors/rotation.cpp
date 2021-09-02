@@ -1,4 +1,6 @@
-#include "processors/rotation.h"
+#include "rotation.h"
+
+#include <vector>
 
 namespace weserv {
 namespace api {

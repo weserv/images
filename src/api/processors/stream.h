@@ -1,19 +1,14 @@
 #pragma once
 
-#include "exceptions/invalid.h"
-#include "exceptions/large.h"
-#include "exceptions/unreadable.h"
-#include "exceptions/unsupported.h"
-#include "io/source.h"
-#include "io/target.h"
-#include "processors/base.h"
+#include "../io/source.h"
+#include "../io/target.h"
+#include "base.h"
 
-#include <algorithm>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include <weserv/config.h>
+#include <weserv/enums.h>
 
 namespace weserv {
 namespace api {

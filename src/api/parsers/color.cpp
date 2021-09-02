@@ -1,4 +1,10 @@
-#include "parsers/color.h"
+#include "color.h"
+
+#include <algorithm>
+#include <cctype>
+#include <cmath>
+#include <iomanip>
+#include <sstream>
 
 namespace weserv {
 namespace api {

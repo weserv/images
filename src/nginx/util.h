@@ -4,7 +4,6 @@ extern "C" {
 #include <ngx_http.h>
 }
 
-#include <algorithm>
 #include <string>
 
 namespace weserv {

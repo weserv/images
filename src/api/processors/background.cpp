@@ -1,4 +1,6 @@
-#include "processors/background.h"
+#include "background.h"
+
+#include <vector>
 
 namespace weserv {
 namespace api {

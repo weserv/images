@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstddef>
+#include <cstdint>
 #include <weserv/enums.h>
 
 namespace weserv {

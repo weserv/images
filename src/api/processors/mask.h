@@ -1,12 +1,9 @@
 #pragma once
 
-#include "processors/base.h"
+#include "base.h"
+#include "../enums.h"
 
-#include <algorithm>
-#include <cmath>
-#include <limits>
 #include <string>
-#include <utility>
 #include <vector>
 
 namespace weserv {

@@ -1,4 +1,6 @@
-#include "processors/sharpen.h"
+#include "sharpen.h"
+
+#include "../utils/utility.h"
 
 namespace weserv {
 namespace api {

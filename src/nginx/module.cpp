@@ -7,6 +7,8 @@
 #include "stream.h"
 #include "util.h"
 
+#include <weserv/enums.h>
+
 using ::weserv::api::enums::Output;
 using ::weserv::api::utils::Status;
 

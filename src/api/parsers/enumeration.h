@@ -1,7 +1,7 @@
 #pragma once
 
-#include "enums.h"
-#include "parsers/base.h"
+#include "../enums.h"
+#include "base.h"
 
 #include <weserv/enums.h>
 

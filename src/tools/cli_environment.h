@@ -1,10 +1,10 @@
 #pragma once
 
-#include <weserv/env_interface.h>
-
 #include <ctime>
 #include <iomanip>
 #include <iostream>
+
+#include <weserv/env_interface.h>
 
 /**
  * The CLI implementation of ApiEnvInterface.

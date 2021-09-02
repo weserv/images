@@ -1,4 +1,10 @@
-#include "processors/embed.h"
+#include "embed.h"
+
+#include "../enums.h"
+#include "../utils/utility.h"
+
+#include <tuple>
+#include <vector>
 
 namespace weserv {
 namespace api {

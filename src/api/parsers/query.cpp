@@ -1,4 +1,10 @@
-#include "parsers/query.h"
+#include "query.h"
+
+#include "base.h"
+#include "enumeration.h"
+#include "numeric.h"
+
+#include <weserv/enums.h>
 
 namespace weserv {
 namespace api {

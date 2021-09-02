@@ -1,20 +1,17 @@
 #pragma once
 
-#include "parsers/base.h"
-#include "parsers/color.h"
-#include "parsers/enumeration.h"
-#include "parsers/numeric.h"
-#include "utils/utility.h"
+#include "color.h"
 
-#include <memory>
+#include <cstddef>
+#include <stdexcept>
 #include <string>
+#include <type_traits>
 #include <typeindex>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
 #include <mpark/variant.hpp>
-#include <vips/vips8>
 #include <weserv/config.h>
 
 namespace weserv {

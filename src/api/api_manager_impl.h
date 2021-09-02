@@ -3,34 +3,7 @@
 #include "io/source.h"
 #include "io/target.h"
 
-#include "parsers/query.h"
-
-#include "processors/alignment.h"
-#include "processors/background.h"
-#include "processors/blur.h"
-#include "processors/brightness.h"
-#include "processors/contrast.h"
-#include "processors/crop.h"
-#include "processors/embed.h"
-#include "processors/filter.h"
-#include "processors/gamma.h"
-#include "processors/mask.h"
-#include "processors/modulate.h"
-#include "processors/orientation.h"
-#include "processors/rotation.h"
-#include "processors/sharpen.h"
-#include "processors/stream.h"
-#include "processors/thumbnail.h"
-#include "processors/tint.h"
-#include "processors/trim.h"
-
-#include <memory>
-#include <string>
-#include <utility>
-
-#include <vips/vips8>
 #include <weserv/api_manager.h>
-#include <weserv/config.h>
 
 namespace weserv {
 namespace api {

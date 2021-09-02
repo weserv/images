@@ -1,13 +1,11 @@
 #pragma once
 
-#include "enums.h"
-#include "parsers/query.h"
-#include "utils/utility.h"
+#include "../parsers/query.h"
 
+#include <memory>
 #include <utility>
 
 #include <vips/vips8>
-#include <weserv/enums.h>
 
 namespace weserv {
 namespace api {

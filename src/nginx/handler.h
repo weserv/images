@@ -4,10 +4,6 @@ extern "C" {
 #include <ngx_http.h>
 }
 
-#include <memory>
-#include <string>
-#include <utility>
-
 namespace weserv {
 namespace nginx {
 

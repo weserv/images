@@ -1,5 +1,8 @@
 #include "source.h"
 
+#include "../exceptions/unreadable.h"  // for UnreadableImageException
+#include <fstream>                     // for ifstream
+
 namespace weserv {
 namespace api {
 namespace io {

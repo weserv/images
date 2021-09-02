@@ -4,6 +4,8 @@
 #include "uri_parser.h"
 #include "util.h"
 
+#include <string>
+
 using ::weserv::api::utils::Status;
 
 namespace weserv {

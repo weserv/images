@@ -1,12 +1,7 @@
 #pragma once
 
-#include "exceptions/large.h"
-#include "io/source.h"
-#include "processors/base.h"
-
-#include <algorithm>
-#include <cmath>
-#include <string>
+#include "../io/source.h"
+#include "base.h"
 
 #include <weserv/config.h>
 

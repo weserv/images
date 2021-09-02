@@ -1,4 +1,6 @@
-#include "processors/orientation.h"
+#include "orientation.h"
+
+#include "../utils/utility.h"
 
 namespace weserv {
 namespace api {

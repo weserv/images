@@ -1,4 +1,9 @@
-#include "processors/filter.h"
+#include "filter.h"
+
+#include "../enums.h"
+
+#include <array>
+#include <vector>
 
 namespace weserv {
 namespace api {

@@ -1,5 +1,10 @@
 #include "uri_parser.h"
 
+#include <algorithm>
+#include <functional>
+#include <string>
+#include <vector>
+
 namespace weserv {
 namespace nginx {
 

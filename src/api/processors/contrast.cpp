@@ -1,4 +1,6 @@
-#include "processors/contrast.h"
+#include "contrast.h"
+
+#include <cmath>
 
 namespace weserv {
 namespace api {

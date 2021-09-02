@@ -1,11 +1,7 @@
 #pragma once
 
-#include "parsers/base.h"
+#include "base.h"
 
-#include <algorithm>
-#include <cmath>
-#include <iomanip>
-#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>

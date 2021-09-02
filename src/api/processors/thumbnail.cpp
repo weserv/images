@@ -1,4 +1,11 @@
-#include "processors/thumbnail.h"
+#include "thumbnail.h"
+
+#include "../exceptions/large.h"
+
+#include <algorithm>
+#include <cmath>
+#include <string>
+#include <tuple>
 
 namespace weserv {
 namespace api {

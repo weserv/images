@@ -1,4 +1,12 @@
-#include "processors/mask.h"
+#include "mask.h"
+
+#include <algorithm>
+#include <cmath>
+#include <iomanip>
+#include <limits>
+#include <ostream>
+#include <stdexcept>
+#include <tuple>
 
 namespace weserv {
 namespace api {

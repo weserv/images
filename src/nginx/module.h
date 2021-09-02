@@ -6,13 +6,10 @@ extern "C" {
 
 #include <weserv/api_manager.h>
 #include <weserv/config.h>
-#include <weserv/enums.h>
 
 #include "http_request.h"
 
-#include <map>
 #include <memory>
-#include <string>
 
 #define NGX_WESERV_IMAGE_BUFFERED 0x08
 

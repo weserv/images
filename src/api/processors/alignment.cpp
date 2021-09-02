@@ -1,4 +1,10 @@
-#include "processors/alignment.h"
+#include "alignment.h"
+
+#include "../enums.h"
+#include "../utils/utility.h"
+
+#include <algorithm>
+#include <tuple>
 
 namespace weserv {
 namespace api {

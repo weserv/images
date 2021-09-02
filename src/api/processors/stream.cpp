@@ -1,4 +1,16 @@
-#include "processors/stream.h"
+#include "stream.h"
+
+#include "../exceptions/invalid.h"
+#include "../exceptions/large.h"
+#include "../exceptions/unreadable.h"
+#include "../exceptions/unsupported.h"
+#include "../utils/utility.h"
+
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <functional>
+#include <tuple>
 
 namespace weserv {
 namespace api {

@@ -1,4 +1,4 @@
-#include "processors/crop.h"
+#include "crop.h"
 
 namespace weserv {
 namespace api {

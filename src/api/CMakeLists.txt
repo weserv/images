@@ -68,7 +68,6 @@ target_include_directories(${PROJECT_NAME}
             $<INSTALL_INTERFACE:include>
         PRIVATE
             ${VIPS_INCLUDE_DIRS}
-            ${CMAKE_CURRENT_SOURCE_DIR}
         )
 
 target_link_libraries(${PROJECT_NAME}

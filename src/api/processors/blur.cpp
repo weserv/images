@@ -1,4 +1,6 @@
-#include "processors/blur.h"
+#include "blur.h"
+
+#include "../utils/utility.h"
 
 namespace weserv {
 namespace api {

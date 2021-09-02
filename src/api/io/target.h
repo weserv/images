@@ -1,16 +1,13 @@
 #pragma once
 
-#include <weserv/io/target_interface.h>
+#include "../utils/utility.h"
 
+#include <cstdio>  // for fclose, fopen, fwrite
 #include <memory>
 #include <string>
-#include <vips/vips8>
+#include <utility>  // for move
 
-#include "utils/utility.h"
-
-#if !VIPS_VERSION_AT_LEAST(8, 12, 0)
-#include <utility>
-#endif
+#include <weserv/io/target_interface.h>
 
 namespace weserv {
 namespace api {

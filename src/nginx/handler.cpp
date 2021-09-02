@@ -6,6 +6,10 @@
 #include "uri_parser.h"
 #include "util.h"
 
+#include <memory>
+#include <string>
+#include <utility>
+
 using ::weserv::api::utils::Status;
 
 namespace weserv {

@@ -1,4 +1,4 @@
-#include "processors/gamma.h"
+#include "gamma.h"
 
 namespace weserv {
 namespace api {
