@@ -19,9 +19,6 @@ int64_t NgxSource::read(void *data, size_t length) {
         ngx_buf_t *b = in_->buf;
         size_t size = ngx_min((size_t)(b->last - b->pos), length);
 
-        ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r_->connection->log, 0,
-                       "weserv image buf: %uz", size);
-
         data = ngx_cpymem(data, b->pos, size);
         b->pos += size;
         bytes_read += size;

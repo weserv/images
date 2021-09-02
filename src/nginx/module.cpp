@@ -704,7 +704,7 @@ ngx_int_t ngx_weserv_image_body_filter(ngx_http_request_t *r, ngx_chain_t *in) {
     ngx_chain_t *out = nullptr;
     Status status = mc->weserv->process(
         ngx_str_to_std(r->args),
-        std::unique_ptr<api::io::SourceInterface>(new NgxSource(r, ctx->in)),
+        std::unique_ptr<api::io::SourceInterface>(new NgxSource(ctx->in)),
         std::unique_ptr<api::io::TargetInterface>(new NgxTarget(r, &out)),
         lc->api_conf);
 

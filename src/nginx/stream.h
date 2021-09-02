@@ -15,7 +15,7 @@ namespace nginx {
  */
 class NgxSource : public api::io::SourceInterface {
  public:
-    NgxSource(ngx_http_request_t *r, ngx_chain_t *in) : r_(r), in_(in) {}
+    NgxSource(ngx_chain_t *in) : in_(in) {}
 
     ~NgxSource() override = default;
 
@@ -27,7 +27,6 @@ class NgxSource : public api::io::SourceInterface {
     }
 
  private:
-    ngx_http_request_t *r_;
     ngx_chain_t *in_;
 };
 
