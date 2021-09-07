@@ -92,6 +92,10 @@ std::pair<double, double> Thumbnail::resolve_shrink(int width,
         vshrink = std::max(1.0, vshrink);
     }
 
+    // We don't want to shrink so much that we send an axis to 0
+    hshrink = std::min(hshrink, static_cast<double>(width));
+    vshrink = std::min(vshrink, static_cast<double>(height));
+
     return std::make_pair(hshrink, vshrink);
 }
 
@@ -101,14 +105,7 @@ double Thumbnail::resolve_common_shrink(int width, int height) const {
 
     std::tie(hshrink, vshrink) = resolve_shrink(width, height);
 
-    double shrink = std::min(hshrink, vshrink);
-
-    // We don't want to pre-shrink so much that we send an axis to 0.
-    if (shrink > width || shrink > height) {
-        shrink = 1.0;
-    }
-
-    return shrink;
+    return std::min(hshrink, vshrink);
 }
 
 int Thumbnail::resolve_jpeg_shrink(int width, int height) const {
