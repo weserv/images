@@ -516,6 +516,9 @@ void Stream::write_to_target(const VImage &image, const Target &target) const {
 
         target.setup(extension);
 
+        // Set up the timeout handler, if necessary
+        utils::setup_timeout_handler(copy, config_.process_timeout);
+
 #ifdef WESERV_ENABLE_TRUE_STREAMING
         // Write the image to the target
         copy.write_to_target(extension.c_str(), target, save_options);

@@ -51,6 +51,10 @@ VImage Alignment::process(const VImage &image) const {
     // Skip smart crop for multi-page images
     if (n_pages == 1 && (crop_position == Position::Entropy ||
                          crop_position == Position::Attention)) {
+        // Copy to memory evaluates the image, so set up the timeout handler,
+        // if necessary.
+        utils::setup_timeout_handler(image, config_.process_timeout);
+
         // Need to copy to memory, we have to stay seq
         return image.copy_memory().smartcrop(
             crop_width, crop_height,

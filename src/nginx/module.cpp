@@ -146,6 +146,14 @@ ngx_command_t ngx_weserv_commands[] = {
      offsetof(ngx_weserv_loc_conf_t, api_conf.savers),
      &ngx_weserv_savers},
 
+    {ngx_string("weserv_process_timeout"),
+     NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
+         NGX_CONF_TAKE1,
+     ngx_conf_set_sec_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, api_conf.process_timeout),
+     nullptr},
+
     {ngx_string("weserv_max_pages"),
      NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
          NGX_HTTP_LIF_CONF | NGX_CONF_TAKE1,
@@ -376,6 +384,7 @@ void *ngx_weserv_create_loc_conf(ngx_conf_t *cf) {
 
     // API configuration
     lc->api_conf.savers = 0;
+    lc->api_conf.process_timeout = NGX_CONF_UNSET;
     lc->api_conf.limit_input_pixels = NGX_CONF_UNSET_UINT;
     lc->api_conf.limit_output_pixels = NGX_CONF_UNSET_UINT;
     lc->api_conf.max_pages = NGX_CONF_UNSET;
@@ -424,6 +433,10 @@ char *ngx_weserv_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child) {
     ngx_conf_merge_bitmask_value(
         conf->api_conf.savers, prev->api_conf.savers,
         (NGX_CONF_BITMASK_SET | static_cast<ngx_uint_t>(Output::All)));
+
+    // Abort image processing after 10 seconds by default
+    ngx_conf_merge_value(conf->api_conf.process_timeout,
+                         prev->api_conf.process_timeout, 10);
 
     // Process at the maximum 256 pages, which should be plenty
     ngx_conf_merge_value(conf->api_conf.max_pages, prev->api_conf.max_pages,

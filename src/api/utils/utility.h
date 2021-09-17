@@ -204,6 +204,53 @@ inline std::string supported_savers_string(const uintptr_t msk) {
 }
 
 /**
+ * Our ::eval signal callback in case we need to setup progress feedback to
+ * abort image computation after a specified time.
+ * @param image The image being calculated.
+ * @param progress The progress for this image.
+ * @param timeout The specified timeout.
+ */
+static void image_eval_cb(VipsImage *image, VipsProgress *progress,
+                          time_t *timeout) {
+    if (*timeout > 0 && progress->run >= *timeout) {
+        vips_image_set_kill(image, 1);
+        vips_error(
+            "weserv",
+            "Maximum image processing time of %ld second%s exceeded "
+            "with %d second%s. Operation was canceled after %d%% completion",
+            *timeout, *timeout > 1 ? "s" : "", progress->run,
+            progress->run > 1 ? "s" : "", progress->percent);
+
+        // We've killed the image and issued an error, it's now our caller's
+        // responsibility to pass the message up the chain.
+        *timeout = 0;
+    }
+}
+
+/**
+ * Setup progress feedback to abort image evaluation after a specified
+ * time, if required.
+ * @param image The source image.
+ * @param process_timeout The specified process timeout.
+ */
+inline void setup_timeout_handler(const VImage &image,
+                                  const time_t process_timeout) {
+    if (process_timeout > 0) {
+        VipsImage *vips_image = image.get_image();
+
+        // Keep a private copy of the process timeout here, it will be
+        // automatically freed when the image is closed.
+        time_t *timeout = VIPS_NEW(vips_image, time_t);
+        *timeout = process_timeout;
+
+        g_signal_connect(vips_image, "eval", G_CALLBACK(image_eval_cb),
+                         timeout);
+
+        vips_image_set_progress(vips_image, 1);
+    }
+}
+
+/**
  * Determine the output from the image type enum.
  * @param image_type The image type enum.
  * @return The image output.

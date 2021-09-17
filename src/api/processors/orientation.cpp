@@ -22,6 +22,10 @@ VImage Orientation::process(const VImage &image) const {
     // Rotation by any multiple of 90 degrees
     // Skip for multi-page images
     if (angle != 0 && query_->get<int>("n", 1) == 1) {
+        // Copy to memory evaluates the image, so set up the timeout handler,
+        // if necessary.
+        utils::setup_timeout_handler(output_image, config_.process_timeout);
+
         // Need to copy to memory, we have to stay seq
         output_image = output_image.copy_memory().rot(
             utils::resolve_angle_rotation(angle));

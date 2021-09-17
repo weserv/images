@@ -1,5 +1,7 @@
 #include "rotation.h"
 
+#include "../utils/utility.h"
+
 #include <vector>
 
 namespace weserv {
@@ -37,6 +39,10 @@ VImage Rotation::process(const VImage &image) const {
         opaque || has_alpha
             ? image
             : image.bandjoin_const({255});  // Assumes images are always 8-bit
+
+    // Copy to memory evaluates the image, so set up the timeout handler,
+    // if necessary.
+    utils::setup_timeout_handler(output_image, config_.process_timeout);
 
     // Need to copy to memory, we have to stay seq
     return output_image.copy_memory().rotate(

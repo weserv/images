@@ -122,16 +122,21 @@ Status ApiManagerImpl::exception_handler(const std::string &query) {
     } catch (const exceptions::UnsupportedSaverException &e) {
         return Status(Status::Code::UnsupportedSaver, e.what(),
                       Status::ErrorCause::Application);
-    } catch (const VError &e) {  // LCOV_EXCL_START
+    } catch (const VError &e) {
         std::string error_str = e.what();
 
         // Log libvips errors
         env_->log_error("libvips error: " + error_str + "\nQuery: " + query);
 
+        // Get the first error message, when we are in our own log domain
+        if (error_str.rfind("weserv: ", 0) == 0) {
+            error_str = error_str.substr(8, error_str.find('\n') - 8);
+        }
+
         return Status(Status::Code::LibvipsError,
                       "libvips error: " + utils::escape_string(error_str),
                       Status::ErrorCause::Application);
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e) {  // LCOV_EXCL_START
         auto error_str = "unknown error: " + std::string(e.what());
 
         // Log unknown errors
@@ -160,11 +165,11 @@ utils::Status ApiManagerImpl::process(const std::string &query,
     // Image processors
     auto trim = processors::Trim(query_holder);
     auto thumbnail = processors::Thumbnail(query_holder, config);
-    auto orientation = processors::Orientation(query_holder);
-    auto alignment = processors::Alignment(query_holder);
+    auto orientation = processors::Orientation(query_holder, config);
+    auto alignment = processors::Alignment(query_holder, config);
     auto crop = processors::Crop(query_holder);
     auto embed = processors::Embed(query_holder);
-    auto rotation = processors::Rotation(query_holder);
+    auto rotation = processors::Rotation(query_holder, config);
     auto brightness = processors::Brightness(query_holder);
     auto modulate = processors::Modulate(query_holder);
     auto contrast = processors::Contrast(query_holder);

@@ -8,9 +8,16 @@ namespace processors {
 
 class Orientation : ImageProcessor {
  public:
-    using ImageProcessor::ImageProcessor;
+    Orientation(std::shared_ptr<parsers::Query> query, const Config &config)
+        : ImageProcessor(std::move(query)), config_(config) {}
 
     VImage process(const VImage &image) const override;
+
+ private:
+    /**
+     * Global config.
+     */
+    const Config &config_;
 };
 
 }  // namespace processors

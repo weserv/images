@@ -85,6 +85,16 @@ Sets the maximum number of redirection-followings allowed.
 Enables or disables image savers to be used within the `&output=` query parameter.
 This directive accepts multiple parameters.
 
+### `weserv_process_timeout`
+
+| syntax:      | `weserv_process_timeout <time>`                               |
+| :----------- | :------------------------------------------------------------ |
+| **default:** | `10s`                                                         |
+| **context:** | `http`, `server`, `location`                                  |
+
+Specifies a maximum allowed time for image processing. Set to `0` to remove
+this limit.
+
 ### `weserv_max_pages`
 
 | syntax:      | `weserv_max_pages <pages>`                     |
