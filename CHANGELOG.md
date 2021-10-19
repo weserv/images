@@ -19,13 +19,20 @@ Requires libvips 8.9+.
 - Support for nginx's `proxy_pass` directive ([#251](https://github.com/weserv/images/issues/251)).
 - AVIF encoding support (`&output=avif`) ([#238](https://github.com/weserv/images/issues/238)).
 - Support for enabling or disabling image savers (`weserv_savers` directive).
+- Prebuilt Docker image to GitHub's Container Registry ([#204](https://github.com/weserv/images/issues/204)).
+- Support for specifying the default quality per format (`weserv_*_quality` directives).
+- Support for controlling the CPU effort spent on improving compression (`weserv_*_effort` directives).
+- The `rel="canonical"` response header to proxied images ([#309](https://github.com/weserv/images/issues/309)).
+- The `Timing-Allow-Origin` response header ([#311](https://github.com/weserv/images/issues/311)).
 
 ### Changed
 - Upgrade Docker image to CentOS 8.
 - Attempt to decode corrupted or invalid images ([#194](https://github.com/weserv/images/issues/194)).
-- Docker image improvements ([#215](https://github.com/weserv/images/pull/215), [#216](https://github.com/weserv/images/pull/216) and [#230](https://github.com/weserv/images/pull/230)).
+- Docker image improvements ([#215](https://github.com/weserv/images/pull/215), [#216](https://github.com/weserv/images/pull/216), [#230](https://github.com/weserv/images/pull/230) and [#283](https://github.com/weserv/images/pull/283)).
 - Return an error when the maximum number of pages is exceeded ([#243](https://github.com/weserv/images/issues/243)).
 - Bump minimum required libvips version to 8.9.
+- Allow arbitrary values for the max-age parameter ([#292](https://github.com/weserv/images/issues/292)).
+- Increase rate limit quota to 2500 requests per 10 minutes ([#196](https://github.com/weserv/images/issues/196)).
 
 ### Fixed
 - Compatibility with CMake < 3.12.
@@ -36,11 +43,14 @@ Requires libvips 8.9+.
 - Page height logic for non-animated images ([#242](https://github.com/weserv/images/issues/242)).
 - Premultiplication bug during masking ([#245](https://github.com/weserv/images/issues/245)).
 - Message for HTTP 500 response status codes ([#264](https://github.com/weserv/images/issues/264)).
+- Focal point calculations ([#270](https://github.com/weserv/images/issues/270)).
+- Parsing of key-value pairs ([#279](https://github.com/weserv/images/issues/279)).
 
 ### Deprecated
-| Before             | Use instead                    |
-| :----------------- | :----------------------------- |
-| `&bri=[-100/+100]` | `&mod=[brightness multiplier]` |
+| Before               | Use instead                             |
+| :------------------- | :-------------------------------------- |
+| `&bri=[-100/+100]`   | `&mod=[brightness multiplier]`          |
+| `&a=focal-[x%]-[y%]` | `&fpx=[x offset]` and `&fpy=[y offset]` |
 
 ### Removed
 The `weserv_mode proxy|file;` directive is removed in favour of the `weserv proxy|filter;` directive. This means that
