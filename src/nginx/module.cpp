@@ -682,8 +682,10 @@ ngx_int_t ngx_weserv_image_body_filter(ngx_http_request_t *r, ngx_chain_t *in) {
     bool debug_output = false;
 #endif
 
+    ngx_weserv_upstream_ctx_t *upstream_ctx = nullptr;
+
     if (lc->mode == NGX_WESERV_PROXY_MODE) {
-        auto *upstream_ctx = reinterpret_cast<ngx_weserv_upstream_ctx_t *>(ctx);
+        upstream_ctx = reinterpret_cast<ngx_weserv_upstream_ctx_t *>(ctx);
 
 #if NGX_DEBUG
         if (upstream_ctx->debug == 1) {
@@ -735,7 +737,8 @@ ngx_int_t ngx_weserv_image_body_filter(ngx_http_request_t *r, ngx_chain_t *in) {
     Status status = mc->weserv->process(
         ngx_str_to_std(r->args),
         std::unique_ptr<api::io::SourceInterface>(new NgxSource(ctx->in)),
-        std::unique_ptr<api::io::TargetInterface>(new NgxTarget(r, &out)),
+        std::unique_ptr<api::io::TargetInterface>(
+            new NgxTarget(upstream_ctx, r, &out)),
         lc->api_conf);
 
     r->connection->buffered &= ~NGX_WESERV_IMAGE_BUFFERED;

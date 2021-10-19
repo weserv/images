@@ -82,7 +82,7 @@ make
 
 cd ../
 export PATH="/usr/local/nginx/sbin:$PATH"
-prove -I/path/to/test-nginx/lib -r test/nginx
+TEST_NGINX_SERVROOT="$PWD/servroot" prove -I/path/to/test-nginx/lib -r test/nginx
 ```
 
 To run specific test files:

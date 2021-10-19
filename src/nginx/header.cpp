@@ -13,6 +13,9 @@ const u_char CONTENT_DISPOSITION_LOWCASE[] = "content-disposition";
 const ngx_str_t LOCATION = ngx_string("Location");
 const u_char LOCATION_LOWCASE[] = "location";
 
+const ngx_str_t LINK = ngx_string("Link");
+const u_char LINK_LOWCASE[] = "link";
+
 ngx_int_t set_expires_header(ngx_http_request_t *r, time_t max_age) {
     ngx_table_elt_t *e = r->headers_out.expires;
     if (e == nullptr) {
@@ -145,6 +148,37 @@ ngx_int_t set_location_header(ngx_http_request_t *r, ngx_str_t *value) {
                            sizeof(LOCATION_LOWCASE) - 1);
 
     h->value = *value;
+
+    return NGX_OK;
+}
+
+ngx_int_t set_link_header(ngx_http_request_t *r, const ngx_str_t &url) {
+    size_t prefix_size = sizeof("<") - 1;
+    size_t suffix_size = sizeof(">; rel=\"canonical\"") - 1;
+    size_t header_size = prefix_size + url.len + suffix_size;
+
+    auto *p = reinterpret_cast<u_char *>(ngx_pnalloc(r->pool, header_size));
+    if (p == nullptr) {
+        return NGX_ERROR;
+    }
+
+    u_char *o = ngx_cpymem(p, "<", prefix_size);
+    o = ngx_cpymem(o, url.data, url.len);
+    o = ngx_cpymem(o, ">; rel=\"canonical\"", suffix_size);
+
+    auto *h = reinterpret_cast<ngx_table_elt_t *>(
+        ngx_list_push(&r->headers_out.headers));
+    if (h == nullptr) {
+        return NGX_ERROR;
+    }
+
+    h->key = LINK;
+    h->lowcase_key = const_cast<u_char *>(LINK_LOWCASE);
+    h->hash = ngx_hash_key(const_cast<u_char *>(LINK_LOWCASE),
+                           sizeof(LINK_LOWCASE) - 1);
+
+    h->value.data = p;
+    h->value.len = header_size;
 
     return NGX_OK;
 }

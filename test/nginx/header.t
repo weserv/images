@@ -1,10 +1,12 @@
 #!/usr/bin/env perl
 
 use Test::Nginx::Socket;
+use Test::Nginx::Util qw($ServerPort $ServerAddr);
 
 plan tests => repeat_each() * (blocks() * 5);
 
 $ENV{TEST_NGINX_HTML_DIR} ||= html_dir();
+$ENV{TEST_NGINX_URI} = "http://$ServerAddr:$ServerPort";
 
 our $HttpConfig = qq{
     error_log logs/error.log debug;
@@ -183,6 +185,30 @@ $::TestGif"
 Content-Type: application/json
 --- response_body_like: ^.*"code":400,"message":"Saving to json is disabled. Supported savers: jpg".*$
 --- error_code: 400
+--- no_error_log
+[error]
+[warn]
+
+=== TEST 8: rel="canonical" HTTP Header is set
+--- http_config eval: $::HttpConfig
+--- config
+    location /static {
+        alias $TEST_NGINX_HTML_DIR;
+    }
+
+    location /images {
+        weserv proxy;
+    }
+--- request eval
+"GET /images?url=$ENV{TEST_NGINX_URI}/static/test.gif"
+--- user_files eval
+">>> test.gif
+$::TestGif"
+--- response_headers eval
+"Link: <$ENV{TEST_NGINX_URI}/static/test.gif>; rel=\"canonical\""
+--- response_body_filters eval
+\&::gif_size
+--- response_body: 1 1
 --- no_error_log
 [error]
 [warn]

@@ -54,8 +54,7 @@ cmake_install.cmake
 CTestTestfile.cmake
 
 # Test::Nginx
-t/servroot/
-test/t/servroot/
+servroot/
 
 # User-specific stuff
 test/api/generate_expected_fixtures.cpp
