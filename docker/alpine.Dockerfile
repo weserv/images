@@ -1,8 +1,6 @@
 FROM alpine:3.13.6
 
 RUN apk add --update-cache \
-  --repository https://dl-3.alpinelinux.org/alpine/edge/testing/ \
-  --repository https://dl-3.alpinelinux.org/alpine/edge/main \
   build-base cmake git \
   libjpeg-turbo \
   openssl openssl-dev \
