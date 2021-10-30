@@ -8,6 +8,9 @@ RUN apk add --update-cache \
   openssl openssl-dev \
   vips vips-dev
 
+# Create nginx user and group
+RUN addgroup -S nginx && adduser -S nginx -G nginx
+
 # Copy the contents of this repository to the container
 COPY . /var/www/imagesweserv
 
@@ -36,14 +39,11 @@ RUN cmake .. \
 --group=nginx" \
   && make -j"$(nproc)" \
   && cd .. \
-  && rm -Rf build /var/cache/*
-
-# Cleanup build dependencies
-RUN apk del build-base cmake git openssl-dev vips-dev
+  && rm -Rf build /var/cache/* \
+  # Cleanup build dependencies
+  && apk del build-base cmake git openssl-dev vips-dev
 
 WORKDIR /var/www/imagesweserv
-
-RUN addgroup -S nginx && adduser -S nginx -G nginx
 
 # Ensure nginx directories exist
 RUN mkdir -m 700 /var/lib/nginx \
