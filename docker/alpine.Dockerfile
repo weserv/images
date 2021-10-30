@@ -22,7 +22,7 @@ RUN cmake .. \
   -DNGX_VERSION=$NGINX_VERSION \
   -DCUSTOM_NGX_FLAGS="--prefix=/usr/share/nginx;\
 --sbin-path=/usr/sbin/nginx;\
---modules-path=/usr/lib64/nginx/modules;\
+--modules-path=/usr/lib/nginx/modules;\
 --conf-path=/etc/nginx/nginx.conf;\
 --error-log-path=/var/log/nginx/error.log;\
 --http-log-path=/var/log/nginx/access.log;\
@@ -46,6 +46,8 @@ WORKDIR /var/www/imagesweserv
 # Ensure nginx directories exist
 RUN mkdir -m 700 /var/lib/nginx \
   && mkdir -m 700 /var/lib/nginx/tmp \
+  && mkdir -m 700 /usr/lib/nginx \
+  && mkdir -m 755 /usr/lib/nginx/modules \
   # Forward request and error logs to docker log collector
   && ln -sf /dev/stdout /var/log/nginx/weserv-access.log \
   && ln -sf /dev/stderr /var/log/nginx/weserv-error.log \
