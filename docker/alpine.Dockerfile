@@ -62,6 +62,8 @@ RUN addgroup -g 101 -S nginx \
     # Bring in tzdata so users could set the timezones through the environment
     # variables
     && apk add --no-cache tzdata \
+    # Ensure nginx cache directory exist with the correct permissions
+    && mkdir -m 700 /var/cache/nginx \
     # Forward request and error logs to docker log collector
     && ln -sf /dev/stdout /var/log/nginx/weserv-access.log \
     && ln -sf /dev/stderr /var/log/nginx/weserv-error.log \
