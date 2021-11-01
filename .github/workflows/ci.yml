@@ -103,15 +103,21 @@ jobs:
         with:
           submodules: true
       - name: Docker meta
-        id: docker_meta
-        uses: crazy-max/ghaction-docker-meta@v1
+        id: meta
+        uses: docker/metadata-action@v3
         with:
           images: ghcr.io/${{ github.repository }}
-          # Add git short SHA as Docker tag
-          tag-sha: true
+          # Add git branch, tag and short SHA as Docker tag
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
           # Disable latest tag convention on push tag event
-          tag-latest: false
-          label-custom: |
+          flavor: |
+            latest=false
+          # Overwrite some generated OCI labels
+          labels: |
             org.opencontainers.image.authors=admin@weserv.nl
             org.opencontainers.image.documentation=https://github.com/weserv/images/tree/5.x/docker
             org.opencontainers.image.description=Images.weserv.nl dockerized
@@ -129,5 +135,5 @@ jobs:
           context: .
           file: ./docker/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.docker_meta.outputs.tags }}
-          labels: ${{ steps.docker_meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
