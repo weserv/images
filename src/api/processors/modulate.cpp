@@ -46,12 +46,12 @@ VImage Modulate::process(const VImage &image) const {
                     {0.0, 0.0, static_cast<double>(hue)})
             .colourspace(type_before_modulate)
             .bandjoin(alpha);
-    } else {
-        return image.colourspace(VIPS_INTERPRETATION_LCH)
-            .linear({brightness, saturation, 1},
-                    {0.0, 0.0, static_cast<double>(hue)})
-            .colourspace(type_before_modulate);
     }
+
+    return image.colourspace(VIPS_INTERPRETATION_LCH)
+        .linear({brightness, saturation, 1},
+                {0.0, 0.0, static_cast<double>(hue)})
+        .colourspace(type_before_modulate);
 }
 
 }  // namespace processors

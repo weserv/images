@@ -60,34 +60,34 @@ VImage Alignment::process(const VImage &image) const {
             crop_width, crop_height,
             VImage::option()->set("interesting",
                                   static_cast<int>(crop_position)));
-    } else {
-        int left;
-        int top;
-        if (crop_position == Position::Focal) {
-            auto input_width = query_->get<int>("input_width");
-            auto input_height = query_->get<int>("input_height");
-
-            auto fpx = query_->get_if<float>(
-                "fpx", [](float x) { return x >= 0.0 && x <= 1.0; }, 0.5F);
-            auto fpy = query_->get_if<float>(
-                "fpy", [](float y) { return y >= 0.0 && y <= 1.0; }, 0.5F);
-
-            std::tie(left, top) = utils::calculate_focal_point(
-                fpx, fpy, input_width, input_height, width, height, image_width,
-                image_height);
-        } else {
-            std::tie(left, top) = utils::calculate_position(
-                width, height, image_width, image_height, crop_position);
-        }
-
-        // Leave the height unchanged in toilet-roll mode
-        if (n_pages > 1) {
-            top = 0;
-            crop_height = image_height;
-        }
-
-        return image.extract_area(left, top, crop_width, crop_height);
     }
+
+    int left;
+    int top;
+    if (crop_position == Position::Focal) {
+        auto input_width = query_->get<int>("input_width");
+        auto input_height = query_->get<int>("input_height");
+
+        auto fpx = query_->get_if<float>(
+            "fpx", [](float x) { return x >= 0.0 && x <= 1.0; }, 0.5F);
+        auto fpy = query_->get_if<float>(
+            "fpy", [](float y) { return y >= 0.0 && y <= 1.0; }, 0.5F);
+
+        std::tie(left, top) = utils::calculate_focal_point(
+            fpx, fpy, input_width, input_height, width, height, image_width,
+            image_height);
+    } else {
+        std::tie(left, top) = utils::calculate_position(
+            width, height, image_width, image_height, crop_position);
+    }
+
+    // Leave the height unchanged in toilet-roll mode
+    if (n_pages > 1) {
+        top = 0;
+        crop_height = image_height;
+    }
+
+    return image.extract_area(left, top, crop_width, crop_height);
 }
 
 }  // namespace processors

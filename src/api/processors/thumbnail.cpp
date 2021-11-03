@@ -118,13 +118,15 @@ int Thumbnail::resolve_jpeg_shrink(int width, int height) const {
     // add quite a bit of extra sharpness to the image.
     if (shrink >= 8 * shrink_on_load_factor) {
         return 8;
-    } else if (shrink >= 4 * shrink_on_load_factor) {
-        return 4;
-    } else if (shrink >= 2 * shrink_on_load_factor) {
-        return 2;
-    } else {
-        return 1;
     }
+    if (shrink >= 4 * shrink_on_load_factor) {
+        return 4;
+    }
+    if (shrink >= 2 * shrink_on_load_factor) {
+        return 2;
+    }
+
+    return 1;
 }
 
 int Thumbnail::resolve_tiff_pyramid(const VImage &image, const Source &source,

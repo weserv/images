@@ -176,6 +176,8 @@ inline void append(ngx_buf_t *buf, const char (&value)[N]) {
  * to create the request buffer.
  * It will compute needed buffer size, allocate the buffer, and create an HTTP
  * request within it, passing it back to NGINX for network communication.
+ *
+ * Reference: ngx_http_proxy_create_request
  */
 ngx_int_t ngx_weserv_upstream_create_request(ngx_http_request_t *r) {
     if (r == nullptr) {
@@ -286,6 +288,8 @@ ngx_int_t ngx_weserv_upstream_create_request(ngx_http_request_t *r) {
 /**
  * A handler NGINX calls when it needs to reinitialize response processing
  * state machine.
+ *
+ * Reference: ngx_http_proxy_reinit_request
  */
 ngx_int_t ngx_weserv_upstream_reinit_request(ngx_http_request_t *r) {
     if (r == nullptr) {
@@ -322,6 +326,8 @@ ngx_int_t ngx_weserv_upstream_reinit_request(ngx_http_request_t *r) {
  * successfully parsed the HTTP status line, we update the handler to point
  * at the header parsing function. This is a technique used in other
  * implementations of upstream modules.
+ *
+ * Reference: ngx_http_proxy_process_status_line
  */
 ngx_int_t ngx_weserv_upstream_process_status_line(ngx_http_request_t *r) {
     if (r == nullptr) {
@@ -356,8 +362,11 @@ ngx_int_t ngx_weserv_upstream_process_status_line(ngx_http_request_t *r) {
 
     ngx_int_t rc = ngx_http_parse_status_line(r, &r->upstream->buffer, &status);
     if (rc == NGX_AGAIN) {
-        return rc;  // We don't have the whole status line yet
-    } else if (rc == NGX_ERROR) {
+        // We don't have the whole status line yet
+        return rc;
+    }
+
+    if (rc == NGX_ERROR) {
         r->upstream->headers_in.connection_close = 1;
         return NGX_OK;
     }
@@ -368,12 +377,12 @@ ngx_int_t ngx_weserv_upstream_process_status_line(ngx_http_request_t *r) {
     // Don't parse further if:
     // - a non 200 status code is returned
     // - we're not redirecting
-#if NGX_DEBUG
     // - we're not debugging responses
-    if (ctx->debug == 0 && status.code != 200 && !ctx->redirecting) {
-#else
-    if (status.code != 200 && !ctx->redirecting) {
+    if (status.code != 200 && !ctx->redirecting
+#if NGX_DEBUG
+        && ctx->debug == 0
 #endif
+    ) {
         std::string message = "Response status code: ";
         if (status.start) {
             message += std::string(reinterpret_cast<const char *>(status.start),
@@ -402,6 +411,8 @@ ngx_int_t ngx_weserv_upstream_process_status_line(ngx_http_request_t *r) {
 
 /**
  * A handler called by NGINX to parse response headers.
+ *
+ * Reference: ngx_http_proxy_process_header
  */
 ngx_int_t ngx_weserv_upstream_process_header(ngx_http_request_t *r) {
     if (r == nullptr) {
@@ -477,7 +488,11 @@ ngx_int_t ngx_weserv_upstream_process_header(ngx_http_request_t *r) {
                 // Parse the absolute redirection URI.
                 (void)parse_url(r->pool, absolute_url, &ctx->location);
             }
-        } else if (rc == NGX_HTTP_PARSE_HEADER_DONE) {
+
+            continue;
+        }
+
+        if (rc == NGX_HTTP_PARSE_HEADER_DONE) {
             // A whole header has been parsed successfully
             ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                            "weserv header done");
@@ -524,31 +539,35 @@ ngx_int_t ngx_weserv_upstream_process_header(ngx_http_request_t *r) {
             }
 
             return NGX_OK;
-        } else if (rc == NGX_AGAIN) {
-            return NGX_AGAIN;
-        } else {
-            // rc == NGX_HTTP_PARSE_INVALID_HEADER
+        }
 
-            // nginx versions prior to 1.21.1 didn't set the r->header_end
-            // pointer correctly in some cases, making it impossible to log the
-            // invalid header
+        if (rc == NGX_AGAIN) {
+            return NGX_AGAIN;
+        }
+
+        // rc == NGX_HTTP_PARSE_INVALID_HEADER
+
+        // NGINX versions prior to 1.21.1 didn't set the r->header_end
+        // pointer correctly in some cases, making it impossible to log the
+        // invalid header
 #if defined(nginx_version) && nginx_version >= 1021001
-            ngx_log_error(NGX_LOG_INFO, r->connection->log, 0,
-                          "upstream sent invalid header: \"%*s\\x%02xd...\"",
-                          r->header_end - r->header_name_start,
-                          r->header_name_start, *r->header_end);
+        ngx_log_error(NGX_LOG_INFO, r->connection->log, 0,
+                      "upstream sent invalid header: \"%*s\\x%02xd...\"",
+                      r->header_end - r->header_name_start,
+                      r->header_name_start, *r->header_end);
 #else
-            ngx_log_error(NGX_LOG_INFO, r->connection->log, 0,
-                          "upstream sent invalid header");
+        ngx_log_error(NGX_LOG_INFO, r->connection->log, 0,
+                      "upstream sent invalid header");
 #endif
 
-            return NGX_HTTP_UPSTREAM_INVALID_HEADER;
-        }
+        return NGX_HTTP_UPSTREAM_INVALID_HEADER;
     }
 }
 
 /**
  * An abort handler -- apparently this is never called by NGINX so we only log.
+ *
+ * Reference: ngx_http_proxy_abort_request
  */
 void ngx_weserv_upstream_abort_request(ngx_http_request_t *r) {
     ngx_log_error(NGX_LOG_DEBUG, r->connection->log, 0,
@@ -558,6 +577,8 @@ void ngx_weserv_upstream_abort_request(ngx_http_request_t *r) {
 /**
  * A finalize handler. Called by NGINX when request is complete (success)
  * or on error, for example connection error, timeout, etc.
+ *
+ * Reference: ngx_http_proxy_finalize_request
  */
 void ngx_weserv_upstream_finalize_request(ngx_http_request_t *r, ngx_int_t rc) {
     if (r == nullptr) {
@@ -629,7 +650,7 @@ void ngx_weserv_upstream_finalize_request(ngx_http_request_t *r, ngx_int_t rc) {
             // Swap the initial HTTP request out to the next iteration
             ctx->request = std::move(request);
 
-            ngx_int_t rc = ngx_weserv_send_http_request(r, ctx);
+            rc = ngx_weserv_send_http_request(r, ctx);
 
             if (rc == NGX_ERROR) {
                 // Reset redirect flag
@@ -705,21 +726,21 @@ ngx_int_t ngx_weserv_send_http_request(ngx_http_request_t *r,
 
     Status status = initialize_upstream_request(r, ctx);
 
-    if (status.ok()) {
-        ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-                       "weserv: calling ngx_http_upstream_init(%p)", r);
-
-        r->main->count++;
-
-        // Initiate the upstream connection by calling NGINX upstream
-        ngx_http_upstream_init(r);
-
-        return NGX_DONE;
-    } else {
+    if (!status.ok()) {
         ctx->response_status = status;
 
         return NGX_ERROR;
     }
+
+    ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                   "weserv: calling ngx_http_upstream_init(%p)", r);
+
+    r->main->count++;
+
+    // Initiate the upstream connection by calling NGINX upstream
+    ngx_http_upstream_init(r);
+
+    return NGX_DONE;
 }
 
 }  // namespace nginx

@@ -80,9 +80,9 @@ VImage Filter::process(const VImage &image) const {
                 return image_without_alpha.colourspace(VIPS_INTERPRETATION_B_W)
                     .maplut(lut)
                     .bandjoin(alpha);
-            } else {
-                return image.colourspace(VIPS_INTERPRETATION_B_W).maplut(lut);
             }
+
+            return image.colourspace(VIPS_INTERPRETATION_B_W).maplut(lut);
         }
         case FilterType::Negate:
         default:
@@ -93,9 +93,9 @@ VImage Filter::process(const VImage &image) const {
                     0, VImage::option()->set("n", image.bands() - 1));
                 auto alpha = image[image.bands() - 1];
                 return image_without_alpha.invert().bandjoin(alpha);
-            } else {
-                return image.invert();
             }
+
+            return image.invert();
     }
 }
 

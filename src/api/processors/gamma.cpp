@@ -27,9 +27,9 @@ VImage Gamma::process(const VImage &image) const {
         return image_without_alpha
             .gamma(VImage::option()->set("exponent", 1.0 / gamma))
             .bandjoin(alpha);
-    } else {
-        return image.gamma(VImage::option()->set("exponent", 1.0 / gamma));
     }
+    
+    return image.gamma(VImage::option()->set("exponent", 1.0 / gamma));
 }
 
 }  // namespace processors

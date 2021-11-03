@@ -281,26 +281,35 @@ inline Output to_output(const ImageType &image_type) {
 inline ImageType determine_image_type(const std::string &loader) {
     if (loader.rfind("VipsForeignLoadJpeg", 0) == 0) {
         return ImageType::Jpeg;
-    } else if (loader.rfind("VipsForeignLoadPng", 0) == 0) {
-        return ImageType::Png;
-    } else if (loader.rfind("VipsForeignLoadWebp", 0) == 0) {
-        return ImageType::Webp;
-    } else if (loader.rfind("VipsForeignLoadTiff", 0) == 0) {
-        return ImageType::Tiff;
-    } else if (loader.rfind("VipsForeignLoadGif", 0) == 0 ||
-               loader.rfind("VipsForeignLoadNsgif", 0) == 0) {
-        return ImageType::Gif;
-    } else if (loader.rfind("VipsForeignLoadSvg", 0) == 0) {
-        return ImageType::Svg;
-    } else if (loader.rfind("VipsForeignLoadPdf", 0) == 0) {
-        return ImageType::Pdf;
-    } else if (loader.rfind("VipsForeignLoadHeif", 0) == 0) {
-        return ImageType::Heif;
-    } else if (loader.rfind("VipsForeignLoadMagick", 0) == 0) {
-        return ImageType::Magick;
-    } else {  // LCOV_EXCL_START
-        return ImageType::Unknown;
     }
+    if (loader.rfind("VipsForeignLoadPng", 0) == 0) {
+        return ImageType::Png;
+    }
+    if (loader.rfind("VipsForeignLoadWebp", 0) == 0) {
+        return ImageType::Webp;
+    }
+    if (loader.rfind("VipsForeignLoadTiff", 0) == 0) {
+        return ImageType::Tiff;
+    }
+    if (loader.rfind("VipsForeignLoadGif", 0) == 0 ||
+        loader.rfind("VipsForeignLoadNsgif", 0) == 0) {
+        return ImageType::Gif;
+    }
+    if (loader.rfind("VipsForeignLoadSvg", 0) == 0) {
+        return ImageType::Svg;
+    }
+    if (loader.rfind("VipsForeignLoadPdf", 0) == 0) {
+        return ImageType::Pdf;
+    }
+    if (loader.rfind("VipsForeignLoadHeif", 0) == 0) {
+        return ImageType::Heif;
+    }
+    if (loader.rfind("VipsForeignLoadMagick", 0) == 0) {
+        return ImageType::Magick;
+    }
+
+    // LCOV_EXCL_START
+    return ImageType::Unknown;
     // LCOV_EXCL_STOP
 }
 

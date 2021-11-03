@@ -30,13 +30,13 @@ VImage Blur::process(const VImage &image) const {
         // clang-format on
         blur.set("scale", 9.0);
         return image.conv(blur);
-    } else {
-        // Slower, accurate Gaussian blur
-        return (image.get_typeof(VIPS_META_SEQUENTIAL) != 0
-                    ? utils::line_cache(image, 10)
-                    : image)
-            .gaussblur(sigma);
     }
+
+    // Slower, accurate Gaussian blur
+    return (image.get_typeof(VIPS_META_SEQUENTIAL) != 0
+                ? utils::line_cache(image, 10)
+                : image)
+        .gaussblur(sigma);
 }
 
 }  // namespace processors

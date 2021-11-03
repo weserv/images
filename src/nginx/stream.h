@@ -13,7 +13,7 @@ namespace weserv {
 namespace nginx {
 
 /**
- * The nginx implementation of io::SourceInterface.
+ * The NGINX implementation of io::SourceInterface.
  */
 class NgxSource : public api::io::SourceInterface {
  public:
@@ -24,7 +24,7 @@ class NgxSource : public api::io::SourceInterface {
     int64_t read(void *data, size_t length) override;
 
     int64_t seek(int64_t /* unsused */, int /* unsused */) override {
-        // nginx sources are not seekable
+        // NGINX sources are not seekable
         return -1;
     }
 
@@ -33,7 +33,7 @@ class NgxSource : public api::io::SourceInterface {
 };
 
 /**
- * The nginx implementation of io::TargetInterface.
+ * The NGINX implementation of io::TargetInterface.
  */
 class NgxTarget : public api::io::TargetInterface {
  public:

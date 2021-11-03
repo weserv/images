@@ -10,7 +10,7 @@ namespace weserv {
 namespace nginx {
 
 /**
- * The nginx implementation of ApiEnvInterface.
+ * The NGINX implementation of ApiEnvInterface.
  */
 class NgxEnvironment : public api::ApiEnvInterface {
  public:

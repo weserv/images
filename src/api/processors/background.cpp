@@ -42,12 +42,11 @@ VImage Background::process(const VImage &image) const {
         return background_image.composite2(
             image, VIPS_BLEND_MODE_OVER,
             VImage::option()->set("premultiplied", true));
-    } else {
-        // Flatten the alpha from the image by replacing it with a constant
-        // background color.
-        return image.flatten(
-            VImage::option()->set("background", background_rgba));
     }
+
+    // Flatten the alpha from the image by replacing it with a constant
+    // background color.
+    return image.flatten(VImage::option()->set("background", background_rgba));
 }
 
 }  // namespace processors

@@ -113,19 +113,25 @@ time_t parse_max_age(ngx_str_t &s) {
 ngx_str_t extension_to_mime_type(const std::string &extension) {
     if (extension == ".jpg") {
         return ngx_string("image/jpeg");
-    } else if (extension == ".png") {
-        return ngx_string("image/png");
-    } else if (extension == ".webp") {
-        return ngx_string("image/webp");
-    } else if (extension == ".avif") {
-        return ngx_string("image/avif");
-    } else if (extension == ".tiff") {
-        return ngx_string("image/tiff");
-    } else if (extension == ".gif") {
-        return ngx_string("image/gif");
-    } else { /*if (extension == ".json")*/
-        return ngx_string("application/json");
     }
+    if (extension == ".png") {
+        return ngx_string("image/png");
+    }
+    if (extension == ".webp") {
+        return ngx_string("image/webp");
+    }
+    if (extension == ".avif") {
+        return ngx_string("image/avif");
+    }
+    if (extension == ".tiff") {
+        return ngx_string("image/tiff");
+    }
+    if (extension == ".gif") {
+        return ngx_string("image/gif");
+    }
+    // if (extension == ".json")
+
+    return ngx_string("application/json");
 }
 
 namespace {

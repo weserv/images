@@ -697,11 +697,13 @@ ngx_int_t ngx_weserv_image_body_filter(ngx_http_request_t *r, ngx_chain_t *in) {
 
         if (upstream_ctx->redirecting) {
             return NGX_AGAIN;
+        }
+
+        if (!upstream_ctx->response_status.ok()
 #if NGX_DEBUG
-        } else if (!debug_output && !upstream_ctx->response_status.ok()) {
-#else
-        } else if (!upstream_ctx->response_status.ok()) {
+            && !debug_output
 #endif
+        ) {
             ngx_chain_t out;
             if (ngx_weserv_return_error(r, upstream_ctx->response_status,
                                         &out) != NGX_OK) {
@@ -747,13 +749,7 @@ ngx_int_t ngx_weserv_image_body_filter(ngx_http_request_t *r, ngx_chain_t *in) {
     // and don't wait for an entire response to be sent to the client.
     ngx_weserv_image_filter_free_buf(r, ctx);
 
-    if (status.ok()) {
-        if (is_base64_needed(r) && output_chain_to_base64(r, out) != NGX_OK) {
-            return NGX_ERROR;
-        }
-
-        return ngx_weserv_finish(r, out);
-    } else {
+    if (!status.ok()) {
         ngx_chain_t error;
         if (ngx_weserv_return_error(r, status, &error) != NGX_OK) {
             return NGX_ERROR;
@@ -761,6 +757,12 @@ ngx_int_t ngx_weserv_image_body_filter(ngx_http_request_t *r, ngx_chain_t *in) {
 
         return ngx_weserv_finish(r, &error);
     }
+
+    if (is_base64_needed(r) && output_chain_to_base64(r, out) != NGX_OK) {
+        return NGX_ERROR;
+    }
+
+    return ngx_weserv_finish(r, out);
 }
 
 ngx_int_t ngx_weserv_postconfiguration(ngx_conf_t *cf) {

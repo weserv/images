@@ -29,9 +29,9 @@ VImage Brightness::process(const VImage &image) const {
             0, VImage::option()->set("n", image.bands() - 1));
         auto alpha = image[image.bands() - 1];
         return image_without_alpha.linear(1, brightness).bandjoin(alpha);
-    } else {
-        return image.linear(1, brightness);
     }
+
+    return image.linear(1, brightness);
 
     /*VipsInterpretation old_interpretation = image.interpretation();
     auto lch = image.colourspace(VIPS_INTERPRETATION_LCH);
