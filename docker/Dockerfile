@@ -2,7 +2,7 @@ FROM centos:8
 
 LABEL maintainer="Kleis Auke Wolthuizen <info@kleisauke.nl>"
 
-ARG NGINX_VERSION=1.21.3
+ARG NGINX_VERSION=1.21.4
 
 # Copy the contents of this repository to the container
 COPY . /var/www/imagesweserv
