@@ -551,12 +551,12 @@ ngx_int_t ngx_weserv_upstream_process_header(ngx_http_request_t *r) {
         // pointer correctly in some cases, making it impossible to log the
         // invalid header
 #if defined(nginx_version) && nginx_version >= 1021001
-        ngx_log_error(NGX_LOG_INFO, r->connection->log, 0,
+        ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
                       "upstream sent invalid header: \"%*s\\x%02xd...\"",
                       r->header_end - r->header_name_start,
                       r->header_name_start, *r->header_end);
 #else
-        ngx_log_error(NGX_LOG_INFO, r->connection->log, 0,
+        ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
                       "upstream sent invalid header");
 #endif
 
