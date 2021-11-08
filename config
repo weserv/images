@@ -37,7 +37,7 @@ ngx_module_srcs=" \
   $ngx_addon_dir/src/nginx/uri_parser.cpp \
   $ngx_addon_dir/src/nginx/util.cpp \
 "
-ngx_module_libs="-lstdc++ -limagesweserv"
+ngx_module_libs="-lstdc++ -lweserv"
 
 . auto/module
 

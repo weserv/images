@@ -1,7 +1,7 @@
 # Note: The FetchContent module was added in CMake 3.11
 cmake_minimum_required(VERSION 3.11)
 
-project(imagesweserv
+project(weserv
         VERSION 5.0.0
         DESCRIPTION "Image cache and resize service"
         LANGUAGES
@@ -20,7 +20,7 @@ option(ENABLE_SANITIZER "Build with clang sanitizer" OFF)
 option(ENABLE_CLANG_TIDY "Enable source code checking using clang-tidy" OFF)
 option(BUILD_TOOLS "Whether or not to build the tools" OFF)
 option(BUILD_TESTS "Whether or not to build the tests" OFF)
-option(INSTALL_NGX_MODULE "Install nginx along with the imagesweserv module" ON)
+option(INSTALL_NGX_MODULE "Build and install nginx along with the weserv module" ON)
 
 # Set a default build type if none was specified
 if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -84,7 +84,7 @@ if (NOT mpark_variant_FOUND)
     add_subdirectory(third_party/variant)
 endif()
 
-# Create a shared imagesweserv library
+# Create the shared API library
 add_subdirectory(src/api)
 
 if (BUILD_TOOLS)
