@@ -99,3 +99,12 @@ install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
         FILES_MATCHING PATTERN "*.h"
         )
+
+# Add a pkg-config file
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/weserv.pc.in"
+        "weserv.pc" @ONLY
+        )
+
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/weserv.pc"
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
+        )
