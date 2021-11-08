@@ -8,7 +8,7 @@ list(APPEND NGX_CONFIGURE_OPTS
         #--with-debug
         "--with-cc=${CMAKE_C_COMPILER}"
         "--with-cpp=${CMAKE_CXX_COMPILER}"
-        "--with-cc-opt=-I${PROJECT_SOURCE_DIR}/include ${CUSTOM_NGX_CC_OPT}"
+        "--with-cc-opt=${CUSTOM_NGX_CC_OPT}"
         "--with-ld-opt=-L${PROJECT_SOURCE_DIR}/lib -Wl,-rpath,${PROJECT_SOURCE_DIR}/lib ${CUSTOM_NGX_LD_OPT}"
         )
 
