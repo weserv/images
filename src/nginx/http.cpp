@@ -39,9 +39,8 @@ Status ngx_weserv_upstream_set_url(ngx_pool_t *pool,
     ngx_memzero(&parsed_url, sizeof(parsed_url));
 
     // Recognize the URL scheme.
-    // only if NGINX has been compiled with NGX_HTTP_SSL support, try to
-    // recognize a https:// scheme because the ssl related fields are not
-    // defined otherwise.
+    // Try to recognize a https:// scheme only if NGINX has been compiled with
+    // SSL support, because the SSL related fields are not defined otherwise.
     if (url.len > http.len &&
         ngx_strncasecmp(url.data, http.data, http.len) == 0) {
         upstream->schema = http;
