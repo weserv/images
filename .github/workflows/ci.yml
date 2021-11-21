@@ -78,13 +78,12 @@ jobs:
             -DCUSTOM_NGX_FLAGS="--prefix=$HOME/nginx" \
             -DENABLE_COVERAGE=$([ "${{ matrix.coverage }}" = true ] && echo "ON" || echo "OFF") \
             -DBUILD_TESTS=ON
-          make -j$(nproc)
+          cmake --build . -- -j$(nproc)
       - name: Run unit tests
         env:
           VIPS_WARNING: 0
-          CTEST_OUTPUT_ON_FAILURE: 1
         working-directory: build
-        run: CTEST_PARALLEL_LEVEL=$(nproc) make test
+        run: ctest -j $(nproc) --output-on-failure
       - name: Run integration tests
         env:
           TEST_NGINX_SERVROOT: ${{ github.workspace }}/servroot
@@ -92,7 +91,7 @@ jobs:
       - name: Generate coverage report
         if: matrix.coverage
         working-directory: build
-        run: make coverage
+        run: cmake --build . --target coverage
       - name: Upload coverage to Codecov
         if: matrix.coverage
         uses: codecov/codecov-action@v2

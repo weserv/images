@@ -31,7 +31,7 @@ RUN addgroup -g 101 -S nginx \
         pcre-dev \
         vips-dev \
     # Build CMake-based project
-    && cmake -B_build -H. \
+    && cmake -S . -B _build \
         -DCMAKE_BUILD_TYPE=Release \
         -DBUILD_TOOLS=ON \
         -DNGX_VERSION=$NGINX_VERSION \
@@ -50,7 +50,7 @@ RUN addgroup -g 101 -S nginx \
 --lock-path=/var/run/nginx.lock;\
 --user=nginx;\
 --group=nginx" \
-    && make -C _build -j"$(nproc)" \
+    && cmake --build _build -- -j$(nproc) \
     # Remove build directory and dependencies
     && rm -rf _build \
     && apk del .build-deps \

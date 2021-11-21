@@ -46,7 +46,7 @@ RUN rpm --import https://sourceforge.net/projects/libjpeg-turbo/files/LJT-GPG-KE
         zlib-devel \
         nginx-filesystem \
     # Build CMake-based project
-    && cmake -B_build -H. \
+    && cmake -S . -B _build \
         -DCMAKE_BUILD_TYPE=Release \
         -DBUILD_TOOLS=ON \
         -DNGX_VERSION=$NGINX_VERSION \
@@ -65,7 +65,7 @@ RUN rpm --import https://sourceforge.net/projects/libjpeg-turbo/files/LJT-GPG-KE
 --lock-path=/run/lock/subsys/nginx;\
 --user=nginx;\
 --group=nginx" \
-    && make -C _build -j"$(nproc)" \
+    && cmake --build _build -- -j$(nproc) \
     && ldconfig \
     # Remove build directory and dependencies
     && rm -rf _build \

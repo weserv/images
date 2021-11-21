@@ -42,14 +42,14 @@ If you have LCOV installed, you can view and collect coverage information,
 by specifying `-DENABLE_COVERAGE=ON` on the CMake command line. To collect
 coverage information and generate a browsable html report:
 ```bash
-make coverage-html
+cmake --build . --target coverage-html
 ```
 
 You will be able to browse the LCOV report by opening `lcov/index.html`.
 
 For only collecting collect coverage information, you can use:
 ```bash
-make coverage
+cmake --build . --target coverage
 ```
 
 ## Unit tests
@@ -64,8 +64,8 @@ cmake .. \
   -DCMAKE_BUILD_TYPE=Debug \
   -DBUILD_TESTS=ON \
   -DINSTALL_NGX_MODULE=OFF
-make
-CTEST_OUTPUT_ON_FAILURE=1 make test
+cmake --build . -- -j$(nproc)
+ctest -j $(nproc) --output-on-failure
 ```
 
 ## Integration tests
@@ -78,7 +78,7 @@ cd images
 mkdir build && cd build
 cmake .. \
   -DCMAKE_BUILD_TYPE=Debug
-make
+cmake --build . -- -j$(nproc)
 
 cd ../
 export PATH="/usr/local/nginx/sbin:$PATH"

@@ -56,5 +56,5 @@ cd images
 mkdir build && cd build
 cmake .. \
   -DCMAKE_BUILD_TYPE=Release
-sudo make
+sudo cmake --build . -- -j$(nproc)
 ```
