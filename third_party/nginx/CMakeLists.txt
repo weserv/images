@@ -29,6 +29,7 @@ list(APPEND NGX_CONFIGURE_OPTS
         --with-http_v2_module
         --with-http_realip_module
         --with-http_stub_status_module
+        --with-http_secure_link_module
         --with-pcre-jit
         #--with-google_perftools_module
         "--add-module=${RATE_LIMIT_MODULE_SOURCE}"
