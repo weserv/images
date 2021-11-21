@@ -14,10 +14,8 @@ ENV TZ=Europe/Amsterdam \
     # since libjpeg-turbo is installed in a non-standard prefix
     PKG_CONFIG_PATH=/opt/libjpeg-turbo/lib64/pkgconfig
 
-# Import archive signing keys and update packages
-RUN rpm --import https://sourceforge.net/projects/libjpeg-turbo/files/LJT-GPG-KEY \
-    && rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial \
-    && dnf update -y \
+# Update packages
+RUN dnf update -y \
     # Install the latest stable version of libjpeg-turbo,
     # since the version on CentOS is too old (v1.5.3)
     && dnf install -y dnf-utils \
@@ -28,13 +26,10 @@ RUN rpm --import https://sourceforge.net/projects/libjpeg-turbo/files/LJT-GPG-KE
     && ldconfig \
     # Install libvips and needed dependencies
     && dnf install -y epel-release \
-    && rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-8 \
     && dnf config-manager --set-enabled powertools \
     && dnf install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm \
-    && rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-remi.el8 \
     && dnf config-manager --set-enabled remi \
     && dnf install -y --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm \
-    && rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-free-el-8 \
     && dnf group install -y --with-optional 'Development Tools' \
     && dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
         vips-devel \
