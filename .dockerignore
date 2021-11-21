@@ -1,15 +1,14 @@
-# Ignore all subdirectories
-*/*
+# Ignore everything
+*
 
-# Allow the source files to be included in the Docker container
-!include/
-!ngx_conf/
-!public/
-!src/
-!third_party/
+# Allow necessary source files
+# Note: test suite is intentionally skipped
+!include/**
+!ngx_conf/**
+!public/**
+!src/**
+!third_party/**
 
-# Ignore unnecessary files within the top-level directory
-.clang*
-.editorconfig
-.git*
-*.md
+# Allow build files in top-level directory
+!CMakeLists.txt
+!config*
