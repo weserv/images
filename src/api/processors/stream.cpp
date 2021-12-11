@@ -231,17 +231,21 @@ VImage Stream::new_from_source(const Source &source) const {
                              ? VIPS_ACCESS_RANDOM
                              : VIPS_ACCESS_SEQUENTIAL;
 
-    vips::VOption *options = VImage::option()
-                                 ->set("access", access_method)
-                                 ->set("fail", config_.fail_on_error == 1);
-
+    vips::VOption *options;
     int n = 1;
     if (utils::image_loader_supports_page(loader)) {
         int page = 0;
         std::tie(n, page) = get_page_load_options(source, loader);
 
-        options->set("n", n);
-        options->set("page", page);
+        options = VImage::option()
+                      ->set("access", access_method)
+                      ->set("fail", config_.fail_on_error == 1)
+                      ->set("n", n)
+                      ->set("page", page);
+    } else {
+        options = VImage::option()
+                      ->set("access", access_method)
+                      ->set("fail", config_.fail_on_error == 1);
     }
 
     auto image = new_from_source(source, loader, options);
