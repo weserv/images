@@ -221,7 +221,7 @@ TEST_CASE("attention crop", "[alignment]") {
     }
 }
 
-TEST_CASE("skip height in toilet-roll mode", "[alignment]") {
+TEST_CASE("animated image", "[alignment]") {
     if (vips_type_find("VipsOperation", true_streaming
                                             ? "gifload_source"
                                             : "gifload_buffer") == 0 ||
@@ -238,5 +238,5 @@ TEST_CASE("skip height in toilet-roll mode", "[alignment]") {
     VImage image = process_file<VImage>(test_image, params);
 
     CHECK(image.width() == 300);
-    CHECK(vips_image_get_page_height(image.get_image()) == 318);
+    CHECK(vips_image_get_page_height(image.get_image()) == 300);
 }

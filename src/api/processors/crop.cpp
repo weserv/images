@@ -1,5 +1,7 @@
 #include "crop.h"
 
+#include "../utils/utility.h"
+
 namespace weserv {
 namespace api {
 namespace processors {
@@ -11,8 +13,15 @@ VImage Crop::process(const VImage &image) const {
         return image;
     }
 
+    auto n_pages = query_->get<int>("n");
+
     int image_width = image.width();
-    int image_height = image.height();
+
+    // Pre-resize extract needs to fetch the page height from the image
+    int image_height =
+        n_pages > 1
+            ? query_->get<int>("page_height", utils::get_page_height(image))
+            : image.height();
 
     auto crop_x = query_->get_if<int>(
         "cx",
@@ -48,10 +57,12 @@ VImage Crop::process(const VImage &image) const {
         },
         boundary_h);
 
-    // Leave the height unchanged in toilet-roll mode
-    if (query_->get<int>("n", 1) > 1) {
-        crop_y = 0;
-        crop_h = image_height;
+    if (n_pages > 1) {
+        // Update the page height
+        query_->update("page_height", crop_h);
+
+        return utils::crop_multi_page(image, crop_x, crop_y, crop_w, crop_h,
+                                      n_pages, image_height);
     }
 
     return image.extract_area(crop_x, crop_y, crop_w, crop_h);

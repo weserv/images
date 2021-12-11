@@ -208,7 +208,7 @@ TEST_CASE("bad extract area", "[crop]") {
     CHECK(image.height() == 10);
 }
 
-TEST_CASE("skip height in toilet-roll mode", "[crop]") {
+TEST_CASE("animated image", "[crop]") {
     if (vips_type_find("VipsOperation", true_streaming
                                             ? "gifload_source"
                                             : "gifload_buffer") == 0 ||
@@ -220,12 +220,10 @@ TEST_CASE("skip height in toilet-roll mode", "[crop]") {
     }
 
     auto test_image = fixtures->input_gif_animated;
-    auto params = "n=-1&cx=30&cy=240&cw=930&ch=8130";
+    auto params = "n=-1&cx=240&cw=510";
 
     VImage image = process_file<VImage>(test_image, params);
 
-    CHECK(image.width() == 930);
-
-    // Check if page height is unchanged
+    CHECK(image.width() == 510);
     CHECK(vips_image_get_page_height(image.get_image()) == 1050);
 }

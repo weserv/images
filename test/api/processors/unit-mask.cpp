@@ -191,6 +191,29 @@ TEST_CASE("mask", "[mask]") {
         CHECK_THAT(image, is_similar_image(expected_image));
     }
 
+    SECTION("animated image") {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "gifload_source"
+                                                : "gifload_buffer") == 0 ||
+            vips_type_find("VipsOperation", pre_8_12
+                                                ? "magicksave_buffer"
+                                                : "gifsave_target") == 0) {
+            SUCCEED("no gif support, skipping test");
+            return;
+        }
+
+        auto test_image = fixtures->input_gif_animated;
+        auto expected_image = fixtures->expected_dir + "/mask-star-anim.gif";
+        auto params = "n=-1&w=300&h=300&fit=cover&mask=star&mbg=red&mtrim=true";
+
+        VImage image = process_file<VImage>(test_image, params);
+
+        CHECK(image.width() == 300);
+        CHECK(vips_image_get_page_height(image.get_image()) == 285);
+
+        CHECK_THAT(image, is_similar_image(expected_image));
+    }
+
     SECTION("invalid") {
         auto test_image = fixtures->input_jpg;
         auto params = "mask=none";

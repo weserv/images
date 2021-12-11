@@ -1,5 +1,7 @@
 #include "mask.h"
 
+#include "../utils/utility.h"
+
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
@@ -281,19 +283,23 @@ VImage Mask::process(const VImage &image) const {
     auto mask_type = query_->get<MaskType>("mask", MaskType::None);
 
     // Should we process the image?
-    // Skip for multi-page images
-    if (mask_type == MaskType::None || query_->get<int>("n", 1) > 1) {
+    if (mask_type == MaskType::None) {
         return image;
     }
 
+    auto n_pages = query_->get<int>("n");
+
     int image_width = image.width();
     int image_height = image.height();
+
+    auto page_height =
+        n_pages > 1 ? query_->get<int>("page_height") : image_height;
 
     auto preserve_aspect_ratio =
         mask_type == MaskType::Ellipse ? "none" : "xMidYMid meet";
 
     int x_min, y_min, mask_width, mask_height;
-    auto path = svg_path_by_type(image_width, image_height, mask_type, &x_min,
+    auto path = svg_path_by_type(image_width, page_height, mask_type, &x_min,
                                  &y_min, &mask_width, &mask_height);
 
     auto mask_background = query_->get<Color>("mbg", Color::DEFAULT);
@@ -305,12 +311,17 @@ VImage Mask::process(const VImage &image) const {
     // an alpha channel
     if (!mask_background.is_opaque() || output_image.has_alpha()) {
         std::ostringstream svg;
-        svg << R"(<svg xmlns="http://www.w3.org/2000/svg" version="1.1")"
+        svg << R"(<svg xmlns="http://www.w3.org/2000/svg")"
+            << R"( xmlns:xlink="http://www.w3.org/1999/xlink")"
             << " width=\"" << image_width << "\" height=\"" << image_height
             << "\""
             << " preserveAspectRatio=\"" << preserve_aspect_ratio << "\">\n"
-            << "<path d=\"" << path << "\"/>\n"
-            << "</svg>";
+            << R"(<defs><path id="shape" d=")" << path << "\"/></defs>\n";
+        for (int i = 0; i < n_pages; ++i) {
+            svg << R"(<use xlink:href="#shape" y=")"
+                << static_cast<uint64_t>(page_height) * i << "\"/>\n";
+        }
+        svg << "</svg>";
 
         auto svg_mask = svg.str();
 
@@ -325,15 +336,20 @@ VImage Mask::process(const VImage &image) const {
     // If the mask background is not completely transparent; overlay the frame
     if (!mask_background.is_transparent()) {
         std::ostringstream svg;
-        svg << R"(<svg xmlns="http://www.w3.org/2000/svg" version="1.1")"
+        svg << R"(<svg xmlns="http://www.w3.org/2000/svg")"
+            << R"( xmlns:xlink="http://www.w3.org/1999/xlink")"
             << " width=\"" << image_width << "\" height=\"" << image_height
             << "\""
             << " preserveAspectRatio=\"" << preserve_aspect_ratio << "\">\n"
-            << "<path d=\"" << path << " M0 0 h" << image_width << " v"
-            << image_height << " h-" << image_width
+            << R"(<defs><path id="shape" d=")" << path << " M0 0 h"
+            << image_width << " v" << page_height << " h-" << image_width
             << R"( Z" fill-rule="evenodd" )"
-            << "fill=\"" << mask_background.to_string() << "\"/>\n"
-            << "</svg>";
+            << "fill=\"" << mask_background.to_string() << "\"/></defs>\n";
+        for (int i = 0; i < n_pages; ++i) {
+            svg << R"(<use xlink:href="#shape" y=")"
+                << static_cast<uint64_t>(page_height) * i << "\"/>\n";
+        }
+        svg << "</svg>";
 
         auto svg_frame = svg.str();
 
@@ -350,15 +366,24 @@ VImage Mask::process(const VImage &image) const {
             VImage::option()->set("premultiplied", true));
     }
 
-    // Crop the image to the mask dimensions;
-    // if the mask type is not a ellipse and trimming is needed
+    // Crop the image to the mask dimensions:
+    //  - if the mask type is not an ellipse;
+    //  - trimming is needed.
     if (mask_type != MaskType::Ellipse &&
-        (mask_width < image_width || mask_height < image_height) &&
+        (mask_width < image_width || mask_height < page_height) &&
         query_->get<bool>("mtrim", false)) {
         auto left =
             static_cast<int>(std::round((image_width - mask_width) / 2.0));
         auto top =
-            static_cast<int>(std::round((image_height - mask_height) / 2.0));
+            static_cast<int>(std::round((page_height - mask_height) / 2.0));
+
+        if (n_pages > 1) {
+            // Update the page height
+            query_->update("page_height", mask_height);
+
+            return utils::crop_multi_page(output_image, left, top, mask_width,
+                                          mask_height, n_pages, page_height);
+        }
 
         return output_image.extract_area(left, top, mask_width, mask_height);
     }

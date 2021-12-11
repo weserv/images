@@ -424,6 +424,40 @@ calculate_position(const int in_width, const int in_height, const int out_width,
 }
 
 /**
+ * Split/crop each frame and reassemble.
+ * @param image The source image.
+ * @param left Crop x-position.
+ * @param top Crop y-position.
+ * @param width Crop width.
+ * @param height Crop height.
+ * @param n_pages Number of pages.
+ * @param page_height Page height.
+ * @return A new image.
+ */
+inline VImage crop_multi_page(const VImage &image, int left, int top, int width,
+                              int height, int n_pages, int page_height) {
+    if (top == 0 && height == page_height) {
+        // Fast path; no need to adjust the height of the multi-page image
+        return image.extract_area(left, 0, width, image.height());
+    }
+
+    std::vector<VImage> pages;
+    pages.reserve(n_pages);
+
+    // Split the image into cropped frames
+    for (int i = 0; i < n_pages; i++) {
+        pages.push_back(
+            image.extract_area(left, page_height * i + top, width, height));
+    }
+
+    // Reassemble the frames into a tall, thin image
+    VImage assembled =
+        VImage::arrayjoin(pages, VImage::option()->set("across", 1));
+
+    return assembled;
+}
+
+/**
  * Calculate the (left, top) coordinates with a given focal point.
  * @param fpx Focal point x-position.
  * @param fpy Focal point y-position.

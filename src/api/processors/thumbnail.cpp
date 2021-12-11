@@ -339,7 +339,9 @@ VImage Thumbnail::process(const VImage &image) const {
     auto thumb = image;
 
     // So page_height is after pre-shrink, but before the main shrink stage
-    int page_height = utils::get_page_height(thumb);
+    // Pre-resize extract needs to fetch the page height from the query holder
+    auto page_height =
+        query_->get<int>("page_height", utils::get_page_height(thumb));
 
     // RAD needs special unpacking.
     if (thumb.coding() == VIPS_CODING_RAD) {

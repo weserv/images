@@ -181,22 +181,44 @@ TEST_CASE("skip", "[embed]") {
     CHECK(image.height() == 261);
 }
 
-TEST_CASE("skip height in toilet-roll mode", "[embed]") {
-    if (vips_type_find("VipsOperation", true_streaming
-                                            ? "gifload_source"
-                                            : "gifload_buffer") == 0 ||
-        vips_type_find("VipsOperation", pre_8_12
-                                            ? "magicksave_buffer"
-                                            : "gifsave_target") == 0) {
-        SUCCEED("no gif support, skipping test");
-        return;
+TEST_CASE("animated image", "[embed]") {
+    SECTION("width only") {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "gifload_source"
+                                                : "gifload_buffer") == 0 ||
+            vips_type_find("VipsOperation", pre_8_12
+                                                ? "magicksave_buffer"
+                                                : "gifsave_target") == 0) {
+            SUCCEED("no gif support, skipping test");
+            return;
+        }
+
+        auto test_image = fixtures->input_gif_animated;
+        auto params = "n=-1&w=400&h=300&fit=contain";
+
+        VImage image = process_file<VImage>(test_image, params);
+
+        CHECK(image.width() == 400);
+        CHECK(vips_image_get_page_height(image.get_image()) == 300);
     }
 
-    auto test_image = fixtures->input_gif_animated;
-    auto params = "n=-1&w=300&h=400&fit=contain";
+    SECTION("height only") {
+        if (vips_type_find("VipsOperation", true_streaming
+                                                ? "gifload_source"
+                                                : "gifload_buffer") == 0 ||
+            vips_type_find("VipsOperation", pre_8_12
+                                                ? "magicksave_buffer"
+                                                : "gifsave_target") == 0) {
+            SUCCEED("no gif support, skipping test");
+            return;
+        }
 
-    VImage image = process_file<VImage>(test_image, params);
+        auto test_image = fixtures->input_gif_animated;
+        auto params = "n=-1&w=300&h=400&fit=contain";
 
-    CHECK(image.width() == 300);
-    CHECK(vips_image_get_page_height(image.get_image()) == 318);
+        VImage image = process_file<VImage>(test_image, params);
+
+        CHECK(image.width() == 300);
+        CHECK(vips_image_get_page_height(image.get_image()) == 400);
+    }
 }

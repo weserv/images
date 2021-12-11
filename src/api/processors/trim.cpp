@@ -58,7 +58,7 @@ VImage Trim::process(const VImage &image) const {
     query_->update("trim", true);
 
     // Don't trim the height in toilet-roll mode
-    if (query_->get<int>("n", 1) > 1) {
+    if (query_->get<int>("n") > 1) {
         top = 0;
         height = image.height();
     }

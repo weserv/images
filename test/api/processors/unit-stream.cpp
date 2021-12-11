@@ -115,7 +115,7 @@ TEST_CASE("output", "[stream]") {
         CHECK_THAT(image.get_string("vips-loader"), Equals("gifload_buffer"));
 
         CHECK(image.width() == 300);
-        CHECK(vips_image_get_page_height(image.get_image()) == 318);
+        CHECK(vips_image_get_page_height(image.get_image()) == 300);
     }
 
     SECTION("png") {

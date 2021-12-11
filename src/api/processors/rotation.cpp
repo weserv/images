@@ -17,7 +17,7 @@ VImage Rotation::process(const VImage &image) const {
 
     // Should we process the image?
     // Skip for multi-page images
-    if (rotation == 0 || query_->get<int>("n", 1) > 1) {
+    if (rotation == 0 || query_->get<int>("n") > 1) {
         return image;
     }
 
