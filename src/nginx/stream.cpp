@@ -85,7 +85,7 @@ void NgxTarget::finish() {
 
     // Only set the Link header if there's an upstream context available
     if (upstream_ctx_ != nullptr) {
-        (void)set_link_header(r_, upstream_ctx_->request->url());
+        (void)set_link_header(r_, upstream_ctx_->canonical);
     }
 
     time_t max_age = MAX_AGE_DEFAULT;

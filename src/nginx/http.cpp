@@ -395,6 +395,19 @@ ngx_int_t ngx_weserv_upstream_process_status_line(ngx_http_request_t *r) {
         return NGX_HTTP_UPSTREAM_INVALID_HEADER;
     }
 
+    // If we saw a temporary redirect, use that as the canonical one instead of
+    // where it points to. This ensures that we only set the canonical to URLs
+    // that are considered to be permanent.
+    // This should be safe according to RFC 6596 section 3.
+    // https://tools.ietf.org/html/rfc6596#section-3
+    if (!ctx->saw_temp_redirect) {
+        ctx->canonical = ctx->request->url();
+    }
+
+    // Flag indicating whenever we saw a temporary redirect in the chain
+    ctx->saw_temp_redirect = ctx->saw_temp_redirect || status.code == 302 ||
+                             status.code == 303 || status.code == 307;
+
     // Store the parsed response status for later
     ctx->response_status =
         Status(status.code, "", Status::ErrorCause::Upstream);

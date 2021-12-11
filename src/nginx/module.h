@@ -105,14 +105,22 @@ struct ngx_weserv_upstream_ctx_t : ngx_weserv_base_ctx_t {
     ngx_http_chunked_t chunked;
 
     /**
-     * Redirect flag.
+     * Redirect flags.
      */
     ngx_uint_t redirecting;
+    ngx_uint_t saw_temp_redirect;
 
     /**
      * Parsed HTTP redirection URI.
      */
     ngx_str_t location;
+
+    /**
+     * Parsed HTTP canonical URI.
+     * In most cases this is the same as request->url(), except when there's a
+     * temporary redirect in the chain.
+     */
+    ngx_str_t canonical;
 
     /**
      * Parsed HTTP response status.
