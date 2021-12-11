@@ -48,7 +48,7 @@ VImage SimilarImage::normalize(const VImage &image) const {
 }
 
 std::string SimilarImage::dhash(const VImage &image) const {
-    auto thumbnail_options = VImage::option()
+    vips::VOption *thumbnail_options = VImage::option()
                                  ->set("height", 8)
                                  ->set("size", VIPS_SIZE_FORCE)
                                  ->set("no_rotate", true)
@@ -89,6 +89,8 @@ std::string SimilarImage::dhash(const VImage &image) const {
             bit <<= 1u;
         }
     }
+
+    g_free(dhash_image);
 
     std::ostringstream ss;
     ss << std::hex << std::noshowbase << std::setw(16) << std::setfill('0')
