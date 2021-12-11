@@ -43,13 +43,20 @@ if (CMAKE_BUILD_TYPE MATCHES "Debug")
             )
 endif()
 
+if (CMAKE_GENERATOR MATCHES "Make")
+    # Use special command for Makefiles to support parallelism.
+    set(MAKE_EXE "$(MAKE)")
+else()
+    set(MAKE_EXE "make")
+endif()
+
 ExternalProject_Add(nginx
         DEPENDS ${PROJECT_NAME}
         PREFIX ${NGX_ROOT}
         SOURCE_DIR ${NGX_ROOT}/nginx
         URL http://nginx.org/download/nginx-${NGX_VERSION}.tar.gz
         CONFIGURE_COMMAND ./configure ${NGX_CONFIGURE_OPTS}
-        BUILD_COMMAND $(MAKE)
+        BUILD_COMMAND ${MAKE_EXE}
         BUILD_ALWAYS 1
         BUILD_IN_SOURCE 1
         )
