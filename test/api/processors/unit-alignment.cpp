@@ -226,8 +226,8 @@ TEST_CASE("skip height in toilet-roll mode", "[alignment]") {
                                             ? "gifload_source"
                                             : "gifload_buffer") == 0 ||
         vips_type_find("VipsOperation", pre_8_12
-                                                 ? "magicksave_buffer"
-                                                 : "gifsave_target") == 0) {
+                                            ? "magicksave_buffer"
+                                            : "gifsave_target") == 0) {
         SUCCEED("no gif support, skipping test");
         return;
     }

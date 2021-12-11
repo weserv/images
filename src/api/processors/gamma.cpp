@@ -28,7 +28,7 @@ VImage Gamma::process(const VImage &image) const {
             .gamma(VImage::option()->set("exponent", 1.0 / gamma))
             .bandjoin(alpha);
     }
-    
+
     return image.gamma(VImage::option()->set("exponent", 1.0 / gamma));
 }
 
