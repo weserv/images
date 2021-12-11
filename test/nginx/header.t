@@ -18,6 +18,8 @@ our $TestGif = unhex(qq{
 0x0020:  01 00 01 00 00 02 02 4c  01 00 3b                 |.......L ..;|
 });
 
+our $TestGifLength = length($TestGif);
+
 sub unhex {
     my ($input) = @_;
     my $buffer = '';
@@ -206,6 +208,32 @@ Content-Type: application/json
 $::TestGif"
 --- response_headers eval
 "Link: <$ENV{TEST_NGINX_URI}/static/test.gif>; rel=\"canonical\""
+--- response_body_filters eval
+\&::gif_size
+--- response_body: 1 1
+--- no_error_log
+[error]
+[warn]
+
+=== TEST 9: $weserv_response_length variable can be used
+--- http_config eval: $::HttpConfig
+--- config
+    location /static {
+        alias $TEST_NGINX_HTML_DIR;
+    }
+
+    location /images {
+        weserv proxy;
+
+        add_header X-Upstream-Response-Length $weserv_response_length;
+    }
+--- request eval
+"GET /images?url=$ENV{TEST_NGINX_URI}/static/test.gif"
+--- user_files eval
+">>> test.gif
+$::TestGif"
+--- response_headers eval
+"X-Upstream-Response-Length: $::TestGifLength"
 --- response_body_filters eval
 \&::gif_size
 --- response_body: 1 1

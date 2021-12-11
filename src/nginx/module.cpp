@@ -37,9 +37,20 @@ void *ngx_weserv_create_loc_conf(ngx_conf_t *cf);
 char *ngx_weserv_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child);
 
 /**
+ * Pre-configuration initialization.
+ */
+ngx_int_t ngx_weserv_preconfiguration(ngx_conf_t *cf);
+
+/**
  * Post-configuration initialization.
  */
 ngx_int_t ngx_weserv_postconfiguration(ngx_conf_t *cf);
+
+/**
+ * Variables.
+ */
+ngx_int_t ngx_weserv_response_length_variable(
+    ngx_http_request_t *r, ngx_http_variable_value_t *v, uintptr_t data);
 
 ngx_http_output_header_filter_pt ngx_http_next_header_filter;
 ngx_http_output_body_filter_pt ngx_http_next_body_filter;
@@ -252,14 +263,58 @@ ngx_command_t ngx_weserv_commands[] = {
 
     ngx_null_command  // last entry
 };
+
+ngx_http_variable_t ngx_weserv_vars[] = {
+
+    {ngx_string("weserv_response_length"), nullptr,
+     ngx_weserv_response_length_variable, 0,
+     NGX_HTTP_VAR_NOCACHEABLE, 0},
+
+    ngx_http_null_variable  // last entry
+};
 // clang-format on
+
+ngx_int_t ngx_weserv_response_length_variable(ngx_http_request_t *r,
+                                              ngx_http_variable_value_t *v,
+                                              uintptr_t data) {
+    v->valid = 1;
+    v->no_cacheable = 0;
+    v->not_found = 0;
+
+    auto *ctx = reinterpret_cast<ngx_weserv_base_ctx_t *>(
+        ngx_http_get_module_ctx(r, ngx_weserv_module));
+
+    if (ctx == nullptr || r->upstream_states == nullptr ||
+        r->upstream_states->nelts == 0) {
+        v->not_found = 1;
+        return NGX_OK;
+    }
+
+    u_char *p = reinterpret_cast<u_char *>(ngx_pnalloc(r->pool, NGX_OFF_T_LEN));
+    if (p == nullptr) {
+        return NGX_ERROR;
+    }
+
+    v->data = p;
+
+    ngx_http_upstream_state_t *states =
+        reinterpret_cast<ngx_http_upstream_state_t *>(r->upstream_states->elts);
+
+    // The final upstream state always contains our response length
+    p = ngx_sprintf(p, "%O",
+                    states[r->upstream_states->nelts - 1].response_length);
+
+    v->len = p - v->data;
+
+    return NGX_OK;
+}
 
 /**
  * The module context contains initialization and configuration callbacks.
  */
 ngx_http_module_t ngx_weserv_module_ctx = {
     // ngx_int_t (*preconfiguration)(ngx_conf_t *cf);
-    nullptr,
+    ngx_weserv_preconfiguration,
     // ngx_int_t (*postconfiguration)(ngx_conf_t *cf);
     ngx_weserv_postconfiguration,
     // void *(*create_main_conf)(ngx_conf_t *cf);
@@ -765,6 +820,31 @@ ngx_int_t ngx_weserv_image_body_filter(ngx_http_request_t *r, ngx_chain_t *in) {
     return ngx_weserv_finish(r, out);
 }
 
+/*
+ * The module pre-configuration. Define module variables.
+ */
+ngx_int_t ngx_weserv_preconfiguration(ngx_conf_t *cf) {
+    // Define weserv variables
+    ngx_http_variable_t *decl;
+
+    for (decl = ngx_weserv_vars; decl->name.len > 0; decl++) {
+        ngx_http_variable_t *defn;
+        defn = ngx_http_add_variable(cf, &decl->name, decl->flags);
+        if (defn == nullptr) {
+            return NGX_ERROR;
+        }
+
+        defn->get_handler = decl->get_handler;
+        defn->data = decl->data;
+    }
+
+    return NGX_OK;
+}
+
+/*
+ * The module post-configuration. Insert filter handlers into NGINX's processing
+ * pipeline.
+ */
 ngx_int_t ngx_weserv_postconfiguration(ngx_conf_t *cf) {
     ngx_http_next_header_filter = ngx_http_top_header_filter;
     ngx_http_top_header_filter = ngx_weserv_image_header_filter;
