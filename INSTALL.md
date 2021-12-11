@@ -1,4 +1,4 @@
-# Install instructions (for CentOS 8)
+# Install instructions (for RHEL 8, and it's derivatives)
 
 ## Build dependencies
 

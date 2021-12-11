@@ -1,4 +1,4 @@
-FROM centos:8
+FROM rockylinux/rockylinux:8
 
 LABEL maintainer="Kleis Auke Wolthuizen <info@kleisauke.nl>"
 
@@ -17,7 +17,7 @@ ENV TZ=Europe/Amsterdam \
 # Update packages
 RUN dnf update -y \
     # Install the latest stable version of libjpeg-turbo,
-    # since the version on CentOS is too old (v1.5.3)
+    # since the version on RHEL 8 is too old (v1.5.3)
     && dnf install -y dnf-utils \
     && dnf config-manager --add-repo https://libjpeg-turbo.org/pmwiki/uploads/Downloads/libjpeg-turbo.repo \
     && sed -i '/^exclude=/ s/$/,libjpeg-turbo-*.*.9[0-9]-*/' /etc/yum.repos.d/libjpeg-turbo.repo \
@@ -29,7 +29,7 @@ RUN dnf update -y \
     && dnf config-manager --set-enabled powertools \
     && dnf install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm \
     && dnf config-manager --set-enabled remi \
-    && dnf install -y --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm \
+    && dnf install -y --nogpgcheck https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm \
     && dnf group install -y --with-optional 'Development Tools' \
     && dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
         vips-devel \
