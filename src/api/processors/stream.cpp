@@ -492,20 +492,6 @@ void Stream::write_to_target(const VImage &image, const Target &target) const {
             utils::supported_savers_string(config_.savers));
     }
 
-#if VIPS_VERSION_AT_LEAST(8, 12, 0)
-    // Disable gif output when the gifsave operation (introduced in libvips
-    // 8.12) is not available. This ensures that we don't accidentally
-    // save with *magick.
-    if (output == Output::Gif &&
-        vips_type_find("VipsOperation", "gifsave_target") == 0) {  // LCOV_EXCL_START
-        throw exceptions::UnsupportedSaverException(
-            "Saving to gif is disabled by policy. Supported savers: " +
-            utils::supported_savers_string(config_.savers &
-                                           ~static_cast<uintptr_t>(output)));
-    }
-    // LCOV_EXCL_STOP
-#endif
-
     if (output == Output::Json) {
         std::string out = utils::image_to_json(copy, image_type);
 
