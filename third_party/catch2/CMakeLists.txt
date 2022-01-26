@@ -1,6 +1,6 @@
 FetchContent_Declare(catch2
         GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-        GIT_TAG v2.13.7
+        GIT_TAG v2.13.8
         )
 
 FetchContent_GetProperties(catch2)
