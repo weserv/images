@@ -1,7 +1,7 @@
 # Based on:
 # https://hg.nginx.org/pkg-oss/file/tip/alpine/Makefile
 # https://github.com/nginxinc/docker-nginx/blob/master/mainline/alpine/Dockerfile
-FROM alpine:3.14
+FROM alpine:3.15
 
 LABEL maintainer="Kleis Auke Wolthuizen <info@kleisauke.nl>"
 
@@ -16,14 +16,11 @@ ENV TZ=Europe/Amsterdam \
     # Increase the minimum stack size to 2MB
     VIPS_MIN_STACK_SIZE=2m
 
-# The latest libvips can be installed from edge
-ARG ALPINE_REPO=https://dl-cdn.alpinelinux.org/alpine/edge/community
-
 # Create nginx user/group first, to be consistent throughout docker variants
 RUN addgroup -g 101 -S nginx \
     && adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx \
     # Bring in build dependencies
-    && apk add --no-cache --virtual .build-deps --repository $ALPINE_REPO \
+    && apk add --no-cache --virtual .build-deps \
         build-base \
         cmake \
         git \
@@ -55,7 +52,7 @@ RUN addgroup -g 101 -S nginx \
     && rm -rf _build \
     && apk del .build-deps \
     # Bring in runtime dependencies
-    && apk add --no-cache --repository $ALPINE_REPO \
+    && apk add --no-cache \
         openssl \
         pcre \
         vips \
