@@ -233,8 +233,8 @@ VImage Stream::new_from_source(const Source &source) const {
 
     vips::VOption *options;
     int n = 1;
+    int page = 0;
     if (utils::image_loader_supports_page(loader)) {
-        int page = 0;
         std::tie(n, page) = get_page_load_options(source, loader);
 
         options = VImage::option()
@@ -265,7 +265,7 @@ VImage Stream::new_from_source(const Source &source) const {
         // Resolve the number of pages if we need to render until
         // the end of the document.
         n = image.get_typeof(VIPS_META_N_PAGES) != 0
-                ? image.get_int(VIPS_META_N_PAGES)
+                ? image.get_int(VIPS_META_N_PAGES) - page
                 : 1;
     }
 
