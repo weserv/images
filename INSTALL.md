@@ -4,8 +4,9 @@
 
  * `cmake` >= 3.11
  * `g++` => 5.0
- * `libpcre3` (for nginx rewrite module)
- * `openssl` (for nginx ssl support)
+ * `pcre2` (for nginx rewrite module)
+ * `zlib` (for nginx gzip module)
+ * `openssl` (for SSL support)
  * `libvips` >= 8.9
 
 ## Install instructions
@@ -29,7 +30,7 @@ dnf config-manager --set-enabled remi
 # Enable the PowerTools repository since EPEL packages may depend on packages from it
 dnf config-manager --set-enabled PowerTools
 
-# Install libvips 8.11 (full-fat version)
+# Install libvips 8.12 (full-fat version)
 dnf install vips-devel vips-heif vips-magick-im6
 
 # Install build requirements
@@ -44,7 +45,7 @@ dnf install \
   glibc-devel \
   glibc-headers \
   openssl-devel \
-  pcre-devel \
+  pcre2-devel \
   zlib-devel
 ```
 

@@ -25,7 +25,7 @@ RUN addgroup -g 101 -S nginx \
         cmake \
         git \
         openssl-dev \
-        pcre-dev \
+        pcre2-dev \
         vips-dev \
     # Build CMake-based project
     && cmake -S . -B _build \
@@ -54,7 +54,7 @@ RUN addgroup -g 101 -S nginx \
     # Bring in runtime dependencies
     && apk add --no-cache \
         openssl \
-        pcre \
+        pcre2 \
         vips \
     # Bring in tzdata so users could set the timezones through the environment
     # variables

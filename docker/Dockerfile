@@ -37,7 +37,7 @@ RUN dnf update -y \
         vips-poppler \
         vips-magick-im6 \
         openssl-devel \
-        pcre-devel \
+        pcre2-devel \
         zlib-devel \
         nginx-filesystem \
     # Build CMake-based project
@@ -68,7 +68,7 @@ RUN dnf update -y \
     && dnf remove -y \
         vips-devel \
         openssl-devel \
-        pcre-devel \
+        pcre2-devel \
         zlib-devel \
     && dnf clean all \
     # Ensure nginx directories exist with the correct permissions
