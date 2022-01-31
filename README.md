@@ -38,9 +38,9 @@ the [GitHub issue tracker](https://github.com/weserv/images/issues).
 
 ## Credits
 
-[![Andries Louw Wolthuizen][avatar-author1]][author1] | [![Kleis Auke Wolthuizen][avatar-author2]][author2]
---- | ---
-[Andries Louw Wolthuizen][author1] | [Kleis Auke Wolthuizen][author2]
+| [![Andries Louw Wolthuizen][avatar-author1]][author1] | [![Kleis Auke Wolthuizen][avatar-author2]][author2] |
+| --- | --- |
+| [Andries Louw Wolthuizen][author1] | [Kleis Auke Wolthuizen][author2] |
 
 ## License
 
