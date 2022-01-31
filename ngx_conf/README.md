@@ -75,6 +75,16 @@ limit.
 
 Sets the maximum number of redirection-followings allowed.
 
+### `weserv_canonical_header`
+
+| syntax:      | <code>weserv_canonical_header on&#124;off</code> |
+| :----------- |:-------------------------------------------------|
+| **default:** | `on`                                             |
+| **context:** | `http`, `server`, `location`, `if in location`   |
+
+Determines whether the `rel="canonical"` response header should be set to
+proxied images (i.e., when configured with the `proxy` backend mode).
+
 ### `weserv_savers`
 
 | syntax:      | `weserv_savers [jpg] [png] [webp] [avif] [tiff] [gif] [json]` |

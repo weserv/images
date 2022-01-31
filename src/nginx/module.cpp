@@ -149,6 +149,14 @@ ngx_command_t ngx_weserv_commands[] = {
      offsetof(ngx_weserv_loc_conf_t, max_redirects),
      nullptr},
 
+    {ngx_string("weserv_canonical_header"),
+     NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
+         NGX_HTTP_LIF_CONF | NGX_CONF_FLAG,
+     ngx_conf_set_flag_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, canonical_header),
+     nullptr},
+
     {ngx_string("weserv_savers"),
      NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
          NGX_CONF_1MORE,
@@ -436,6 +444,7 @@ void *ngx_weserv_create_loc_conf(ngx_conf_t *cf) {
     lc->mode = NGX_CONF_UNSET_UINT;
     lc->max_size = NGX_CONF_UNSET_SIZE;
     lc->max_redirects = NGX_CONF_UNSET_UINT;
+    lc->canonical_header = NGX_CONF_UNSET;
 
     // API configuration
     lc->api_conf.savers = 0;
@@ -483,6 +492,9 @@ char *ngx_weserv_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child) {
 
     // Follow 10 redirects by default
     ngx_conf_merge_uint_value(conf->max_redirects, prev->max_redirects, 10);
+
+    // Set the rel="canonical" response header by default on proxied images
+    ngx_conf_merge_value(conf->canonical_header, prev->canonical_header, 1);
 
     // All supported savers are enabled by default
     ngx_conf_merge_bitmask_value(

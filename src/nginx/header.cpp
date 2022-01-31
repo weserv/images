@@ -153,6 +153,11 @@ ngx_int_t set_location_header(ngx_http_request_t *r, ngx_str_t *value) {
 }
 
 ngx_int_t set_link_header(ngx_http_request_t *r, const ngx_str_t &url) {
+    // Skip setting the rel="canonical" response header if there's no canonical
+    if (url.len == 0) {
+        return NGX_OK;
+    }
+
     size_t prefix_size = sizeof("<") - 1;
     size_t suffix_size = sizeof(">; rel=\"canonical\"") - 1;
     size_t header_size = prefix_size + url.len + suffix_size;

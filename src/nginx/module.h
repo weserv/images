@@ -52,6 +52,8 @@ struct ngx_weserv_loc_conf_t {
     size_t max_size;
 
     ngx_uint_t max_redirects;
+
+    ngx_flag_t canonical_header;
 };
 
 /**
