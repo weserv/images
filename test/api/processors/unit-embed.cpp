@@ -173,7 +173,7 @@ TEST_CASE("embed", "[embed]") {
 
 TEST_CASE("skip", "[embed]") {
     auto test_image = fixtures->input_jpg;
-    auto params = "w=320&h=261&fit=contain&fsol=0";
+    auto params = "w=320&h=261&fit=contain";
 
     VImage image = process_file<VImage>(test_image, params);
 

@@ -13,7 +13,7 @@ TEST_CASE("rotation", "[rotation]") {
         auto test_image = fixtures->input_jpg;
         auto expected_image =
             fixtures->expected_dir + "/rotate-transparent-bg.png";
-        auto params = "w=320&ro=30&rbg=80FF0000&fsol=0";
+        auto params = "w=320&ro=30&rbg=80FF0000";
 
         VImage image = process_file<VImage>(test_image, params);
 
@@ -28,7 +28,7 @@ TEST_CASE("rotation", "[rotation]") {
     SECTION("by 30 degrees with solid background") {
         auto test_image = fixtures->input_jpg;
         auto expected_image = fixtures->expected_dir + "/rotate-solid-bg.jpg";
-        auto params = "w=320&ro=30&rbg=FF0000&fsol=0";
+        auto params = "w=320&ro=30&rbg=FF0000";
 
         VImage image = process_file<VImage>(test_image, params);
 

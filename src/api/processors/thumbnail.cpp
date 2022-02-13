@@ -110,23 +110,27 @@ double Thumbnail::resolve_common_shrink(int width, int height) const {
 
 int Thumbnail::resolve_jpeg_shrink(int width, int height) const {
     double shrink = resolve_common_shrink(width, height);
-
     int shrink_on_load_factor =
         query_->get<bool>("fsol", FAST_SHRINK_ON_LOAD) ? 1 : 2;
+    int jpeg_shrink_on_load = 1;
 
     // Shrink-on-load is a simple block shrink and will
     // add quite a bit of extra sharpness to the image.
     if (shrink >= 8 * shrink_on_load_factor) {
-        return 8;
-    }
-    if (shrink >= 4 * shrink_on_load_factor) {
-        return 4;
-    }
-    if (shrink >= 2 * shrink_on_load_factor) {
-        return 2;
+        jpeg_shrink_on_load = 8;
+    } else if (shrink >= 4 * shrink_on_load_factor) {
+        jpeg_shrink_on_load = 4;
+    } else if (shrink >= 2 * shrink_on_load_factor) {
+        jpeg_shrink_on_load = 2;
     }
 
-    return 1;
+    // Lower shrink-on-load for known libjpeg rounding errors
+    if (jpeg_shrink_on_load > 1 &&
+        static_cast<int>(shrink) == jpeg_shrink_on_load) {
+        jpeg_shrink_on_load /= 2;
+    }
+
+    return jpeg_shrink_on_load;
 }
 
 int Thumbnail::resolve_tiff_pyramid(const VImage &image, const Source &source,

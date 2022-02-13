@@ -92,7 +92,7 @@ TEST_CASE("fixed", "[thumbnail]") {
 
 TEST_CASE("invalid height", "[thumbnail]") {
     auto test_image = fixtures->input_jpg;
-    auto params = "w=320&h=100000000&fsol=0";
+    auto params = "w=320&h=100000000";
 
     VImage image = process_file<VImage>(test_image, params);
 
@@ -316,7 +316,7 @@ TEST_CASE("tiff", "[thumbnail]") {
 // Width or height considering ratio (landscape)
 TEST_CASE("jpg ratio landscape", "[thumbnail]") {
     auto test_image = fixtures->input_jpg;
-    auto params = "w=320&h=320&fsol=0";
+    auto params = "w=320&h=320";
 
     VImage image = process_file<VImage>(test_image, params);
 
