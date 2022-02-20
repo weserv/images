@@ -397,6 +397,14 @@ void *ngx_weserv_create_loc_conf(ngx_conf_t *cf) {
     lc->upstream_conf.max_temp_file_size = 0;
     lc->upstream_conf.temp_file_write_size = 0;
 
+    // Attempt to do a failover with a maximum of 3 tries when a domain name
+    // resolves to several addresses
+    lc->upstream_conf.next_upstream_tries = 3;
+    lc->upstream_conf.next_upstream_timeout = 0;
+    lc->upstream_conf.next_upstream =
+        (NGX_CONF_BITMASK_SET | NGX_HTTP_UPSTREAM_FT_ERROR |
+         NGX_HTTP_UPSTREAM_FT_TIMEOUT);
+
     // Do not pass the client request headers or body to the upstream
     lc->upstream_conf.pass_request_headers = 0;
     lc->upstream_conf.pass_request_body = 0;
