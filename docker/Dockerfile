@@ -1,4 +1,4 @@
-FROM rockylinux/rockylinux:8
+FROM rockylinux:8
 
 LABEL maintainer="Kleis Auke Wolthuizen <info@kleisauke.nl>"
 
