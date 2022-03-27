@@ -19,16 +19,16 @@ dnf install epel-release
 dnf install https://rpms.remirepo.net/enterprise/remi-release-8.rpm
 
 # Install the RPM Fusion repository configuration package (for libheif)
-dnf install --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm
+dnf install --nogpgcheck https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm
 
-# Install the dnf-utils package (for the dnf config-manager command)
-dnf install dnf-utils
+# Install the DNF plugins package (for the dnf config-manager command)
+dnf install dnf-plugins-core
 
 # Enable Remi's RPM repository
 dnf config-manager --set-enabled remi
 
 # Enable the PowerTools repository since EPEL packages may depend on packages from it
-dnf config-manager --set-enabled PowerTools
+dnf config-manager --set-enabled powertools
 
 # Install libvips 8.12 (full-fat version)
 dnf install vips-devel vips-heif vips-magick-im6

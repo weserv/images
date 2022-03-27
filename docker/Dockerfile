@@ -18,7 +18,7 @@ ENV TZ=Europe/Amsterdam \
 RUN dnf update -y \
     # Install the latest stable version of libjpeg-turbo,
     # since the version on RHEL 8 is too old (v1.5.3)
-    && dnf install -y dnf-utils \
+    && dnf install -y dnf-plugins-core \
     && dnf config-manager --add-repo https://libjpeg-turbo.org/pmwiki/uploads/Downloads/libjpeg-turbo.repo \
     && sed -i '/^exclude=/ s/$/,libjpeg-turbo-*.*.9[0-9]-*/' /etc/yum.repos.d/libjpeg-turbo.repo \
     && dnf install -y libjpeg-turbo-official \
