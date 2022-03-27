@@ -314,21 +314,6 @@ inline ImageType determine_image_type(const std::string &loader) {
 }
 
 /**
- * Does this loader support multiple pages?
- * @param loader The name of the load operation.
- * @return A bool indicating if this loader support multiple pages.
- */
-inline bool image_loader_supports_page(const std::string &loader) {
-    return loader.rfind("VipsForeignLoadPdf", 0) == 0 ||
-           loader.rfind("VipsForeignLoadGif", 0) == 0 ||
-           loader.rfind("VipsForeignLoadNsgif", 0) == 0 ||
-           loader.rfind("VipsForeignLoadTiff", 0) == 0 ||
-           loader.rfind("VipsForeignLoadWebp", 0) == 0 ||
-           loader.rfind("VipsForeignLoadHeif", 0) == 0 ||
-           loader.rfind("VipsForeignLoadMagick", 0) == 0;
-}
-
-/**
  * Provide a string identifier for the given image type.
  * @param image_type The image type enum.
  * @return A string identifier for the given image type.
@@ -358,6 +343,17 @@ inline std::string image_type_id(const ImageType &image_type) {
             return "unknown";
     }
     // LCOV_EXCL_STOP
+}
+
+/**
+ * Does this image type support multiple pages?
+ * @param image_type Image type to check.
+ * @return A bool indicating if this image type support multiple pages.
+ */
+inline bool support_multi_pages(const ImageType &image_type) {
+    return image_type == ImageType::Webp || image_type == ImageType::Tiff ||
+           image_type == ImageType::Gif || image_type == ImageType::Pdf ||
+           image_type == ImageType::Heif || image_type == ImageType::Magick;
 }
 
 /**

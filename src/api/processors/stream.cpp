@@ -220,10 +220,11 @@ VImage Stream::new_from_source(const Source &source) const {
         throw exceptions::InvalidImageException(vips_error_buffer());
     }
 
+    ImageType image_type = utils::determine_image_type(loader);
+
     // Save the image type so that we can work out
     // what options to pass to write_to_target()
-    query_->update("type",
-                   static_cast<int>(utils::determine_image_type(loader)));
+    query_->update("type", static_cast<int>(image_type));
 
     // Don't use sequential mode read, if we're doing a trim.
     // (it will scan the whole image once to find the crop area)
@@ -234,7 +235,7 @@ VImage Stream::new_from_source(const Source &source) const {
     vips::VOption *options;
     int n = 1;
     int page = 0;
-    if (utils::image_loader_supports_page(loader)) {
+    if (utils::support_multi_pages(image_type)) {
         std::tie(n, page) = get_page_load_options(source, loader);
 
         options = VImage::option()
