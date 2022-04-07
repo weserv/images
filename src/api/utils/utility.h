@@ -274,6 +274,15 @@ inline Output to_output(const ImageType &image_type) {
 }
 
 /**
+ * libvips 8.11 swapped giflib with libnsgif for loading GIF images.
+ */
+#if VIPS_VERSION_AT_LEAST(8, 11, 0)
+#define VIPS_FOREIGN_LOAD_GIF "VipsForeignLoadNsgif"
+#else
+#define VIPS_FOREIGN_LOAD_GIF "VipsForeignLoadGif"
+#endif
+
+/**
  * Determine image type from the name of the load operation.
  * @param loader The name of the load operation.
  * @return The image type.
@@ -291,8 +300,7 @@ inline ImageType determine_image_type(const std::string &loader) {
     if (loader.rfind("VipsForeignLoadTiff", 0) == 0) {
         return ImageType::Tiff;
     }
-    if (loader.rfind("VipsForeignLoadGif", 0) == 0 ||
-        loader.rfind("VipsForeignLoadNsgif", 0) == 0) {
+    if (loader.rfind(VIPS_FOREIGN_LOAD_GIF, 0) == 0) {
         return ImageType::Gif;
     }
     if (loader.rfind("VipsForeignLoadSvg", 0) == 0) {
