@@ -526,6 +526,26 @@ TEST_CASE("shortest edge is at least 1 pixel", "[thumbnail]") {
     }
 }
 
+TEST_CASE("pdf", "[thumbnail]") {
+    if (vips_type_find("VipsOperation", true_streaming
+                                            ? "pdfload_source"
+                                            : "pdfload_buffer") == 0) {
+        SUCCEED("no pdf support, skipping test");
+        return;
+    }
+
+    auto test_image = fixtures->input_pdf;
+    auto expected_image = fixtures->expected_dir + "/pdf-thumbnail.jpg";
+    auto params = "page=1&w=500&h=249&output=jpg";
+
+    VImage image = process_file<VImage>(test_image, params);
+
+    CHECK(image.width() == 500);
+    CHECK(image.height() == 249);
+
+    CHECK_THAT(image, is_similar_image(expected_image));
+}
+
 TEST_CASE("heif", "[thumbnail]") {
     if (vips_type_find("VipsOperation", true_streaming
                                             ? "heifload_source"

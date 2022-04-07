@@ -22,6 +22,115 @@ const bool FAST_SHRINK_ON_LOAD = true;
 
 using io::Source;
 
+template <>
+VImage
+Thumbnail::new_from_source<ImageType::Jpeg>(const Source &source,
+                                            vips::VOption *options) const {
+#ifdef WESERV_ENABLE_TRUE_STREAMING
+    return VImage::jpegload_source(source, options);
+#else
+    // We don't take a copy of the data or free it
+    auto *blob =
+        vips_blob_new(nullptr, source.buffer().data(), source.buffer().size());
+    auto image = VImage::jpegload_buffer(blob, options);
+    vips_area_unref(reinterpret_cast<VipsArea *>(blob));
+    return image;
+#endif
+}
+
+template <>
+VImage
+Thumbnail::new_from_source<ImageType::Pdf>(const Source &source,
+                                           vips::VOption *options) const {
+#ifdef WESERV_ENABLE_TRUE_STREAMING
+    return VImage::pdfload_source(source, options);
+#else
+    // We don't take a copy of the data or free it
+    auto *blob =
+        vips_blob_new(nullptr, source.buffer().data(), source.buffer().size());
+    auto image = VImage::pdfload_buffer(blob, options);
+    vips_area_unref(reinterpret_cast<VipsArea *>(blob));
+    return image;
+#endif
+}
+
+template <>
+VImage
+Thumbnail::new_from_source<ImageType::Webp>(const Source &source,
+                                            vips::VOption *options) const {
+#ifdef WESERV_ENABLE_TRUE_STREAMING
+    return VImage::webpload_source(source, options);
+#else
+    // We don't take a copy of the data or free it
+    auto *blob =
+        vips_blob_new(nullptr, source.buffer().data(), source.buffer().size());
+    auto image = VImage::webpload_buffer(blob, options);
+    vips_area_unref(reinterpret_cast<VipsArea *>(blob));
+    return image;
+#endif
+}
+
+template <>
+VImage
+Thumbnail::new_from_source<ImageType::Tiff>(const Source &source,
+                                            vips::VOption *options) const {
+#ifdef WESERV_ENABLE_TRUE_STREAMING
+    return VImage::tiffload_source(source, options);
+#else
+    // We don't take a copy of the data or free it
+    auto *blob =
+        vips_blob_new(nullptr, source.buffer().data(), source.buffer().size());
+    auto image = VImage::tiffload_buffer(blob, options);
+    vips_area_unref(reinterpret_cast<VipsArea *>(blob));
+    return image;
+#endif
+}
+
+// TODO(kleisauke): Support whole-slide images(?)
+/*template <>
+VImage
+Thumbnail::new_from_source<ImageType::OpenSlide>(const Source &source,
+                                                 vips::VOption *options) const {
+#ifdef WESERV_ENABLE_TRUE_STREAMING
+    return VImage::openslideload_source(source, options);
+#else
+    // openslideload_buffer is not available
+    return nullptr;
+#endif
+}*/
+
+template <>
+VImage
+Thumbnail::new_from_source<ImageType::Svg>(const Source &source,
+                                           vips::VOption *options) const {
+#ifdef WESERV_ENABLE_TRUE_STREAMING
+    return VImage::svgload_source(source, options);
+#else
+    // We don't take a copy of the data or free it
+    auto *blob =
+        vips_blob_new(nullptr, source.buffer().data(), source.buffer().size());
+    auto image = VImage::svgload_buffer(blob, options);
+    vips_area_unref(reinterpret_cast<VipsArea *>(blob));
+    return image;
+#endif
+}
+
+template <>
+VImage
+Thumbnail::new_from_source<ImageType::Heif>(const Source &source,
+                                            vips::VOption *options) const {
+#ifdef WESERV_ENABLE_TRUE_STREAMING
+    return VImage::heifload_source(source, options);
+#else
+    // We don't take a copy of the data or free it
+    auto *blob =
+        vips_blob_new(nullptr, source.buffer().data(), source.buffer().size());
+    auto image = VImage::heifload_buffer(blob, options);
+    vips_area_unref(reinterpret_cast<VipsArea *>(blob));
+    return image;
+#endif
+}
+
 std::pair<double, double> Thumbnail::resolve_shrink(int width,
                                                     int height) const {
     auto rotation = query_->get<int>("angle", 0);
@@ -148,18 +257,11 @@ int Thumbnail::resolve_tiff_pyramid(const VImage &image, const Source &source,
     int target_page = -1;
 
     for (int i = n_pages - 1; i >= 0; i--) {
-        auto page =
-#ifdef WESERV_ENABLE_TRUE_STREAMING
-            VImage::new_from_source(
-                source, "",
-#else
-            VImage::new_from_buffer(
-                source.buffer(), "",
-#endif
-                VImage::option()
-                    ->set("access", VIPS_ACCESS_SEQUENTIAL)
-                    ->set("fail", config_.fail_on_error == 1)
-                    ->set("page", i));
+        auto page = new_from_source<ImageType::Tiff>(
+            source, VImage::option()
+                        ->set("access", VIPS_ACCESS_SEQUENTIAL)
+                        ->set("fail", config_.fail_on_error == 1)
+                        ->set("page", i));
 
         int level_width = page.width();
         int level_height = page.height();
@@ -259,66 +361,48 @@ VImage Thumbnail::shrink_on_load(const VImage &image,
     if (image_type == ImageType::Jpeg) {
         auto shrink = resolve_jpeg_shrink(width, height);
 
-#ifdef WESERV_ENABLE_TRUE_STREAMING
-        return VImage::new_from_source(source, "",
-#else
-        return VImage::new_from_buffer(source.buffer(), "",
-#endif
-                                       load_options->set("shrink", shrink));
-    } else if (image_type == ImageType::Pdf || image_type == ImageType::Webp) {
+        return new_from_source<ImageType::Jpeg>(
+            source, load_options->set("shrink", shrink));
+    } else if (image_type == ImageType::Pdf) {
         append_page_options(load_options);
 
         auto scale =
             1.0 / resolve_common_shrink(width, utils::get_page_height(image));
 
-#ifdef WESERV_ENABLE_TRUE_STREAMING
-        return VImage::new_from_source(source, "",
-#else
-        return VImage::new_from_buffer(source.buffer(), "",
-#endif
-                                       load_options->set("scale", scale));
+        return new_from_source<ImageType::Pdf>(
+            source, load_options->set("scale", scale));
+    } else if (image_type == ImageType::Webp) {
+        append_page_options(load_options);
+
+        auto scale =
+            1.0 / resolve_common_shrink(width, utils::get_page_height(image));
+
+        return new_from_source<ImageType::Webp>(
+            source, load_options->set("scale", scale));
     } else if (image_type == ImageType::Tiff) {
         auto page = resolve_tiff_pyramid(image, source, width, height);
 
         // We've found a pyramid
         if (page != -1) {
-#ifdef WESERV_ENABLE_TRUE_STREAMING
-            return VImage::new_from_source(source, "",
-#else
-            return VImage::new_from_buffer(source.buffer(), "",
-#endif
-                                           load_options->set("page", page));
+            return new_from_source<ImageType::Tiff>(
+                source, load_options->set("page", page));
         }
     /*} else if (image_type == ImageType::OpenSlide) {
         auto level = resolve_open_slide_level(image);
 
-#ifdef WESERV_ENABLE_TRUE_STREAMING
-        return VImage::new_from_source(source, "",
-#else
-        return VImage::new_from_buffer(source.buffer(), "",
-#endif
-                                       load_options->set("level", level));*/
+        return new_from_source<ImageType::OpenSlide>(
+            source, load_options->set("level", level));*/
     } else if (image_type == ImageType::Svg) {
         auto scale = 1.0 / resolve_common_shrink(width, height);
 
-#ifdef WESERV_ENABLE_TRUE_STREAMING
-        return VImage::new_from_source(source, "",
-#else
-        return VImage::new_from_buffer(source.buffer(), "",
-#endif
-                                       load_options->set("scale", scale));
+        return new_from_source<ImageType::Svg>(
+            source, load_options->set("scale", scale));
     } else if (image_type == ImageType::Heif) {
         append_page_options(load_options);
 
         // Fetch the size of the stored thumbnail
-#ifdef WESERV_ENABLE_TRUE_STREAMING
-        auto thumb =
-            VImage::new_from_source(source, "",
-#else
-        auto thumb =
-            VImage::new_from_buffer(source.buffer(), "",
-#endif
-                                    load_options->set("thumbnail", true));
+        auto thumb = new_from_source<ImageType::Heif>(
+            source, load_options->set("thumbnail", true));
 
         // Use the thumbnail if, by using it, we could get a factor > 1.0,
         // i.e. we would not need to expand the thumbnail.

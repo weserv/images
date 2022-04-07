@@ -31,6 +31,17 @@ class Thumbnail : ImageProcessor {
     const Config &config_;
 
     /**
+     * Load a formatted image from a source for a specified image type.
+     * @tparam ImageType Image type.
+     * @param source Source to read from.
+     * @param options Any options to pass on to the load operation.
+     * @return A new `VImage`.
+     */
+    template <enums::ImageType ImageType>
+    VImage new_from_source(const io::Source &source,
+                           vips::VOption *options) const;
+
+    /**
      * Calculate the shrink factor, taking into account auto-rotate, the fit
      * mode, and so on. The hshrink/vshrink are the amount to shrink the input
      * image axes by in order for the output axes (ie. after rotation) to match

@@ -120,7 +120,7 @@ VImage Stream::new_from_source(const Source &source, const std::string &loader,
 #else
     // We don't take a copy of the data or free it
     auto *blob =
-        vips_blob_new(nullptr, source.buffer().c_str(), source.buffer().size());
+        vips_blob_new(nullptr, source.buffer().data(), source.buffer().size());
     options = options->set("buffer", blob)->set("out", &out_image);
     vips_area_unref(reinterpret_cast<VipsArea *>(blob));
 
@@ -212,7 +212,7 @@ VImage Stream::new_from_source(const Source &source) const {
 #ifdef WESERV_ENABLE_TRUE_STREAMING
     const char *loader = vips_foreign_find_load_source(source.get_source());
 #else
-    const char *loader = vips_foreign_find_load_buffer(source.buffer().c_str(),
+    const char *loader = vips_foreign_find_load_buffer(source.buffer().data(),
                                                        source.buffer().size());
 #endif
 
