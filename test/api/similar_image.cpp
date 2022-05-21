@@ -115,7 +115,7 @@ int hex2int(char ch) {
 int SimilarImage::dhash_distance(const std::string &hash1,
                                  const std::string &hash2) const {
     // Nibble lookup table to reduce computation time, see
-    // https://stackoverflow.com/a/25808559/1480019
+    // https://stackoverflow.com/a/25808559
     static const std::array<uint8_t, 16> NIBBLE_LOOKUP = {
         0, 1, 1, 2, 1, 2, 2, 3,
         1, 2, 2, 3, 2, 3, 3, 4

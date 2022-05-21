@@ -398,7 +398,6 @@ ngx_int_t ngx_weserv_upstream_process_status_line(ngx_http_request_t *r) {
     auto *lc = reinterpret_cast<ngx_weserv_loc_conf_t *>(
         ngx_http_get_module_loc_conf(r, ngx_weserv_module));
 
-    // Do we need to set the rel="canonical" response header?
     if (lc->canonical_header) {
         // If we saw a temporary redirect, use that as the canonical one instead
         // of where it points to. This ensures that we only set the canonical to
@@ -455,7 +454,7 @@ ngx_int_t ngx_weserv_upstream_process_header(ngx_http_request_t *r) {
         ngx_int_t rc = ngx_http_parse_header_line(r, &u->buffer, 1);
 
         if (rc == NGX_OK) {
-            // a header line has been parsed successfully
+            // A header line has been parsed successfully
 
             ngx_str_t name = {
                 (size_t)(r->header_name_end - r->header_name_start),
@@ -503,7 +502,7 @@ ngx_int_t ngx_weserv_upstream_process_header(ngx_http_request_t *r) {
                                      &absolute_url);
                 }
 
-                // Parse the absolute redirection URI.
+                // Parse the absolute redirection URI
                 (void)parse_url(r->pool, absolute_url, &ctx->location);
             }
 
@@ -707,7 +706,7 @@ Status initialize_upstream_request(ngx_http_request_t *r,
     u->buffering = lc->upstream_conf.buffering;
 
     // Set up the upstream handlers which create the request HTTP buffers, and
-    // process the response data as the upstream module reads it from the wire.
+    // process the response data as the upstream module reads it from the wire
     u->pipe = new (r->pool) ngx_event_pipe_t;
     if (u->pipe == nullptr) {
         return Status(NGX_ERROR, "Out of memory");

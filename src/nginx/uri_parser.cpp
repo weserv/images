@@ -223,7 +223,7 @@ uintptr_t escape_path(u_char *dst, u_char *src, size_t size) {
     // sub-delims    = "!" / "$" / "&" / "'" / "(" / ")"
     //               / "*" / "+" / "," / ";" / "="
     //
-    // And "%" can appear as a part of escaping itself.  The following
+    // And "%" can appear as a part of escaping itself. The following
     // characters are not allowed and need to be escaped: %00-%1F, %7F-%FF,
     // " ", """, "<", ">", "\", "^", "`", "{", "|", "}".
 
@@ -281,11 +281,9 @@ uintptr_t escape_path(u_char *dst, u_char *src, size_t size) {
 
 ngx_int_t concat_url(ngx_pool_t *pool, const ngx_str_t &base,
                      ngx_str_t &relative, ngx_str_t *output) {
-    // Try to append this new path to the old URL
-    // to the right of the host part. Oh crap, this is doomed to cause
-    // problems in the future...
+    // Try to append this new path to the old URL to the right of the host part
 
-    // we must make our own copy of the URL to play with, as it may
+    // We must make our own copy of the URL to play with, as it may
     // point to read-only data
     u_char *url_clone =
         reinterpret_cast<u_char *>(ngx_pnalloc(pool, base.len + 1));
@@ -295,7 +293,7 @@ ngx_int_t concat_url(ngx_pool_t *pool, const ngx_str_t &base,
 
     ngx_memcpy(url_clone, base.data, base.len);
 
-    // ensure null-terminated string
+    // Ensure null-terminated string
     url_clone[base.len] = '\0';
 
     // protsep points to the start of the host name
@@ -303,7 +301,7 @@ ngx_int_t concat_url(ngx_pool_t *pool, const ngx_str_t &base,
     if (protsep == nullptr) {
         protsep = url_clone;
     } else {
-        protsep += 2;  // pass the slashes
+        protsep += 2;  // Pass the slashes
     }
 
     u_char *p = relative.data;
@@ -319,7 +317,7 @@ ngx_int_t concat_url(ngx_pool_t *pool, const ngx_str_t &base,
             *pathsep = '\0';
         }
 
-        // we have a relative path to append to the last slash if there's one
+        // We have a relative path to append to the last slash if there's one
         // available, or if the new URL is just a query string (starts with a
         // '?') we append the new one at the end of the entire currently worked
         // out URL
@@ -330,7 +328,7 @@ ngx_int_t concat_url(ngx_pool_t *pool, const ngx_str_t &base,
             }
         }
 
-        // check if there's any slash after the host name, and if so, remember
+        // Check if there's any slash after the host name, and if so, remember
         // that position instead
         pathsep = (u_char *)ngx_strchr(protsep, '/');
         if (pathsep != nullptr) {
@@ -339,19 +337,19 @@ ngx_int_t concat_url(ngx_pool_t *pool, const ngx_str_t &base,
             protsep = nullptr;
         }
 
-        // now deal with one "./" or any amount of "../" and act accordingly
+        // Now deal with one "./" or any amount of "../" and act accordingly
         if (p[0] == '.' && p[1] == '/') {
-            p += 2;  // just skip the "./"
+            p += 2;  // Just skip the "./"
         }
 
         while (p[0] == '.' && p[1] == '.' && p[2] == '/') {
             level++;
-            p += 3;  // pass the "../"
+            p += 3;  // Pass the "../"
         }
 
         if (protsep != nullptr) {
             while (level--) {
-                // cut off one more level from the right of the original URL
+                // Cut off one more level from the right of the original URL
                 pathsep = (u_char *)strrchr((const char *)protsep, '/');
                 if (pathsep != nullptr) {
                     *pathsep = '\0';
@@ -361,14 +359,14 @@ ngx_int_t concat_url(ngx_pool_t *pool, const ngx_str_t &base,
                 }
             }
         }
-    } else if (relative.data[0] == '/' && relative.data[1] == '/') {
-        // the new URL starts with //, just keep the protocol part from the
+    } else if (relative.data[1] == '/') {
+        // The new URL starts with //, just keep the protocol part from the
         // original one
         *protsep = '\0';
-        // we keep the slashes from the original, so we skip the new ones
+        // We keep the slashes from the original, so we skip the new ones
         p = &relative.data[2];
     } else {
-        // cut off the original URL from the first slash, or deal with URLs
+        // Cut off the original URL from the first slash, or deal with URLs
         // without slash
         u_char *pathsep = (u_char *)ngx_strchr(protsep, '/');
         if (pathsep != nullptr) {
@@ -402,11 +400,11 @@ ngx_int_t concat_url(ngx_pool_t *pool, const ngx_str_t &base,
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
 
-    // copy over the root url part
+    // Copy over the root url part
     u_char *o = ngx_cpymem(output->data, url_clone, urllen);
     output->len = urllen;
 
-    // check if we need to append a slash
+    // Check if we need to append a slash
     if (p[0] != '/' && p[0] != '?' &&
         (protsep == nullptr || *protsep != '\0')) {
         *o++ = '/';
@@ -480,7 +478,7 @@ ngx_int_t parse_url(ngx_pool_t *pool, ngx_str_t &uri, ngx_str_t *output) {
 
     // Remove the fragment part of the path. Per RFC 3986, this is always the
     // last part of the URI. We are looking for the first '#' so that we deal
-    // gracefully with non conformant URI such as http://example.com#foo#bar.
+    // gracefully with non-conformant URI such as http://example.com#foo#bar
     u_char *fragment = reinterpret_cast<u_char *>(ngx_strlchr(path, last, '#'));
     if (fragment != nullptr) {
         last = fragment;
@@ -488,14 +486,14 @@ ngx_int_t parse_url(ngx_pool_t *pool, ngx_str_t &uri, ngx_str_t *output) {
 
     size_t path_length = (size_t)(last - path);
 
-    // Note: each escaped character is replaced by 3 characters.
+    // Note: each escaped character is replaced by 3 characters
     uintptr_t escaped_length =
         path_length > 0 ? 2 * escape_path(nullptr, path, path_length) : 1;
 
     size_t domain_length = (size_t)(path - ref);
 
-    // Guard against overflow.
-    // 253 characters is the maximum length of full domain name, including dots.
+    // Guard against overflow. 253 characters is the maximum length of full
+    // domain name, including dots.
     if (domain_length > 253) {
         return NGX_ERROR;
     }

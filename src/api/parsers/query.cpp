@@ -143,7 +143,7 @@ void Query::add_value(const std::string &key, const std::string &value,
                       std::type_index type) {
     if (type == typeid(bool)) {
         // Only emplace `false` if it's explicitly specified because we
-        // interpret empty strings (for e.g. `&we`) as `true`.
+        // interpret empty strings (for e.g. `&we`) as `true`
         query_map_.emplace(key, value != "false" && value != "0");
     } else if (type == typeid(int)) {
         try {

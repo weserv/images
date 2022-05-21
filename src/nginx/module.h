@@ -61,7 +61,7 @@ struct ngx_weserv_loc_conf_t {
  */
 struct ngx_weserv_base_ctx_t {
     /**
-     * Make a polymorphic type
+     * Make a polymorphic type.
      */
     virtual ~ngx_weserv_base_ctx_t() = default;
 

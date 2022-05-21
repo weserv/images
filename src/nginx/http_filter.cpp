@@ -169,7 +169,7 @@ ngx_int_t ngx_weserv_chunked_filter(ngx_event_pipe_t *p, ngx_buf_t *buf) {
         rc = ngx_http_parse_chunked(r, buf, &ctx->chunked);
 
         if (rc == NGX_OK) {
-            // a chunk has been parsed successfully
+            // A chunk has been parsed successfully
 
             cl = ngx_chain_get_free_buf(p->pool, &p->free);
             if (cl == nullptr) {
@@ -218,7 +218,7 @@ ngx_int_t ngx_weserv_chunked_filter(ngx_event_pipe_t *p, ngx_buf_t *buf) {
         }
 
         if (rc == NGX_DONE) {
-            // a whole response has been parsed successfully
+            // A whole response has been parsed successfully
 
             p->length = 0;
             r->upstream->keepalive = !r->upstream->headers_in.connection_close;
@@ -233,14 +233,14 @@ ngx_int_t ngx_weserv_chunked_filter(ngx_event_pipe_t *p, ngx_buf_t *buf) {
         }
 
         if (rc == NGX_AGAIN) {
-            // set p->length, minimal amount of data we want to see
+            // Set p->length, minimal amount of data we want to see
 
             p->length = ctx->chunked.length;
 
             break;
         }
 
-        // invalid response
+        // Invalid response
         ngx_log_error(NGX_LOG_ERR, p->log, 0,
                       "upstream sent invalid chunked response");
 
@@ -267,7 +267,7 @@ ngx_int_t ngx_weserv_chunked_filter(ngx_event_pipe_t *p, ngx_buf_t *buf) {
         return NGX_OK;
     }
 
-    // there is no data record in the buf, add it to free chain
+    // There is no data record in the buf, add it to free chain
     if (ngx_event_pipe_add_free_buf(p, buf) != NGX_OK) {
         return NGX_ERROR;
     }
@@ -295,20 +295,20 @@ ngx_int_t ngx_weserv_input_filter_init(void *data) {
                    ctx->response_status.code(), u->headers_in.chunked,
                    u->headers_in.content_length_n);
 
-    // as per RFC2616, 4.4 Message Length
+    // As per RFC2616, 4.4 Message Length
 
     if (u->headers_in.chunked) {
-        // chunked
+        // Chunked
 
         u->pipe->input_filter = ngx_weserv_chunked_filter;
         u->pipe->length = 3;  // "0" LF LF
     } else if (u->headers_in.content_length_n == 0) {
-        // empty body: special case as filter won't be called
+        // Empty body: special case as filter won't be called
 
         u->pipe->length = 0;
         u->keepalive = !u->headers_in.connection_close;
     } else {
-        // content length or connection close
+        // Content length or connection close
 
         u->pipe->length = u->headers_in.content_length_n;
     }

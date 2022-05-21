@@ -12,8 +12,8 @@ VImage Background::process(const VImage &image) const {
     auto bg = query_->get<Color>("bg", Color::DEFAULT);
 
     // Don't process the image if:
-    // - The background is completely transparent.
-    // - The image doesn't have an alpha channel.
+    // - The background is completely transparent
+    // - The image doesn't have an alpha channel
     if (bg.is_transparent() || !image.has_alpha()) {
         return image;
     }
@@ -33,7 +33,7 @@ VImage Background::process(const VImage &image) const {
 
     if (background_rgba.size() == 4) {  // Alpha compositing
         // Create a new image from a constant that matches the origin image
-        // dimensions.
+        // dimensions
         auto background_image = image.new_from_image(background_rgba);
 
         // Alpha composite src over dst.

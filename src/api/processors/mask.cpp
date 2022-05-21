@@ -371,8 +371,8 @@ VImage Mask::process(const VImage &image) const {
     }
 
     // Crop the image to the mask dimensions:
-    //  - if the mask type is not an ellipse;
-    //  - trimming is needed.
+    //  - if the mask type is not an ellipse
+    //  - trimming is needed
     if (mask_type != MaskType::Ellipse &&
         (mask_width < image_width || mask_height < page_height) &&
         query_->get<bool>("mtrim", false)) {

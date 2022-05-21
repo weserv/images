@@ -25,11 +25,11 @@ VImage Trim::process(const VImage &image) const {
     }
 
     // Find the value of the pixel at (0, 0), `find_trim` search for all pixels
-    // significantly different from this.
+    // significantly different from this
     auto background = image.extract_area(0, 0, 1, 1);
 
     // Note: If the image has alpha, we'll need to flatten before `getpoint`
-    // to get a correct background value.
+    // to get a correct background value
     if (image.has_alpha()) {
         background = background.flatten();
     }

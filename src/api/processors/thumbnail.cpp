@@ -224,7 +224,7 @@ int Thumbnail::resolve_jpeg_shrink(int width, int height) const {
     int jpeg_shrink_on_load = 1;
 
     // Shrink-on-load is a simple block shrink and will
-    // add quite a bit of extra sharpness to the image.
+    // add quite a bit of extra sharpness to the image
     if (shrink >= 8 * shrink_on_load_factor) {
         jpeg_shrink_on_load = 8;
     } else if (shrink >= 4 * shrink_on_load_factor) {
@@ -244,7 +244,7 @@ int Thumbnail::resolve_jpeg_shrink(int width, int height) const {
 
 int Thumbnail::resolve_tiff_pyramid(const VImage &image, const Source &source,
                                     int width, int height) const {
-    // Note: This is checked against config_.max_pages in stream.cpp.
+    // Note: This is checked against config_.max_pages in stream.cpp
     int n_pages = image.get_typeof(VIPS_META_N_PAGES) != 0
                       ? image.get_int(VIPS_META_N_PAGES)
                       : 1;
@@ -283,7 +283,7 @@ int Thumbnail::resolve_tiff_pyramid(const VImage &image, const Source &source,
             target_page = i;
 
             // We may have found a pyramid, but we
-            // have to finish the loop to be sure.
+            // have to finish the loop to be sure
         }
     }
 
@@ -340,9 +340,9 @@ void Thumbnail::append_page_options(vips::VOption *options) const {
 VImage Thumbnail::shrink_on_load(const VImage &image,
                                  const Source &source) const {
     // Try to reload input using shrink-on-load, when:
-    //  - the width or height parameters are specified.
-    //  - gamma correction doesn't need to be applied.
-    //  - trimming isn't required.
+    //  - the width or height parameters are specified
+    //  - gamma correction doesn't need to be applied
+    //  - trimming isn't required
     if (query_->get<bool>("trim", false) ||
         query_->get<float>("gam", 0.0F) != 0.0F ||
         (query_->get<int>("w") == 0 && query_->get<int>("h") == 0)) {
@@ -413,7 +413,7 @@ VImage Thumbnail::shrink_on_load(const VImage &image,
                    : image;
     }
 
-    // Still here? The loader probably doesn't support shrink-on-load.
+    // Still here? The loader probably doesn't support shrink-on-load
 
     // Delete the options we allocated above
     delete load_options;
@@ -431,7 +431,7 @@ VImage Thumbnail::process(const VImage &image) const {
     auto page_height =
         query_->get<int>("page_height", utils::get_page_height(thumb));
 
-    // RAD needs special unpacking.
+    // RAD needs special unpacking
     if (thumb.coding() == VIPS_CODING_RAD) {
         // rad is scRGB
         thumb = thumb.rad2float();
@@ -460,7 +460,7 @@ VImage Thumbnail::process(const VImage &image) const {
     auto target_image_height = target_page_height;
 
     // In toilet-roll mode, we must adjust vshrink so that we exactly hit
-    // page_height or we'll have pixels straddling pixel boundaries.
+    // page_height or we'll have pixels straddling pixel boundaries
     if (thumb_height > page_height) {
         auto n_pages = query_->get<int>("n");
         target_image_height *= n_pages;

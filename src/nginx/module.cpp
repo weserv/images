@@ -821,7 +821,7 @@ ngx_int_t ngx_weserv_image_body_filter(ngx_http_request_t *r, ngx_chain_t *in) {
     r->connection->buffered &= ~NGX_WESERV_IMAGE_BUFFERED;
 
     // We release the memory as soon as the output of an image is finished
-    // and don't wait for an entire response to be sent to the client.
+    // and don't wait for an entire response to be sent to the client
     ngx_weserv_image_filter_free_buf(r, ctx);
 
     if (!status.ok()) {

@@ -75,7 +75,7 @@ class Mask : ImageProcessor {
 
     /**
      * Generates an circle SVG path.
-     * See also: https://stackoverflow.com/a/10477334/1480019
+     * See also: https://stackoverflow.com/a/10477334
      * @param cx The x coordinate of the center of the circle.
      * @param cy The y coordinate of the center of the circle.
      * @param r The radius of the circle.
