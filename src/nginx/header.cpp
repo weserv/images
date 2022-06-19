@@ -26,6 +26,9 @@ ngx_int_t set_expires_header(ngx_http_request_t *r, time_t max_age) {
         }
 
         r->headers_out.expires = e;
+#if defined(nginx_version) && nginx_version >= 1023000
+        e->next = nullptr;
+#endif
 
         e->hash = 1;
         ngx_str_set(&e->key, "Expires");
