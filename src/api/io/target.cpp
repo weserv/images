@@ -19,10 +19,24 @@ static gint64 weserv_target_write_wrapper(VipsTarget *target, const void *data,
     return weserv_target->write(data, length);
 }
 
-static void weserv_target_finish_wrapper(VipsTarget *target) {
+static gint64 weserv_target_read_wrapper(VipsTarget *target, void *data,
+                                         size_t length) {
     auto weserv_target = WESERV_TARGET(target)->target;
 
-    weserv_target->finish();
+    return weserv_target->read(data, length);
+}
+
+static off_t weserv_target_seek_wrapper(VipsTarget *target, off_t offset,
+                                        int whence) {
+    auto weserv_target = WESERV_TARGET(target)->target;
+
+    return weserv_target->seek(offset, whence);
+}
+
+static int weserv_target_end_wrapper(VipsTarget *target) {
+    auto weserv_target = WESERV_TARGET(target)->target;
+
+    return weserv_target->end();
 }
 
 static void weserv_target_class_init(WeservTargetClass *klass) {
@@ -37,7 +51,9 @@ static void weserv_target_class_init(WeservTargetClass *klass) {
     object_class->description = "weserv target";
 
     target_class->write = weserv_target_write_wrapper;
-    target_class->finish = weserv_target_finish_wrapper;
+    target_class->read = weserv_target_read_wrapper;
+    target_class->seek = weserv_target_seek_wrapper;
+    target_class->end = weserv_target_end_wrapper;
 
     // clang-format off
     VIPS_ARG_POINTER(klass, "target", 3,
@@ -96,8 +112,8 @@ int64_t Target::write(const void *data, size_t length) const {
     return vips_target_write(get_target(), data, length);
 }
 
-void Target::finish() const {
-    vips_target_finish(get_target());
+int Target::end() const {
+    return vips_target_end(get_target());
 }
 #else
 Target Target::new_to_pointer(std::unique_ptr<io::TargetInterface> target) {
@@ -122,8 +138,8 @@ int64_t Target::write(const void *data, size_t length) const {
     return target_->write(data, length);
 }
 
-void Target::finish() const {
-    target_->finish();
+int Target::end() const {
+    return target_->end();
 }
 #endif
 

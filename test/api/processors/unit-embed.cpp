@@ -36,8 +36,8 @@ TEST_CASE("embed", "[embed]") {
     // Letterbox TIFF in LAB colourspace onto RGBA background
     SECTION("tiff on rgba") {
         if (vips_type_find("VipsOperation", true_streaming
-                                                ? "tiffload_buffer"
-                                                : "tiffload_source") == 0) {
+                                                ? "tiffload_source"
+                                                : "tiffload_buffer") == 0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }

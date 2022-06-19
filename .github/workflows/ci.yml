@@ -17,7 +17,7 @@ jobs:
       fail-fast: true
       matrix:
         include:
-          # TODO(kleisauke): Enable once tiffsave_target/magickload_source is supported
+          # TODO(kleisauke): Enable once magickload_source is supported
           # - os: ubuntu-22.04
           #   libvips-version: master
           - os: ubuntu-22.04

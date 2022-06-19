@@ -498,7 +498,7 @@ void Stream::write_to_target(const VImage &image, const Target &target) const {
 
         target.setup(extension);
         target.write(out.c_str(), out.size());
-        target.finish();
+        target.end();
     } else {
         // Strip all metadata (EXIF, XMP, IPTC).
         // (all savers supports this option)
@@ -522,7 +522,7 @@ void Stream::write_to_target(const VImage &image, const Target &target) const {
         copy.write_to_buffer(extension.c_str(), &buf, &size, save_options);
 
         target.write(buf, size);
-        target.finish();
+        target.end();
 
         g_free(buf);
 #endif

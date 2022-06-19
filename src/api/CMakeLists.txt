@@ -76,12 +76,12 @@ target_link_libraries(${PROJECT_NAME}
             mpark_variant
         )
 
-# TODO(kleisauke): Enable once tiffsave_target/magickload_source is supported in libvips
-#if (VIPS_VERSION VERSION_GREATER_EQUAL 8.12)
+# TODO(kleisauke): Enable once magickload_source is supported in libvips
+#if (VIPS_VERSION VERSION_GREATER_EQUAL 8.13)
 #    target_compile_definitions(${PROJECT_NAME}
-#        PUBLIC
-#            WESERV_ENABLE_TRUE_STREAMING
-#    )
+#            PUBLIC
+#                WESERV_ENABLE_TRUE_STREAMING
+#            )
 #endif()
 
 set_target_properties(${PROJECT_NAME}

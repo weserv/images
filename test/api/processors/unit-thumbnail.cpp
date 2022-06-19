@@ -591,8 +591,8 @@ TEST_CASE("animated webp page", "[thumbnail]") {
 
 TEST_CASE("radiance", "[thumbnail]") {
     if (vips_type_find("VipsOperation", true_streaming
-                                            ? "radload_buffer"
-                                            : "radload_source") == 0) {
+                                            ? "radload_source"
+                                            : "radload_buffer") == 0) {
         SUCCEED("no radiance support, skipping test");
         return;
     }
