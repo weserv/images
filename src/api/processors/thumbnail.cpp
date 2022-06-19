@@ -377,8 +377,11 @@ VImage Thumbnail::shrink_on_load(const VImage &image,
         auto scale =
             1.0 / resolve_common_shrink(width, utils::get_page_height(image));
 
-        return new_from_source<ImageType::Webp>(
-            source, load_options->set("scale", scale));
+        // Avoid upsizing via libwebp
+        if (scale < 1.0) {
+            return new_from_source<ImageType::Webp>(
+                source, load_options->set("scale", scale));
+        }
     } else if (image_type == ImageType::Tiff) {
         auto page = resolve_tiff_pyramid(image, source, width, height);
 
