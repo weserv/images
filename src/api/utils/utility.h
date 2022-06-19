@@ -212,7 +212,7 @@ inline std::string supported_savers_string(const uintptr_t msk) {
  */
 static void image_eval_cb(VipsImage *image, VipsProgress *progress,
                           time_t *timeout) {
-    if (*timeout > 0 && progress->run >= *timeout) {
+    if (*timeout > 0 && progress->run >= *timeout) {  // LCOV_EXCL_START
         vips_image_set_kill(image, 1);
         vips_error(
             "weserv",
@@ -224,7 +224,7 @@ static void image_eval_cb(VipsImage *image, VipsProgress *progress,
         // We've killed the image and issued an error, it's now our caller's
         // responsibility to pass the message up the chain.
         *timeout = 0;
-    }
+    }  // LCOV_EXCL_STOP
 }
 
 /**

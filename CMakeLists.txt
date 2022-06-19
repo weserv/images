@@ -34,7 +34,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Coverage flags
 if (ENABLE_COVERAGE)
-    set(CMAKE_CXX_FLAGS_DEBUG "--coverage -g -O0")
+    set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g --coverage")
     set(CMAKE_EXE_LINKER_FLAGS "--coverage")
 elseif (CMAKE_COMPILER_IS_GNUCXX)
     # Compiler flags

@@ -49,8 +49,7 @@ jobs:
             libpng-dev libpoppler-glib-dev librsvg2-dev \
             libtiff5-dev libwebp-dev \
             gtk-doc-tools gobject-introspection \
-            libtest-nginx-perl \
-            lcov
+            libtest-nginx-perl
       - name: Install libvips
         if: steps.cache-libvips.outputs.cache-hit != 'true'
         env:
@@ -82,15 +81,12 @@ jobs:
         env:
           TEST_NGINX_SERVROOT: ${{ github.workspace }}/servroot
         run: prove -r test/nginx
-      - name: Generate coverage report
-        if: matrix.coverage
-        working-directory: build
-        run: cmake --build . --target coverage
       - name: Upload coverage to Codecov
         if: matrix.coverage
         uses: codecov/codecov-action@v3
         with:
-          file: build/coverage.info
+          gcov: true
+          gcov_ignore: test/api
   docker-publish:
     needs: CI
     runs-on: ubuntu-22.04
