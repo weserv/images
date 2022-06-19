@@ -18,9 +18,9 @@ jobs:
       matrix:
         include:
           # TODO(kleisauke): Enable once tiffsave_target/magickload_source is supported
-          # - os: ubuntu-20.04
+          # - os: ubuntu-22.04
           #   libvips-version: master
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             libvips-version: 8.12.2
             coverage: true
     steps:
@@ -40,20 +40,14 @@ jobs:
           # for Test::Nginx
           curl -sSL "https://openresty.org/package/pubkey.gpg" | sudo -E apt-key add -
           echo "deb https://openresty.org/package/ubuntu $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/openresty.list
-          # add support for HEIC/AVIF images
-          sudo apt-add-repository -y "ppa:strukturag/libheif"
-          sudo apt-add-repository -y "ppa:strukturag/libde265"
-          # add support for saving GIF images
-          sudo apt-add-repository -y "ppa:lovell/cgif"
           # install dependencies
           sudo apt-get update
           sudo -E apt-get install -y \
             libcgif-dev libexif-dev libexpat1-dev \
-            libfftw3-dev libgsf-1-dev libheif-dev \
-            libimagequant-dev liblcms2-dev libmagickwand-dev \
-            liborc-0.4-dev libpango1.0-dev libpng-dev \
-            libpoppler-glib-dev librsvg2-dev libtiff5-dev \
-            libwebp-dev \
+            libheif-dev libimagequant-dev liblcms2-dev \
+            libmagickcore-dev liborc-0.4-dev libpango1.0-dev \
+            libpng-dev libpoppler-glib-dev librsvg2-dev \
+            libtiff5-dev libwebp-dev \
             gtk-doc-tools gobject-introspection \
             libtest-nginx-perl \
             lcov
@@ -99,7 +93,7 @@ jobs:
           file: build/coverage.info
   docker-publish:
     needs: CI
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
         with:
