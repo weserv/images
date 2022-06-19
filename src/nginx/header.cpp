@@ -10,9 +10,6 @@ namespace nginx {
 const ngx_str_t CONTENT_DISPOSITION = ngx_string("Content-Disposition");
 const u_char CONTENT_DISPOSITION_LOWCASE[] = "content-disposition";
 
-const ngx_str_t LOCATION = ngx_string("Location");
-const u_char LOCATION_LOWCASE[] = "location";
-
 const ngx_str_t LINK = ngx_string("Link");
 const u_char LINK_LOWCASE[] = "link";
 
@@ -165,18 +162,19 @@ ngx_int_t set_content_disposition_header(ngx_http_request_t *r,
 }
 
 ngx_int_t set_location_header(ngx_http_request_t *r, ngx_str_t *value) {
-    auto *h = reinterpret_cast<ngx_table_elt_t *>(
+    r->headers_out.location = reinterpret_cast<ngx_table_elt_t *>(
         ngx_list_push(&r->headers_out.headers));
-    if (h == nullptr) {
+    if (r->headers_out.location == nullptr) {
         return NGX_ERROR;
     }
 
-    h->key = LOCATION;
-    h->lowcase_key = const_cast<u_char *>(LOCATION_LOWCASE);
-    h->hash = ngx_hash_key(const_cast<u_char *>(LOCATION_LOWCASE),
-                           sizeof(LOCATION_LOWCASE) - 1);
+    r->headers_out.location->hash = 1;
+#if defined(nginx_version) && nginx_version >= 1023000
+    r->headers_out.location->next = nullptr;
+#endif
+    ngx_str_set(&r->headers_out.location->key, "Location");
 
-    h->value = *value;
+    r->headers_out.location->value = *value;
 
     return NGX_OK;
 }
