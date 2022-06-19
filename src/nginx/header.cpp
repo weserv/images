@@ -58,6 +58,7 @@ ngx_int_t set_expires_header(ngx_http_request_t *r, time_t max_age) {
         cc = reinterpret_cast<ngx_table_elt_t *>(
             ngx_list_push(&r->headers_out.headers));
         if (cc == nullptr) {
+            e->hash = 0;
             return NGX_ERROR;
         }
 
@@ -96,6 +97,8 @@ ngx_int_t set_expires_header(ngx_http_request_t *r, time_t max_age) {
 
     e->value.data = reinterpret_cast<u_char *>(ngx_pnalloc(r->pool, len));
     if (e->value.data == nullptr) {
+        e->hash = 0;
+        cc->hash = 0;
         return NGX_ERROR;
     }
 
@@ -106,6 +109,7 @@ ngx_int_t set_expires_header(ngx_http_request_t *r, time_t max_age) {
     cc->value.data = reinterpret_cast<u_char *>(
         ngx_pnalloc(r->pool, sizeof("public, max-age=") + NGX_TIME_T_LEN + 1));
     if (cc->value.data == nullptr) {
+        cc->hash = 0;
         return NGX_ERROR;
     }
 
