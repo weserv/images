@@ -3,9 +3,7 @@
 #include <sstream>
 #include <utility>
 
-namespace weserv {
-namespace api {
-namespace utils {
+namespace weserv::api::utils {
 
 Status::Status(int code, std::string message, ErrorCause error_cause)
     : code_(code), message_(std::move(message)), error_cause_(error_cause) {}
@@ -147,6 +145,4 @@ std::string Status::to_json() const {
     return http_out.str();
 }
 
-}  // namespace utils
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::utils

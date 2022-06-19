@@ -6,9 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace weserv {
-namespace api {
-namespace processors {
+namespace weserv::api::processors {
 
 class Mask : ImageProcessor {
  public:
@@ -94,6 +92,4 @@ class Mask : ImageProcessor {
     std::string svg_ellipse_path(float cx, float cy, float rx, float ry) const;
 };
 
-}  // namespace processors
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::processors

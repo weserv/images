@@ -3,8 +3,7 @@
 #include "header.h"
 #include "util.h"
 
-namespace weserv {
-namespace nginx {
+namespace weserv::nginx {
 
 ngx_str_t application_json = ngx_string("application/json");
 
@@ -230,5 +229,4 @@ int NgxTarget::end() {
     return 0;
 }
 
-}  // namespace nginx
-}  // namespace weserv
+}  // namespace weserv::nginx

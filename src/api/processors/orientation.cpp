@@ -2,9 +2,7 @@
 
 #include "../utils/utility.h"
 
-namespace weserv {
-namespace api {
-namespace processors {
+namespace weserv::api::processors {
 
 VImage Orientation::process(const VImage &image) const {
     auto angle = query_->get<int>("angle", 0);
@@ -51,6 +49,4 @@ VImage Orientation::process(const VImage &image) const {
     return copy;
 }
 
-}  // namespace processors
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::processors

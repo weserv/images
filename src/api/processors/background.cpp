@@ -2,9 +2,7 @@
 
 #include <vector>
 
-namespace weserv {
-namespace api {
-namespace processors {
+namespace weserv::api::processors {
 
 using parsers::Color;
 
@@ -49,6 +47,4 @@ VImage Background::process(const VImage &image) const {
     return image.flatten(VImage::option()->set("background", background_rgba));
 }
 
-}  // namespace processors
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::processors

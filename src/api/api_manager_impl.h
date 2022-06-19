@@ -5,8 +5,7 @@
 
 #include <weserv/api_manager.h>
 
-namespace weserv {
-namespace api {
+namespace weserv::api {
 
 /**
  * Implements ApiManager interface.
@@ -73,5 +72,4 @@ class ApiManagerImpl : public ApiManager {
     unsigned int handler_id_ = 0;
 };
 
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api

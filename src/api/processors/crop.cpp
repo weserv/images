@@ -2,9 +2,7 @@
 
 #include "../utils/utility.h"
 
-namespace weserv {
-namespace api {
-namespace processors {
+namespace weserv::api::processors {
 
 VImage Crop::process(const VImage &image) const {
     // Should we process the image?
@@ -68,6 +66,4 @@ VImage Crop::process(const VImage &image) const {
     return image.extract_area(crop_x, crop_y, crop_w, crop_h);
 }
 
-}  // namespace processors
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::processors

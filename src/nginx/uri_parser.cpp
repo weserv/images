@@ -5,8 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace weserv {
-namespace nginx {
+namespace weserv::nginx {
 
 /**
  * Parameters for Punycode, see:
@@ -572,5 +571,4 @@ ngx_int_t parse_url(ngx_pool_t *pool, ngx_str_t &uri, ngx_str_t *output) {
     return NGX_OK;
 }
 
-}  // namespace nginx
-}  // namespace weserv
+}  // namespace weserv::nginx

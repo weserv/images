@@ -2,9 +2,7 @@
 
 #include "base.h"
 
-namespace weserv {
-namespace api {
-namespace processors {
+namespace weserv::api::processors {
 
 class Sharpen : ImageProcessor {
  public:
@@ -13,6 +11,4 @@ class Sharpen : ImageProcessor {
     VImage process(const VImage &image) const override;
 };
 
-}  // namespace processors
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::processors

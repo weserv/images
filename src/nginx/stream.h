@@ -9,8 +9,7 @@ extern "C" {
 #include <weserv/io/source_interface.h>
 #include <weserv/io/target_interface.h>
 
-namespace weserv {
-namespace nginx {
+namespace weserv::nginx {
 
 /**
  * The NGINX implementation of io::SourceInterface.
@@ -72,5 +71,4 @@ class NgxTarget : public api::io::TargetInterface {
     int64_t write_position_ = 0;
 };
 
-}  // namespace nginx
-}  // namespace weserv
+}  // namespace weserv::nginx

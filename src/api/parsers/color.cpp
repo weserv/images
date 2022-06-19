@@ -6,9 +6,7 @@
 #include <iomanip>
 #include <sstream>
 
-namespace weserv {
-namespace api {
-namespace parsers {
+namespace weserv::api::parsers {
 
 // clang-format off
 const ColorMap &color_map = {
@@ -289,6 +287,4 @@ Color parse(const std::string &value) {
     return {a, r, g, b};
 }
 
-}  // namespace parsers
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::parsers

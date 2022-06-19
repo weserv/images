@@ -9,9 +9,7 @@
 
 #include <weserv/io/target_interface.h>
 
-namespace weserv {
-namespace api {
-namespace io {
+namespace weserv::api::io {
 
 #ifdef WESERV_ENABLE_TRUE_STREAMING
 struct WeservTargetClass {
@@ -159,6 +157,4 @@ class Target {
 #endif
 };
 
-}  // namespace io
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::io

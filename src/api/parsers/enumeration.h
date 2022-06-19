@@ -5,9 +5,7 @@
 
 #include <weserv/enums.h>
 
-namespace weserv {
-namespace api {
-namespace parsers {
+namespace weserv::api::parsers {
 
 template <>
 inline enums::Position parse(const std::string &value) {
@@ -66,7 +64,7 @@ inline enums::Position parse(const std::string &value) {
 
     // Center by default
     return enums::Position::Center;
-}  // namespace parsers
+}
 
 template <>
 inline enums::FilterType parse(const std::string &value) {
@@ -189,6 +187,4 @@ inline enums::Canvas parse(const std::string &value) {
     return enums::Canvas::Max;
 }
 
-}  // namespace parsers
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::parsers

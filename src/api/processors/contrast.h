@@ -2,9 +2,7 @@
 
 #include "base.h"
 
-namespace weserv {
-namespace api {
-namespace processors {
+namespace weserv::api::processors {
 
 class Contrast : ImageProcessor {
  public:
@@ -29,6 +27,4 @@ class Contrast : ImageProcessor {
     VImage sigmoid(const VImage &image, double contrast) const;
 };
 
-}  // namespace processors
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::processors

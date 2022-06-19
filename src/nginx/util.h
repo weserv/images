@@ -6,8 +6,7 @@ extern "C" {
 
 #include <string>
 
-namespace weserv {
-namespace nginx {
+namespace weserv::nginx {
 
 /**
  * Convert a ngx_str_t to std::string.
@@ -63,5 +62,4 @@ inline bool ngx_string_equal(const ngx_str_t &str1, const ngx_str_t &str2) {
  */
 void ngx_weserv_log(ngx_log_t *log, ngx_uint_t level, ngx_str_t msg);
 
-}  // namespace nginx
-}  // namespace weserv
+}  // namespace weserv::nginx

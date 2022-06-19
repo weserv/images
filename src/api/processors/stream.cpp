@@ -12,9 +12,7 @@
 #include <functional>
 #include <tuple>
 
-namespace weserv {
-namespace api {
-namespace processors {
+namespace weserv::api::processors {
 
 using enums::ImageType;
 using enums::Output;
@@ -94,19 +92,19 @@ Stream::get_page_load_options(const Source &source,
         0);
 
     if (page != -1 && page != -2) {
-        return std::make_pair(n, page);
+        return std::pair{n, page};
     }
 
     if (page == -1) {
-        page = resolve_page(source, loader, std::greater<uint64_t>());
+        page = resolve_page(source, loader, std::greater<>());
     } else {  // page == -2
-        page = resolve_page(source, loader, std::less<uint64_t>());
+        page = resolve_page(source, loader, std::less<>());
     }
 
     // Update page according to new value
     query_->update("page", page);
 
-    return std::make_pair(n, page);
+    return std::pair{n, page};
 }
 
 VImage Stream::new_from_source(const Source &source, const std::string &loader,
@@ -149,8 +147,8 @@ void Stream::resolve_dimensions() const {
 
     // Update the width and height parameters,
     // a dimension needs to be d >= 0 && d <= VIPS_MAX_COORD.
-    query_->update("w", utils::clamp(width, 0, VIPS_MAX_COORD));
-    query_->update("h", utils::clamp(height, 0, VIPS_MAX_COORD));
+    query_->update("w", std::clamp(width, 0, VIPS_MAX_COORD));
+    query_->update("h", std::clamp(height, 0, VIPS_MAX_COORD));
 }
 
 void Stream::resolve_rotation_and_flip(const VImage &image) const {
@@ -529,6 +527,4 @@ void Stream::write_to_target(const VImage &image, const Target &target) const {
     }
 }
 
-}  // namespace processors
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::processors

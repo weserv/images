@@ -12,8 +12,7 @@
 using ::weserv::api::enums::Output;
 using ::weserv::api::utils::Status;
 
-namespace weserv {
-namespace nginx {
+namespace weserv::nginx {
 
 namespace {
 /**
@@ -877,8 +876,7 @@ ngx_int_t ngx_weserv_postconfiguration(ngx_conf_t *cf) {
 
 }  // namespace
 
-}  // namespace nginx
-}  // namespace weserv
+}  // namespace weserv::nginx
 
 /**
  * The module definition, referenced from the 'config' file.

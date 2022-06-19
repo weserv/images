@@ -1,8 +1,6 @@
 #include "target.h"
 
-namespace weserv {
-namespace api {
-namespace io {
+namespace weserv::api::io {
 
 #ifdef WESERV_ENABLE_TRUE_STREAMING
 /* Class implementation */
@@ -143,6 +141,4 @@ int Target::end() const {
 }
 #endif
 
-}  // namespace io
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::io

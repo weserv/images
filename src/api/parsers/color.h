@@ -6,9 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace weserv {
-namespace api {
-namespace parsers {
+namespace weserv::api::parsers {
 
 class Color {
  public:
@@ -67,6 +65,4 @@ Color parse<Color>(const std::string &value);
  */
 using ColorMap = std::unordered_map<std::string, std::string>;
 
-}  // namespace parsers
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::parsers

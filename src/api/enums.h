@@ -2,9 +2,7 @@
 
 #include <vips/vips8>
 
-namespace weserv {
-namespace api {
-namespace enums {
+namespace weserv::api::enums {
 
 enum class Position {
     Center = VIPS_INTERESTING_CENTRE,  // Default
@@ -18,7 +16,7 @@ enum class Position {
     BottomLeft,
     BottomRight,
     TopRight,
-    Focal,
+    Focal
 };
 
 enum class FilterType {
@@ -64,6 +62,4 @@ enum class Canvas {
     IgnoreAspect
 };
 
-}  // namespace enums
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::enums

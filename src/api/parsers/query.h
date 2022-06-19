@@ -9,14 +9,12 @@
 #include <typeindex>
 #include <unordered_map>
 #include <unordered_set>
+#include <variant>
 #include <vector>
 
-#include <mpark/variant.hpp>
 #include <weserv/config.h>
 
-namespace weserv {
-namespace api {
-namespace parsers {
+namespace weserv::api::parsers {
 
 using TypeMap = std::unordered_map<std::string, std::type_index>;
 using SynonymMap = std::unordered_map<std::string, std::string>;
@@ -29,8 +27,8 @@ class Query {
     template <typename E,
               typename = typename std::enable_if<std::is_enum<E>::value>::type>
     /**
-     * This is the only function that can pass enums,
-     * the other functions do not allow this.
+     * This is the only function that can pass enums, the other functions do not
+     * allow this.
      */
     inline E get(const std::string &key, const E &default_val) const {
         // Get the value as an int and call get(), then convert it back to an
@@ -43,34 +41,26 @@ class Query {
               typename = typename std::enable_if<!std::is_enum<T>::value>::type>
     const inline T &get(const std::string &key, const T &default_val) const {
         auto it = query_map_.find(key);
-        if (it == query_map_.end()) {
-            return default_val;
-        }
-        return mpark::get<T>(it->second);
+        return it != query_map_.end() ? std::get<T>(it->second) : default_val;
     }
 
     template <typename T,
               typename = typename std::enable_if<!std::is_enum<T>::value>::type>
     const inline T &get(const std::string &key) const {
-        auto it = query_map_.find(key);
-        if (it == query_map_.end()) {  // LCOV_EXCL_START
-            throw std::logic_error("Reached a supposed unreachable point");
-        }
-        // LCOV_EXCL_STOP
-
-        return mpark::get<T>(it->second);
+        auto val = query_map_.at(key);
+        return std::get<T>(val);
     }
 
     template <typename T,
               typename = typename std::enable_if<!std::is_enum<T>::value>::type,
-              class Predicate>
+              typename Predicate>
     const inline T &get_if(const std::string &key, Predicate predicate,
                            const T &default_val) const {
         auto it = query_map_.find(key);
         if (it == query_map_.end()) {
             return default_val;
         }
-        const T &val = mpark::get<T>(it->second);
+        const T &val = std::get<T>(it->second);
         return predicate(val) ? val : default_val;
     }
 
@@ -85,8 +75,8 @@ class Query {
     }
 
  private:
-    using QueryVariant = mpark::variant<bool, int, float, Color,
-                                        std::vector<int>, std::vector<float>>;
+    using QueryVariant = std::variant<bool, int, float, Color, std::vector<int>,
+                                      std::vector<float>>;
     std::unordered_map<std::string, QueryVariant> query_map_;
 
     const Config &config_;
@@ -99,6 +89,4 @@ class Query {
                           std::type_index type);
 };
 
-}  // namespace parsers
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::parsers

@@ -3,9 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace weserv {
-namespace api {
-namespace io {
+namespace weserv::api::io {
 
 class SourceInterface {
  public:
@@ -30,6 +28,4 @@ class SourceInterface {
     virtual int64_t seek(int64_t offset, int whence) = 0;
 };
 
-}  // namespace io
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::io

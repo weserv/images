@@ -2,9 +2,7 @@
 
 #include "../utils/utility.h"
 
-namespace weserv {
-namespace api {
-namespace processors {
+namespace weserv::api::processors {
 
 VImage Sharpen::process(const VImage &image) const {
     // Should we process the image?
@@ -65,6 +63,4 @@ VImage Sharpen::process(const VImage &image) const {
                      ->set("m2", jagged));
 }
 
-}  // namespace processors
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::processors

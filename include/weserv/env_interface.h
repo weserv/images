@@ -2,8 +2,7 @@
 
 #include <string>
 
-namespace weserv {
-namespace api {
+namespace weserv::api {
 
 /**
  * An interface for the API to access its environment.
@@ -49,5 +48,4 @@ class ApiEnvInterface {
     virtual void log(LogLevel level, const char *message) = 0;
 };
 
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api

@@ -12,14 +12,14 @@ scaffolding for the integration tests. Consult the previous links for
 information on how to extend the tests.
 
 ## Dependencies
+
 The test suite is run with GitHub Actions but can also be run manually, the
 following dependencies are required to run the unit tests:
 
 * libvips version >= 8.9
 
-Other dependencies (such as [Catch2](https://github.com/catchorg/Catch2) and
-[MPark.Variant](https://github.com/mpark/variant)) are installed using the
-`FetchContent` module within CMake.
+Other dependencies (such as [Catch2](https://github.com/catchorg/Catch2)) are
+installed using the `FetchContent` module within CMake.
 
 For the integration tests you need the following dependencies:
 
@@ -38,9 +38,11 @@ to build Nginx by your own, use the `-DINSTALL_NGX_MODULE=OFF` on the CMake
 command line.
 
 ## Code coverage
+
 If you have LCOV installed, you can view and collect coverage information,
 by specifying `-DENABLE_COVERAGE=ON` on the CMake command line. To collect
 coverage information and generate a browsable html report:
+
 ```bash
 cmake --build . --target coverage-html
 ```
@@ -48,6 +50,7 @@ cmake --build . --target coverage-html
 You will be able to browse the LCOV report by opening `lcov/index.html`.
 
 For only collecting collect coverage information, you can use:
+
 ```bash
 cmake --build . --target coverage
 ```
@@ -86,6 +89,7 @@ TEST_NGINX_SERVROOT="$PWD/servroot" prove -I/path/to/test-nginx/lib -r test/ngin
 ```
 
 To run specific test files:
+
 ```bash
 cd images
 export PATH="/usr/local/nginx/sbin:$PATH"

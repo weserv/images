@@ -72,8 +72,8 @@ std::string SimilarImage::dhash(const VImage &image) const {
         static_cast<uint8_t *>(thumbnail.write_to_memory(nullptr));
 
     // Calculate dHash
-    auto hash = 0u;
-    auto bit = 1u;
+    auto hash = 0U;
+    auto bit = 1U;
 
     for (int y = 0; y < 8; ++y) {
         for (int x = 0; x < 8; ++x) {
@@ -87,7 +87,7 @@ std::string SimilarImage::dhash(const VImage &image) const {
             }
 
             // Prepare the next loop
-            bit <<= 1u;
+            bit <<= 1U;
         }
     }
 

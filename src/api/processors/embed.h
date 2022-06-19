@@ -2,9 +2,7 @@
 
 #include "base.h"
 
-namespace weserv {
-namespace api {
-namespace processors {
+namespace weserv::api::processors {
 
 class Embed : ImageProcessor {
  public:
@@ -30,6 +28,4 @@ class Embed : ImageProcessor {
                             int n_pages, int page_height) const;
 };
 
-}  // namespace processors
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::processors

@@ -7,8 +7,7 @@
 
 using ::weserv::api::utils::Status;
 
-namespace weserv {
-namespace nginx {
+namespace weserv::nginx {
 
 namespace {
 
@@ -760,5 +759,4 @@ ngx_int_t ngx_weserv_send_http_request(ngx_http_request_t *r,
     return NGX_DONE;
 }
 
-}  // namespace nginx
-}  // namespace weserv
+}  // namespace weserv::nginx

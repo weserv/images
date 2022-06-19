@@ -2,9 +2,7 @@
 
 #include <cmath>
 
-namespace weserv {
-namespace api {
-namespace processors {
+namespace weserv::api::processors {
 
 VImage Contrast::sigmoid(const VImage &image, const double contrast) const {
     // If true increase the contrast, if false decrease the contrast
@@ -87,12 +85,10 @@ VImage Contrast::process(const VImage &image) const {
         return image;
     }
 
-    // Map contrast from -100/100 to -30/30 range
+    // Remap contrast from -100/100 to -30/30 range
     double contrast = con * 0.3;
 
     return sigmoid(image, contrast);
 }
 
-}  // namespace processors
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::processors

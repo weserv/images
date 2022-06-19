@@ -1,7 +1,6 @@
 #include "util.h"
 
-namespace weserv {
-namespace nginx {
+namespace weserv::nginx {
 
 std::string ngx_str_to_std(const ngx_str_t &src) {
     return (src.data == nullptr || src.len <= 0)
@@ -212,5 +211,4 @@ void ngx_weserv_log(ngx_log_t *log, ngx_uint_t level, ngx_str_t msg) {
     }
 }
 
-}  // namespace nginx
-}  // namespace weserv
+}  // namespace weserv::nginx

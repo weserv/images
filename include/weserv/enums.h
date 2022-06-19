@@ -2,9 +2,7 @@
 
 #include <cstdint>
 
-namespace weserv {
-namespace api {
-namespace enums {
+namespace weserv::api::enums {
 
 enum class Output : uintptr_t {
     Origin = 1U << 0,  // Default
@@ -52,6 +50,4 @@ inline Output &operator^=(Output &x, Output y) {
     return x;
 }
 
-}  // namespace enums
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::enums

@@ -1,8 +1,6 @@
 #include "brightness.h"
 
-namespace weserv {
-namespace api {
-namespace processors {
+namespace weserv::api::processors {
 
 VImage Brightness::process(const VImage &image) const {
     auto bri = query_->get_if<int>(
@@ -40,6 +38,4 @@ VImage Brightness::process(const VImage &image) const {
     image = lch.linear(1, {brightness, 1, 1}).colourspace(old_interpretation);*/
 }
 
-}  // namespace processors
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::processors

@@ -4,8 +4,7 @@
 
 #include <algorithm>
 
-namespace weserv {
-namespace nginx {
+namespace weserv::nginx {
 
 const ngx_str_t CONTENT_DISPOSITION = ngx_string("Content-Disposition");
 const u_char CONTENT_DISPOSITION_LOWCASE[] = "content-disposition";
@@ -214,5 +213,4 @@ ngx_int_t set_link_header(ngx_http_request_t *r, const ngx_str_t &url) {
     return NGX_OK;
 }
 
-}  // namespace nginx
-}  // namespace weserv
+}  // namespace weserv::nginx

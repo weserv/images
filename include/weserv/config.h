@@ -3,8 +3,7 @@
 #include <cstdint>
 #include <weserv/enums.h>
 
-namespace weserv {
-namespace api {
+namespace weserv::api {
 
 /**
  * Data structure that can be configured within the weserv module.
@@ -128,5 +127,4 @@ struct Config {
     intptr_t fail_on_error;
 };
 
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api

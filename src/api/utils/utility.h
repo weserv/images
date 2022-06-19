@@ -2,6 +2,7 @@
 
 #include "../enums.h"
 
+#include <algorithm>
 #include <cmath>
 #include <sstream>
 #include <string>
@@ -10,9 +11,7 @@
 #include <vips/vips8>
 #include <weserv/enums.h>
 
-namespace weserv {
-namespace api {
-namespace utils {
+namespace weserv::api::utils {
 
 using enums::ImageType;
 using enums::Output;
@@ -117,37 +116,6 @@ inline VipsAngle resolve_angle_rotation(const int angle) {
             return VIPS_ANGLE_D0;
     }
     // LCOV_EXCL_STOP
-}
-
-/**
- * Backport of `std::clamp` from C++17.
- * @tparam T Comparison type.
- * @tparam Comparator Comparison function type.
- * @param v The value to be clamped.
- * @param lo The lower bound of the result.
- * @param hi The upper bound of the result.
- * @param comp Comparison function object.
- * @return Reference to lo if v is less than lo, reference to hi if hi is less
- * than hi, otherwise reference to v.
- */
-template <typename T, typename Comparator>
-inline constexpr const T &clamp(const T &v, const T &lo, const T &hi,
-                                Comparator comp) {
-    return comp(v, lo) ? lo : comp(hi, v) ? hi : v;
-}
-
-/**
- * Backport of `std::clamp` from C++17.
- * @tparam T Comparison type.
- * @param v The value to be clamped.
- * @param lo The lower bound of the result.
- * @param hi The upper bound of the result.
- * @return Reference to lo if v is less than lo, reference to hi if hi is less
- * than hi, otherwise reference to v.
- */
-template <typename T>
-inline constexpr const T &clamp(const T &v, const T &lo, const T &hi) {
-    return clamp(v, lo, hi, std::less<T>());
 }
 
 /**
@@ -416,7 +384,7 @@ calculate_position(const int in_width, const int in_height, const int out_width,
             top = out_height - in_height;
             break;
         case Position::TopLeft:
-            // Which is the default is 0,0 so we do not assign anything here
+            // Do not assign anything here; the default is 0,0
             break;
         default:
             // Centre
@@ -424,7 +392,7 @@ calculate_position(const int in_width, const int in_height, const int out_width,
             top = (out_height - in_height) / 2;
     }
 
-    return std::make_pair(left, top);
+    return std::pair{left, top};
 }
 
 /**
@@ -486,12 +454,12 @@ calculate_focal_point(const float fpx, const float fpy, const int in_width,
     auto center_y = (fpy * in_height) / factor;
 
     auto left = static_cast<int>(std::round(center_x - target_width / 2.0));
-    left = clamp(left, 0, image_width - target_width);
+    left = std::clamp(left, 0, image_width - target_width);
 
     auto top = static_cast<int>(std::round(center_y - target_height / 2.0));
-    top = clamp(top, 0, image_height - target_height);
+    top = std::clamp(top, 0, image_height - target_height);
 
-    return std::make_pair(left, top);
+    return std::pair{left, top};
 }
 
 /**
@@ -595,6 +563,4 @@ inline std::string escape_string(const std::string &s) {  // LCOV_EXCL_START
 }
 // LCOV_EXCL_STOP
 
-}  // namespace utils
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::utils

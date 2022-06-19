@@ -2,9 +2,7 @@
 
 #include "../utils/utility.h"
 
-namespace weserv {
-namespace api {
-namespace processors {
+namespace weserv::api::processors {
 
 VImage Trim::process(const VImage &image) const {
     auto threshold = query_->get_if<int>(
@@ -67,6 +65,4 @@ VImage Trim::process(const VImage &image) const {
     return image.extract_area(left, top, width, height);
 }
 
-}  // namespace processors
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::processors

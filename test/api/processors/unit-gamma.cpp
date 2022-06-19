@@ -12,7 +12,8 @@ TEST_CASE("gamma", "[gamma]") {
         auto test_image = fixtures->input_jpg_with_gamma_holiness;
         auto expected_image = fixtures->expected_dir + "/gamma-2.2.jpg";
 
-        // Above q=90, libvips will write 4:4:4, ie. no subsampling of Cr and Cb
+        // Above q=90, libvips will write 4:4:4, i.e. no subsampling of Cr and
+        // Cb
         auto params = "gam=true&q=95";
 
         VImage image = process_file<VImage>(test_image, params);
@@ -27,7 +28,8 @@ TEST_CASE("gamma", "[gamma]") {
         auto test_image = fixtures->input_jpg_with_gamma_holiness;
         auto expected_image = fixtures->expected_dir + "/gamma-3.0.jpg";
 
-        // Above q=90, libvips will write 4:4:4, ie. no subsampling of Cr and Cb
+        // Above q=90, libvips will write 4:4:4, i.e. no subsampling of Cr and
+        // Cb
         auto params = "gam=3&q=95";
 
         VImage image = process_file<VImage>(test_image, params);

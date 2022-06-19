@@ -4,9 +4,7 @@
 
 #include <vector>
 
-namespace weserv {
-namespace api {
-namespace processors {
+namespace weserv::api::processors {
 
 using parsers::Color;
 
@@ -50,6 +48,4 @@ VImage Rotation::process(const VImage &image) const {
         VImage::option()->set("background", background_rgba));
 }
 
-}  // namespace processors
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::processors

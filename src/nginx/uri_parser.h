@@ -4,8 +4,7 @@ extern "C" {
 #include <ngx_http.h>
 }
 
-namespace weserv {
-namespace nginx {
+namespace weserv::nginx {
 
 /**
  * Concatenate a relative URL to a base URL making it absolute.
@@ -18,5 +17,4 @@ ngx_int_t concat_url(ngx_pool_t *pool, const ngx_str_t &base,
  */
 ngx_int_t parse_url(ngx_pool_t *pool, ngx_str_t &uri, ngx_str_t *output);
 
-}  // namespace nginx
-}  // namespace weserv
+}  // namespace weserv::nginx

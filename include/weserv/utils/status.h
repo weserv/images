@@ -2,9 +2,7 @@
 
 #include <string>
 
-namespace weserv {
-namespace api {
-namespace utils {
+namespace weserv::api::utils {
 
 /**
  * A Status object can be used to represent an error or an OK state. Error
@@ -119,6 +117,4 @@ class Status final {
     ErrorCause error_cause_;
 };
 
-}  // namespace utils
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::utils

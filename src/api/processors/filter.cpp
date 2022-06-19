@@ -5,9 +5,7 @@
 #include <array>
 #include <vector>
 
-namespace weserv {
-namespace api {
-namespace processors {
+namespace weserv::api::processors {
 
 using enums::FilterType;
 using parsers::Color;
@@ -99,6 +97,4 @@ VImage Filter::process(const VImage &image) const {
     }
 }
 
-}  // namespace processors
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::processors

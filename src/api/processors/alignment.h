@@ -2,9 +2,7 @@
 
 #include "base.h"
 
-namespace weserv {
-namespace api {
-namespace processors {
+namespace weserv::api::processors {
 
 class Alignment : ImageProcessor {
  public:
@@ -20,6 +18,4 @@ class Alignment : ImageProcessor {
     const Config &config_;
 };
 
-}  // namespace processors
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::processors

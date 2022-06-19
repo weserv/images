@@ -73,7 +73,6 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
         PRIVATE
             ${VIPS_LDFLAGS}
-            mpark_variant
         )
 
 # TODO(kleisauke): Enable once magickload_source is supported in libvips

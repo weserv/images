@@ -31,8 +31,7 @@
 
 #include <vips/vips8>
 
-namespace weserv {
-namespace api {
+namespace weserv::api {
 
 using io::Source;
 using io::Target;
@@ -288,5 +287,4 @@ utils::Status ApiManagerImpl::process_buffer(const std::string &query,
     }
 }
 
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api

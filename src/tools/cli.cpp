@@ -2,6 +2,7 @@
 
 #include <weserv/api_manager.h>
 
+using weserv::api::Config;
 using weserv::api::utils::Status;
 
 std::shared_ptr<weserv::api::ApiManager> api_manager;
@@ -44,7 +45,8 @@ int main(int argc, const char *argv[]) {
     std::cout << "Processing image \"" << argv[1]
               << "\" with query arguments \"" << query << "\"" << std::endl;
 
-    Status status = api_manager->process_file(query, argv[1], argv[2]);
+    auto config = Config();
+    Status status = api_manager->process_file(query, argv[1], argv[2], config);
 
     if (!status.ok()) {
         std::cerr << "ERROR: " << status.message() << " (" << status.code()

@@ -2,9 +2,7 @@
 
 #include "../utils/utility.h"
 
-namespace weserv {
-namespace api {
-namespace processors {
+namespace weserv::api::processors {
 
 VImage Blur::process(const VImage &image) const {
     auto sigma = query_->get<float>("blur", 0.0F);
@@ -39,6 +37,4 @@ VImage Blur::process(const VImage &image) const {
         .gaussblur(sigma);
 }
 
-}  // namespace processors
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::processors

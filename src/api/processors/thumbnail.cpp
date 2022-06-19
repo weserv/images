@@ -7,9 +7,7 @@
 #include <string>
 #include <tuple>
 
-namespace weserv {
-namespace api {
-namespace processors {
+namespace weserv::api::processors {
 
 using enums::Canvas;
 using enums::ImageType;
@@ -205,7 +203,7 @@ std::pair<double, double> Thumbnail::resolve_shrink(int width,
     hshrink = std::min(hshrink, static_cast<double>(width));
     vshrink = std::min(vshrink, static_cast<double>(height));
 
-    return std::make_pair(hshrink, vshrink);
+    return std::pair{hshrink, vshrink};
 }
 
 double Thumbnail::resolve_common_shrink(int width, int height) const {
@@ -463,7 +461,7 @@ VImage Thumbnail::process(const VImage &image) const {
     auto target_image_height = target_page_height;
 
     // In toilet-roll mode, we must adjust vshrink so that we exactly hit
-    // page_height or we'll have pixels straddling pixel boundaries
+    // page_height, or we'll have pixels straddling pixel boundaries
     if (thumb_height > page_height) {
         auto n_pages = query_->get<int>("n");
         target_image_height *= n_pages;
@@ -504,7 +502,7 @@ VImage Thumbnail::process(const VImage &image) const {
 
     // Colour management.
     // If this is a CMYK image, just export. Otherwise, we're in
-    // device space and we need a combined import/export to transform to
+    // device space, and we need a combined import/export to transform to
     // the target space.
     if (is_cmyk) {
         thumb = thumb.icc_export(VImage::option()
@@ -523,6 +521,4 @@ VImage Thumbnail::process(const VImage &image) const {
     return thumb;
 }
 
-}  // namespace processors
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::processors

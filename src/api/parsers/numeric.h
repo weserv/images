@@ -3,9 +3,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace weserv {
-namespace api {
-namespace parsers {
+namespace weserv::api::parsers {
 
 template <>
 inline int parse<int>(const std::string &value) {
@@ -25,6 +23,4 @@ inline float parse<float>(const std::string &value) {
     return result;
 }
 
-}  // namespace parsers
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::parsers

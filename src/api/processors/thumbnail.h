@@ -5,9 +5,7 @@
 
 #include <weserv/config.h>
 
-namespace weserv {
-namespace api {
-namespace processors {
+namespace weserv::api::processors {
 
 class Thumbnail : ImageProcessor {
  public:
@@ -96,6 +94,4 @@ class Thumbnail : ImageProcessor {
     void append_page_options(vips::VOption *options) const;
 };
 
-}  // namespace processors
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::processors

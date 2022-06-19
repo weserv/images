@@ -28,9 +28,10 @@ if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
 endif()
 
-# Let's enable C++11
-set(CMAKE_CXX_STANDARD 11)
+# Let's enable C++17
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Coverage flags
 if (ENABLE_COVERAGE)
@@ -71,18 +72,9 @@ include(GNUInstallDirs)
 # Find Catch2 (optional)
 find_package(Catch2 2.7.1 QUIET)
 
-# Find mpark/variant (optional)
-# TODO(kleisauke): Can't set 1.4.0 as minimum version, see: https://github.com/mpark/variant/issues/60
-find_package(mpark_variant 1.3.0 QUIET)
-
 # Find libvips (required)
 find_package(PkgConfig)
 pkg_check_modules(VIPS vips-cpp>=8.9 REQUIRED)
-
-# Build mpark/variant (an implementation of C++17 std::variant for C++11/14/17), if necessary
-if (NOT mpark_variant_FOUND)
-    add_subdirectory(third_party/variant)
-endif()
 
 # Create the shared API library
 add_subdirectory(src/api)

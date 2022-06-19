@@ -4,8 +4,7 @@ extern "C" {
 #include <ngx_http.h>
 }
 
-namespace weserv {
-namespace nginx {
+namespace weserv::nginx {
 
 /**
  * Reference: ngx_http_proxy_copy_filter
@@ -24,5 +23,4 @@ ngx_int_t ngx_weserv_copy_filter(ngx_event_pipe_t *p, ngx_buf_t *buf);
  */
 ngx_int_t ngx_weserv_input_filter_init(void *data);
 
-}  // namespace nginx
-}  // namespace weserv
+}  // namespace weserv::nginx

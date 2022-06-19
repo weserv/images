@@ -6,9 +6,7 @@
 
 #include <weserv/enums.h>
 
-namespace weserv {
-namespace api {
-namespace parsers {
+namespace weserv::api::parsers {
 
 using enums::Canvas;
 using enums::FilterType;
@@ -227,7 +225,7 @@ void Query::add_value(const std::string &key, const std::string &value,
         std::vector<std::string> keys = {/*"bri"*/key, "sat", "hue"};
 
         for (size_t i = 0; i != params.size(); ++i) {
-            /*keys[i] == "hue"*/ i == 2  // Hue needs to be casted to a integer
+            /*keys[i] == "hue"*/ i == 2  // Hue needs to be cast to an integer
                 ? query_map_.emplace(keys[i], static_cast<int>(params[i]))
                 : query_map_.emplace(keys[i], params[i]);
         }
@@ -293,6 +291,4 @@ Query::Query(const std::string &value, const Config &config) : config_(config) {
     }
 }
 
-}  // namespace parsers
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::parsers

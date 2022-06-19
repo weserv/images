@@ -6,11 +6,9 @@ extern "C" {
 
 #include <weserv/utils/status.h>
 
-namespace weserv {
-namespace nginx {
+namespace weserv::nginx {
 
 ngx_int_t ngx_weserv_return_error(ngx_http_request_t *r,
                                   api::utils::Status status, ngx_chain_t *out);
 
-}  // namespace nginx
-}  // namespace weserv
+}  // namespace weserv::nginx

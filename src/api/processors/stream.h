@@ -10,9 +10,7 @@
 #include <weserv/config.h>
 #include <weserv/enums.h>
 
-namespace weserv {
-namespace api {
-namespace processors {
+namespace weserv::api::processors {
 
 class Stream {
  public:
@@ -103,6 +101,4 @@ class Stream {
                              vips::VOption *options) const;
 };
 
-}  // namespace processors
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::processors

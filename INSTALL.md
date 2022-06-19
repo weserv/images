@@ -2,8 +2,8 @@
 
 ## Build dependencies
 
- * `cmake` >= 3.11
- * `g++` => 5.0
+ * `cmake` >= 3.11 (for `FetchContent` module)
+ * `g++` >= 5.0 (for `-std=c++17` support)
  * `pcre2` (for nginx rewrite module)
  * `zlib` (for nginx gzip module)
  * `openssl` (for SSL support)

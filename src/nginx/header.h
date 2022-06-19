@@ -6,8 +6,7 @@ extern "C" {
 
 #include <string>
 
-namespace weserv {
-namespace nginx {
+namespace weserv::nginx {
 
 /**
  * Reference: ngx_http_set_expires
@@ -24,5 +23,4 @@ ngx_int_t set_location_header(ngx_http_request_t *r, ngx_str_t *value);
 
 ngx_int_t set_link_header(ngx_http_request_t *r, const ngx_str_t &url);
 
-}  // namespace nginx
-}  // namespace weserv
+}  // namespace weserv::nginx

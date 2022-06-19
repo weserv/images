@@ -6,9 +6,7 @@
 #include <algorithm>
 #include <tuple>
 
-namespace weserv {
-namespace api {
-namespace processors {
+namespace weserv::api::processors {
 
 using enums::Canvas;
 using enums::Position;
@@ -94,6 +92,4 @@ VImage Alignment::process(const VImage &image) const {
     return image.extract_area(left, top, crop_width, crop_height);
 }
 
-}  // namespace processors
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::processors

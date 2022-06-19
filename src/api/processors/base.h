@@ -7,9 +7,7 @@
 
 #include <vips/vips8>
 
-namespace weserv {
-namespace api {
-namespace processors {
+namespace weserv::api::processors {
 
 using vips::VImage;
 
@@ -32,6 +30,4 @@ class ImageProcessor {
     const std::shared_ptr<parsers::Query> query_;
 };
 
-}  // namespace processors
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::processors

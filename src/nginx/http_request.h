@@ -3,8 +3,7 @@
 #include <map>
 #include <string>
 
-namespace weserv {
-namespace nginx {
+namespace weserv::nginx {
 
 /**
  * Represents a non-streaming HTTP GET-request.
@@ -85,5 +84,4 @@ class HTTPRequest {
     ngx_uint_t redirect_count_ = 0;
 };
 
-}  // namespace nginx
-}  // namespace weserv
+}  // namespace weserv::nginx

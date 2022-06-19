@@ -2,8 +2,7 @@
 
 #include "util.h"
 
-namespace weserv {
-namespace nginx {
+namespace weserv::nginx {
 
 void NgxEnvironment::log(LogLevel level, const char *message) {
     ngx_uint_t ngx_level;
@@ -28,5 +27,4 @@ void NgxEnvironment::log(LogLevel level, const char *message) {
     ngx_weserv_log(log_, ngx_level, msg);
 }
 
-}  // namespace nginx
-}  // namespace weserv
+}  // namespace weserv::nginx

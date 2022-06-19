@@ -2,9 +2,7 @@
 
 #include <stdexcept>
 
-namespace weserv {
-namespace api {
-namespace exceptions {
+namespace weserv::api::exceptions {
 
 /**
  * Exception when a provided image is not readable.
@@ -15,6 +13,4 @@ class UnreadableImageException : public std::runtime_error {
         : std::runtime_error(error) {}
 };
 
-}  // namespace exceptions
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::exceptions

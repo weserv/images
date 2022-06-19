@@ -8,8 +8,7 @@
 
 using ::weserv::api::utils::Status;
 
-namespace weserv {
-namespace nginx {
+namespace weserv::nginx {
 
 ngx_int_t ngx_weserv_return_error(ngx_http_request_t *r, Status status,
                                   ngx_chain_t *out) {
@@ -61,5 +60,4 @@ ngx_int_t ngx_weserv_return_error(ngx_http_request_t *r, Status status,
     return NGX_OK;
 }
 
-}  // namespace nginx
-}  // namespace weserv
+}  // namespace weserv::nginx

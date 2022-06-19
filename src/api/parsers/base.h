@@ -2,13 +2,9 @@
 
 #include <string>
 
-namespace weserv {
-namespace api {
-namespace parsers {
+namespace weserv::api::parsers {
 
 template <typename T>
 T parse(const std::string &value);
 
-}  // namespace parsers
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::parsers

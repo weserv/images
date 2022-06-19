@@ -9,8 +9,7 @@
 #include <weserv/io/target_interface.h>
 #include <weserv/utils/status.h>
 
-namespace weserv {
-namespace api {
+namespace weserv::api {
 
 /**
  * An API Manager interface.
@@ -30,7 +29,7 @@ class ApiManager {
     virtual utils::Status process(const std::string &query,
                                   std::unique_ptr<io::SourceInterface> source,
                                   std::unique_ptr<io::TargetInterface> target,
-                                  const Config &config = Config()) = 0;
+                                  const Config &config) = 0;
 
     /**
      * Process from and to a file.
@@ -43,7 +42,7 @@ class ApiManager {
     virtual utils::Status process_file(const std::string &query,
                                        const std::string &in_file,
                                        const std::string &out_file,
-                                       const Config &config = Config()) = 0;
+                                       const Config &config) = 0;
 
     /**
      * Process from a file to a memory buffer.
@@ -56,7 +55,7 @@ class ApiManager {
     virtual utils::Status process_file(const std::string &query,
                                        const std::string &in_file,
                                        std::string *out_buf,
-                                       const Config &config = Config()) = 0;
+                                       const Config &config) = 0;
 
     /**
      * Process from and to a memory buffer.
@@ -69,7 +68,7 @@ class ApiManager {
     virtual utils::Status process_buffer(const std::string &query,
                                          const std::string &in_buf,
                                          std::string *out_buf,
-                                         const Config &config = Config()) = 0;
+                                         const Config &config) = 0;
 
  protected:
     ApiManager() = default;
@@ -90,5 +89,4 @@ class ApiManagerFactory {
     create_api_manager(std::unique_ptr<ApiEnvInterface> env);
 };
 
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api

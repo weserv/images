@@ -6,9 +6,7 @@
 #include <tuple>
 #include <vector>
 
-namespace weserv {
-namespace api {
-namespace processors {
+namespace weserv::api::processors {
 
 using enums::Canvas;
 using enums::Position;
@@ -162,6 +160,4 @@ VImage Embed::process(const VImage &image) const {
                                         ->set("background", background_rgba));
 }
 
-}  // namespace processors
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::processors

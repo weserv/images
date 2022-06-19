@@ -1,8 +1,6 @@
 #include "modulate.h"
 
-namespace weserv {
-namespace api {
-namespace processors {
+namespace weserv::api::processors {
 
 VImage Modulate::process(const VImage &image) const {
     auto brightness = query_->get_if<float>(
@@ -54,6 +52,4 @@ VImage Modulate::process(const VImage &image) const {
         .colourspace(type_before_modulate);
 }
 
-}  // namespace processors
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::processors

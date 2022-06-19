@@ -4,8 +4,7 @@
 
 using ::weserv::api::utils::Status;
 
-namespace weserv {
-namespace nginx {
+namespace weserv::nginx {
 
 ngx_int_t check_image_too_large(ngx_event_pipe_t *p) {
     auto *r = reinterpret_cast<ngx_http_request_t *>(p->input_ctx);
@@ -316,5 +315,4 @@ ngx_int_t ngx_weserv_input_filter_init(void *data) {
     return NGX_OK;
 }
 
-}  // namespace nginx
-}  // namespace weserv
+}  // namespace weserv::nginx

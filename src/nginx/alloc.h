@@ -20,8 +20,7 @@ inline void operator delete[](void *ptr, ngx_pool_t *pool) {
     ngx_pfree(pool, ptr);
 }
 
-namespace weserv {
-namespace nginx {
+namespace weserv::nginx {
 
 /**
  * Runs an object's destructor. This is useful for destruction of
@@ -55,5 +54,4 @@ T *register_pool_cleanup(ngx_pool_t *pool, T *it) {
     return it;
 }
 
-}  // namespace nginx
-}  // namespace weserv
+}  // namespace weserv::nginx

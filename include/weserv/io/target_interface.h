@@ -4,9 +4,7 @@
 #include <cstdint>
 #include <string>
 
-namespace weserv {
-namespace api {
-namespace io {
+namespace weserv::api::io {
 
 class TargetInterface {
  public:
@@ -53,6 +51,4 @@ class TargetInterface {
     virtual int end() = 0;
 };
 
-}  // namespace io
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::io

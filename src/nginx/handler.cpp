@@ -12,8 +12,7 @@
 
 using ::weserv::api::utils::Status;
 
-namespace weserv {
-namespace nginx {
+namespace weserv::nginx {
 
 ngx_int_t ngx_weserv_request_handler(ngx_http_request_t *r) {
     auto *lc = reinterpret_cast<ngx_weserv_loc_conf_t *>(
@@ -96,5 +95,4 @@ ngx_int_t ngx_weserv_request_handler(ngx_http_request_t *r) {
     return rc;
 }
 
-}  // namespace nginx
-}  // namespace weserv
+}  // namespace weserv::nginx

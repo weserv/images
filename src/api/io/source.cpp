@@ -3,9 +3,7 @@
 #include "../exceptions/unreadable.h"  // for UnreadableImageException
 #include <fstream>                     // for ifstream
 
-namespace weserv {
-namespace api {
-namespace io {
+namespace weserv::api::io {
 
 #ifdef WESERV_ENABLE_TRUE_STREAMING
 /* Class implementation */
@@ -123,6 +121,4 @@ Source Source::new_from_buffer(const std::string &buffer) {
 }
 #endif
 
-}  // namespace io
-}  // namespace api
-}  // namespace weserv
+}  // namespace weserv::api::io
