@@ -549,7 +549,7 @@ char *ngx_weserv_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child) {
     ngx_conf_merge_value(conf->api_conf.fail_on_error,
                          prev->api_conf.fail_on_error, 0);
 
-    return reinterpret_cast<char *>(NGX_CONF_OK);
+    return NGX_CONF_OK;
 }
 
 /**
