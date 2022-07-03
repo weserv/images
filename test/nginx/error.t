@@ -5,7 +5,6 @@ use Test::Nginx::Util qw($ServerPort $ServerAddr);
 
 plan tests => repeat_each() * (blocks() * 5);
 
-$ENV{TEST_NGINX_HTML_DIR} ||= html_dir();
 $ENV{TEST_NGINX_URI} = "http://$ServerAddr:$ServerPort";
 
 our $HttpConfig = qq{
