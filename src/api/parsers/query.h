@@ -47,7 +47,7 @@ class Query {
     template <typename T,
               typename = typename std::enable_if<!std::is_enum<T>::value>::type>
     const inline T &get(const std::string &key) const {
-        auto val = query_map_.at(key);
+        const auto &val = query_map_.at(key);
         return std::get<T>(val);
     }
 
