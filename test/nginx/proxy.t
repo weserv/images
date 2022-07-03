@@ -166,6 +166,7 @@ Content-Type: application/json
 --- no_error_log
 [error]
 [warn]
+--- skip_eval: 10: system("$NginxBinary -V 2>&1 | grep -- 'echo_nginx_module'") ne 0
 
 
 === TEST 6: gzip-compressed SVG

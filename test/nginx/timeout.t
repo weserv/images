@@ -58,3 +58,4 @@ Content-Type: application/json
 [error]
 --- no_error_log
 [warn]
+--- skip_eval: 5: system("$NginxBinary -V 2>&1 | grep -- 'echo_nginx_module'") ne 0
