@@ -43,19 +43,19 @@ jobs:
           # install dependencies
           sudo apt-get update
           sudo -E apt-get install -y \
+            meson \
             libcgif-dev libexif-dev libexpat1-dev \
             libheif-dev libimagequant-dev liblcms2-dev \
             libmagickcore-dev liborc-0.4-dev libpango1.0-dev \
             libpng-dev libpoppler-glib-dev librsvg2-dev \
             libtiff5-dev libwebp-dev \
-            gtk-doc-tools gobject-introspection \
             libtest-nginx-perl
       - name: Install libvips
         if: steps.cache-libvips.outputs.cache-hit != 'true'
         env:
           VIPS_VERSION: ${{ matrix.libvips-version }}
           VIPS_PRE_VERSION: ${{ matrix.libvips-pre-version }}
-        run: .ci/install-vips.sh --disable-deprecated
+        run: .ci/install-vips.sh -Ddeprecated=false -Dintrospection=false
       - name: Prepare environment
         run: |
           echo "$HOME/vips/bin" >> $GITHUB_PATH
