@@ -21,7 +21,7 @@ jobs:
           # - os: ubuntu-22.04
           #   libvips-version: master
           - os: ubuntu-22.04
-            libvips-version: 8.13.0
+            libvips-version: 8.13.2
             coverage: true
     steps:
       - uses: actions/checkout@v3
