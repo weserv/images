@@ -371,8 +371,11 @@ void Stream::append_save_options<Output::Avif>(vips::VOption *options) const {
     // Set compression format to AV1
     options->set("compression", VIPS_FOREIGN_HEIF_COMPRESSION_AV1);
 
-#if VIPS_VERSION_AT_LEAST(8, 10, 2)
+#if VIPS_VERSION_AT_LEAST(8, 12, 0)
     // Control the CPU effort spent on improving compression (default 4)
+    options->set("effort", static_cast<int>(config_.avif_effort));
+#elif VIPS_VERSION_AT_LEAST(8, 10, 2)
+    // Prior to libvips 8.12 this was named as "speed"
     options->set("speed", 9 - static_cast<int>(config_.avif_effort));
 #endif
 }
