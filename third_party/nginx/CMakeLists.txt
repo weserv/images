@@ -4,7 +4,7 @@ endif()
 
 set(NGX_ROOT ${CMAKE_CURRENT_BINARY_DIR})
 
-list(APPEND NGX_CONFIGURE_OPTS
+set(NGX_CONFIGURE_OPTS
         ${CUSTOM_NGX_FLAGS}
         #--with-debug
         "--with-cc=${CMAKE_C_COMPILER}"
