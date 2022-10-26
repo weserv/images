@@ -218,6 +218,16 @@ values are in the range from 0 (fastest/largest) to 9 (slowest/smallest).
 Controls the CPU effort spent on improving GIF compression. Acceptable
 values are in the range from 1 (fastest/largest) to 10 (slowest/smallest).
 
+### `weserv_webp_effort`
+
+| syntax:      | `weserv_webp_effort <effort>`                  |
+| :----------- |:-----------------------------------------------|
+| **default:** | `4`                                            |
+| **context:** | `http`, `server`, `location`, `if in location` |
+
+Controls the CPU effort spent on improving WebP compression. Acceptable
+values are in the range from 0 (fastest/largest) to 6 (slowest/smallest).
+
 ### `weserv_zlib_level`
 
 | syntax:      | `weserv_zlib_level <level>`                    |

@@ -83,6 +83,10 @@ ngx_conf_num_bounds_t ngx_weserv_gif_effort_bounds = {
     ngx_conf_check_num_bounds, 1, 10
 };
 
+ngx_conf_num_bounds_t ngx_weserv_webp_effort_bounds = {
+    ngx_conf_check_num_bounds, 0, 6
+};
+
 ngx_conf_num_bounds_t ngx_weserv_zlib_level_bounds = {
     ngx_conf_check_num_bounds, 0, 9
 };
@@ -251,6 +255,14 @@ ngx_command_t ngx_weserv_commands[] = {
      NGX_HTTP_LOC_CONF_OFFSET,
      offsetof(ngx_weserv_loc_conf_t, api_conf.gif_effort),
      &ngx_weserv_gif_effort_bounds},
+
+    {ngx_string("weserv_webp_effort"),
+     NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
+         NGX_HTTP_LIF_CONF | NGX_CONF_TAKE1,
+     ngx_conf_set_num_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, api_conf.webp_effort),
+     &ngx_weserv_webp_effort_bounds},
 
     {ngx_string("weserv_zlib_level"),
      NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
@@ -466,6 +478,7 @@ void *ngx_weserv_create_loc_conf(ngx_conf_t *cf) {
     lc->api_conf.webp_quality = NGX_CONF_UNSET;
     lc->api_conf.avif_effort = NGX_CONF_UNSET;
     lc->api_conf.gif_effort = NGX_CONF_UNSET;
+    lc->api_conf.webp_effort = NGX_CONF_UNSET;
     lc->api_conf.zlib_level = NGX_CONF_UNSET;
     lc->api_conf.fail_on_error = NGX_CONF_UNSET;
 
@@ -541,6 +554,8 @@ char *ngx_weserv_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child) {
                          4);
     ngx_conf_merge_value(conf->api_conf.gif_effort, prev->api_conf.gif_effort,
                          7);
+    ngx_conf_merge_value(conf->api_conf.webp_effort, prev->api_conf.webp_effort,
+                         4);
     ngx_conf_merge_value(conf->api_conf.zlib_level, prev->api_conf.zlib_level,
                          6);
 

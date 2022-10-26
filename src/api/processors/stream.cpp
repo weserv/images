@@ -352,6 +352,14 @@ void Stream::append_save_options<Output::Webp>(vips::VOption *options) const {
 
     // Set quality (default is 80)
     options->set("Q", quality);
+
+#if VIPS_VERSION_AT_LEAST(8, 12, 0)
+    // Control the CPU effort spent on improving compression (default 4)
+    options->set("effort", static_cast<int>(config_.webp_effort));
+#else
+    // Prior to libvips 8.12 this was named as "reduction_effort"
+    options->set("reduction_effort", static_cast<int>(config_.webp_effort));
+#endif
 }
 
 template <>

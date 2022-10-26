@@ -14,8 +14,8 @@ struct Config {
           process_timeout(10), limit_input_pixels(71000000),
           limit_output_pixels(71000000), max_pages(256), quality(80),
           avif_quality(80), jpeg_quality(80), tiff_quality(80),
-          webp_quality(80), avif_effort(4), gif_effort(7), zlib_level(6),
-          fail_on_error(0) {}
+          webp_quality(80), avif_effort(4), gif_effort(7), webp_effort(4),
+          zlib_level(6), fail_on_error(0) {}
 
     /**
      * Enables or disables image savers to be used within the `&output=` query
@@ -105,6 +105,13 @@ struct Config {
      * weserv_gif_effort 7;
      */
     intptr_t gif_effort;
+
+    /**
+     * Controls the CPU effort spent on improving WebP compression.
+     * Defaults to 4.
+     * weserv_webp_effort 4;
+     */
+    intptr_t webp_effort;
 
     /**
      * zlib compression level, 0-9.
