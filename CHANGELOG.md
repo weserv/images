@@ -24,6 +24,16 @@ Requires libvips 8.9+.
 - Support for controlling the CPU effort spent on improving compression (`weserv_*_effort` directives).
 - The `rel="canonical"` response header to proxied images ([#309](https://github.com/weserv/images/issues/309)).
 - The `Timing-Allow-Origin` response header ([#311](https://github.com/weserv/images/issues/311)).
+- Alpine based Docker image ([#317](https://github.com/weserv/images/pull/317)).
+- A pkg-config file of the API library (`weserv.pc`).
+- Variants of nginx configurations (`imagesweserv-no-cache.conf` and `imagesweserv-secure-link.conf`).
+- Support for configuring the number of worker threads of libvips (via the `VIPS_CONCURRENCY` env).
+- `/clear-cache` API endpoint ([#272](https://github.com/weserv/images/issues/272)).
+- `$weserv_response_length` embedded nginx variable.
+- Additional response headers ([#325](https://github.com/weserv/images/issues/325)).
+- Support multi-frame images when embedding/cropping/masking.
+- The `weserv_canonical_header` nginx directive ([#309](https://github.com/weserv/images/issues/309)).
+- Client-side DNS failover mechanism ([#331](https://github.com/weserv/images/issues/331)).
 
 ### Changed
 - Migrate Docker base image to Rocky Linux 9.
@@ -33,6 +43,11 @@ Requires libvips 8.9+.
 - Bump minimum required libvips version to 8.9.
 - Allow arbitrary values for the max-age parameter ([#292](https://github.com/weserv/images/issues/292)).
 - Increase rate limit quota to 2500 requests per 10 minutes ([#196](https://github.com/weserv/images/issues/196)).
+- The name of the project, CLI and shared library name (`imagesweserv` -> `weserv`).
+- Warn if nginx was configured without `--with-http_ssl_module`.
+- Build nginx with `--with-http_secure_link_module` by default.
+- Migrate from PCRE to PCRE2.
+- Modernize code to C++17.
 
 ### Fixed
 - Compatibility with CMake < 3.12.
@@ -45,6 +60,13 @@ Requires libvips 8.9+.
 - Message for HTTP 500 response status codes ([#264](https://github.com/weserv/images/issues/264)).
 - Focal point calculations ([#270](https://github.com/weserv/images/issues/270)).
 - Parsing of key-value pairs ([#279](https://github.com/weserv/images/issues/279)).
+- Reduce the size of the Docker image ([#316](https://github.com/weserv/images/issues/316)).
+- Only set permanent URLs as canonical ([#309](https://github.com/weserv/images/issues/309)).
+- Using the `&page` parameter in combination with `&n=-1`.
+- Skip shrink-on-load for known libjpeg rounding errors.
+- Compatibility with mixed C++ ABIs ([#338](https://github.com/weserv/images/issues/338)).
+- Prevent upsizing via libwebp.
+- Honor the `VIPS_MIN_STACK_SIZE` and `VIPS_BLOCK_UNTRUSTED` env variables.
 
 ### Deprecated
 | Before               | Use instead                             |
