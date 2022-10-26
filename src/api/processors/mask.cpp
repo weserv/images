@@ -292,7 +292,7 @@ VImage Mask::process(const VImage &image) const {
     auto page_height =
         n_pages > 1 ? query_->get<int>("page_height") : image_height;
 
-    auto preserve_aspect_ratio =
+    const auto *preserve_aspect_ratio =
         mask_type == MaskType::Ellipse ? "none" : "xMidYMid meet";
 
     int x_min, y_min, mask_width, mask_height;

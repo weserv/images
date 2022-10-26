@@ -52,7 +52,7 @@ ApiManagerFactory::create_api_manager(std::unique_ptr<ApiEnvInterface> env) {
  */
 void vips_warning_callback(const char * /*unused*/, GLogLevelFlags /*unused*/,
                            const char *message, void *user_data) {
-    auto env = static_cast<ApiEnvInterface *>(user_data);
+    auto *env = static_cast<ApiEnvInterface *>(user_data);
 
     // Log libvips warnings
     env->log_warning("libvips warning: " + std::string(message));
