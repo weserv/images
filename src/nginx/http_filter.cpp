@@ -28,12 +28,11 @@ ngx_int_t check_image_too_large(ngx_event_pipe_t *p) {
                       "upstream has sent an too large body: %O bytes",
                       p->read_length);
 
-        ctx->response_status =
-            Status(413,
-                   "The image is too large to be downloaded. "
-                   "Max image size: " +
-                       std::to_string(lc->max_size) + " bytes",
-                   Status::ErrorCause::Upstream);
+        ctx->response_status = {413,
+                                "The image is too large to be downloaded. "
+                                "Max image size: " +
+                                    std::to_string(lc->max_size) + " bytes",
+                                Status::ErrorCause::Upstream};
 
         return NGX_ERROR;
     }

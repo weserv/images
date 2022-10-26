@@ -36,8 +36,8 @@ ngx_int_t ngx_weserv_request_handler(ngx_http_request_t *r) {
 
     ngx_str_t parsed_uri;
     if (parse_url(r->pool, uri, &parsed_uri) != NGX_OK) {
-        Status status = Status(Status::Code::InvalidUri, "Unable to parse URI",
-                               Status::ErrorCause::Application);
+        Status status = {Status::Code::InvalidUri, "Unable to parse URI",
+                         Status::ErrorCause::Application};
 
         ngx_chain_t out;
         if (ngx_weserv_return_error(r, status, &out) != NGX_OK) {

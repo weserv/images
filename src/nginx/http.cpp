@@ -59,8 +59,8 @@ Status ngx_weserv_upstream_set_url(ngx_pool_t *pool,
         parsed_url.default_port = 443;
 #endif
     } else {
-        return Status(Status::Code::InvalidUri, "Unable to parse URI",
-                      Status::ErrorCause::Application);
+        return {Status::Code::InvalidUri, "Unable to parse URI",
+                Status::ErrorCause::Application};
     }
 
     // Parse out the URI part of the URL
@@ -69,8 +69,8 @@ Status ngx_weserv_upstream_set_url(ngx_pool_t *pool,
     parsed_url.no_resolve = 1;
 
     if (ngx_parse_url(pool, &parsed_url) != NGX_OK) {
-        return Status(Status::Code::InvalidUri, "Unable to parse URI",
-                      Status::ErrorCause::Application);
+        return {Status::Code::InvalidUri, "Unable to parse URI",
+                Status::ErrorCause::Application};
     }
 
     // Detect situation where input URL was of the form:
@@ -81,7 +81,7 @@ Status ngx_weserv_upstream_set_url(ngx_pool_t *pool,
         auto *p = reinterpret_cast<u_char *>(
             ngx_pnalloc(pool, parsed_url.uri.len + 1));
         if (p == nullptr) {
-            return Status(NGX_ERROR, "Out of memory");
+            return {NGX_ERROR, "Out of memory"};
         }
 
         *p = '/';
@@ -94,7 +94,7 @@ Status ngx_weserv_upstream_set_url(ngx_pool_t *pool,
 
     upstream->resolved = new (pool) ngx_http_upstream_resolved_t;
     if (upstream->resolved == nullptr) {
-        return Status(NGX_ERROR, "Out of memory");
+        return {NGX_ERROR, "Out of memory"};
     }
 
     // This condition is true if the URL did not use domain name, but rather
@@ -388,8 +388,8 @@ ngx_int_t ngx_weserv_upstream_process_status_line(ngx_http_request_t *r) {
         }
 
         // Store the parsed error code
-        ctx->response_status =
-            Status(status.code, message, Status::ErrorCause::Upstream);
+        ctx->response_status = {static_cast<int>(status.code), message,
+                                Status::ErrorCause::Upstream};
 
         return NGX_HTTP_UPSTREAM_INVALID_HEADER;
     }
@@ -413,8 +413,8 @@ ngx_int_t ngx_weserv_upstream_process_status_line(ngx_http_request_t *r) {
     }
 
     // Store the parsed response status for later
-    ctx->response_status =
-        Status(status.code, "", Status::ErrorCause::Upstream);
+    ctx->response_status = {static_cast<int>(status.code), "",
+                            Status::ErrorCause::Upstream};
 
     if (status.http_version < NGX_HTTP_VERSION_11) {
         r->upstream->headers_in.connection_close = 1;
@@ -540,12 +540,12 @@ ngx_int_t ngx_weserv_upstream_process_header(ngx_http_request_t *r) {
                     "upstream intended to send too large body: %O bytes",
                     u->headers_in.content_length_n);
 
-                ctx->response_status =
-                    Status(413,
-                           "The image is too large to be downloaded. "
-                           "Max image size: " +
-                               std::to_string(lc->max_size) + " bytes",
-                           Status::ErrorCause::Upstream);
+                ctx->response_status = {
+                    413,
+                    "The image is too large to be downloaded. "
+                    "Max image size: " +
+                        std::to_string(lc->max_size) + " bytes",
+                    Status::ErrorCause::Upstream};
 
                 return NGX_HTTP_UPSTREAM_INVALID_HEADER;
             }
@@ -618,8 +618,9 @@ void ngx_weserv_upstream_finalize_request(ngx_http_request_t *r, ngx_int_t rc) {
 
     if (rc != NGX_OK) {
         if (ctx->response_status.ok()) {
-            ctx->response_status = Status(rc, "Failed to connect to server",
-                                          Status::ErrorCause::Upstream);
+            ctx->response_status = {static_cast<int>(rc),
+                                    "Failed to connect to server",
+                                    Status::ErrorCause::Upstream};
         }
 
         // Reset redirect flag
@@ -638,18 +639,18 @@ void ngx_weserv_upstream_finalize_request(ngx_http_request_t *r, ngx_int_t rc) {
         if (ctx->location.len == referer.len &&
             ngx_strncasecmp(ctx->location.data, referer.data, referer.len) ==
                 0) {
-            ctx->response_status =
-                Status(310, "Will not follow a redirection to itself",
-                       Status::ErrorCause::Upstream);
+            ctx->response_status = {310,
+                                    "Will not follow a redirection to itself",
+                                    Status::ErrorCause::Upstream};
 
             // Reset redirect flag
             ctx->redirecting = 0;
         } else if (request->redirect_count() >= request->max_redirects()) {
-            ctx->response_status = Status(
+            ctx->response_status = {
                 310,
                 "Will not follow more than " +
                     std::to_string(request->max_redirects()) + " redirects",
-                Status::ErrorCause::Upstream);
+                Status::ErrorCause::Upstream};
 
             // Reset redirect flag
             ctx->redirecting = 0;
@@ -684,7 +685,7 @@ Status initialize_upstream_request(ngx_http_request_t *r,
                                    ngx_weserv_upstream_ctx_t *ctx) {
     // Create the NGINX upstream structures
     if (ngx_http_upstream_create(r) != NGX_OK) {
-        return Status(NGX_ERROR, "Out of memory");
+        return {NGX_ERROR, "Out of memory"};
     }
 
     ngx_http_upstream_t *u = r->upstream;
@@ -708,7 +709,7 @@ Status initialize_upstream_request(ngx_http_request_t *r,
     // process the response data as the upstream module reads it from the wire
     u->pipe = new (r->pool) ngx_event_pipe_t;
     if (u->pipe == nullptr) {
-        return Status(NGX_ERROR, "Out of memory");
+        return {NGX_ERROR, "Out of memory"};
     }
 
     // The request filter context is the request object (ngx_request_t)
