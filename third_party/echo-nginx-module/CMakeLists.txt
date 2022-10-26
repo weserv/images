@@ -1,6 +1,6 @@
 FetchContent_Declare(echo_nginx_module
         GIT_REPOSITORY https://github.com/openresty/echo-nginx-module.git
-        GIT_TAG v0.62
+        GIT_TAG v0.63
         )
 
 FetchContent_GetProperties(echo_nginx_module)
