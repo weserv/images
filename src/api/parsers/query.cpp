@@ -242,25 +242,23 @@ void Query::add_value(const std::string &key, const std::string &value,
 }
 
 Query::Query(const std::string &value, const Config &config) : config_(config) {
-    size_t begin = 0;
-    size_t end;
-
+    size_t pos = 0;
     size_t max_pos = value.size();
 
-    while (begin < max_pos) {
+    while (pos < max_pos) {
         // Search key
-        end = value.find_first_of("=&", begin);
+        size_t end = value.find_first_of("=&", pos);
         if (end == std::string::npos) {
             end = max_pos;
         }
 
-        std::string key = value.substr(begin, end - begin);
+        std::string key = value.substr(pos, end - pos);
 
         // Skip empty, invalid, or keys already handled in the nginx module
         if (key.empty() || key.size() > MAX_KEY_LENGTH ||
             nginx_keys.find(key) != nginx_keys.end()) {
-            end = value.find('&', end + 1);
-            begin = end == std::string::npos ? max_pos : end + 1;
+            end = value.find('&', end);
+            pos = end == std::string::npos ? max_pos : end + 1;
             continue;
         }
 
@@ -278,16 +276,18 @@ Query::Query(const std::string &value, const Config &config) : config_(config) {
 
             // Handle optional value
             if (end < max_pos && value.at(end) == '=') {
-                begin = end + 1;
-                end = value.find('&', begin);
+                pos = end + 1;
+                end = value.find('&', pos);
 
-                val = value.substr(begin, end - begin);
+                val = value.substr(pos, end - pos);
             }
 
             add_value(key, val, type_it->second);
+        } else {
+            end = value.find('&', end);
         }
 
-        begin = end == std::string::npos ? max_pos : end + 1;
+        pos = end == std::string::npos ? max_pos : end + 1;
     }
 }
 

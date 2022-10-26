@@ -59,7 +59,7 @@ Requires libvips 8.9+.
 - Premultiplication bug during masking ([#245](https://github.com/weserv/images/issues/245)).
 - Message for HTTP 500 response status codes ([#264](https://github.com/weserv/images/issues/264)).
 - Focal point calculations ([#270](https://github.com/weserv/images/issues/270)).
-- Parsing of key-value pairs ([#279](https://github.com/weserv/images/issues/279)).
+- Parsing of key-value pairs ([#279](https://github.com/weserv/images/issues/279) and [#358](https://github.com/weserv/images/issues/358)).
 - Reduce the size of the Docker image ([#316](https://github.com/weserv/images/issues/316)).
 - Only set permanent URLs as canonical ([#309](https://github.com/weserv/images/issues/309)).
 - Using the `&page` parameter in combination with `&n=-1`.
