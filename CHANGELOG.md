@@ -26,7 +26,7 @@ Requires libvips 8.9+.
 - The `Timing-Allow-Origin` response header ([#311](https://github.com/weserv/images/issues/311)).
 
 ### Changed
-- Migrate Docker base image to Rocky Linux.
+- Migrate Docker base image to Rocky Linux 9.
 - Attempt to decode corrupted or invalid images ([#194](https://github.com/weserv/images/issues/194)).
 - Docker image improvements ([#215](https://github.com/weserv/images/pull/215), [#216](https://github.com/weserv/images/pull/216), [#230](https://github.com/weserv/images/pull/230) and [#283](https://github.com/weserv/images/pull/283)).
 - Return an error when the maximum number of pages is exceeded ([#243](https://github.com/weserv/images/issues/243)).

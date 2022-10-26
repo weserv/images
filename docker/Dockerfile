@@ -1,4 +1,4 @@
-FROM rockylinux:8
+FROM rockylinux:9
 
 LABEL maintainer="Kleis Auke Wolthuizen <info@kleisauke.nl>"
 
@@ -9,27 +9,16 @@ COPY . /var/www/imagesweserv
 WORKDIR /var/www/imagesweserv
 
 # Set default timezone (can be overridden with -e "TZ=Continent/City")
-ENV TZ=Europe/Amsterdam \
-    # Update the PKG_CONFIG_PATH environment variable,
-    # since libjpeg-turbo is installed in a non-standard prefix
-    PKG_CONFIG_PATH=/opt/libjpeg-turbo/lib64/pkgconfig
+ENV TZ=Europe/Amsterdam
 
 # Update packages
 RUN dnf update -y \
-    # Install the latest stable version of libjpeg-turbo,
-    # since the version on RHEL 8 is too old (v1.5.3)
-    && dnf install -y dnf-plugins-core \
-    && dnf config-manager --add-repo https://libjpeg-turbo.org/pmwiki/uploads/Downloads/libjpeg-turbo.repo \
-    && sed -i '/^exclude=/ s/$/,libjpeg-turbo-*.*.9[0-9]-*/' /etc/yum.repos.d/libjpeg-turbo.repo \
-    && dnf install -y libjpeg-turbo-official \
-    && echo '/opt/libjpeg-turbo/lib64' >> /etc/ld.so.conf.d/libjpeg-turbo-official-x86_64.conf \
-    && ldconfig \
     # Install libvips and needed dependencies
     && dnf install -y epel-release \
-    && dnf config-manager --set-enabled powertools \
-    && dnf install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm \
+    && crb enable \
+    && dnf install -y https://rpms.remirepo.net/enterprise/remi-release-9.rpm \
     && dnf config-manager --set-enabled remi \
-    && dnf install -y --nogpgcheck https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm \
+    && dnf install -y --nogpgcheck https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-9.noarch.rpm \
     && dnf group install -y --with-optional 'Development Tools' \
     && dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
         vips-devel \
