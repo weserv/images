@@ -33,8 +33,6 @@ jobs:
           path: ~/vips
           key: ${{ matrix.libvips-version }}
       - name: Install dependencies
-        env:
-          DEBIAN_FRONTEND: noninteractive
         run: |
           # for Test::Nginx
           curl -fsSL https://openresty.org/package/pubkey.gpg | sudo gpg --dearmor -o /usr/share/keyrings/openresty.gpg
@@ -42,7 +40,7 @@ jobs:
             sudo tee /etc/apt/sources.list.d/openresty.list > /dev/null
           # install dependencies
           sudo apt-get update
-          sudo -E apt-get install -y \
+          sudo apt-get install -y \
             meson \
             libcgif-dev libexif-dev libexpat1-dev \
             libheif-dev libimagequant-dev liblcms2-dev \
