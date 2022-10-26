@@ -40,7 +40,7 @@ jobs:
             sudo tee /etc/apt/sources.list.d/openresty.list > /dev/null
           # install dependencies
           sudo apt-get update
-          sudo apt-get install -y \
+          sudo apt-get install \
             meson \
             libcgif-dev libexif-dev libexpat1-dev \
             libheif-dev libimagequant-dev liblcms2-dev \
