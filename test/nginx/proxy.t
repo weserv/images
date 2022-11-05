@@ -82,8 +82,8 @@ Content-Type: application/json
     error_log logs/error.log debug;
 
     map $http_user_agent $is_weserv {
-        default                        0;
-        "~*\+http://images.weserv.nl/" 1;
+        default               0;
+        "~*\+http://wsrv.nl/" 1;
     }
 --- config
     location /user_agent {
@@ -96,7 +96,7 @@ Content-Type: application/json
 
     location /images {
         weserv proxy;
-        weserv_user_agent "Mozilla/5.0 (compatible; ImageFetcher/9.0; +http://images.weserv.nl/)";
+        weserv_user_agent "Mozilla/5.0 (compatible; ImageFetcher/9.0; +http://wsrv.nl/)";
     }
 --- request eval
 "GET /images?url=$ENV{TEST_NGINX_URI}/user_agent"

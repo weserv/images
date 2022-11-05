@@ -102,7 +102,7 @@ For example:
 
 Requires libvips 8.8+.
 
-See [this blog post](https://images.weserv.nl/news/2019/09/01/introducing-api-5/) for a summary of the new features in API 5.
+See [this blog post](https://wsrv.nl/news/2019/09/01/introducing-api-5/) for a summary of the new features in API 5.
 
 ### Added
 - Support for animated WebP and GIF images.
@@ -147,7 +147,7 @@ See [this blog post](https://images.weserv.nl/news/2019/09/01/introducing-api-5/
 
 Requires libvips 8.7+ and OpenResty 1.13.6.2+.
 
-See [this blog post](https://images.weserv.nl/news/2018/07/29/introducing-api-4/) for a summary of the new features in API 4.
+See [this blog post](https://wsrv.nl/news/2018/07/29/introducing-api-4/) for a summary of the new features in API 4.
 
 ### Added
 - Mask background (`&mbg=`).

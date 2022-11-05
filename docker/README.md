@@ -1,6 +1,6 @@
-# Images.weserv.nl dockerized
+# Docker instructions
 
-This document describes how to use images.weserv.nl with Docker.
+This document describes how to use weserv/images with Docker.
 
 ## Hosted image on [GitHub Container Registry](https://github.com/orgs/weserv/packages/container/package/images)
 

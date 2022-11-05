@@ -39,7 +39,7 @@ if (ENABLE_COVERAGE)
     # Add target to generate HTML coverage report
     add_custom_target(coverage-html
             DEPENDS coverage
-            COMMAND ${GENHTML} -t "Images.weserv.nl" -p "${PROJECT_SOURCE_DIR}" --legend --demangle-cpp -o lcov -s coverage.info
+            COMMAND ${GENHTML} -t "wsrv.nl" -p "${PROJECT_SOURCE_DIR}" --legend --demangle-cpp -o lcov -s coverage.info
             WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
             COMMENT "Generating HTML coverage report lcov/index.html"
             )

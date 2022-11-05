@@ -1,7 +1,7 @@
 # Privacy Policy
-Last updated: February 07, 2019
+Last updated: November 05, 2022
 
-Images.weserv.nl ("us", "we", or "our") operates the https://images.weserv.nl/ website (hereinafter referred to as the "Service").
+wsrv.nl ("us", "we", or "our") operates the https://wsrv.nl/ (formerly https://images.weserv.nl/) website (hereinafter referred to as the "Service").
 
 This page informs you of our policies regarding the collection, use and disclosure of Personal Information when you use our Service.
 

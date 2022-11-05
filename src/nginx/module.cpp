@@ -504,7 +504,7 @@ char *ngx_weserv_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child) {
 
     ngx_conf_merge_str_value(conf->user_agent, prev->user_agent,
                              "Mozilla/5.0 (compatible; ImageFetcher/9.0; "
-                             "+http://images.weserv.nl/)");
+                             "+http://wsrv.nl/)");
 
     // Max image size to process is 100 MiB by default
     ngx_conf_merge_size_value(conf->max_size, prev->max_size,

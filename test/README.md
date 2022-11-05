@@ -1,4 +1,4 @@
-# Images.weserv.nl test suite
+# Test suite of weserv/images
 
 Tests are automatically run on GitHub Actions (using
 [this configuration](../.github/workflows/ci.yml)) whenever new commits are

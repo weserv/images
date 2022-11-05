@@ -49,10 +49,10 @@ time, the connection is closed.
 
 ### `weserv_user_agent`
 
-| syntax:      | `weserv_user_agent <user_agent>`                                        |
-| :----------- | :---------------------------------------------------------------------- |
-| **default:** | `Mozilla/5.0 (compatible; ImageFetcher/9.0; +http://images.weserv.nl/)` |
-| **context:** | `http`, `server`, `location`, `if in location`                          |
+| syntax:      | `weserv_user_agent <user_agent>`                               |
+| :----------- | :------------------------------------------------------------- |
+| **default:** | `Mozilla/5.0 (compatible; ImageFetcher/9.0; +http://wsrv.nl/)` |
+| **context:** | `http`, `server`, `location`, `if in location`                 |
 
 Configures the User-Agent header that will be sent to a remote server.
 

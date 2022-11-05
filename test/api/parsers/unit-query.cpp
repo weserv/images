@@ -21,7 +21,7 @@ TEST_CASE("query ignore", "[query]") {
 
     SECTION("default") {
         auto test_image = fixtures->input_png_pixel;
-        auto params = "default=ory.weserv.nl/lichtenstein.jpg";
+        auto params = "default=wsrv.nl/lichtenstein.jpg";
 
         Status status = process_file(test_image, nullptr, params);
 
@@ -31,7 +31,7 @@ TEST_CASE("query ignore", "[query]") {
 
     SECTION("errorredirect (deprecated)") {
         auto test_image = fixtures->input_png_pixel;
-        auto params = "errorredirect=ory.weserv.nl/lichtenstein.jpg";
+        auto params = "errorredirect=wsrv.nl/lichtenstein.jpg";
 
         Status status = process_file(test_image, nullptr, params);
 
@@ -51,7 +51,7 @@ TEST_CASE("query ignore", "[query]") {
 
     SECTION("url") {
         auto test_image = fixtures->input_png_pixel;
-        auto params = "url=ory.weserv.nl/lichtenstein.jpg";
+        auto params = "url=wsrv.nl/lichtenstein.jpg";
 
         Status status = process_file(test_image, nullptr, params);
 
