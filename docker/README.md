@@ -45,6 +45,9 @@ docker exec weserv nginx -s reload
 # Update RPM packages
 docker exec weserv dnf update -y
 
+# Check jemalloc configuration
+docker exec -e MALLOC_CONF="stats_print:true,stats_print_opts:mdablxeh" weserv bash
+
 # Retrieve an IP Address
 docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -f name=weserv -q)
 docker inspect $(docker ps -f name=weserv -q) | grep IPAddress

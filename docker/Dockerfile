@@ -25,6 +25,7 @@ RUN dnf update -y \
         vips-heif \
         vips-poppler \
         vips-magick-im6 \
+        jemalloc-devel \
         openssl-devel \
         pcre2-devel \
         zlib-devel \
@@ -70,6 +71,9 @@ RUN dnf update -y \
     && ln -sf /dev/stderr /var/log/nginx/weserv-error.log \
     # Copy nginx configuration to the appropriate location
     && cp ngx_conf/*.conf /etc/nginx
+
+# Use jemalloc on glibc-based Linux systems to reduce the effects of memory fragmentation
+ENV LD_PRELOAD=/usr/lib64/libjemalloc.so
 
 EXPOSE 80
 
