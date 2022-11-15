@@ -11,20 +11,18 @@ class ImageNotReadableExceptionTest extends ImagesWeservTestCase
 {
     /**
      * Test can construct and throw an exception.
-     *
-     * @expectedException \Weserv\Images\Exception\ImageNotReadableException
      */
     public function testThrowException(): void
     {
+        $this->expectException(ImageNotReadableException::class);
         throw new ImageNotReadableException();
     }
 
-    /**
-     * @expectedException        \Weserv\Images\Exception\ImageNotReadableException
-     * @expectedExceptionMessage Image not readable. Is it a valid image?
-     */
     public function testImageNotReadableException(): void
     {
+        $this->expectException(ImageNotReadableException::class);
+        $this->expectExceptionMessage('Image not readable. Is it a valid image?');
+
         $client = $this->getMockery(Client::class);
         $api = new Api($client, $this->getManipulators());
 

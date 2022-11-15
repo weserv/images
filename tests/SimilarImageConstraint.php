@@ -15,39 +15,29 @@ use SebastianBergmann\Diff\Output\UnifiedDiffOutputBuilder;
 class SimilarImageConstraint extends Constraint
 {
     /**
-     * The expected image
-     *
-     * @var Image $expectedImage
+     * The expected image.
      */
-    protected $expectedImage;
+    protected Image $expectedImage;
 
     /**
-     * Distance threshold. Defaulting to 5 (~7% threshold)
-     *
-     * @var int $threshold
+     * Distance threshold. Defaulting to 5 (~7% threshold).
      */
-    protected $threshold;
+    protected int $threshold;
 
     /**
      * dHash distance.
-     *
-     * @var int $distance
      */
-    protected $distance;
+    protected int $distance;
 
     /**
-     * Expected hash
-     *
-     * @var string $expectedHash
+     * Expected hash.
      */
-    protected $expectedHash;
+    protected string $expectedHash;
 
     /**
-     * Actual hash
-     *
-     * @var string $actualHash
+     * Actual hash.
      */
-    protected $actualHash;
+    protected string $actualHash;
 
     /**
      * SimilarImageConstraint constructor.
@@ -59,7 +49,6 @@ class SimilarImageConstraint extends Constraint
      */
     public function __construct($image, int $threshold)
     {
-        parent::__construct();
         $this->expectedImage = \is_string($image) ?
             Image::newFromFile($image, ['access' => Access::SEQUENTIAL]) : $image;
         $this->threshold = $threshold;
@@ -143,9 +132,6 @@ class SimilarImageConstraint extends Constraint
     {
         // Get original colourspace
         $typeBeforeNormalize = $image->interpretation;
-        if ($typeBeforeNormalize === Interpretation::RGB) {
-            $typeBeforeNormalize = Interpretation::SRGB;
-        }
 
         // Convert to LAB colourspace
         $lab = $image->colourspace(Interpretation::LAB);
@@ -203,7 +189,6 @@ class SimilarImageConstraint extends Constraint
             'linear' => false
         ];
 
-        /** @var Image $thumbnailImage */
         $thumbnailImage = $image->thumbnail_image(9, $thumbnailOptions)->colourspace(Interpretation::B_W);
 
         $memStr = $this->normalizeImage($thumbnailImage->copyMemory())->extract_band(0)->writeToMemory();

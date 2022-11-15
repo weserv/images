@@ -4,30 +4,26 @@ namespace Weserv\Images\Throttler;
 
 use Cloudflare\API\Adapter\ResponseException;
 use Cloudflare\API\Endpoints\AccessRules;
-use DateTime;
+use DateTimeInterface;
 use GuzzleHttp\Exception\RequestException;
 
 class ThrottlingPolicy
 {
     /**
      * Config
-     *
-     * @var array
      */
-    protected $config;
+    protected array $config;
 
     /**
      * AccessRules instance.
-     *
-     * @var AccessRules
      */
-    protected $accessRules;
+    protected AccessRules $accessRules;
 
     /**
      * Create a new ThrottlerPolicy instance.
      *
      * @param AccessRules $accessRules
-     * @param mixed[] $config
+     * @param array $config
      */
     public function __construct(AccessRules $accessRules, array $config)
     {
@@ -83,7 +79,7 @@ class ThrottlingPolicy
                 $this->config['cloudflare']['zone_id'],
                 $this->config['cloudflare']['mode'],
                 $config,
-                'Banned until ' . date(DateTime::ATOM, time() + ($this->config['ban_time'] * 60))
+                'Banned until ' . date(DateTimeInterface::ATOM, time() + ($this->config['ban_time'] * 60))
             );
 
             // Log it

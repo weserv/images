@@ -1,15 +1,15 @@
 <?php
 /**
- * Source code of images.weserv.nl, to be used on your own server(s).
+ * Source code of wsrv.nl (formerly images.weserv.nl), to be used on your own server(s).
  *
- * PHP version 7.1+
+ * PHP version 7.4+
  *
  * @category  Images
  * @package   Weserv\Images
  * @author    Andries Louw Wolthuizen <info@andrieslouw.nl>
  * @author    Kleis Auke Wolthuizen   <info@kleisauke.nl>
  * @license   https://opensource.org/licenses/bsd-license.php New BSD License
- * @link      https://images.weserv.nl
+ * @link      https://wsrv.nl
  * @copyright 2018
  */
 
@@ -33,7 +33,6 @@ use Weserv\Images\Exception\RateExceededException;
 use Weserv\Images\Manipulators\Helpers\Utils;
 
 // See for an example: config.example.php
-/** @noinspection PhpIncludeInspection */
 $config = @include(__DIR__ . '/../config.php') ?: [];
 
 $error_messages = [
@@ -110,7 +109,7 @@ $error_messages = [
  * @param string $url
  *
  * @throws InvalidArgumentException if the URI is invalid
- * @throws League\Uri\UriException if the URI is in an invalid state according to RFC3986
+ * @throws League\Uri\Exceptions\SyntaxError if the URI is in an invalid state according to RFC3986
  *
  * @return HttpUri parsed URI
  */
@@ -141,18 +140,15 @@ function parseUrl(string $url): HttpUri
  */
 function sanitizeErrorRedirect(HttpUri $errorUrl): string
 {
-    $queryStr = $errorUrl->getQuery();
-    if (!empty($queryStr)) {
-        $query = new Query($queryStr);
-        if ($query->hasPair('errorredirect')) {
-            $newQuery = $query->withoutPairs(['errorredirect']);
-            return $errorUrl->withQuery($newQuery->__toString())->__toString();
-        }
+    $query = Query::createFromUri($errorUrl);
+    if ($query->has('errorredirect')) {
+        $newQuery = $query->withoutParam('errorredirect');
+        return $errorUrl->withQuery($newQuery->__toString())->__toString();
     }
     return $errorUrl->__toString();
 }
 
-if (!empty($_GET['url']) && \is_string($_GET['url'])) {
+if (!empty($_GET['url']) && is_string($_GET['url'])) {
     try {
         $uri = parseUrl($_GET['url']);
     } catch (Exception $e) {
@@ -178,7 +174,7 @@ if (!empty($_GET['url']) && \is_string($_GET['url'])) {
 
     $defaultClientConfig = [
         // User agent for this client
-        'user_agent' => 'Mozilla/5.0 (compatible; ImageFetcher/7.0; +http://images.weserv.nl/)',
+        'user_agent' => 'Mozilla/5.0 (compatible; ImageFetcher/7.0; +http://wsrv.nl/)',
         // Float describing the number of seconds to wait while trying to connect to a server.
         // Use 0 to wait indefinitely.
         'connect_timeout' => 5,
@@ -369,7 +365,7 @@ if (!empty($_GET['url']) && \is_string($_GET['url'])) {
 
         $errorMessage = "$statusCode $reasonPhrase";
 
-        if (!$isDnsError && !empty($_GET['errorredirect']) && \is_string($_GET['errorredirect'])) {
+        if (!$isDnsError && !empty($_GET['errorredirect']) && is_string($_GET['errorredirect'])) {
             try {
                 $uri = parseUrl($_GET['errorredirect']);
                 $sanitizedUri = sanitizeErrorRedirect($uri);
@@ -445,11 +441,11 @@ if (!empty($_GET['url']) && \is_string($_GET['url'])) {
     @unlink($tmpFileName);
 } else {
     $name = $config['name'] ?? 'API 3 - GitHub, DEMO';
-    $url = $config['url'] ?? 'images.weserv.nl';
+    $url = $config['url'] ?? 'wsrv.nl';
 
-    $exampleImage = $config['exampleImage'] ?? 'ory.weserv.nl/lichtenstein.jpg';
-    $exampleTransparentImage = $config['exampleTransparentImage'] ?? 'ory.weserv.nl/transparency_demo.png';
-    $exampleSmartcropImage = $config['exampleSmartcropImage'] ?? 'ory.weserv.nl/zebra.jpg';
+    $exampleImage = $config['exampleImage'] ?? 'wsrv.nl/lichtenstein.jpg';
+    $exampleTransparentImage = $config['exampleTransparentImage'] ?? 'wsrv.nl/transparency_demo.png';
+    $exampleSmartcropImage = $config['exampleSmartcropImage'] ?? 'wsrv.nl/zebra.jpg';
 
     $html = <<<HTML
 <!DOCTYPE html>
@@ -473,7 +469,7 @@ if (!empty($_GET['url']) && \is_string($_GET['url'])) {
         <div id="header-wrapper">
             <div id="header">
                 <a id="logo" href="//$url/">
-                    <div id="weserv-logo">Images.<strong>weserv</strong>.nl</div>
+                    <div id="weserv-logo"><strong>wsrv</strong>.nl</div>
                     <span>Image cache &amp; resize proxy</span>
                 </a>
                 <div class="search-wrapper">
@@ -503,7 +499,7 @@ if (!empty($_GET['url']) && \is_string($_GET['url'])) {
             <br />
             <div id="footer">
                 <p>
-                    <a href="https://github.com/weserv/images">Source code available on GitHub</a><br />
+                    <a href="https://github.com/weserv/images/tree/3.x">Source code available on GitHub</a><br />
                     <a href="https://getgrav.org/">Design inspired by Grav</a><br />
                     <a href="https://github.com/weserv/images/blob/3.x/Privacy-Policy.md">Privacy Policy</a>
                 </p>
@@ -512,7 +508,7 @@ if (!empty($_GET['url']) && \is_string($_GET['url'])) {
     </nav>
     <div id="body">
         <section id="image-api">
-            <h1 style="display: none;">Documentation</h1><p>Images.<b>weserv</b>.nl is an image <b>cache</b> &amp; <b>resize</b> proxy. Our servers resize your image, cache it worldwide, and display it. <a class="github-fork-ribbon right-top" href="https://github.com/weserv/images/issues" data-ribbon="Feedback? Github!" title="Feedback? Github!">Feedback? GitHub!</a></p>
+            <h1 style="display: none;">Documentation</h1><p><b>wsrv</b>.nl is an image <b>cache</b> &amp; <b>resize</b> proxy. Our servers resize your image, cache it worldwide, and display it. <a class="github-fork-ribbon right-top" href="https://github.com/weserv/images/issues" data-ribbon="Feedback? Github!" title="Feedback? Github!">Feedback? GitHub!</a></p>
             <ul>
                 <li>We don't support animated images (yet), but we do support GIF, JPEG, PNG, BMP, XBM, WebP and other filetypes, even transparent images.</li>
                 <li>We do support IPv6, <a href="http://ipv6-test.com/validate.php?url=$url" rel="nofollow">serving dual stack</a>, and supporting <a href="https://$url/?url=ipv6.google.com/logos/logo.gif">IPv6-only origin hosts</a>.</li>

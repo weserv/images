@@ -12,33 +12,25 @@ class MemcachedThrottlerTest extends ImagesWeservTestCase
 {
     /**
      * Memcached instance.
-     *
-     * @var Memcached|MockInterface
      */
-    protected $memcached;
+    protected Memcached $memcached;
 
     /**
      * Throttling policy.
-     *
-     * @var ThrottlingPolicy|MockInterface
      */
     protected $policy;
 
     /**
      * Throttling config.
-     *
-     * @var array
      */
-    protected $config;
+    protected array $config;
 
     /**
      * The Memcached throttler instance.
-     *
-     * @var MemcachedThrottler
      */
-    protected $throttler;
+    protected MemcachedThrottler $throttler;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->memcached = $this->getMockery(Memcached::class);
         $this->policy = $this->getMockery(ThrottlingPolicy::class);

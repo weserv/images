@@ -29,24 +29,16 @@ class Thumbnail extends BaseManipulator
 {
     /**
      * Maximum image size in pixels.
-     *
-     * @var int|null
      */
-    protected $maxImageSize;
+    protected ?int $maxImageSize;
 
     /**
      * Profile map to ensure that we use a device-
      * independent color space for the images we process.
-     *
-     * @var array
      */
-    protected $profileMap = [
-        // Default sRGB ICC profile from:
-        // https://packages.debian.org/sid/all/icc-profiles-free/filelist
-        Interpretation::SRGB => __DIR__ . '/../ICC/sRGB.icm',
-        // Convert to sRGB using default CMYK profile from:
-        // https://www.argyllcms.com/cmyk.icm
-        Interpretation::CMYK => __DIR__ . '/../ICC/cmyk.icm'
+    protected array $profileMap = [
+        Interpretation::SRGB => 'srgb',
+        Interpretation::CMYK => 'cmyk'
     ];
 
     protected const VIPS_MAX_COORD = 10000000;
@@ -110,9 +102,7 @@ class Thumbnail extends BaseManipulator
         // Check if image size is greater then the maximum allowed image size after dimension is resolved
         $this->checkImageSize($image, $this->w, $this->h);
 
-        $image = $this->doThumbnail($image, $this->getFit(), $this->w, $this->h);
-
-        return $image;
+        return $this->doThumbnail($image, $this->getFit(), $this->w, $this->h);
     }
 
     /**
@@ -145,7 +135,7 @@ class Thumbnail extends BaseManipulator
             return $this->t;
         }
 
-        if (strpos($this->t, 'crop') === 0) {
+        if ($this->t !== null && strpos($this->t, 'crop') === 0) {
             return 'crop';
         }
 
@@ -250,7 +240,7 @@ class Thumbnail extends BaseManipulator
         $embeddedProfile = Utils::hasProfile($image);
 
         // Ensure we're using a device-independent color space
-        if ($embeddedProfile || (!$embeddedProfile && $isCMYK)) {
+        if ($embeddedProfile || $isCMYK) {
             // Embedded profile; fallback in case the profile embedded in the image is broken.
             // No embedded profile; import using default CMYK profile.
             $thumbnailOptions['import_profile'] = $isCMYK ?

@@ -47,19 +47,6 @@ class Utils
     }
 
     /**
-     * Return the image alpha maximum. Useful for combining alpha bands. scRGB
-     * images are 0 - 1 for image data, but the alpha is 0 - 255.
-     *
-     * @param string $interpretation The VipsInterpretation
-     *
-     * @return int the image alpha maximum
-     */
-    public static function maximumImageAlpha(string $interpretation): int
-    {
-        return self::is16Bit($interpretation) ? 65535 : 255;
-    }
-
-    /**
      * Get EXIF Orientation of image, if any.
      *
      * @param Image $image The source image.
@@ -112,11 +99,11 @@ class Utils
      * and parameters
      *
      * @param Image $image The source image.
-     * @param mixed[] $params Parameters array
+     * @param array $params Parameters array
      *
      * @throws \Jcupitt\Vips\Exception
      *
-     * @return mixed[] [rotation, flip, flop]
+     * @return array [rotation, flip, flop]
      */
     public static function resolveRotationAndFlip(Image $image, array $params): array
     {

@@ -2,7 +2,6 @@
 
 namespace Weserv\Images\Test\Manipulators;
 
-use Jcupitt\Vips\Image;
 use Mockery\MockInterface;
 use Weserv\Images\Api\Api;
 use Weserv\Images\Client;
@@ -12,22 +11,13 @@ use Weserv\Images\Test\ImagesWeservTestCase;
 
 class OrientationTest extends ImagesWeservTestCase
 {
-    /**
-     * @var Client|MockInterface $client
-     */
-    private $client;
+    private Client $client;
 
-    /**
-     * @var Api $api
-     */
-    private $api;
+    private Api $api;
 
-    /**
-     * @var Orientation $manipulator
-     */
-    private $manipulator;
+    private Orientation $manipulator;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->client = $this->getMockery(Client::class);
         $this->api = new Api($this->client, $this->getManipulators());
@@ -55,7 +45,6 @@ class OrientationTest extends ImagesWeservTestCase
                 'or' => $angle
             ];
 
-            /** @var Image $image */
             $image = $this->api->run($uri, $params);
 
             $this->assertEquals(240, $image->width);
@@ -80,7 +69,6 @@ class OrientationTest extends ImagesWeservTestCase
                 'or' => $angle
             ];
 
-            /** @var Image $image */
             $image = $this->api->run($uri, $params);
 
             $this->assertEquals(320, $image->width);
@@ -109,7 +97,6 @@ class OrientationTest extends ImagesWeservTestCase
                     'w' => '320'
                 ];
 
-                /** @var Image $image */
                 $image = $this->api->run($uri, $params);
 
                 $this->assertEquals(320, $image->width);

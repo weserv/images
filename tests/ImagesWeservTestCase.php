@@ -24,8 +24,6 @@ use Weserv\Images\Manipulators\Trim;
 
 /**
  * A base test case with some custom expectations.
- *
- * @requires extension vips
  */
 class ImagesWeservTestCase extends TestCase
 {
@@ -90,7 +88,7 @@ class ImagesWeservTestCase extends TestCase
         ];
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         \Mockery::close();
     }

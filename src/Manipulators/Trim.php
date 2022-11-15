@@ -29,9 +29,7 @@ class Trim extends BaseManipulator
 
         $trim = $this->getTrim();
 
-        $image = $this->getTrimmedImage($image, $trim);
-
-        return $image;
+        return $this->getTrimmedImage($image, $trim);
     }
 
     /**

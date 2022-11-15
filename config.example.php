@@ -2,14 +2,14 @@
 
 return [
     'name' => 'API 3 - GitHub, DEMO',
-    'url' => 'images.weserv.nl',
-    'exampleImage' => 'ory.weserv.nl/lichtenstein.jpg',
-    'exampleTransparentImage' => 'ory.weserv.nl/transparency_demo.png',
-    'exampleSmartcropImage' => 'ory.weserv.nl/zebra.jpg',
+    'url' => 'wsrv.nl',
+    'exampleImage' => 'wsrv.nl/lichtenstein.jpg',
+    'exampleTransparentImage' => 'wsrv.nl/transparency_demo.png',
+    'exampleSmartcropImage' => 'wsrv.nl/zebra.jpg',
     // Client options
     'client' => [
         // User agent for this client
-        'user_agent' => 'Mozilla/5.0 (compatible; ImageFetcher/7.0; +http://images.weserv.nl/)',
+        'user_agent' => 'Mozilla/5.0 (compatible; ImageFetcher/7.0; +http://wsrv.nl/)',
         // Float describing the number of seconds to wait while trying to connect to a server.
         // Use 0 to wait indefinitely.
         'connect_timeout' => 5,
@@ -57,7 +57,7 @@ return [
     'throttler' => [
         'allowed_requests' => 700, // 700 allowed requests
         'minutes' => 3, // In 3 minutes
-        'prefix' => 'c', // Cache key prefix,
+        'prefix' => 'c', // Cache key prefix
         'driver' => 'redis' // Throttler driver; defaulting to redis
     ],
     // Throttler whitelist
@@ -67,13 +67,13 @@ return [
     ],
     // Throttling policy
     'throttling-policy' => [
-        'ban_time' => 60, // If exceed, ban for 60 minutes
+        'ban_time' => 60, // If exceeded, ban for 60 minutes
         'cloudflare' => [
             'enabled' => false, // Is CloudFlare enabled?
             'email' => '',
             'auth_key' => '',
             'zone_id' => '',
-            'mode' => 'block' // The action to apply if the IP get's banned
+            'mode' => 'block' // The action to apply if the IP gets banned
         ]
     ]
 ];

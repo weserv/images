@@ -12,33 +12,25 @@ class RedisThrottlerTest extends ImagesWeservTestCase
 {
     /**
      * Redis instance.
-     *
-     * @var ClientInterface|MockInterface
      */
-    protected $redis;
+    protected ClientInterface $redis;
 
     /**
      * Throttling policy.
-     *
-     * @var ThrottlingPolicy|MockInterface
      */
-    protected $policy;
+    protected ThrottlingPolicy $policy;
 
     /**
      * Throttling config.
-     *
-     * @var array
      */
-    protected $config;
+    protected array $config;
 
     /**
      * The Redis throttler instance.
-     *
-     * @var RedisThrottler
      */
-    protected $throttler;
+    protected RedisThrottler $throttler;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->redis = $this->getMockery(ClientInterface::class);
         $this->policy = $this->getMockery(ThrottlingPolicy::class);

@@ -2,7 +2,6 @@
 
 namespace Weserv\Images\Test\Manipulators;
 
-use Jcupitt\Vips\Image;
 use Mockery\MockInterface;
 use Weserv\Images\Api\Api;
 use Weserv\Images\Client;
@@ -11,22 +10,13 @@ use Weserv\Images\Test\ImagesWeservTestCase;
 
 class BackgroundTest extends ImagesWeservTestCase
 {
-    /**
-     * @var Client|MockInterface
-     */
-    private $client;
+    private Client $client;
 
-    /**
-     * @var Api
-     */
-    private $api;
+    private Api $api;
 
-    /**
-     * @var Background
-     */
-    private $manipulator;
+    private Background $manipulator;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->client = $this->getMockery(Client::class);
         $this->api = new Api($this->client, $this->getManipulators());
@@ -53,7 +43,6 @@ class BackgroundTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(400, $image->width);
@@ -76,7 +65,6 @@ class BackgroundTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(400, $image->width);
@@ -99,7 +87,6 @@ class BackgroundTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(400, $image->width);
@@ -119,7 +106,6 @@ class BackgroundTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(32, $image->width);
@@ -143,7 +129,6 @@ class BackgroundTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(1, $image->bands);
@@ -168,7 +153,6 @@ class BackgroundTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(400, $image->width);
@@ -191,7 +175,6 @@ class BackgroundTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(400, $image->width);
@@ -210,7 +193,6 @@ class BackgroundTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(3, $image->bands);
@@ -227,7 +209,6 @@ class BackgroundTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(4, $image->bands);

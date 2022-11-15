@@ -14,26 +14,20 @@ class ThrottlingPolicyTest extends ImagesWeservTestCase
 {
     /**
      * AccessRules instance.
-     *
-     * @var AccessRules|MockInterface
      */
-    protected $accessRules;
+    protected AccessRules $accessRules;
 
     /**
      * Throttling policy config.
-     *
-     * @var array
      */
-    protected $config;
+    protected array $config;
 
     /**
      * Throttling policy.
-     *
-     * @var ThrottlingPolicy
      */
-    protected $policy;
+    protected ThrottlingPolicy $policy;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->accessRules = $this->getMockery(AccessRules::class);
         $this->config = [
@@ -87,11 +81,10 @@ class ThrottlingPolicyTest extends ImagesWeservTestCase
         $this->assertTrue($successful);
     }
 
-    /**
-     * @expectedException \PHPUnit\Framework\Error\Warning
-     */
     public function testResponseExceptionBan(): void
     {
+        $this->expectWarning();
+
         $ipAddress = '127.0.0.1';
 
         $this->accessRules->shouldReceive('createRule')->with(
@@ -104,11 +97,10 @@ class ThrottlingPolicyTest extends ImagesWeservTestCase
         $this->policy->banAtCloudFlare($ipAddress);
     }
 
-    /**
-     * @expectedException \PHPUnit\Framework\Error\Warning
-     */
     public function testResponseExceptionUnban(): void
     {
+        $this->expectWarning();
+
         $blockRuleId = '92f17202ed8bd63d69a66b86a49a8f6b';
 
         $this->accessRules->shouldReceive('deleteRule')->with(
@@ -119,11 +111,10 @@ class ThrottlingPolicyTest extends ImagesWeservTestCase
         $this->policy->unbanAtCloudFlare($blockRuleId);
     }
 
-    /**
-     * @expectedException \PHPUnit\Framework\Error\Warning
-     */
     public function testUnauthorizedExceptionBan(): void
     {
+        $this->expectWarning();
+
         $ipAddress = '127.0.0.1';
         $zoneID = $this->config['cloudflare']['zone_id'];
 
@@ -141,11 +132,10 @@ class ThrottlingPolicyTest extends ImagesWeservTestCase
         $this->policy->banAtCloudFlare($ipAddress);
     }
 
-    /**
-     * @expectedException \PHPUnit\Framework\Error\Warning
-     */
     public function testUnauthorizedExceptionUnban(): void
     {
+        $this->expectWarning();
+
         $blockRuleId = '92f17202ed8bd63d69a66b86a49a8f6b';
         $zoneID = $this->config['cloudflare']['zone_id'];
 

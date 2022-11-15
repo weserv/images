@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <ruleset name="imagesweserv">
     <!-- Set a description for this ruleset -->
-    <description>images.weserv.nl coding standard. Inherits from PSR-2.</description>
+    <description>wsrv.nl coding standard. Inherits from PSR-2.</description>
 
     <!-- Check all files in this directory and the directories below it -->
     <file>.</file>

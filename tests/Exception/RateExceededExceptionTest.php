@@ -13,20 +13,18 @@ class RateExceededExceptionTest extends ImagesWeservTestCase
 {
     /**
      * Test can construct and throw an exception.
-     *
-     * @expectedException \Weserv\Images\Exception\RateExceededException
      */
     public function testThrowException(): void
     {
+        $this->expectException(RateExceededException::class);
         throw new RateExceededException();
     }
 
-    /**
-     * @expectedException        \Weserv\Images\Exception\RateExceededException
-     * @expectedExceptionMessage There are an unusual number of requests coming from this IP address.
-     */
     public function testRateExceededException(): void
     {
+        $this->expectException(RateExceededException::class);
+        $this->expectExceptionMessage('There are an unusual number of requests coming from this IP address.');
+
         $client = $this->getMockery(Client::class);
         $api = new Api($client, $this->getManipulators());
         $throttler = $this->getMockery(ThrottlerInterface::class);

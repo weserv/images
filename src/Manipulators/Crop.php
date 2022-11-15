@@ -31,7 +31,8 @@ class Crop extends BaseManipulator
         $imageHeight = $image->height;
 
         $isSmartCrop = $this->a === Interesting::ENTROPY || $this->a === Interesting::ATTENTION;
-        $isCropNeeded = $this->t === 'square' || $this->t === 'squaredown' || strpos($this->t, 'crop') === 0;
+        $isCropNeeded = $this->t === 'square' || $this->t === 'squaredown' ||
+            ($this->t !== null && strpos($this->t, 'crop') === 0);
 
         if (($imageWidth !== $width || $imageHeight !== $height) && $isCropNeeded) {
             $minWidth = min($imageWidth, $width);
@@ -144,7 +145,7 @@ class Crop extends BaseManipulator
         }
 
         // Focal point
-        if (strpos($this->a, 'crop-') === 0) {
+        if ($this->a !== null && strpos($this->a, 'crop-') === 0) {
             $matches = explode('-', substr($this->a, 5));
             if (!isset($matches[2]) && is_numeric($matches[0]) && is_numeric($matches[1])) {
                 if ($matches[0] > 100 || $matches[1] > 100) {

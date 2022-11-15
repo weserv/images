@@ -11,17 +11,11 @@ use Weserv\Images\Test\ImagesWeservTestCase;
 
 class ApiTest extends ImagesWeservTestCase
 {
-    /**
-     * @var Client|MockInterface
-     */
-    private $client;
+    private Client $client;
 
-    /**
-     * @var Api
-     */
-    private $api;
+    private Api $api;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->client = $this->getMockery(Client::class);
         $this->api = new Api($this->client, $this->getManipulators());
@@ -50,11 +44,9 @@ class ApiTest extends ImagesWeservTestCase
         $this->assertInstanceOf(ManipulatorInterface::class, $manipulators[0]);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testSetInvalidManipulator(): void
     {
+        $this->expectException(\InvalidArgumentException::class);
         $this->api->setManipulators([new \StdClass()]);
     }
 
@@ -72,33 +64,33 @@ class ApiTest extends ImagesWeservTestCase
 
         $params['tmpFileName'] = 'test.pdf';
         $params['loader'] = 'VipsForeignLoadPdfFile';
-        $this->assertEquals($this->api->getLoadOptions($params), [
+        $this->assertEquals([
             'access' => Access::SEQUENTIAL,
             'page' => 0
-        ]);
-        $this->assertEquals($params['tmpFileName'], 'test.pdf[page=0]');
+        ], $this->api->getLoadOptions($params));
+        $this->assertEquals('test.pdf[page=0]', $params['tmpFileName']);
 
         $params['tmpFileName'] = 'test.tiff';
         $params['loader'] = 'VipsForeignLoadTiffFile';
-        $this->assertEquals($this->api->getLoadOptions($params), [
+        $this->assertEquals([
             'access' => Access::SEQUENTIAL,
             'page' => 0
-        ]);
-        $this->assertEquals($params['tmpFileName'], 'test.tiff[page=0]');
+        ], $this->api->getLoadOptions($params));
+        $this->assertEquals('test.tiff[page=0]', $params['tmpFileName']);
 
         $params['tmpFileName'] = 'test.ico';
         $params['loader'] = 'VipsForeignLoadMagickFile';
-        $this->assertEquals($this->api->getLoadOptions($params), [
+        $this->assertEquals([
             'access' => Access::SEQUENTIAL,
             'page' => 0
-        ]);
-        $this->assertEquals($params['tmpFileName'], 'test.ico[page=0]');
+        ], $this->api->getLoadOptions($params));
+        $this->assertEquals('test.ico[page=0]', $params['tmpFileName']);
 
         $params['tmpFileName'] = 'test.jpg';
         $params['loader'] = 'VipsForeignLoadJpegFile';
-        $this->assertEquals($this->api->getLoadOptions($params), [
+        $this->assertEquals([
             'access' => Access::SEQUENTIAL
-        ]);
-        $this->assertEquals($params['tmpFileName'], 'test.jpg');
+        ], $this->api->getLoadOptions($params));
+        $this->assertEquals('test.jpg', $params['tmpFileName']);
     }
 }

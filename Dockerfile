@@ -11,7 +11,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN echo -e '\
 [nginx]\n\
 name=nginx repo\n\
-baseurl=http://nginx.org/packages/mainline/centos/7/$basearch/\n\
+baseurl=https://nginx.org/packages/mainline/centos/7/$basearch/\n\
 gpgcheck=0\n\
 enabled=1' > /etc/yum.repos.d/nginx.repo
 
@@ -19,11 +19,12 @@ enabled=1' > /etc/yum.repos.d/nginx.repo
 RUN yum update -y && \
     yum install -y epel-release yum-utils && \
     yum install -y https://rpms.remirepo.net/enterprise/remi-release-7.rpm && \
-    yum-config-manager --enable remi-php72 remi && \
+    yum-config-manager --enable remi-php81 remi && \
     yum install -y \
         composer \
         nginx \
         php \
+        php-ffi \
         php-fpm \
         php-intl \
         php-opcache \
@@ -49,7 +50,7 @@ ADD config/supervisord.conf /etc/supervisord.conf
 WORKDIR /var/www/imagesweserv
 
 # Define mountable directories
-VOLUME ["/var/www/imagesweserv", "/var/log/supervisor", "/dev/shm"]
+VOLUME ["/var/www/imagesweserv", "/var/log/supervisor"]
 
 EXPOSE 80
 

@@ -2,7 +2,6 @@
 
 namespace Weserv\Images\Test\Manipulators;
 
-use Jcupitt\Vips\Image;
 use Mockery\MockInterface;
 use Weserv\Images\Api\Api;
 use Weserv\Images\Client;
@@ -11,22 +10,13 @@ use Weserv\Images\Test\ImagesWeservTestCase;
 
 class BrightnessTest extends ImagesWeservTestCase
 {
-    /**
-     * @var Client|MockInterface
-     */
-    private $client;
+    private Client $client;
 
-    /**
-     * @var Api
-     */
-    private $api;
+    private Api $api;
 
-    /**
-     * @var Brightness
-     */
-    private $manipulator;
+    private Brightness $manipulator;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->client = $this->getMockery(Client::class);
         $this->api = new Api($this->client, $this->getManipulators());
@@ -53,7 +43,6 @@ class BrightnessTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);
@@ -76,7 +65,6 @@ class BrightnessTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);
@@ -99,7 +87,6 @@ class BrightnessTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);

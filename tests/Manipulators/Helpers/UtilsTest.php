@@ -15,13 +15,6 @@ class UtilsTest extends ImagesWeservTestCase
         $this->assertFalse(Utils::is16Bit(Interpretation::SRGB));
     }
 
-    public function testMaximumImageAlpha(): void
-    {
-        $this->assertSame(65535, Utils::maximumImageAlpha(Interpretation::RGB16));
-        $this->assertSame(65535, Utils::maximumImageAlpha(Interpretation::GREY16));
-        $this->assertSame(255, Utils::maximumImageAlpha(Interpretation::SRGB));
-    }
-
     public function testResolveAngleRotation(): void
     {
         $this->assertSame(270, Utils::resolveAngleRotation('-3690'));

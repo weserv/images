@@ -1,88 +1,64 @@
-# Docker
+# Docker instructions
 
-This document describes how to use images.weserv.nl with Docker.
+This document describes how to use weserv/images with Docker.
 
 ## Installation
 
 1. Create a `config.php` from the `config.example.php` file. Adapt it according to your needs.
-
     ```bash
     cp config.example.php config.php
     ```
 
-2. Build/run containers with (with and without detached mode)
-
+2. Build/run the container.
     ```bash
-    $ docker build . -t imagesweserv
+    $ docker build . -t weserv/images
     $ docker run \
-        -v $(pwd):/var/www/imagesweserv \
-        -v $(pwd)/logs/supervisor:/var/log/supervisor \
-        -v /dev/shm:/dev/shm \
-        -p 80:80 \
         -d \
-        --name=imagesweserv \
-        imagesweserv
+        -v $(pwd):/var/www/imagesweserv \
+        -v $(pwd)/logs:/var/log/supervisor \
+        -p 8080:80 \
+        --shm-size=1gb \
+        --name=weserv \
+        weserv/images
     ```
+    (this maps TCP port 80 in the container to port 8080 on the Docker host)
 
-3. Update your system host file (add images.weserv.local)
-
+3. Install composer packages.
     ```bash
-    # UNIX only: get containers IP address and update host (replace IP according to your configuration) (on Windows, edit C:\Windows\System32\drivers\etc\hosts)
-    $ sudo echo $(docker network inspect bridge | grep Gateway | grep -o -E '[0-9\.]+') "images.weserv.local" >> /etc/hosts
+    $ docker exec weserv composer install
     ```
 
-    **Note:** For **OS X**, please take a look [here](https://docs.docker.com/docker-for-mac/networking/) and for **Windows** read [this](https://docs.docker.com/docker-for-windows/#/step-4-explore-the-application-and-run-examples) (4th step).
-
-4. Install images.weserv.nl
-
-    ```bash
-    $ docker exec imagesweserv composer install
-    ```
+4. Visit [`http://localhost:8080/`](http://localhost:8080/).
 
 5. Enjoy :-)
-
-## Usage
-
-Just run:
-```bash
-$ docker run \
-    -v $(pwd):/var/www/imagesweserv \
-    -v $(pwd)/logs/supervisor:/var/log/supervisor \
-    -v /dev/shm:/dev/shm \
-    -p 80:80 \
-    -d \
-    --name=imagesweserv \
-    imagesweserv
-```
-then visit [images.weserv.local](http://images.weserv.local)  
 
 ## Useful commands
 
 ```bash
 # bash commands
-$ docker exec -it imagesweserv bash
+$ docker exec -it weserv bash
 
 # Composer (e.g. composer update)
-$ docker exec imagesweserv composer update
+$ docker exec weserv composer update
 
 # Retrieve an IP Address
-$ docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -f name=imagesweserv -q)
-$ docker inspect $(docker ps -f name=imagesweserv -q) | grep IPAddress
+$ docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -f name=weserv -q)
+$ docker inspect $(docker ps -f name=weserv -q) | grep IPAddress
 
 # Access to redis-cli
-$ docker exec -it imagesweserv redis-cli
+$ docker exec -it weserv redis-cli
 
 # When you have reached the rate-limit (where 127.0.0.1 is your IP address)
-$ docker exec imagesweserv redis-cli DEL c_127.0.0.1:lockout
+$ docker exec weserv redis-cli DEL c_127.0.0.1:lockout
 
 # Make configuration changes available
-$ docker exec imagesweserv supervisorctl reread
+$ docker exec weserv supervisorctl reread
 
 # Restarts the applications whose configuration has changed
-$ docker exec imagesweserv supervisorctl update
+$ docker exec weserv supervisorctl update
 
 # Access to logs
-$ docker logs imagesweserv
+$ docker logs weserv
 
 # Check CPU consumption
 $ docker stats

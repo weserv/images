@@ -4,7 +4,6 @@ namespace Weserv\Images\Manipulators;
 
 use Jcupitt\Vips\Access;
 use Jcupitt\Vips\Image;
-use Jcupitt\Vips\Interpretation;
 
 /**
  * @property string $sharp
@@ -36,9 +35,7 @@ class Sharpen extends BaseManipulator
 
         [$flat, $jagged, $sigma] = $this->getSharpen();
 
-        $image = $this->sharpen($image, $sigma, $flat, $jagged);
-
-        return $image;
+        return $this->sharpen($image, $sigma, $flat, $jagged);
     }
 
     /**
@@ -109,9 +106,6 @@ class Sharpen extends BaseManipulator
 
         // Slow, accurate sharpen in LAB colour space, with control over flat vs jagged areas
         $oldInterpretation = $image->interpretation;
-        if ($oldInterpretation === Interpretation::RGB) {
-            $oldInterpretation = Interpretation::SRGB;
-        }
 
         if ($this->accessMethod === Access::SEQUENTIAL) {
             $image = $image->linecache([

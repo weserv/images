@@ -8,38 +8,30 @@ class MemcachedThrottler implements ThrottlerInterface
 {
     /**
      * Memcached instance.
-     *
-     * @var Memcached
      */
-    protected $memcached;
+    protected Memcached $memcached;
 
     /**
      * Throttling policy.
-     *
-     * @var ThrottlingPolicy
      */
-    protected $policy;
+    protected ThrottlingPolicy $policy;
 
     /**
      * A string that should be prepended to keys.
-     *
-     * @var string
      */
-    protected $prefix;
+    protected string $prefix;
 
     /**
      * Config
-     *
-     * @var array
      */
-    protected $config;
+    protected array $config;
 
     /**
      * Create a new Memcached throttler instance.
      *
      * @param Memcached $memcached
      * @param ThrottlingPolicy $policy
-     * @param mixed[] $config
+     * @param array $config
      */
     public function __construct(Memcached $memcached, ThrottlingPolicy $policy, array $config)
     {

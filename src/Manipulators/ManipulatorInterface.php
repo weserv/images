@@ -9,7 +9,7 @@ interface ManipulatorInterface
     /**
      * Set the manipulation params.
      *
-     * @param mixed[] $params The manipulation params.
+     * @param array $params The manipulation params.
      *
      * @return self
      */
@@ -18,7 +18,7 @@ interface ManipulatorInterface
     /**
      * Get the manipulation params.
      *
-     * @return mixed[] The manipulation params.
+     * @return array The manipulation params.
      */
     public function getParams(): array;
 

@@ -13,27 +13,20 @@ class Client
 {
     /**
      * Temp file name to download to
-     *
-     * @var string
      */
-    protected $fileName;
+    protected string $fileName;
 
     /**
      * Options for this client
-     *
-     * @var array
      */
-    protected $options;
+    protected array $options;
 
-    /**
-     * @var GuzzleClient
-     */
-    private $client;
+    private GuzzleClient $client;
 
     /**
      * @param string $fileName Temp file name to download to
-     * @param mixed[] $options Client options
-     * @param mixed[] $guzzleOptions Specific Guzzle options
+     * @param array $options Client options
+     * @param array $guzzleOptions Specific Guzzle options
      */
     public function __construct(string $fileName, array $options, array $guzzleOptions = [])
     {
@@ -45,7 +38,7 @@ class Client
     /**
      * Initialize the client
      *
-     * @param mixed[] $guzzleOptions Specific Guzzle options
+     * @param array $guzzleOptions Specific Guzzle options
      *
      * @return void
      */
@@ -114,7 +107,7 @@ class Client
     /**
      * Set the client options
      *
-     * @param mixed[] $options Client options
+     * @param array $options Client options
      *
      * @return void
      */
@@ -126,7 +119,7 @@ class Client
     /**
      * Get the client options
      *
-     * @return mixed[] $options Client options
+     * @return array $options Client options
      */
     public function getOptions(): array
     {
@@ -167,9 +160,6 @@ class Client
             ]
         ];
 
-        /**
-         * @var ResponseInterface $response
-         */
         try {
             $this->client->request('GET', $url, $requestOptions);
         } catch (GuzzleException $e) {

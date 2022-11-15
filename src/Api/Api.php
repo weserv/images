@@ -21,17 +21,13 @@ class Api implements ApiInterface
 {
     /**
      * Collection of manipulators.
-     *
-     * @var ManipulatorInterface[]
      */
-    protected $manipulators;
+    protected array $manipulators;
 
     /**
      * The PHP HTTP client
-     *
-     * @var Client
      */
-    protected $client;
+    protected Client $client;
 
     /**
      * Create API instance.
@@ -158,7 +154,6 @@ class Api implements ApiInterface
         [$params['rotation'], $params['flip'], $params['flop']] = Utils::resolveRotationAndFlip($image, $params);
 
         // Do our image manipulations
-        /* @var $manipulator ManipulatorInterface */
         foreach ($this->manipulators as $manipulator) {
             $manipulator->setParams($params);
 
@@ -180,9 +175,9 @@ class Api implements ApiInterface
     /**
      * Get the options to pass on to the load operation.
      *
-     * @param mixed[] $params Parameters array (by reference)
+     * @param array $params Parameters array (by reference)
      *
-     * @return mixed[] Any options to pass on to the load operation.
+     * @return array Any options to pass on to the load operation.
      */
     public function getLoadOptions(array &$params): array
     {

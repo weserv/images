@@ -2,7 +2,6 @@
 
 namespace Weserv\Images\Test\Manipulators;
 
-use Jcupitt\Vips\Image;
 use Mockery\MockInterface;
 use Weserv\Images\Api\Api;
 use Weserv\Images\Client;
@@ -11,22 +10,13 @@ use Weserv\Images\Test\ImagesWeservTestCase;
 
 class CropTest extends ImagesWeservTestCase
 {
-    /**
-     * @var Client|MockInterface $client
-     */
-    private $client;
+    private Client $client;
 
-    /**
-     * @var Api $api
-     */
-    private $api;
+    private Api $api;
 
-    /**
-     * @var Crop $manipulator
-     */
-    private $manipulator;
+    private Crop $manipulator;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->client = $this->getMockery(Client::class);
         $this->api = new Api($this->client, $this->getManipulators());
@@ -162,7 +152,6 @@ class CropTest extends ImagesWeservTestCase
 
             $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-            /** @var Image $image */
             $image = $this->api->run($uri, $params);
 
             $this->assertEquals($crop['width'], $image->width);
@@ -186,7 +175,6 @@ class CropTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(3, $image->bands);
@@ -211,7 +199,6 @@ class CropTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(4, $image->bands);
@@ -236,7 +223,6 @@ class CropTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(3, $image->bands);
@@ -261,7 +247,6 @@ class CropTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(4, $image->bands);
@@ -283,7 +268,6 @@ class CropTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(20, $image->width);
@@ -303,7 +287,6 @@ class CropTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(400, $image->width);
@@ -323,7 +306,6 @@ class CropTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(125, $image->width);
@@ -343,7 +325,6 @@ class CropTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(341, $image->width);
@@ -361,7 +342,6 @@ class CropTest extends ImagesWeservTestCase
             'crop' => '40,40,290,760'
         ];
 
-        // @var Image $image
         $uri = basename($testImage);
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
@@ -389,7 +369,6 @@ class CropTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(100, $image->width);
@@ -410,7 +389,6 @@ class CropTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(280, $image->width);
@@ -429,7 +407,6 @@ class CropTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);
@@ -450,7 +427,6 @@ class CropTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);
@@ -471,7 +447,6 @@ class CropTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);
@@ -492,7 +467,6 @@ class CropTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);

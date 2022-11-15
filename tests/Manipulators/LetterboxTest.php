@@ -2,7 +2,6 @@
 
 namespace Weserv\Images\Test\Manipulators;
 
-use Jcupitt\Vips\Image;
 use Jcupitt\Vips\Interpretation;
 use Mockery\MockInterface;
 use Weserv\Images\Api\Api;
@@ -12,22 +11,13 @@ use Weserv\Images\Test\ImagesWeservTestCase;
 
 class LetterboxTest extends ImagesWeservTestCase
 {
-    /**
-     * @var Client|MockInterface
-     */
-    private $client;
+    private Client $client;
 
-    /**
-     * @var Api
-     */
-    private $api;
+    private Api $api;
 
-    /**
-     * @var Letterbox
-     */
-    private $manipulator;
+    private Letterbox $manipulator;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->client = $this->getMockery(Client::class);
         $this->api = new Api($this->client, $this->getManipulators());
@@ -56,7 +46,6 @@ class LetterboxTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(240, $image->width);
@@ -83,7 +72,6 @@ class LetterboxTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(4, $image->bands);
@@ -111,10 +99,9 @@ class LetterboxTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals(Interpretation::RGB, $image->interpretation);
+        $this->assertEquals(Interpretation::SRGB, $image->interpretation);
         $this->assertEquals(320, $image->width);
         $this->assertEquals(240, $image->height);
         $this->assertSimilarImage($expectedImage, $image);
@@ -138,7 +125,6 @@ class LetterboxTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(3, $image->bands);
@@ -165,7 +151,6 @@ class LetterboxTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(3, $image->bands);
@@ -191,7 +176,6 @@ class LetterboxTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(4, $image->bands);
@@ -217,10 +201,9 @@ class LetterboxTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals(4, $image->bands);
+        $this->assertEquals(2, $image->bands);
         $this->assertEquals(32, $image->width);
         $this->assertEquals(16, $image->height);
         $this->assertSimilarImage($expectedImage, $image);
@@ -244,7 +227,6 @@ class LetterboxTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(3, $image->bands);

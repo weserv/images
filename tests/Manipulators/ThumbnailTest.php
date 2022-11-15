@@ -2,7 +2,6 @@
 
 namespace Weserv\Images\Test\Manipulators;
 
-use Jcupitt\Vips\Image;
 use Jcupitt\Vips\Interpretation;
 use Mockery\MockInterface;
 use Weserv\Images\Api\Api;
@@ -12,22 +11,13 @@ use Weserv\Images\Test\ImagesWeservTestCase;
 
 class ThumbnailTest extends ImagesWeservTestCase
 {
-    /**
-     * @var Client|MockInterface
-     */
-    private $client;
+    private Client $client;
 
-    /**
-     * @var Api
-     */
-    private $api;
+    private Api $api;
 
-    /**
-     * @var Thumbnail
-     */
-    private $manipulator;
+    private Thumbnail $manipulator;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->client = $this->getMockery(Client::class);
         $this->api = new Api($this->client, $this->getManipulators());
@@ -62,7 +52,6 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(294, $image->width);
@@ -84,7 +73,6 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);
@@ -104,7 +92,6 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);
@@ -126,7 +113,6 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(392, $image->width);
@@ -146,7 +132,6 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(392, $image->width);
@@ -163,7 +148,6 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(2725, $image->width);
@@ -183,7 +167,6 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(3000, $image->width);
@@ -204,7 +187,6 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);
@@ -224,7 +206,6 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(3000, $image->width);
@@ -247,7 +228,6 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(2725, $image->width);
@@ -270,7 +250,6 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(2725, $image->width);
@@ -291,7 +270,6 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(240, $image->width);
@@ -314,7 +292,6 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(243, $image->width);
@@ -337,7 +314,6 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);
@@ -361,7 +337,6 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);
@@ -384,7 +359,6 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);
@@ -407,7 +381,6 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(2725, $image->width);
@@ -431,7 +404,6 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(3000, $image->width);
@@ -454,7 +426,6 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(3000, $image->width);
@@ -477,7 +448,6 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(2725, $image->width);
@@ -501,7 +471,6 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);
@@ -525,7 +494,6 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(3000, $image->width);
@@ -544,7 +512,6 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(2725, $image->width);
@@ -566,10 +533,9 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals(Interpretation::RGB, $image->interpretation);
+        $this->assertEquals(Interpretation::SRGB, $image->interpretation);
         $this->assertEquals(320, $image->width);
     }
 
@@ -588,10 +554,9 @@ class ThumbnailTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
-        $this->assertEquals(Interpretation::RGB, $image->interpretation);
+        $this->assertEquals(Interpretation::SRGB, $image->interpretation);
         $this->assertEquals(320, $image->width);
         $this->assertSimilarImage($expectedImage, $image);
     }

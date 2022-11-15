@@ -3,6 +3,7 @@
 namespace Weserv\Images\Manipulators;
 
 use Jcupitt\Vips\Access;
+use Jcupitt\Vips\BlendMode;
 use Jcupitt\Vips\Image;
 use Weserv\Images\Manipulators\Helpers\Utils;
 
@@ -44,7 +45,8 @@ class Shape extends BaseManipulator
                 'access' => Access::SEQUENTIAL
             ]);
 
-            $image = $this->cutout($mask, $image);
+            // Cutout via dest-in
+            $image = $image->composite($mask, [BlendMode::DEST_IN]);
 
             // Crop the image to the mask dimensions;
             // if strim is defined and if it's not a ellipse
@@ -102,7 +104,7 @@ class Shape extends BaseManipulator
      * @param int $height
      * @param string $shape
      *
-     * @return mixed[] [
+     * @return array [
      *      *SVG path*,
      *      *Left edge of mask*,
      *      *Top edge of mask*,
@@ -188,7 +190,7 @@ class Shape extends BaseManipulator
      * @param float $midX midX
      * @param float $midY midY
      *
-     * @return mixed[] [
+     * @return array [
      *      *SVG path*,
      *      *Left edge of mask*,
      *      *Top edge of mask*,
@@ -198,7 +200,7 @@ class Shape extends BaseManipulator
      */
     public function getSVGHeart(float $midX, float $midY): array
     {
-        $path = '';
+        $path = 'M';
         $xArr = [];
         $yArr = [];
         for ($t = -M_PI; $t <= M_PI; $t += 0.02) {
@@ -225,7 +227,7 @@ class Shape extends BaseManipulator
      * @param float $midY midY
      * @param array $parameters mask parameters
      *
-     * @return mixed[] [
+     * @return array [
      *      *SVG path*,
      *      *Left edge of mask*,
      *      *Top edge of mask*,
@@ -273,56 +275,6 @@ class Shape extends BaseManipulator
     }
 
     /**
-     * Cutout src over dst
-     *
-     * @param Image $mask
-     * @param Image $dst
-     *
-     * @throws \Jcupitt\Vips\Exception
-     *
-     * @return Image
-     */
-    public function cutout(Image $mask, Image $dst): Image
-    {
-        $maskHasAlpha = $mask->hasAlpha();
-        $dstHasAlpha = $dst->hasAlpha();
-
-        // we use the mask alpha if it has alpha
-        if ($maskHasAlpha) {
-            $mask = $mask->extract_band($mask->bands - 1, ['n' => 1]);
-        }
-
-        // split dst into an optional alpha
-        $dstAlpha = $dst->extract_band($dst->bands - 1, ['n' => 1]);
-
-        // we use the dst non-alpha
-        if ($dstHasAlpha) {
-            $dst = $dst->extract_band(0, ['n' => $dst->bands - 1]);
-        }
-
-        // the range of the mask and the image need to match .. one could be
-        // 16-bit, one 8-bit
-        $dstMax = Utils::maximumImageAlpha($dst->interpretation);
-        $maskMax = Utils::maximumImageAlpha($mask->interpretation);
-
-        if ($dstHasAlpha) {
-            // combine the new mask and the existing alpha ... there are
-            // many ways of doing this, mult is the simplest
-            $mask = $mask->divide($maskMax)->multiply($dstAlpha->divide($dstMax))->multiply($dstMax);
-        }
-        // Not needed; after the thumbnail manipulator it's not an
-        // 16-bit image anymore.
-        /*elseif ($dstMax !== $maskMax) {
-            // adjust the range of the mask to match the image
-            $mask = $mask->divide($maskMax)->multiply($dstMax);
-        }*/
-
-        // append the mask to the image data ... the mask might be float now,
-        // we must cast the format down to match the image data
-        return $dst->bandjoin([$mask->cast($dst->format)]);
-    }
-
-    /**
      * Calculate the area to extract
      *
      * @param int $width
@@ -330,7 +282,7 @@ class Shape extends BaseManipulator
      * @param int $maskWidth
      * @param int $maskHeight
      *
-     * @return mixed[]
+     * @return array
      */
     public function resolveShapeTrim(int $width, int $height, int $maskWidth, int $maskHeight): array
     {

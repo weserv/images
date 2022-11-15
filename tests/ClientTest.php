@@ -7,30 +7,22 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Exception\ConnectException;
 use Weserv\Images\Client;
 
 class ClientTest extends ImagesWeservTestCase
 {
-    /**
-     * @var Client
-     */
-    private $client;
+    private Client $client;
 
-    /**
-     * @var string
-     */
-    private $tempFile;
+    private string $tempFile;
 
-    /**
-     * @var array
-     */
-    private $options;
+    private array $options;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->tempFile = tempnam(sys_get_temp_dir(), 'phpunit');
         $this->options = [
-            'user_agent' => 'Mozilla/5.0 (compatible; ImageFetcher/6.0; +http://images.weserv.nl/)',
+            'user_agent' => 'Mozilla/5.0 (compatible; ImageFetcher/6.0; +http://wsrv.nl/)',
             'connect_timeout' => 5,
             'timeout' => 10,
             'max_image_size' => 0,
@@ -40,7 +32,7 @@ class ClientTest extends ImagesWeservTestCase
         $this->client = new Client($this->tempFile, $this->options);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
         unlink($this->tempFile);
@@ -68,11 +60,9 @@ class ClientTest extends ImagesWeservTestCase
         $this->assertSame($this->options, $this->client->getOptions());
     }
 
-    /**
-     * @expectedException \GuzzleHttp\Exception\RequestException
-     */
     public function testInvalidRedirectURI(): void
     {
+        $this->expectException(ConnectException::class);
         $this->client->get('http://test');
     }
 

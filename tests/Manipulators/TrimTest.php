@@ -2,7 +2,6 @@
 
 namespace Weserv\Images\Test\Manipulators;
 
-use Jcupitt\Vips\Image;
 use Mockery\MockInterface;
 use Weserv\Images\Api\Api;
 use Weserv\Images\Client;
@@ -11,22 +10,13 @@ use Weserv\Images\Test\ImagesWeservTestCase;
 
 class TrimTest extends ImagesWeservTestCase
 {
-    /**
-     * @var Client|MockInterface
-     */
-    private $client;
+    private Client $client;
 
-    /**
-     * @var Api
-     */
-    private $api;
+    private Api $api;
 
-    /**
-     * @var Trim
-     */
-    private $manipulator;
+    private Trim $manipulator;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->client = $this->getMockery(Client::class);
         $this->api = new Api($this->client, $this->getManipulators());
@@ -53,7 +43,6 @@ class TrimTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(450, $image->width);
@@ -78,7 +67,6 @@ class TrimTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(4, $image->bands);
@@ -101,7 +89,6 @@ class TrimTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        // @var Image $image
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(300, $image->width);
@@ -110,11 +97,11 @@ class TrimTest extends ImagesWeservTestCase
         $this->assertSimilarImage($expectedImage, $image);
     }
 
-    /**
-     * @expectedException \PHPUnit\Framework\Error\Warning
-     */
     public function testAggressiveTrimTriggersError(): void
     {
+        $this->expectWarning();
+        $this->expectExceptionMessage('Unexpected error while trimming. Sensitivity (200) is too high.');
+
         $testImage = $this->inputPngOverlayLayer0;
         $params = [
             'trim' => '200'
@@ -138,7 +125,6 @@ class TrimTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = @$this->api->run($uri, $params);
 
         // Check if dimensions are unchanged

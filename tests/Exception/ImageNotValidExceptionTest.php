@@ -11,17 +11,14 @@ use Weserv\Images\Test\ImagesWeservTestCase;
 
 class ImageNotValidExceptionTest extends ImagesWeservTestCase
 {
-    /**
-     * @var string
-     */
     private $tempFile;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->tempFile = tempnam(sys_get_temp_dir(), 'phpunit');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
         unlink($this->tempFile);
@@ -29,19 +26,17 @@ class ImageNotValidExceptionTest extends ImagesWeservTestCase
 
     /**
      * Test can construct and throw an exception.
-     *
-     * @expectedException \Weserv\Images\Exception\ImageNotValidException
      */
     public function testThrowException(): void
     {
+        $this->expectException(ImageNotValidException::class);
         throw new ImageNotValidException();
     }
 
-    /**
-     * @expectedException \Weserv\Images\Exception\ImageNotValidException
-     */
     public function testImageNotValidException(): void
     {
+        $this->expectException(ImageNotValidException::class);
+    
         $mock = new MockHandler([
             new Response(200, ['Content-Type' => 'application/zip'])
         ]);
@@ -49,7 +44,7 @@ class ImageNotValidExceptionTest extends ImagesWeservTestCase
         $handler = HandlerStack::create($mock);
 
         $options = [
-            'user_agent' => 'Mozilla/5.0 (compatible; ImageFetcher/6.0; +http://images.weserv.nl/)',
+            'user_agent' => 'Mozilla/5.0 (compatible; ImageFetcher/6.0; +http://wsrv.nl/)',
             'connect_timeout' => 5,
             'timeout' => 10,
             'max_image_size' => 0,

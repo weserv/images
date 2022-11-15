@@ -2,7 +2,6 @@
 
 namespace Weserv\Images\Test\Manipulators;
 
-use Jcupitt\Vips\Image;
 use Mockery\MockInterface;
 use Weserv\Images\Api\Api;
 use Weserv\Images\Client;
@@ -11,22 +10,13 @@ use Weserv\Images\Test\ImagesWeservTestCase;
 
 class ShapeTest extends ImagesWeservTestCase
 {
-    /**
-     * @var Client|MockInterface
-     */
-    private $client;
+    private Client $client;
 
-    /**
-     * @var Api
-     */
-    private $api;
+    private Api $api;
 
-    /**
-     * @var Shape
-     */
-    private $manipulator;
+    private Shape $manipulator;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->client = $this->getMockery(Client::class);
         $this->api = new Api($this->client, $this->getManipulators());
@@ -41,7 +31,7 @@ class ShapeTest extends ImagesWeservTestCase
     public function testCircleShape(): void
     {
         $testImage = $this->inputJpg;
-        $expectedImage = $this->expectedDir . '/shape-circle.jpg';
+        $expectedImage = $this->expectedDir . '/shape-circle.png';
         $params = [
             'w' => '320',
             'h' => '240',
@@ -53,7 +43,6 @@ class ShapeTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);
@@ -64,7 +53,7 @@ class ShapeTest extends ImagesWeservTestCase
     public function testCircleShapeTrim(): void
     {
         $testImage = $this->inputJpg;
-        $expectedImage = $this->expectedDir . '/shape-circle-trim.jpg';
+        $expectedImage = $this->expectedDir . '/shape-circle-trim.png';
         $params = [
             'w' => '320',
             'h' => '240',
@@ -77,7 +66,6 @@ class ShapeTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(240, $image->width);
@@ -88,7 +76,7 @@ class ShapeTest extends ImagesWeservTestCase
     public function testEllipseShape(): void
     {
         $testImage = $this->inputJpg;
-        $expectedImage = $this->expectedDir . '/shape-ellipse.jpg';
+        $expectedImage = $this->expectedDir . '/shape-ellipse.png';
         $params = [
             'w' => '320',
             'h' => '240',
@@ -100,7 +88,6 @@ class ShapeTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);
@@ -111,7 +98,7 @@ class ShapeTest extends ImagesWeservTestCase
     public function testTriangleShape(): void
     {
         $testImage = $this->inputJpg;
-        $expectedImage = $this->expectedDir . '/shape-triangle.jpg';
+        $expectedImage = $this->expectedDir . '/shape-triangle.png';
         $params = [
             'w' => '320',
             'h' => '240',
@@ -123,7 +110,6 @@ class ShapeTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);
@@ -134,7 +120,7 @@ class ShapeTest extends ImagesWeservTestCase
     public function testTriangle180Shape(): void
     {
         $testImage = $this->inputJpg;
-        $expectedImage = $this->expectedDir . '/shape-triangle-180.jpg';
+        $expectedImage = $this->expectedDir . '/shape-triangle-180.png';
         $params = [
             'w' => '320',
             'h' => '240',
@@ -146,7 +132,6 @@ class ShapeTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);
@@ -157,7 +142,7 @@ class ShapeTest extends ImagesWeservTestCase
     public function testPentagonShape(): void
     {
         $testImage = $this->inputJpg;
-        $expectedImage = $this->expectedDir . '/shape-pentagon.jpg';
+        $expectedImage = $this->expectedDir . '/shape-pentagon.png';
         $params = [
             'w' => '320',
             'h' => '240',
@@ -169,7 +154,6 @@ class ShapeTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);
@@ -180,7 +164,7 @@ class ShapeTest extends ImagesWeservTestCase
     public function testPentagon180Shape(): void
     {
         $testImage = $this->inputJpg;
-        $expectedImage = $this->expectedDir . '/shape-pentagon-180.jpg';
+        $expectedImage = $this->expectedDir . '/shape-pentagon-180.png';
         $params = [
             'w' => '320',
             'h' => '240',
@@ -192,7 +176,6 @@ class ShapeTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);
@@ -203,7 +186,7 @@ class ShapeTest extends ImagesWeservTestCase
     public function testHexagonShape(): void
     {
         $testImage = $this->inputJpg;
-        $expectedImage = $this->expectedDir . '/shape-hexagon-180.jpg';
+        $expectedImage = $this->expectedDir . '/shape-hexagon.png';
         $params = [
             'w' => '320',
             'h' => '240',
@@ -215,7 +198,6 @@ class ShapeTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);
@@ -226,7 +208,7 @@ class ShapeTest extends ImagesWeservTestCase
     public function testSquareShape(): void
     {
         $testImage = $this->inputJpg;
-        $expectedImage = $this->expectedDir . '/shape-square.jpg';
+        $expectedImage = $this->expectedDir . '/shape-square.png';
         $params = [
             'w' => '320',
             'h' => '240',
@@ -238,7 +220,6 @@ class ShapeTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);
@@ -249,7 +230,7 @@ class ShapeTest extends ImagesWeservTestCase
     public function testStarShape(): void
     {
         $testImage = $this->inputJpg;
-        $expectedImage = $this->expectedDir . '/shape-star.jpg';
+        $expectedImage = $this->expectedDir . '/shape-star.png';
         $params = [
             'w' => '320',
             'h' => '240',
@@ -261,7 +242,6 @@ class ShapeTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);
@@ -272,7 +252,7 @@ class ShapeTest extends ImagesWeservTestCase
     public function testHeartShape(): void
     {
         $testImage = $this->inputJpg;
-        $expectedImage = $this->expectedDir . '/shape-heart.jpg';
+        $expectedImage = $this->expectedDir . '/shape-heart.png';
         $params = [
             'w' => '320',
             'h' => '240',
@@ -284,7 +264,6 @@ class ShapeTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);
@@ -307,7 +286,6 @@ class ShapeTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(320, $image->width);
@@ -333,7 +311,6 @@ class ShapeTest extends ImagesWeservTestCase
 
         $this->client->shouldReceive('get')->with($uri)->andReturn($testImage);
 
-        /** @var Image $image */
         $image = $this->api->run($uri, $params);
 
         $this->assertEquals(4, $image->bands);

@@ -1,15 +1,24 @@
+# Please adjust cache size (max_size=250m) to a value that you can accommodate in RAM! Advised values: 2 GB RAM: 500m, 4 GB RAM: 1g, 8 GB RAM: 2g, etc..
+
+fastcgi_cache_path /dev/shm/fastcgi_cache inactive=8h levels=1:2 keys_zone=images:512m max_size=250m loader_files=5000 use_temp_path=off;
+fastcgi_cache_min_uses 2;
+fastcgi_read_timeout 60s;
+fastcgi_send_timeout 60s;
+fastcgi_buffers 256 8k;
+fastcgi_buffering on;
+
 server {
-    listen 80;
-    listen [::]:80;
-    server_name images.weserv.local;
+    listen 80 default_server;
+    listen [::]:80 default_server ipv6only=on;
+    server_name _;
 
     root /var/www/imagesweserv/public;
 
-    # Add logging
+    # Forward request and error logs to docker log collector
     error_log /dev/stderr;
     access_log /dev/stdout;
 
-    expires 2678400;
+    expires 31d; # Far-future expiration
 
     location / {
         add_header 'Access-Control-Allow-Origin' '*';
@@ -22,7 +31,7 @@ server {
         include fastcgi_params;
         fastcgi_split_path_info ^(.+\.php)(.*)$;
         fastcgi_cache images;
-        fastcgi_cache_key "$request_method|images.weserv.nl|$request_uri";
+        fastcgi_cache_key "$request_method|wsrv.nl|$request_uri";
         fastcgi_cache_methods GET HEAD;
         fastcgi_cache_bypass $http_pragma    $http_authorization;
         fastcgi_cache_valid 200 301 410 7d;

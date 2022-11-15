@@ -33,12 +33,12 @@ class Letterbox extends BaseManipulator
         if (($image->width !== $width || $image->height !== $height) && $this->t === 'letterbox') {
             // Always letterbox with a transparent background;
             // the background manipulator will handle the background color.
-            $background = [0, 0, 0, 0];
+            $background = array_fill(0, $image->bands, 0);
 
             // Add non-transparent alpha channel, if required
             if (!$image->hasAlpha()) {
-                $result = $image->newFromImage(255);
-                $image = $image->bandjoin($result);
+                $image = $image->bandjoin(255);
+                $background[] = 0;
             }
 
             $left = (int)round(($width - $image->width) / 2);

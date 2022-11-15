@@ -8,38 +8,30 @@ class RedisThrottler implements ThrottlerInterface
 {
     /**
      * Redis instance.
-     *
-     * @var ClientInterface
      */
-    protected $redis;
+    protected ClientInterface $redis;
 
     /**
      * Throttling policy.
-     *
-     * @var ThrottlingPolicy
      */
-    protected $policy;
+    protected ThrottlingPolicy $policy;
 
     /**
      * A string that should be prepended to keys.
-     *
-     * @var string
      */
-    protected $prefix;
+    protected string $prefix;
 
     /**
      * Config
-     *
-     * @var array
      */
-    protected $config;
+    protected array $config;
 
     /**
      * Create a new Redis throttler instance.
      *
      * @param ClientInterface $redis
      * @param ThrottlingPolicy $policy
-     * @param mixed[] $config
+     * @param array $config
      */
     public function __construct(ClientInterface $redis, ThrottlingPolicy $policy, array $config)
     {

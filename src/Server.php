@@ -23,31 +23,23 @@ class Server
 {
     /**
      * Image manipulation API.
-     *
-     * @var ApiInterface
      */
-    protected $api;
+    protected ApiInterface $api;
 
     /**
      * The throttler
-     *
-     * @var ThrottlerInterface|null
      */
-    protected $throttler;
+    protected ?ThrottlerInterface $throttler;
 
     /**
      * Default image manipulations.
-     *
-     * @var array
      */
-    protected $defaults = [];
+    protected array $defaults = [];
 
     /**
      * Preset image manipulations.
-     *
-     * @var array
      */
-    protected $presets = [];
+    protected array $presets = [];
 
     /**
      * Create Server instance.
@@ -108,7 +100,7 @@ class Server
     /**
      * Get default image manipulations.
      *
-     * @return mixed[] Default image manipulations.
+     * @return array Default image manipulations.
      */
     public function getDefaults(): array
     {
@@ -118,7 +110,7 @@ class Server
     /**
      * Set default image manipulations.
      *
-     * @param mixed[] $defaults Default image manipulations.
+     * @param array $defaults Default image manipulations.
      *
      * @return void
      */
@@ -130,7 +122,7 @@ class Server
     /**
      * Get preset image manipulations.
      *
-     * @return mixed[] Preset image manipulations.
+     * @return array Preset image manipulations.
      */
     public function getPresets(): array
     {
@@ -140,7 +132,7 @@ class Server
     /**
      * Set preset image manipulations.
      *
-     * @param mixed[] $presets Preset image manipulations.
+     * @param array $presets Preset image manipulations.
      *
      * @return void
      */
@@ -152,9 +144,9 @@ class Server
     /**
      * Get all image manipulations params, including defaults and presets.
      *
-     * @param mixed[] $params Image manipulation params.
+     * @param array $params Image manipulation params.
      *
-     * @return mixed[] All image manipulation params.
+     * @return array All image manipulation params.
      */
     public function getAllParams(array $params): array
     {
@@ -178,7 +170,7 @@ class Server
      * Generate manipulated image.
      *
      * @param string $url Image URL
-     * @param mixed[] $params Image manipulation params.
+     * @param array $params Image manipulation params.
      *
      * @throws ImageNotReadableException if the provided image is not readable.
      * @throws ImageTooLargeException if the provided image is too large for
@@ -204,7 +196,7 @@ class Server
      * Write an image to a formatted string.
      *
      * @param Image $image The image
-     * @param mixed[] $params Image manipulation params.
+     * @param array $params Image manipulation params.
      *
      * @throws VipsException for errors that occur during the processing of a Image.
      *
@@ -243,7 +235,7 @@ class Server
      * Generate and output image.
      *
      * @param string $uri Image URL
-     * @param mixed[] $params Image manipulation params.
+     * @param array $params Image manipulation params.
      *
      * @throws RateExceededException if a user rate limit is exceeded
      * @throws ImageNotReadableException if the provided image is not readable.
@@ -289,7 +281,7 @@ class Server
                  *
                  * @param mixed $level
                  * @param string $message
-                 * @param mixed[] $context
+                 * @param array $context
                  *
                  * @return void
                  */
@@ -410,10 +402,10 @@ class Server
      * Get the options for a specified extension to pass on to
      * the selected save operation.
      *
-     * @param mixed[] $params Parameters array
+     * @param array $params Parameters array
      * @param string $extension Image extension
      *
-     * @return mixed[] Any options to pass on to the selected
+     * @return array Any options to pass on to the selected
      *     save operation.
      */
     public function getBufferOptions(array $params, string $extension): array
@@ -458,10 +450,10 @@ class Server
             $toBufferOptions['compression'] = 'jpeg';
         }
 
-        if ($extension === 'gif') {
+        /*if ($extension === 'gif') {
             // Set the format option to hint the file type.
             $toBufferOptions['format'] = $extension;
-        }
+        }*/
 
         return $toBufferOptions;
     }
@@ -471,7 +463,7 @@ class Server
      *
      * For a PNG image it returns the zlib compression level.
      *
-     * @param mixed[] $params Parameters array
+     * @param array $params Parameters array
      * @param string $extension Image extension
      *
      * @return int The resolved quality.

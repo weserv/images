@@ -12,27 +12,15 @@ use Weserv\Images\Throttler\ThrottlerInterface;
 
 class ServerTest extends ImagesWeservTestCase
 {
-    /**
-     * @var Client|MockInterface $client
-     */
-    private $client;
+    private Client $client;
 
-    /**
-     * @var Api $api
-     */
-    private $api;
+    private Api $api;
 
-    /**
-     * @var ThrottlerInterface|MockInterface $throttler
-     */
-    private $throttler;
+    private ThrottlerInterface $throttler;
 
-    /**
-     * @var Server $server
-     */
-    private $server;
+    private Server $server;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->client = $this->getMockery(Client::class);
         $this->api = new Api($this->client, $this->getManipulators());
@@ -159,7 +147,7 @@ class ServerTest extends ImagesWeservTestCase
      */
     public function testOutputDebugInfo(): void
     {
-        $testImage = $this->inputJpgWithCmykNoProfile;
+        $testImage = $this->inputJpg;
         $params = [
             'debug' => '1'
         ];
@@ -173,7 +161,7 @@ class ServerTest extends ImagesWeservTestCase
         $this->server->outputImage($uri, $params);
         $content = ob_get_clean();
 
-        $this->assertContains('debug: newFromFile', $content);
+        $this->assertStringContainsString('debug: VipsForeignLoadJpegFile', $content);
     }
 
     /**

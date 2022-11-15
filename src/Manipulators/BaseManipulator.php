@@ -8,10 +8,8 @@ abstract class BaseManipulator implements ManipulatorInterface
 {
     /**
      * The manipulation params.
-     *
-     * @var array
      */
-    public $params = [];
+    public array $params = [];
 
     /**
      * Set the manipulation params.

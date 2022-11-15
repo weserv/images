@@ -14,25 +14,19 @@ use SebastianBergmann\Diff\Output\UnifiedDiffOutputBuilder;
 class MaxColorDistanceConstraint extends Constraint
 {
     /**
-     * The expected image
-     *
-     * @var Image $expectedImage
+     * The expected image.
      */
-    protected $expectedImage;
+    protected Image $expectedImage;
 
     /**
      * Expected maximum color distance. Defaulting to 1.
-     *
-     * @var float $acceptedDistance
      */
-    protected $acceptedDistance;
+    protected float $acceptedDistance;
 
     /**
-     * The maximum color distance
-     *
-     * @var float $maxColorDistance
+     * The maximum color distance.
      */
-    protected $maxColorDistance;
+    protected float $maxColorDistance;
 
     /**
      * MaxColorDistanceConstraint constructor.
@@ -44,7 +38,6 @@ class MaxColorDistanceConstraint extends Constraint
      */
     public function __construct($image, float $acceptedDistance)
     {
-        parent::__construct();
         $this->expectedImage = \is_string($image) ?
             Image::newFromFile($image, ['access' => Access::SEQUENTIAL]) : $image;
         $this->acceptedDistance = $acceptedDistance;

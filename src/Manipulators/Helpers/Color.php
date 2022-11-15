@@ -6,10 +6,8 @@ class Color
 {
     /**
      * The 140 color names supported by all modern browsers.
-     *
-     * @var array
      */
-    protected static $colors = [
+    protected static array $colors = [
         'aliceblue' => 'F0F8FF',
         'antiquewhite' => 'FAEBD7',
         'aqua' => '00FFFF',
@@ -155,31 +153,23 @@ class Color
 
     /**
      * The red value.
-     *
-     * @var int
      */
-    protected $red;
+    protected int $red;
 
     /**
      * The green value.
-     *
-     * @var int
      */
-    protected $green;
+    protected int $green;
 
     /**
      * The blue value.
-     *
-     * @var int
      */
-    protected $blue;
+    protected int $blue;
 
     /**
      * The alpha value.
-     *
-     * @var int
      */
-    protected $alpha;
+    protected int $alpha;
 
     /**
      * Create color helper instance.
