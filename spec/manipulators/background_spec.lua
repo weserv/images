@@ -141,7 +141,7 @@ describe("background manipulator", function()
 
         assert.equal(400, image:width())
         assert.equal(300, image:height())
-        assert.similar_image(expected_image, image)
+        assert.similar_image(expected_image, image, 12)
     end)
 
     describe("test ignore", function()

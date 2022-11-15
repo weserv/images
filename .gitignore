@@ -1,10 +1,6 @@
 # Compiled Lua sources
 luac.out
 
-# LuaCov
-luacov.stats.out
-luacov.report.out
-
 # IntelliJ
 .idea
 

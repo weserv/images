@@ -22,12 +22,15 @@ function manipulator.process(image, args)
     if image_width ~= width or image_height ~= height then
         -- Always letterbox with a transparent background;
         -- the background manipulator will handle the background color.
-        local background = { 0, 0, 0, 0 }
+        local background = {};
+        for i=1, image:bands() do
+            background[i] = 0
+        end
 
         -- Add non-transparent alpha channel, if required
         if not args.has_alpha then
-            local result = image:new_from_image(255)
-            image = image .. result
+            image = image .. 255
+            background[#background + 1] = 0
         end
 
         local left = math_floor(((width - image_width) / 2) + 0.5)

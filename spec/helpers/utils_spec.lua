@@ -33,12 +33,6 @@ describe("utils", function()
         assert.False(utils.is_16_bit("srgb"))
     end)
 
-    it("test maximum image alpha", function()
-        assert.equal(65535, utils.maximum_image_alpha("rgb16"))
-        assert.equal(65535, utils.maximum_image_alpha("grey16"))
-        assert.equal(255, utils.maximum_image_alpha("srgb"))
-    end)
-
     it("test temp name", function()
         local tmpfile = utils.tempname("/dev/shm", "imo_")
 
@@ -51,39 +45,39 @@ describe("utils", function()
     end)
 
     it("test clean uri", function()
-        assert.equal("https://ory.weserv.nl/lichtenstein.jpg",
-            utils.clean_uri("https://ory.weserv.nl/lichtenstein.jpg"))
-        assert.equal("https://ory.weserv.nl/lichtenstein.jpg",
-            utils.clean_uri("https://ory.weserv.nl/lichtenstein.jpg?errorredirect=example.org"))
-        assert.equal("https://ory.weserv.nl/lichtenstein.jpg",
-            utils.clean_uri("ssl:ory.weserv.nl/lichtenstein.jpg"))
-        assert.equal("http://ory.weserv.nl/lichtenstein.jpg",
-            utils.clean_uri("ory.weserv.nl/lichtenstein.jpg"))
-        assert.equal("https://ory.weserv.nl/lichtenstein.jpg",
-            utils.clean_uri("//ory.weserv.nl/lichtenstein.jpg"))
-        assert.equal("https://ory.weserv.nl/lichtenstein.jpg?test=test",
-            utils.clean_uri("//ory.weserv.nl/lichtenstein.jpg?test=test&errorredirect=example.org"))
+        assert.equal("https://wsrv.nl/lichtenstein.jpg",
+            utils.clean_uri("https://wsrv.nl/lichtenstein.jpg"))
+        assert.equal("https://wsrv.nl/lichtenstein.jpg",
+            utils.clean_uri("https://wsrv.nl/lichtenstein.jpg?errorredirect=example.org"))
+        assert.equal("https://wsrv.nl/lichtenstein.jpg",
+            utils.clean_uri("ssl:wsrv.nl/lichtenstein.jpg"))
+        assert.equal("http://wsrv.nl/lichtenstein.jpg",
+            utils.clean_uri("wsrv.nl/lichtenstein.jpg"))
+        assert.equal("https://wsrv.nl/lichtenstein.jpg",
+            utils.clean_uri("//wsrv.nl/lichtenstein.jpg"))
+        assert.equal("https://wsrv.nl/lichtenstein.jpg?test=test",
+            utils.clean_uri("//wsrv.nl/lichtenstein.jpg?test=test&errorredirect=example.org"))
     end)
 
     it("test parse uri", function()
-        assert.are.same({ "http", "ory.weserv.nl", 80, "/", "" },
-            { unpack(utils.parse_uri("http://ory.weserv.nl")) })
-        assert.are.same({ "http", "ory.weserv.nl", 80, "/", "" },
-            { unpack(utils.parse_uri("http://ory.weserv.nl/")) })
-        assert.are.same({ "https", "ory.weserv.nl", 443, "/foo/bar", "" },
-            { unpack(utils.parse_uri("https://ory.weserv.nl/foo/bar")) })
-        assert.are.same({ "https", "ory.weserv.nl", 443, "/foo/bar", "a=1&b=2" },
-            { unpack(utils.parse_uri("https://ory.weserv.nl/foo/bar?a=1&b=2")) })
-        assert.are.same({ "http", "ory.weserv.nl", 80, "/", "a=1&b=2" },
-            { unpack(utils.parse_uri("http://ory.weserv.nl?a=1&b=2")) })
-        assert.are.same({ "http", "ory.weserv.nl", 443, "/", "a=1&b=2" },
-            { unpack(utils.parse_uri("http://ory.weserv.nl:443/?a=1&b=2")) })
-        assert.are.same({ "http", "ory.weserv.nl", 443, "/sub//path/", "" },
-            { unpack(utils.parse_uri("http://ory.weserv.nl:443/sub//path/")) })
-        assert.equal("https://ory.weserv.nl",
-            utils.clean_uri("//ory.weserv.nl"))
+        assert.are.same({ "http", "wsrv.nl", 80, "/", "" },
+            { unpack(utils.parse_uri("http://wsrv.nl")) })
+        assert.are.same({ "http", "wsrv.nl", 80, "/", "" },
+            { unpack(utils.parse_uri("http://wsrv.nl/")) })
+        assert.are.same({ "https", "wsrv.nl", 443, "/foo/bar", "" },
+            { unpack(utils.parse_uri("https://wsrv.nl/foo/bar")) })
+        assert.are.same({ "https", "wsrv.nl", 443, "/foo/bar", "a=1&b=2" },
+            { unpack(utils.parse_uri("https://wsrv.nl/foo/bar?a=1&b=2")) })
+        assert.are.same({ "http", "wsrv.nl", 80, "/", "a=1&b=2" },
+            { unpack(utils.parse_uri("http://wsrv.nl?a=1&b=2")) })
+        assert.are.same({ "http", "wsrv.nl", 443, "/", "a=1&b=2" },
+            { unpack(utils.parse_uri("http://wsrv.nl:443/?a=1&b=2")) })
+        assert.are.same({ "http", "wsrv.nl", 443, "/sub//path/", "" },
+            { unpack(utils.parse_uri("http://wsrv.nl:443/sub//path/")) })
+        assert.equal("https://wsrv.nl",
+            utils.clean_uri("//wsrv.nl"))
         assert.are.same({ nil, "Unable to parse URL" },
-            { utils.parse_uri("http:\\ory.weserv.nl") })
+            { utils.parse_uri("http:\\wsrv.nl") })
         assert.are.same({ nil, "Invalid domain label" },
             { utils.parse_uri("--example--.org") })
         -- Doesn't escape special / reserved characters
@@ -92,35 +86,35 @@ describe("utils", function()
         -- See: https://github.com/weserv/images/issues/145 and
         -- https://github.com/weserv/images/issues/144
         assert.are.same({
-            "https", "ory.weserv.nl", 443,
+            "https", "wsrv.nl", 443,
             "/-._~!$'()*+,;=:@%",
             ""
         }, {
-            unpack(utils.parse_uri("//ory.weserv.nl/-._~!$'()*+,;=:@%#exclude?bar=foo"))
+            unpack(utils.parse_uri("//wsrv.nl/-._~!$'()*+,;=:@%#exclude?bar=foo"))
         })
         assert.are.same({
-            "https", "ory.weserv.nl", 443,
+            "https", "wsrv.nl", 443,
             "/",
             "bar=-._~!$'()*+,;=:/@%"
         }, {
-            unpack(utils.parse_uri("//ory.weserv.nl/?bar=-._~!$'()*+,;=:/@%#exclude"))
+            unpack(utils.parse_uri("//wsrv.nl/?bar=-._~!$'()*+,;=:/@%#exclude"))
         })
 
         -- Doesn't unescape twice
         -- See: https://github.com/weserv/images/issues/149
         assert.are.same({
-            "https", "ory.weserv.nl", 443,
+            "https", "wsrv.nl", 443,
             "/",
             "bar=%2D%2E%5F%7E%21%24%27%28%29%2A%2B%2C%3B%3D%3A%2F%40"
         }, {
-            unpack(utils.parse_uri("//ory.weserv.nl/?bar=%2D%2E%5F%7E%21%24%27%28%29%2A%2B%2C%3B%3D%3A%2F%40"))
+            unpack(utils.parse_uri("//wsrv.nl/?bar=%2D%2E%5F%7E%21%24%27%28%29%2A%2B%2C%3B%3D%3A%2F%40"))
         })
         assert.are.same({
-            "https", "ory.weserv.nl", 443,
+            "https", "wsrv.nl", 443,
             "/%2D%2E%5F%7E%21%24%27%28%29%2A%2B%2C%3B%3D%3A%2F%3F%23%40",
             "bar=foo"
         }, {
-            unpack(utils.parse_uri("//ory.weserv.nl/%2D%2E%5F%7E%21%24%27%28%29%2A%2B%2C%3B%3D%3A%2F%3F%23%40?bar=foo"))
+            unpack(utils.parse_uri("//wsrv.nl/%2D%2E%5F%7E%21%24%27%28%29%2A%2B%2C%3B%3D%3A%2F%3F%23%40?bar=foo"))
         })
     end)
 

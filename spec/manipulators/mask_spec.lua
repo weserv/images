@@ -272,7 +272,7 @@ describe("mask manipulator", function()
 
             assert.equal(320, image:width())
             assert.equal(240, image:height())
-            assert.similar_image(expected_image, image)
+            assert.similar_image(expected_image, image, 15)
         end)
 
         it("png transparent background", function()
@@ -290,7 +290,7 @@ describe("mask manipulator", function()
 
             assert.equal(320, image:width())
             assert.equal(240, image:height())
-            assert.similar_image(expected_image, image)
+            assert.similar_image(expected_image, image, 12)
         end)
 
         it("png 2 channels", function()

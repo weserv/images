@@ -38,21 +38,22 @@ RUN yum install -y epel-release && \
     yum install -y --setopt=tsflags=nodocs \
         openresty \
         openresty-resty \
-        vips-full \
+        vips-devel \
         redis \
         supervisor && \
     yum clean all
 
 # Install LuaRocks
-RUN curl -L https://luarocks.github.io/luarocks/releases/luarocks-3.1.2.tar.gz | tar xz && \
-    cd luarocks-3.1.2/ && \
+RUN curl -L https://luarocks.github.io/luarocks/releases/luarocks-3.9.1.tar.gz | tar xz && \
+    cd luarocks-3.9.1/ && \
     ./configure \
         --prefix=/usr/local/openresty/luajit \
         --with-lua=/usr/local/openresty/luajit/ \
-        --lua-suffix=jit-2.1.0-beta3 \
         --with-lua-include=/usr/local/openresty/luajit/include/luajit-2.1 && \
     make build -j$(nproc) && \
-    make install
+    make install && \
+    cd ../  && \
+    rm -rf luarocks-3.9.1
 
 # Enable networking, see: https://github.com/openresty/openresty-packaging/issues/28
 RUN echo "NETWORKING=yes" >> /etc/sysconfig/network

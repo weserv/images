@@ -89,7 +89,7 @@ function api:process(tmpfile, args)
     if next(self.manipulators) == nil then
         return nil, {
             status = HTTP_INTERNAL_SERVER_ERROR,
-            message = "Attempted to run images.weserv.nl without any manipulator(s).",
+            message = "Attempted to run wsrv.nl without any manipulator(s).",
         }
     end
 

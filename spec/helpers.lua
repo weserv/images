@@ -13,9 +13,6 @@ local tonumber = tonumber
 local function normalize_image(image)
     -- Get original colourspace
     local type_before_normalize = image:interpretation()
-    if type_before_normalize == "rgb" then
-        type_before_normalize = "srgb"
-    end
 
     -- Convert to LAB colourspace
     local lab = image:colourspace("lab")

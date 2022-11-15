@@ -111,7 +111,7 @@ describe("api", function()
         local image, api_err = api:process("noimage.jpg", { url = "http://example.org/noimage.jpg" })
         assert.falsy(image)
         assert.equal(500, api_err.status)
-        assert.equal("Attempted to run images.weserv.nl without any manipulator(s).", api_err.message)
+        assert.equal("Attempted to run wsrv.nl without any manipulator(s).", api_err.message)
     end)
 
     describe("test process", function()

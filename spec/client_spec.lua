@@ -11,7 +11,7 @@ describe("client", function()
     local client
 
     local default_config = {
-        user_agent = "Mozilla/5.0 (compatible; ImageFetcher/8.0; +http://images.weserv.nl/)",
+        user_agent = "Mozilla/5.0 (compatible; ImageFetcher/8.0; +http://wsrv.nl/)",
         timeouts = {
             connect = 5000,
             send = 5000,
@@ -148,12 +148,12 @@ describe("client", function()
 
     describe("test request", function()
         it("connects to host and writes to file", function()
-            local res, _ = client:request("https://ory.weserv.nl/lichtenstein.jpg?foo=bar")
+            local res, _ = client:request("https://wsrv.nl/lichtenstein.jpg?foo=bar")
 
             assert.spy(stubbed_http.set_timeouts).was_called_with(match._, default_config.timeouts.connect,
                 default_config.timeouts.send, default_config.timeouts.read)
-            assert.spy(stubbed_http.connect).was_called_with(match._, "ory.weserv.nl", 443)
-            assert.spy(stubbed_http.ssl_handshake).was_called_with(match._, nil, "ory.weserv.nl", false)
+            assert.spy(stubbed_http.connect).was_called_with(match._, "wsrv.nl", 443)
+            assert.spy(stubbed_http.ssl_handshake).was_called_with(match._, nil, "wsrv.nl", false)
             assert.spy(stubbed_http.request).was_called_with(match._, match.is_same({
                 headers = {
                     ["User-Agent"] = default_config.user_agent
@@ -188,7 +188,7 @@ describe("client", function()
         it("connect error", function()
             errors.connect = "timeout"
 
-            local res, err = client:request("https://ory.weserv.nl/lichtenstein.jpg?foo=bar")
+            local res, err = client:request("https://wsrv.nl/lichtenstein.jpg?foo=bar")
 
             assert.equal(408, err.status)
             assert.equal("timeout", err.message)
@@ -206,7 +206,7 @@ describe("client", function()
         it("ssl handshake error", function()
             errors.ssl_handshake = "timeout"
 
-            local res, err = client:request("https://ory.weserv.nl/lichtenstein.jpg?foo=bar")
+            local res, err = client:request("https://wsrv.nl/lichtenstein.jpg?foo=bar")
 
             assert.equal(404, err.status)
             assert.equal("Failed to do SSL handshake.", err.message)
@@ -226,7 +226,7 @@ describe("client", function()
         it("request error", function()
             errors.request = "timeout"
 
-            local res, err = client:request("https://ory.weserv.nl/lichtenstein.jpg?foo=bar")
+            local res, err = client:request("https://wsrv.nl/lichtenstein.jpg?foo=bar")
 
             assert.equal(408, err.status)
             assert.equal("timeout", err.message)
@@ -248,7 +248,7 @@ describe("client", function()
         it("max image size error", function()
             response.body_reader = body_reader(4)
 
-            local valid, invalid_err = client:request("https://ory.weserv.nl/big_image.jpg")
+            local valid, invalid_err = client:request("https://wsrv.nl/big_image.jpg")
 
             assert.spy(stubbed_http.connect).was.called()
             assert.spy(stubbed_http.ssl_handshake).was.called()
@@ -266,7 +266,7 @@ describe("client", function()
         it("keepalive error", function()
             errors.keepalive = "timeout"
 
-            local _, _ = client:request("https://ory.weserv.nl/lichtenstein.jpg?foo=bar")
+            local _, _ = client:request("https://wsrv.nl/lichtenstein.jpg?foo=bar")
 
             assert.spy(stubbed_http.connect).was.called()
             assert.spy(stubbed_http.ssl_handshake).was.called()
@@ -280,12 +280,12 @@ describe("client", function()
         it("max redirects error", function()
             -- Make sure that we unescape the redirect URI.
             -- See: https://github.com/weserv/images/issues/142
-            local redirect = "https://ory.weserv.nl/%252A/image2.jpg?foo=bar"
+            local redirect = "https://wsrv.nl/%252A/image2.jpg?foo=bar"
 
             response.status = 302
             response.headers["Location"] = redirect
 
-            local res, err = client:request("ory.weserv.nl/%2A/image.jpg?foo=bar")
+            local res, err = client:request("wsrv.nl/%2A/image.jpg?foo=bar")
 
             assert.equal(404, err.status)
             assert.equal(string.format("Will not follow more than %d redirects", default_config.max_redirects),
@@ -304,7 +304,7 @@ describe("client", function()
                 headers = {
                     ["User-Agent"] = default_config.user_agent,
                     -- Referer needs to be added
-                    ["Referer"] = "http://ory.weserv.nl/%2A/image.jpg?foo=bar"
+                    ["Referer"] = "http://wsrv.nl/%2A/image.jpg?foo=bar"
                 },
                 path = "/%2A/image2.jpg",
                 query = "foo=bar",
@@ -315,7 +315,7 @@ describe("client", function()
         it("non 200 status", function()
             response.status = 500
 
-            local res, err = client:request("https://ory.weserv.nl/lichtenstein.jpg")
+            local res, err = client:request("https://wsrv.nl/lichtenstein.jpg")
 
             assert.equal(404, err.status)
             assert.equal("The requested URL returned error: 500", err.message)
@@ -327,7 +327,7 @@ describe("client", function()
         it("no body", function()
             response.body_reader = nil
 
-            local res, err = client:request("https://ory.weserv.nl/lichtenstein.jpg")
+            local res, err = client:request("https://wsrv.nl/lichtenstein.jpg")
 
             assert.equal(404, err.status)
             assert.equal("No body to be read.", err.message)
@@ -339,7 +339,7 @@ describe("client", function()
         it("generate unique file error", function()
             tempname = false
 
-            local res, err = client:request("https://ory.weserv.nl/lichtenstein.jpg")
+            local res, err = client:request("https://wsrv.nl/lichtenstein.jpg")
 
             assert.equal(500, err.status)
             assert.equal("Unable to generate a unique file.", err.message)
@@ -356,7 +356,7 @@ describe("client", function()
                 return nil, "timeout"
             end
 
-            local res, _ = client:request("https://ory.weserv.nl/lichtenstein.jpg")
+            local res, _ = client:request("https://wsrv.nl/lichtenstein.jpg")
 
             -- Log read errors
             assert.equal(1, #ngx._logs)
@@ -374,7 +374,7 @@ describe("client", function()
     describe("test is valid response", function()
         it("allowed mime types", function()
             local new_client = require("weserv.client").new({
-                user_agent = "Mozilla/5.0 (compatible; ImageFetcher/8.0; +http://images.weserv.nl/)",
+                user_agent = "Mozilla/5.0 (compatible; ImageFetcher/8.0; +http://wsrv.nl/)",
                 timeouts = {
                     connect = 5000,
                     send = 5000,

@@ -1,6 +1,5 @@
 local vips = vips
 local color = require "weserv.helpers.color"
-local utils = require "weserv.helpers.utils"
 local type = type
 local tonumber = tonumber
 local ipairs = ipairs
@@ -31,7 +30,6 @@ function manipulator.get_svg_mask(mid_x, mid_y, points, outer_radius, inner_radi
     local path = {}
     local x_max, y_max = -math_huge, -math_huge
     local x_min, y_min = math_huge, math_huge
-    local x_arr, y_arr = {}, {}
     for i = 0, points do
         local angle = i * 2 * math_pi / points - math_pi / 2 + initial_angle
         local radius = inner_radius
@@ -41,9 +39,6 @@ function manipulator.get_svg_mask(mid_x, mid_y, points, outer_radius, inner_radi
 
         local x = math_floor((mid_x + radius * math_cos(angle)) + 0.5)
         local y = math_floor((mid_y + radius * math_sin(angle)) + 0.5)
-
-        x_arr[#x_arr + 1] = x
-        y_arr[#y_arr + 1] = y
 
         local prepend = "L"
         if i == 0 then
@@ -84,19 +79,15 @@ end
 -- @param mid_y height / 2
 -- @return SVG path, left edge of mask, top edge of mask, mask width, mask height
 function manipulator.get_svg_heart(mid_x, mid_y)
-    local path = {}
+    local path = {"M"}
     local x_max, y_max = -math_huge, -math_huge
     local x_min, y_min = math_huge, math_huge
-    local x_arr, y_arr = {}, {}
     for t = -math_pi, math_pi, 0.02 do
         local x_pt = 16 * (math_sin(t) ^ 3)
         local y_pt = 13 * math_cos(t) - 5 * math_cos(2 * t) - 2 * math_cos(3 * t) - math_cos(4 * t)
 
         local x = math_floor((mid_x + x_pt * mid_x) + 0.5)
         local y = math_floor((mid_y - y_pt * mid_y) + 0.5)
-
-        x_arr[#x_arr + 1] = x
-        y_arr[#y_arr + 1] = y
 
         local prepend = t == -math_pi and "" or "L"
         path[#path + 1] = prepend .. x
@@ -275,49 +266,6 @@ function manipulator.get_translation_and_scaling(image_width, image_height, mask
     return mask_transl_x, mask_transl_y, scale
 end
 
---- Cutout src over dst.
--- @param mask The mask image
--- @param dst The destination image
--- @return The resolved mask.
-function manipulator.cutout(mask, dst)
-    local mask_has_alpha = utils.has_alpha(mask)
-    local dst_has_alpha = utils.has_alpha(dst)
-
-    -- we use the mask alpha if it has alpha
-    if mask_has_alpha then
-        mask = mask:extract_band(mask:bands() - 1, { n = 1 })
-    end
-
-    -- split dst into an optional alpha
-    local dst_alpha = dst:extract_band(dst:bands() - 1, { n = 1 })
-
-    -- we use the dst non-alpha
-    if dst_has_alpha then
-        dst = dst:extract_band(0, { n = dst:bands() - 1 })
-    end
-
-    -- the range of the mask and the image need to match .. one could be
-    -- 16-bit, one 8-bit
-    local dst_max = utils.maximum_image_alpha(dst:interpretation())
-    local mask_max = utils.maximum_image_alpha(mask:interpretation())
-
-    if dst_has_alpha then
-        -- combine the new mask and the existing alpha ... there are
-        -- many ways of doing this, mult is the simplest
-        mask = dst_max * ((mask / mask_max) * (dst_alpha / dst_max))
-
-        -- Not needed; after the thumbnail manipulator it's not an
-        -- 16-bit image anymore.
-        --[[elseif dst_max ~= mask_max then
-            -- adjust the range of the mask to match the image
-            mask = dst_max * (mask / mask_max)]]
-    end
-
-    -- append the mask to the image data ... the mask might be float now,
-    -- we must cast the format down to match the image data
-    return dst .. mask:cast(dst:format())
-end
-
 --- Calculate the area to extract
 -- @param image_width Image width.
 -- @param image_height Image height.
@@ -383,7 +331,8 @@ function manipulator.process(image, args)
             access = "sequential",
         })
 
-        image = manipulator.cutout(mask, image)
+        -- Cutout via dest-in
+        image = image:composite(mask, "dest-in")
 
         -- The image has an alpha channel now
         args.has_alpha = true

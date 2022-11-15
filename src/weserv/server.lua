@@ -99,9 +99,9 @@ function server.get_buffer_options(params, extension)
         buffer_options.Q = server.resolve_quality(params, extension)
         -- Set the tiff compression
         buffer_options.compression = "jpeg"
-    elseif extension == "gif" then
+    -- elseif extension == "gif" then
         -- Set the format option to hint the file type.
-        buffer_options.format = extension
+        -- buffer_options.format = extension
     end
 
     return buffer_options

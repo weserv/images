@@ -55,10 +55,6 @@ function manipulator.sharpen(image, sigma, flat, jagged, access_method)
     -- Slow, accurate sharpen in LAB colour space, with control over flat vs jagged areas
     local old_interpretation = image:interpretation()
 
-    if old_interpretation == "rgb" then
-        old_interpretation = "srgb"
-    end
-
     if access_method == "sequential" then
         image = image:linecache({
             tile_height = 10,

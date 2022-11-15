@@ -76,7 +76,7 @@ describe("letterbox manipulator", function()
 
             local image = api:process(test_image, params)
 
-            assert.equal("rgb", image:interpretation())
+            assert.equal("srgb", image:interpretation())
             assert.equal(320, image:width())
             assert.equal(240, image:height())
             assert.similar_image(expected_image, image)
@@ -149,7 +149,7 @@ describe("letterbox manipulator", function()
 
             local image = api:process(test_image, params)
 
-            assert.equal(4, image:bands())
+            assert.equal(2, image:bands())
             assert.equal(32, image:width())
             assert.equal(16, image:height())
             assert.similar_image(expected_image, image)

@@ -2,19 +2,19 @@ return {
     -- Template options
     template = {
         name = "API 4 - GitHub, DEMO",
-        url = "images.weserv.nl",
+        url = "wsrv.nl",
         args = "",
-        example_image = "ory.weserv.nl/lichtenstein.jpg",
-        example_transparent_image = "ory.weserv.nl/transparency_demo.png",
-        example_smartcrop_image = "ory.weserv.nl/zebra.jpg"
+        example_image = "wsrv.nl/lichtenstein.jpg",
+        example_transparent_image = "wsrv.nl/transparency_demo.png",
+        example_smartcrop_image = "wsrv.nl/zebra.jpg"
     },
 
     -- Client options
     client = {
         -- User agent for this client
-        user_agent = "Mozilla/5.0 (compatible; ImageFetcher/8.0; +http://images.weserv.nl/)",
+        user_agent = "Mozilla/5.0 (compatible; ImageFetcher/8.0; +http://wsrv.nl/)",
         -- Sets the connect timeout thresold, send timeout threshold, and read timeout threshold,
-        -- respetively, in milliseconds.
+        -- respectively, in milliseconds.
         timeouts = {
             connect = 5000,
             send = 5000,

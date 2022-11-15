@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  # Only trigger this workflow for the 4.x branch
+  push:
+    branches:
+      - 4.x
+  pull_request:
+    branches:
+      - 4.x
+
+jobs:
+  CI:
+    name: "Linux x64 (Ubuntu 22.04)"
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          # Use the official APT repositories from OpenResty to install LuaJIT
+          curl -sSL "https://openresty.org/package/pubkey.gpg" | sudo gpg --dearmor -o /usr/share/keyrings/openresty.gpg
+          echo "deb [signed-by=/usr/share/keyrings/openresty.gpg] http://openresty.org/package/ubuntu $(lsb_release -sc) main" | \
+            sudo tee /etc/apt/sources.list.d/openresty.list > /dev/null
+          # Install dependencies
+          sudo apt-get update
+          sudo apt-get -fqq install --no-install-recommends openresty openresty-resty libvips-dev
+
+      - name: Install LuaRocks
+        env:
+          LUAROCKS_VERSION: 3.9.1
+        run:
+          .ci/install-luarocks.sh
+            --with-lua=/usr/local/openresty/luajit/
+            --with-lua-include=/usr/local/openresty/luajit/include/luajit-2.1
+
+      - name: Prepare environment
+        run: echo "/usr/local/openresty/luajit/bin:$HOME/luarocks/bin" >> $GITHUB_PATH
+
+      - name: Install Lua modules
+        run: make dev
+
+      - name: Lint with luacheck
+        run: make lint
+
+      - name: Test with busted
+        run: |
+          eval $(luarocks path)
+          make test

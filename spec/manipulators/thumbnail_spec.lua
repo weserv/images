@@ -460,7 +460,7 @@ describe("thumbnail manipulator", function()
 
             local image = api:process(test_image, params)
 
-            assert.equal("rgb", image:interpretation())
+            assert.equal("srgb", image:interpretation())
             assert.equal(320, image:width())
         end)
 
@@ -474,7 +474,7 @@ describe("thumbnail manipulator", function()
 
             local image = api:process(test_image, params)
 
-            assert.equal("rgb", image:interpretation())
+            assert.equal("srgb", image:interpretation())
             assert.equal(320, image:width())
             assert.similar_image(expected_image, image)
         end)

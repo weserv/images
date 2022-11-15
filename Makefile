@@ -1,5 +1,5 @@
-DEV_ROCKS = "busted 2.0.rc13" "luacheck 0.23.0" "luacov-coveralls 0.2.2" "lua-vips 1.1-9" "lua-resty-http 0.13" "lua-resty-template 1.9"
-BUSTED_ARGS ?= -v
+DEV_ROCKS = "busted 2.1.1" "luacheck 1.0.0" "lua-vips 1.1-9" "lua-resty-http 0.16" "lua-resty-template 2.0"
+BUSTED_ARGS ?= -o gtest -v
 TEST_CMD ?= .ci/busted $(BUSTED_ARGS)
 
 .PHONY: dev lint test

@@ -60,14 +60,6 @@ function utils.has_alpha(image)
             image:bands() > 4
 end
 
---- Return the image alpha maximum. Useful for combining alpha bands. scRGB
--- images are 0 - 1 for image data, but the alpha is 0 - 255.
--- @param interpretation The VipsInterpretation.
--- @return The image alpha maximum.
-function utils.maximum_image_alpha(interpretation)
-    return utils.is_16_bit(interpretation) and 65535 or 255
-end
-
 --- Get EXIF Orientation of image, if any.
 -- @param image The source image.
 -- @return EXIF Orientation.
@@ -284,7 +276,7 @@ function utils.determine_image_extension(loader)
         extension = "webp"
     elseif loader == "VipsForeignLoadTiffFile" then
         extension = "tiff"
-    elseif loader == "VipsForeignLoadGifFile" then
+    elseif loader == "VipsForeignLoadGifFile" or loader == "VipsForeignLoadNsgifFile" then
         extension = "gif"
     elseif loader == "VipsForeignLoadSvgFile" then
         extension = "svg"
