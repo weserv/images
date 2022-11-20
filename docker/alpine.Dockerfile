@@ -11,11 +11,6 @@ ARG NGINX_VERSION=1.23.2
 COPY . /var/www/imagesweserv
 WORKDIR /var/www/imagesweserv
 
-# Set default timezone (can be overridden with -e "TZ=Continent/City")
-ENV TZ=Europe/Amsterdam \
-    # Increase the minimum stack size to 2MB
-    VIPS_MIN_STACK_SIZE=2m
-
 # Create nginx user/group first, to be consistent throughout docker variants
 RUN addgroup -g 101 -S nginx \
     && adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx \
@@ -56,8 +51,7 @@ RUN addgroup -g 101 -S nginx \
         openssl \
         pcre2 \
         vips \
-    # Bring in tzdata so users could set the timezones through the environment
-    # variables
+    # Bring in tzdata so users could set the timezones through the environment variables
     && apk add --no-cache tzdata \
     # Ensure nginx cache directory exist with the correct permissions
     && mkdir -m 700 /var/cache/nginx \
@@ -66,6 +60,11 @@ RUN addgroup -g 101 -S nginx \
     && ln -sf /dev/stderr /var/log/nginx/weserv-error.log \
     # Copy nginx configuration to the appropriate location
     && cp ngx_conf/*.conf /etc/nginx
+
+# Set default timezone (can be overridden with -e "TZ=Continent/City")
+ENV TZ=Europe/Amsterdam \
+    # Increase the minimum stack size to 2MB
+    VIPS_MIN_STACK_SIZE=2m
 
 EXPOSE 80
 

@@ -8,9 +8,6 @@ ARG NGINX_VERSION=1.23.2
 COPY . /var/www/imagesweserv
 WORKDIR /var/www/imagesweserv
 
-# Set default timezone (can be overridden with -e "TZ=Continent/City")
-ENV TZ=Europe/Amsterdam
-
 # Update packages
 RUN dnf update -y \
     # Install libvips and needed dependencies
@@ -72,8 +69,10 @@ RUN dnf update -y \
     # Copy nginx configuration to the appropriate location
     && cp ngx_conf/*.conf /etc/nginx
 
-# Use jemalloc on glibc-based Linux systems to reduce the effects of memory fragmentation
-ENV LD_PRELOAD=/usr/lib64/libjemalloc.so
+# Set default timezone (can be overridden with -e "TZ=Continent/City")
+ENV TZ=Europe/Amsterdam \
+    # Use jemalloc on glibc-based Linux systems to reduce the effects of memory fragmentation
+    LD_PRELOAD=/usr/lib64/libjemalloc.so
 
 EXPOSE 80
 
