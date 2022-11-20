@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <ctime>
 #include <weserv/enums.h>
 
 namespace weserv::api {

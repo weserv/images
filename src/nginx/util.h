@@ -4,6 +4,7 @@ extern "C" {
 #include <ngx_http.h>
 }
 
+#include <ctime>
 #include <string>
 
 namespace weserv::nginx {
