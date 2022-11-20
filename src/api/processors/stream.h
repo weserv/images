@@ -5,7 +5,6 @@
 #include "base.h"
 
 #include <string>
-#include <vector>
 
 #include <weserv/config.h>
 #include <weserv/enums.h>

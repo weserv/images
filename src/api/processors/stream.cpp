@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <functional>
 #include <tuple>
+#include <vector>
 
 namespace weserv::api::processors {
 
