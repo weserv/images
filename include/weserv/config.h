@@ -26,7 +26,7 @@ struct Config {
     uintptr_t savers;
 
     /**
-     * Specifies a maximum allowed time for image processing. 
+     * Specifies a maximum allowed time for image processing.
      * Defaults to `10s`, set to `0` to remove the limit.
      * weserv_process_timeout 10s;
      */

@@ -172,7 +172,7 @@ Content-Type: application/json
 === TEST 6: gzip-compressed SVG
 --- http_config eval: $::HttpConfig
 --- config
-    location /gzip { 
+    location /gzip {
         add_header Content-Encoding 'gzip';
         alias $TEST_NGINX_HTML_DIR;
     }
