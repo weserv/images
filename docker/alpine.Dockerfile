@@ -1,7 +1,7 @@
 # Based on:
 # https://hg.nginx.org/pkg-oss/file/tip/alpine/Makefile
 # https://github.com/nginxinc/docker-nginx/blob/master/mainline/alpine/Dockerfile
-FROM alpine:3.16
+FROM alpine:3.17
 
 LABEL maintainer="Kleis Auke Wolthuizen <info@kleisauke.nl>"
 
@@ -50,7 +50,10 @@ RUN addgroup -g 101 -S nginx \
     && apk add --no-cache \
         openssl \
         pcre2 \
-        vips \
+        vips-cpp \
+        vips-heif \
+        vips-magick \
+        vips-poppler \
     # Bring in tzdata so users could set the timezones through the environment variables
     && apk add --no-cache tzdata \
     # Ensure nginx cache directory exist with the correct permissions
