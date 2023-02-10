@@ -120,7 +120,7 @@ TEST_CASE("output", "[stream]") {
 
     SECTION("png") {
         auto test_image = fixtures->input_png;
-        auto params = "w=300&h=300&fit=cover";
+        auto params = "w=300&h=300&fit=cover&output=png";
 
         VImage image = process_file<VImage>(test_image, params);
 
