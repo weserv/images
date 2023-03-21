@@ -424,27 +424,21 @@ VImage Thumbnail::shrink_on_load(const VImage &image,
     return image;
 }
 
+// Any pre-shrinking may already have been done
 VImage Thumbnail::process(const VImage &image) const {
-    // Any pre-shrinking may already have been done
-    auto thumb = image;
+    auto has_icc_profile = utils::has_profile(image);
+
+    // To the processing colourspace. This will unpack LABQ, import CMYK
+    // etc.
+    auto thumb =
+        has_icc_profile
+            ? image  // Transformed with a pair of ICC profiles below.
+            : image.colourspace(VIPS_INTERPRETATION_sRGB);
 
     // So page_height is after pre-shrink, but before the main shrink stage
     // Pre-resize extract needs to fetch the page height from the query holder
     auto page_height =
         query_->get<int>("page_height", utils::get_page_height(thumb));
-
-    // RAD needs special unpacking
-    if (thumb.coding() == VIPS_CODING_RAD) {
-        // rad is scRGB
-        thumb = thumb.rad2float();
-    }
-
-    // If this is a CMYK image, we only want to export at the end
-    bool is_cmyk = thumb.interpretation() == VIPS_INTERPRETATION_CMYK;
-
-    // To the processing colourspace. This will unpack LABQ, import CMYK
-    // etc.
-    thumb = thumb.colourspace(VIPS_INTERPRETATION_sRGB);
 
     int thumb_width = thumb.width();
     int thumb_height = thumb.height();
@@ -502,19 +496,14 @@ VImage Thumbnail::process(const VImage &image) const {
     }
 
     // Colour management.
-    // If this is a CMYK image, just export. Otherwise, we're in
-    // device space, and we need a combined import/export to transform to
-    // the target space.
-    if (is_cmyk) {
-        thumb = thumb.icc_export(VImage::option()
-                                     ->set("output_profile", "srgb")
-                                     ->set("intent", VIPS_INTENT_PERCEPTUAL));
-    } else if (utils::has_profile(thumb)) {
+    if (has_icc_profile) {
+        // If there's some kind of import profile, we can transform to the
+        // output.
         thumb = thumb.icc_transform(
             "srgb", VImage::option()
                         // Fallback to srgb
                         ->set("input_profile", "srgb")
-                        // Use "perceptual" intent to better match imagemagick
+                        // Use "perceptual" intent to better match *magick
                         ->set("intent", VIPS_INTENT_PERCEPTUAL)
                         ->set("embedded", true));
     }

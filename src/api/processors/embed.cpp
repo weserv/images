@@ -153,7 +153,7 @@ VImage Embed::process(const VImage &image) const {
             : image.bandjoin_const({255});  // Assumes images are always 8-bit
 
     return n_pages > 1
-               ? embed_multi_page(image, left, top, width, height,
+               ? embed_multi_page(output_image, left, top, width, height,
                                   background_rgba, n_pages, image_height)
                : output_image.embed(left, top, width, height,
                                     VImage::option()
