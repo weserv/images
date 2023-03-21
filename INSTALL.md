@@ -27,7 +27,7 @@ dnf install --nogpgcheck https://mirrors.rpmfusion.org/free/el/rpmfusion-free-re
 # Enable Remi's RPM repository
 dnf config-manager --set-enabled remi
 
-# Install libvips 8.13 (full-fat version)
+# Install libvips 8.14 (full-fat version)
 dnf install vips-devel vips-heif vips-magick-im6
 
 # Install build requirements
