@@ -285,9 +285,7 @@ inline ImageType determine_image_type(const std::string &loader) {
         return ImageType::Magick;
     }
 
-    // LCOV_EXCL_START
-    return ImageType::Unknown;
-    // LCOV_EXCL_STOP
+    return ImageType::Unknown;  // LCOV_EXCL_LINE
 }
 
 /**

@@ -430,10 +430,9 @@ VImage Thumbnail::process(const VImage &image) const {
 
     // To the processing colourspace. This will unpack LABQ, import CMYK
     // etc.
-    auto thumb =
-        has_icc_profile
-            ? image  // Transformed with a pair of ICC profiles below.
-            : image.colourspace(VIPS_INTERPRETATION_sRGB);
+    auto thumb = has_icc_profile
+                     ? image  // Transformed with a pair of ICC profiles below.
+                     : image.colourspace(VIPS_INTERPRETATION_sRGB);
 
     // So page_height is after pre-shrink, but before the main shrink stage
     // Pre-resize extract needs to fetch the page height from the query holder
@@ -497,15 +496,25 @@ VImage Thumbnail::process(const VImage &image) const {
 
     // Colour management.
     if (has_icc_profile) {
+#if VIPS_VERSION_AT_LEAST(8, 11, 0)
+        // Ensure images with P3 profiles retain full gamut.
+        const char *processing_profile =
+            image.interpretation() == VIPS_INTERPRETATION_RGB16 ? "p3" : "srgb";
+#else
+        // P3 fallback built-in profile not available.
+        const char *processing_profile = "srgb";
+#endif
+
         // If there's some kind of import profile, we can transform to the
         // output.
         thumb = thumb.icc_transform(
-            "srgb", VImage::option()
-                        // Fallback to srgb
-                        ->set("input_profile", "srgb")
-                        // Use "perceptual" intent to better match *magick
-                        ->set("intent", VIPS_INTENT_PERCEPTUAL)
-                        ->set("embedded", true));
+            processing_profile,
+            VImage::option()
+                ->set("embedded", true)
+                ->set("depth",
+                      utils::is_16_bit(image.interpretation()) ? 16 : 8)
+                // Use "perceptual" intent to better match *magick
+                ->set("intent", VIPS_INTENT_PERCEPTUAL));
     }
 
     return thumb;
