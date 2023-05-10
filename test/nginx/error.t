@@ -5,6 +5,7 @@ use Test::Nginx::Util qw($ServerPort $ServerAddr);
 
 plan tests => repeat_each() * (blocks() * 5);
 
+$ENV{TEST_NGINX_ADDR} = $ServerAddr;
 $ENV{TEST_NGINX_URI} = "http://$ServerAddr:$ServerPort";
 
 our $HttpConfig = qq{
@@ -131,4 +132,21 @@ Content-Type: application/json
 --- error_log
 [error]
 --- no_error_log
+[warn]
+
+=== TEST 6: IP address block
+--- http_config eval: $::HttpConfig
+--- config
+    location /images {
+        weserv_deny_ip $TEST_NGINX_ADDR;
+        weserv proxy;
+    }
+--- request eval
+"GET /images?url=$ENV{TEST_NGINX_URI}/image.png"
+--- response_headers
+Content-Type: application/json
+--- response_body_like: ^.*"code":400,"message":"IP address blocked by policy".*$
+--- error_code: 400
+--- no_error_log
+[error]
 [warn]

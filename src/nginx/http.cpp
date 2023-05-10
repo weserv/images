@@ -32,6 +32,7 @@ ngx_int_t ngx_weserv_upstream_process_header(ngx_http_request_t *r);
  */
 Status ngx_weserv_upstream_set_url(ngx_pool_t *pool,
                                    ngx_http_upstream_t *upstream, ngx_str_t url,
+                                   ngx_array_t *deny,
                                    ngx_str_t *host_header,
                                    ngx_str_t *url_path) {
     ngx_url_t parsed_url;
@@ -73,6 +74,16 @@ Status ngx_weserv_upstream_set_url(ngx_pool_t *pool,
                 Status::ErrorCause::Application};
     }
 
+    // This condition is true if the provided URL is not a domain name, but 
+    // rather an IP address, for example: ?url=http://46.4.13.221/...
+    bool has_ip = parsed_url.addrs != nullptr && parsed_url.addrs[0].sockaddr;
+
+    if (has_ip && deny != nullptr &&
+        ngx_cidr_match(parsed_url.addrs[0].sockaddr, deny) == NGX_OK) {
+        return {Status::Code::InvalidUri, "IP address blocked by policy",
+                Status::ErrorCause::Application};
+    }
+
     // Detect situation where input URL was of the form:
     //     https://domain.com?query_parameters
     // (without a forward slash preceding a question mark), and insert
@@ -97,12 +108,9 @@ Status ngx_weserv_upstream_set_url(ngx_pool_t *pool,
         return {NGX_ERROR, "Out of memory"};
     }
 
-    // This condition is true if the URL did not use domain name, but rather
-    // an IP address directly: http://74.125.25.239/...
-    // NGINX, in this case, only returns the parsed IP address so there is
-    // only one address to return. See ngx_parse_url and ngx_inet_addr for
-    // details.
-    if (parsed_url.addrs != nullptr && parsed_url.addrs[0].sockaddr) {
+    if (has_ip) {
+        // NGINX only returned the parsed IP address, so there is just one
+        // address to return. See ngx_parse_url and ngx_inet_addr for details.
         upstream->resolved->sockaddr = parsed_url.addrs[0].sockaddr;
         upstream->resolved->socklen = parsed_url.addrs[0].socklen;
         upstream->resolved->naddrs = 1;
@@ -688,19 +696,20 @@ Status initialize_upstream_request(ngx_http_request_t *r,
         return {NGX_ERROR, "Out of memory"};
     }
 
+    auto *lc = reinterpret_cast<ngx_weserv_loc_conf_t *>(
+        ngx_http_get_module_loc_conf(r, ngx_weserv_module));
+
     ngx_http_upstream_t *u = r->upstream;
 
     // Parse the URL provided by the caller
-    Status status = ngx_weserv_upstream_set_url(
-        r->pool, u, ctx->request->url(), &ctx->host_header, &ctx->url_path);
+    Status status =
+        ngx_weserv_upstream_set_url(r->pool, u, ctx->request->url(), lc->deny,
+                                    &ctx->host_header, &ctx->url_path);
     if (!status.ok()) {
         return status;
     }
 
     u->output.tag = reinterpret_cast<ngx_buf_tag_t>(&ngx_weserv_module);
-
-    auto *lc = reinterpret_cast<ngx_weserv_loc_conf_t *>(
-        ngx_http_get_module_loc_conf(r, ngx_weserv_module));
 
     u->conf = &lc->upstream_conf;
     u->buffering = lc->upstream_conf.buffering;

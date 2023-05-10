@@ -46,6 +46,11 @@ struct ngx_weserv_loc_conf_t {
 
     ngx_uint_t mode;
 
+    /**
+     * Array of ngx_cidr_t
+     */
+    ngx_array_t *deny;
+
     ngx_str_t user_agent;
 
     size_t max_size;
