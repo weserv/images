@@ -74,6 +74,12 @@ Status ngx_weserv_upstream_set_url(ngx_pool_t *pool,
                 Status::ErrorCause::Application};
     }
 
+    if (parsed_url.family == AF_UNIX) {
+        return {Status::Code::InvalidUri,
+                "Unix domain sockets are not supported",
+                Status::ErrorCause::Application};
+    }
+
     // This condition is true if the provided URL is not a domain name, but 
     // rather an IP address, for example: ?url=http://46.4.13.221/...
     bool has_ip = parsed_url.addrs != nullptr && parsed_url.addrs[0].sockaddr;
@@ -124,16 +130,11 @@ Status ngx_weserv_upstream_set_url(ngx_pool_t *pool,
         parsed_url.no_port ? parsed_url.default_port : parsed_url.port;
 
     // Return Host header and a URL path
-    if (parsed_url.family != AF_UNIX) {
-        *host_header = parsed_url.host;
-        // If the URL contains a port, include it in the host header
-        if (!(parsed_url.no_port ||
-              parsed_url.port == parsed_url.default_port)) {
-            // Extend the Host header to include ':<port>'
-            host_header->len += 1 + parsed_url.port_text.len;
-        }
-    } else {
-        ngx_str_set(host_header, "localhost");
+    *host_header = parsed_url.host;
+    // If the URL contains a port, include it in the host header
+    if (!(parsed_url.no_port || parsed_url.port == parsed_url.default_port)) {
+        // Extend the Host header to include ':<port>'
+        host_header->len += 1 + parsed_url.port_text.len;
     }
     *url_path = parsed_url.uri;
 
