@@ -38,9 +38,9 @@ class NgxSource : public api::io::SourceInterface {
  */
 class NgxTarget : public api::io::TargetInterface {
  public:
-    NgxTarget(ngx_weserv_upstream_ctx_t *upstream_ctx, ngx_http_request_t *r,
+    NgxTarget(ngx_http_request_t *r, ngx_weserv_upstream_ctx_t *upstream_ctx,
               ngx_chain_t **out)
-        : upstream_ctx_(upstream_ctx), r_(r), ll_(out), first_ll_(out),
+        : r_(r), upstream_ctx_(upstream_ctx), ll_(out), first_ll_(out),
           seek_cl_(*out) {}
 
     ~NgxTarget() override = default;
@@ -56,8 +56,8 @@ class NgxTarget : public api::io::TargetInterface {
     int end() override;
 
  private:
-    ngx_weserv_upstream_ctx_t *upstream_ctx_;
     ngx_http_request_t *r_;
+    ngx_weserv_upstream_ctx_t *upstream_ctx_;
     ngx_chain_t **ll_;
     ngx_chain_t **first_ll_;
 
