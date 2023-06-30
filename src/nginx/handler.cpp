@@ -40,7 +40,7 @@ ngx_int_t ngx_weserv_request_handler(ngx_http_request_t *r) {
                          Status::ErrorCause::Application};
 
         ngx_chain_t out;
-        if (ngx_weserv_return_error(r, status, &out) != NGX_OK) {
+        if (ngx_weserv_return_error(r, nullptr, status, &out) != NGX_OK) {
             return NGX_ERROR;
         }
 
@@ -82,7 +82,8 @@ ngx_int_t ngx_weserv_request_handler(ngx_http_request_t *r) {
 
     if (rc == NGX_ERROR) {
         ngx_chain_t out;
-        if (ngx_weserv_return_error(r, ctx->response_status, &out) != NGX_OK) {
+        if (ngx_weserv_return_error(r, ctx, ctx->response_status, &out) !=
+            NGX_OK) {
             return NGX_ERROR;
         }
 

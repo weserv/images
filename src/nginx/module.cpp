@@ -840,7 +840,8 @@ ngx_int_t ngx_weserv_image_body_filter(ngx_http_request_t *r, ngx_chain_t *in) {
 #endif
         ) {
             ngx_chain_t out;
-            if (ngx_weserv_return_error(r, upstream_ctx->response_status,
+            if (ngx_weserv_return_error(r, upstream_ctx,
+                                        upstream_ctx->response_status,
                                         &out) != NGX_OK) {
                 return NGX_ERROR;
             }
@@ -886,7 +887,8 @@ ngx_int_t ngx_weserv_image_body_filter(ngx_http_request_t *r, ngx_chain_t *in) {
 
     if (!status.ok()) {
         ngx_chain_t error;
-        if (ngx_weserv_return_error(r, status, &error) != NGX_OK) {
+        if (ngx_weserv_return_error(r, upstream_ctx, status, &error) !=
+            NGX_OK) {
             return NGX_ERROR;
         }
 
