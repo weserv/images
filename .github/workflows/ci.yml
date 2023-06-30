@@ -81,7 +81,7 @@ jobs:
         run: prove -r test/nginx
       - name: Upload coverage to Codecov
         if: matrix.coverage
-        uses: codecov/codecov-action@1c34415a066a16afff4060670e36707eba85ccbd
+        uses: codecov/codecov-action@v3
         with:
           gcov: true
           gcov_ignore: test/api
