@@ -443,8 +443,11 @@ void *ngx_weserv_create_loc_conf(ngx_conf_t *cf) {
 
     // The hardcoded values
     lc->upstream_conf.buffering = 1;
-    lc->upstream_conf.buffer_size = ngx_pagesize;
-    lc->upstream_conf.busy_buffers_size = 2 * ngx_pagesize;
+    lc->upstream_conf.buffer_size =
+        4 * ngx_pagesize;  // 4 memory pages should be enough for most response
+                           // headers
+    lc->upstream_conf.busy_buffers_size =
+        6 * ngx_pagesize;  // Essentially, buffer_size + 2 memory pages
     lc->upstream_conf.bufs.num = 256;
     lc->upstream_conf.bufs.size = ngx_pagesize;
     lc->upstream_conf.max_temp_file_size = 0;
