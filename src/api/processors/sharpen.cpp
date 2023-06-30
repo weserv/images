@@ -15,8 +15,9 @@ VImage Sharpen::process(const VImage &image) const {
         "sharp",
         [](float s) {
             // Sigma needs to be in range of
-            // 0.000001 - 10000
-            return s >= 0.000001 && s <= 10000;
+            // 0.000001 - 10, see:
+            // https://github.com/libvips/libvips/pull/3270
+            return s >= 0.000001 && s <= 10;
         },
         -1.0F);
 
@@ -37,8 +38,8 @@ VImage Sharpen::process(const VImage &image) const {
         "sharpf",
         [](float f) {
             // Slope for flat areas needs to
-            // be in range of 0 - 10000
-            return f >= 0 && f <= 10000;
+            // be in range of 0 - 1000000
+            return f >= 0 && f <= 1000000;
         },
         1.0F);
 
@@ -46,9 +47,9 @@ VImage Sharpen::process(const VImage &image) const {
     auto jagged = query_->get_if<float>(
         "sharpj",
         [](float j) {
-            // Slope for jaggy areas needs
-            // to be in range of 0 - 10000
-            return j >= 0 && j <= 10000;
+            // Slope for jaggy areas needs to
+            // be in range of 0 - 1000000
+            return j >= 0 && j <= 1000000;
         },
         2.0F);
 
