@@ -43,12 +43,12 @@ VImage Orientation::process(const VImage &image) const {
         output_image = output_image.rot(utils::resolve_angle_rotation(angle));
     }
 
-    // Flip (mirror about Y axis) if required
+    // Mirror vertically (up-down) about the x-axis
     if (flip) {
         output_image = output_image.flipver();
     }
 
-    // Flop (mirror about X axis) if required
+    // Mirror horizontally (left-right) about the y-axis
     if (flop) {
         output_image = output_image.fliphor();
     }
