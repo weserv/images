@@ -5,21 +5,20 @@
 namespace weserv::api::processors {
 
 VImage Sharpen::process(const VImage &image) const {
+    // Sigma of gaussian
+    auto sigma = query_->get<float>("sharp", 0.0F);
+
     // Should we process the image?
-    if (!query_->exists("sharp")) {
+    if (sigma == 0.0F) {
         return image;
     }
 
-    // Sigma of gaussian
-    auto sigma = query_->get_if<float>(
-        "sharp",
-        [](float s) {
-            // Sigma needs to be in range of
-            // 0.000001 - 10, see:
-            // https://github.com/libvips/libvips/pull/3270
-            return s >= 0.000001 && s <= 10;
-        },
-        -1.0F);
+    // Sigma needs to be in range of 0.000001 - 10, see:
+    // https://github.com/libvips/libvips/pull/3270
+    if (sigma < 0.000001 || sigma > 10) {
+        // Defaulting to fast, mild sharpen
+        sigma = -1.0F;
+    }
 
     if (sigma == -1.0F) {
         // Fast, mild sharpen

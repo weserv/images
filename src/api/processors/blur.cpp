@@ -5,6 +5,7 @@
 namespace weserv::api::processors {
 
 VImage Blur::process(const VImage &image) const {
+    // Sigma of gaussian
     auto sigma = query_->get<float>("blur", 0.0F);
 
     // Should we process the image?
