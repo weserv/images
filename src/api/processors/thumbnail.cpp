@@ -474,15 +474,17 @@ VImage Thumbnail::process(const VImage &image) const {
             std::to_string(config_.limit_output_pixels));
     }
 
-    // If there's an alpha, we have to premultiply before shrinking. See
-    // https://github.com/libvips/libvips/issues/291
+    // Both .premultiply() and .unpremultiply() produces a float image, so we
+    // must cast back to the original format. Use NOTSET to mean no
+    // pre/unmultiply.
     VipsBandFormat unpremultiplied_format = VIPS_FORMAT_NOTSET;
+
+    // If there's an alpha, we have to premultiply before shrinking.
+    // See: https://github.com/libvips/libvips/issues/291
     if (thumb.has_alpha() && hshrink != 1.0 && vshrink != 1.0) {
-        // .premultiply() makes a float image. When we .unpremultiply() below,
-        // we need to cast back to the pre-premultiply format.
         unpremultiplied_format = thumb.format();
 
-        thumb = thumb.premultiply();
+        thumb = thumb.premultiply().cast(unpremultiplied_format);
     }
 
     thumb = thumb.resize(1.0 / hshrink,
