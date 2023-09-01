@@ -87,20 +87,6 @@ inline int exif_orientation(const VImage &image) {
 }
 
 /**
- * Insert a line cache to prevent over-computation of
- * any previous operations in the pipeline.
- * @param image The source image.
- * @param tile_height Tile height in pixels
- * @return A new image.
- */
-inline VImage line_cache(const VImage &image, const int tile_height) {
-    return image.linecache(VImage::option()
-                               ->set("tile_height", tile_height)
-                               ->set("access", VIPS_ACCESS_SEQUENTIAL)
-                               ->set("threaded", true));
-}
-
-/**
  * Calculate the rotation for the given angle.
  * @note Assumes that a positive angle is given which is a multiple of 90.
  * @return Rotation as VipsAngle.

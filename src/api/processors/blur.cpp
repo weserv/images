@@ -32,10 +32,7 @@ VImage Blur::process(const VImage &image) const {
     }
 
     // Slower, accurate Gaussian blur
-    return (image.get_typeof(VIPS_META_SEQUENTIAL) != 0
-                ? utils::line_cache(image, 10)
-                : image)
-        .gaussblur(sigma);
+    return image.gaussblur(sigma);
 }
 
 }  // namespace weserv::api::processors

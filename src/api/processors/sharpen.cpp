@@ -54,10 +54,7 @@ VImage Sharpen::process(const VImage &image) const {
 
     // Slow, accurate sharpen in LAB colour space,
     // with control over flat vs jagged areas
-    return (image.get_typeof(VIPS_META_SEQUENTIAL) != 0
-                ? utils::line_cache(image, 10)
-                : image)
-        .sharpen(VImage::option()
+    return image.sharpen(VImage::option()
                      ->set("sigma", sigma)
                      ->set("m1", flat)
                      ->set("m2", jagged));
