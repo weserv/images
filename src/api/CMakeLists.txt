@@ -6,6 +6,7 @@ set(HEADERS
         io/source.h
         io/target.h
         parsers/color.h
+        parsers/coordinate.h
         parsers/enumeration.h
         parsers/numeric.h
         parsers/query.h
@@ -35,6 +36,7 @@ set(HEADERS
 
 set(SOURCES
         parsers/color.cpp
+        parsers/coordinate.cpp
         parsers/query.cpp
         io/source.cpp
         io/target.cpp

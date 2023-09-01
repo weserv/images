@@ -1,6 +1,7 @@
 #pragma once
 
 #include "color.h"
+#include "coordinate.h"
 
 #include <cstddef>
 #include <string>
@@ -74,8 +75,8 @@ class Query {
     }
 
  private:
-    using QueryVariant = std::variant<bool, int, float, Color, std::vector<int>,
-                                      std::vector<float>>;
+    using QueryVariant = std::variant<bool, int, float, Color, Coordinate,
+                                      std::vector<int>, std::vector<float>>;
     std::unordered_map<std::string, QueryVariant> query_map_;
 
     const Config &config_;

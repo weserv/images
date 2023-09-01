@@ -24,16 +24,16 @@ const size_t MAX_VECTOR_SIZE = 65536;
 
 // clang-format off
 const TypeMap &type_map = {
-    {"w",       typeid(int)},
-    {"h",       typeid(int)},
+    {"w",       typeid(Coordinate)},
+    {"h",       typeid(Coordinate)},
     {"dpr",     typeid(float)},
     {"fit",     typeid(Canvas)},
     {"we",      typeid(bool)},
     {"crop",    typeid(std::vector<int>)},  // Deprecated
-    {"cx",      typeid(int)},
-    {"cy",      typeid(int)},
-    {"cw",      typeid(int)},
-    {"ch",      typeid(int)},
+    {"cx",      typeid(Coordinate)},
+    {"cy",      typeid(Coordinate)},
+    {"cw",      typeid(Coordinate)},
+    {"ch",      typeid(Coordinate)},
     {"precrop", typeid(bool)},
     {"a",       typeid(Position)},
     {"fpx",     typeid(float)},
@@ -157,6 +157,8 @@ void Query::add_value(const std::string &key, const std::string &value,
             // -1.0 by default
             query_map_.emplace(key, -1.0F);
         }
+    } else if (type == typeid(Coordinate)) {
+        query_map_.emplace(key, parse<Coordinate>(value));
     } else if (type == typeid(Position)) {
         auto position = parse<Position>(value);
 
@@ -233,10 +235,10 @@ void Query::add_value(const std::string &key, const std::string &value,
         auto coordinates = tokenize<int>(value, ",", 4);
 
         if (coordinates.size() == 4) {
-            query_map_.emplace("cw", coordinates[0]);
-            query_map_.emplace("ch", coordinates[1]);
-            query_map_.emplace("cx", coordinates[2]);
-            query_map_.emplace("cy", coordinates[3]);
+            query_map_.emplace("cw", Coordinate{coordinates[0]});
+            query_map_.emplace("ch", Coordinate{coordinates[1]});
+            query_map_.emplace("cx", Coordinate{coordinates[2]});
+            query_map_.emplace("cy", Coordinate{coordinates[3]});
         }
     }
 }

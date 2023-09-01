@@ -198,6 +198,37 @@ TEST_CASE("negative", "[crop]") {
     }
 }
 
+TEST_CASE("percentage-based", "[crop]") {
+    auto test_image = fixtures->input_jpg;
+
+    SECTION("width") {
+        auto params = "w=320&h=240&fit=cover&cx=10&cy=10&cw=50%&ch=100%";
+
+        VImage image = process_file<VImage>(test_image, params);
+
+        CHECK(image.width() == 160);
+        CHECK(image.height() == 230);
+    }
+
+    SECTION("height") {
+        auto params = "w=320&h=240&fit=cover&cx=10&cy=10&cw=100%&ch=50%";
+
+        VImage image = process_file<VImage>(test_image, params);
+
+        CHECK(image.width() == 310);
+        CHECK(image.height() == 120);
+    }
+
+    SECTION("invalid") {
+        auto params = "w=320&h=240&fit=cover&cx=10&cy=10&cw=200%&ch=100%";
+
+        VImage image = process_file<VImage>(test_image, params);
+
+        CHECK(image.width() == 310);
+        CHECK(image.height() == 230);
+    }
+}
+
 TEST_CASE("bad extract area", "[crop]") {
     auto test_image = fixtures->input_jpg;
     auto params = "w=320&h=240&fit=cover&cx=3000&cy=10&cw=10&ch=10";

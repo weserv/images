@@ -17,6 +17,7 @@ namespace weserv::api::processors {
 
 using enums::ImageType;
 using enums::Output;
+using parsers::Coordinate;
 using vips::VError;
 
 using io::Source;
@@ -186,8 +187,12 @@ void Stream::resolve_query(const VImage &image) const {
     query_->update("flip", flip);
     query_->update("flop", flop);
 
-    auto target_width = query_->get<int>("w", 0);
-    auto target_height = query_->get<int>("h", 0);
+    auto image_width = image.width();
+    auto image_height = image.height();
+    auto target_width = query_->get<Coordinate>("w", Coordinate::INVALID)
+                            .to_pixels(image_width);
+    auto target_height = query_->get<Coordinate>("h", Coordinate::INVALID)
+                             .to_pixels(image_height);
     auto pixel_ratio = query_->get<float>("dpr", -1.0F);
 
     // Pixel ratio and needs to be in the range of 0 - 8
@@ -212,8 +217,8 @@ void Stream::resolve_query(const VImage &image) const {
 
     // Store the original image width and height, handy for the focal point
     // calculations.
-    query_->update("input_width", image.width());
-    query_->update("input_height", image.height());
+    query_->update("input_width", image_width);
+    query_->update("input_height", image_height);
 }
 
 VImage Stream::new_from_source(const Source &source) const {
