@@ -40,10 +40,8 @@ class Thumbnail : ImageProcessor {
                            vips::VOption *options) const;
 
     /**
-     * Calculate the shrink factor, taking into account auto-rotate, the fit
-     * mode, and so on. The hshrink/vshrink are the amount to shrink the input
-     * image axes by in order for the output axes (ie. after rotation) to match
-     * the required thumbnail width/height and fit mode.
+     * Calculate the horizontal and vertical shrink factors, taking the canvas
+     * mode into account.
      * @param width Input width.
      * @param height Input height.
      * @return The (hshrink, vshrink) factor as pair.

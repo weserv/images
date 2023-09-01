@@ -131,15 +131,6 @@ Thumbnail::new_from_source<ImageType::Heif>(const Source &source,
 
 std::pair<double, double> Thumbnail::resolve_shrink(int width,
                                                     int height) const {
-    auto rotation = query_->get<int>("angle", 0);
-    auto precrop = query_->get<bool>("precrop", false);
-    auto swap = !precrop && (rotation == 90 || rotation == 270);
-
-    if (swap) {
-        // Swap input width and height when rotating by 90 or 270 degrees
-        std::swap(width, height);
-    }
-
     double hshrink = 1.0;
     double vshrink = 1.0;
 
@@ -171,9 +162,6 @@ std::pair<double, double> Thumbnail::resolve_shrink(int width,
                 }
                 break;
             case Canvas::IgnoreAspect:
-                if (swap) {
-                    std::swap(hshrink, vshrink);
-                }
                 break;
         }
     } else if (target_width > 0) {

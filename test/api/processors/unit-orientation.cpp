@@ -99,26 +99,27 @@ TEST_CASE("auto rotate", "[orientation]") {
     }
 }
 
-TEST_CASE("rotate by 270 degrees, square output ignoring aspect ratio",
-          "[orientation]") {
-    auto test_image = fixtures->input_jpg;
-    auto params = "w=240&h=240&fit=fill&ro=270";
+TEST_CASE(
+    "auto rotate by 270 degrees, rectangular output ignoring aspect ratio",
+    "[orientation]") {
+    auto test_image = fixtures->input_jpg_with_landscape_exif_8;
+    auto params = "w=320&h=240&fit=fill";
 
     VImage image = process_file<VImage>(test_image, params);
 
-    CHECK(image.width() == 240);
+    CHECK(image.width() == 320);
     CHECK(image.height() == 240);
 }
 
-TEST_CASE("rotate by 270 degrees, rectangular output ignoring aspect ratio",
+TEST_CASE("rectangular output ignoring aspect ratio, rotate by 270 degrees",
           "[orientation]") {
     auto test_image = fixtures->input_jpg;
     auto params = "w=320&h=240&fit=fill&ro=270";
 
     VImage image = process_file<VImage>(test_image, params);
 
-    CHECK(image.width() == 320);
-    CHECK(image.height() == 240);
+    CHECK(image.width() == 240);
+    CHECK(image.height() == 320);
 }
 
 TEST_CASE("rotate a multi-page image with a non-straight angle",

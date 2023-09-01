@@ -70,16 +70,10 @@ class Stream {
                            vips::VOption *options) const;
 
     /**
-     * Resolve dimensions (width, height).
-     */
-    void resolve_dimensions() const;
-
-    /**
-     * Resolve the angle of rotation and need-to-flip
-     * for the given exif orientation and query parameters
+     * Resolve/validate the query parameters based on the given image.
      * @param image The source image.
      */
-    void resolve_rotation_and_flip(const VImage &image) const;
+    void resolve_query(const VImage &image) const;
 
     /**
      * Append the save options for a specified image output.

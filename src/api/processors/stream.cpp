@@ -133,26 +133,7 @@ VImage Stream::new_from_source(const Source &source, const std::string &loader,
     return out_image;
 }
 
-void Stream::resolve_dimensions() const {
-    auto width = query_->get<int>("w", 0);
-    auto height = query_->get<int>("h", 0);
-    auto pixel_ratio = query_->get<float>("dpr", -1.0F);
-
-    // Pixel ratio and needs to be in the range of 0 - 8
-    if (pixel_ratio >= 0 && pixel_ratio <= 8) {
-        width = static_cast<int>(
-            std::round(static_cast<float>(width) * pixel_ratio));
-        height = static_cast<int>(
-            std::round(static_cast<float>(height) * pixel_ratio));
-    }
-
-    // Update the width and height parameters,
-    // a dimension needs to be d >= 0 && d <= VIPS_MAX_COORD.
-    query_->update("w", std::clamp(width, 0, VIPS_MAX_COORD));
-    query_->update("h", std::clamp(height, 0, VIPS_MAX_COORD));
-}
-
-void Stream::resolve_rotation_and_flip(const VImage &image) const {
+void Stream::resolve_query(const VImage &image) const {
     auto rotate = query_->get_if<int>(
         "ro",
         [](int r) {
@@ -162,7 +143,6 @@ void Stream::resolve_rotation_and_flip(const VImage &image) const {
             return r % 90 == 0;
         },
         0);
-
     auto flip = query_->get<bool>("flip", false);
     auto flop = query_->get<bool>("flop", false);
 
@@ -205,6 +185,35 @@ void Stream::resolve_rotation_and_flip(const VImage &image) const {
     query_->update("angle", angle);
     query_->update("flip", flip);
     query_->update("flop", flop);
+
+    auto target_width = query_->get<int>("w", 0);
+    auto target_height = query_->get<int>("h", 0);
+    auto pixel_ratio = query_->get<float>("dpr", -1.0F);
+
+    // Pixel ratio and needs to be in the range of 0 - 8
+    if (pixel_ratio >= 0 && pixel_ratio <= 8) {
+        target_width = static_cast<int>(
+            std::round(static_cast<float>(target_width) * pixel_ratio));
+        target_height = static_cast<int>(
+            std::round(static_cast<float>(target_height) * pixel_ratio));
+    }
+
+    if (exif_orientation > 4 && !query_->get<bool>("precrop", false)) {
+        // When the EXIF orientation is greater than 4, swap the target width
+        // and height to ensure the behavior aligns with how it would have been
+        // if the 90/270 degrees orient had taken place *before* resizing.
+        std::swap(target_width, target_height);
+    }
+
+    // Update the target width and height parameters, a dimension needs to be:
+    // d >= 0 && d <= VIPS_MAX_COORD
+    query_->update("w", std::clamp(target_width, 0, VIPS_MAX_COORD));
+    query_->update("h", std::clamp(target_height, 0, VIPS_MAX_COORD));
+
+    // Store the original image width and height, handy for the focal point
+    // calculations.
+    query_->update("input_width", image.width());
+    query_->update("input_height", image.height());
 }
 
 VImage Stream::new_from_source(const Source &source) const {
@@ -280,17 +289,8 @@ VImage Stream::new_from_source(const Source &source) const {
     // Always store the number of pages to load
     query_->update("n", n);
 
-    // Resolve target dimensions
-    resolve_dimensions();
-
-    // Resolve the angle of rotation and need-to-flip
-    // for the given exif orientation and query parameters.
-    resolve_rotation_and_flip(image);
-
-    // Store the original image width and height, handy for the focal point
-    // calculations.
-    query_->update("input_width", image.width());
-    query_->update("input_height", image.height());
+    // Resolve query
+    resolve_query(image);
 
     return image;
 }
