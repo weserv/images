@@ -356,6 +356,9 @@ void Stream::append_save_options<Output::Webp>(vips::VOption *options) const {
         },
         static_cast<int>(config_.webp_quality));
 
+    // Enable lossless compression, if necessary
+    options->set("lossless", query_->get<bool>("ll", false));
+
     // Set quality (default is 80)
     options->set("Q", quality);
 

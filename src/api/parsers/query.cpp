@@ -14,8 +14,8 @@ using enums::MaskType;
 using enums::Output;
 using enums::Position;
 
-// `&[precrop]=true`
-constexpr size_t MAX_KEY_LENGTH = sizeof("precrop") - 1;
+// `&[lossless]=true`
+constexpr size_t MAX_KEY_LENGTH = sizeof("lossless") - 1;
 
 // A vector must not have more than 65536 elements.
 const size_t MAX_VECTOR_SIZE = 65536;
@@ -66,6 +66,7 @@ const TypeMap &type_map = {
     {"l",       typeid(int)},
     {"output",  typeid(Output)},
     {"il",      typeid(bool)},
+    {"ll",      typeid(bool)},              // TODO(kleisauke): Documentation needed.
     {"af",      typeid(bool)},
     {"page",    typeid(int)},
     {"n",       typeid(int)},
@@ -75,19 +76,20 @@ const TypeMap &type_map = {
 };
 
 const SynonymMap &synonym_map = {
-    {"shape",   "mask"},   // &shape= was deprecated since API version 4
-    {"strim",   "mtrim"},  // &strim= was deprecated since API version 4
-    {"or",      "ro"},     // &or= was deprecated since API version 5
-    {"t",       "fit"},    // &t= was deprecated since API version 5
+    {"shape",    "mask"},   // &shape= was deprecated since API version 4
+    {"strim",    "mtrim"},  // &strim= was deprecated since API version 4
+    {"or",       "ro"},     // &or= was deprecated since API version 5
+    {"t",        "fit"},    // &t= was deprecated since API version 5
     // TODO(kleisauke): Synonym this within a major release (since it breaks BC).
-    //{"bri",     "mod"},
+    //{"bri",      "mod"},
     // Some handy synonyms
-    {"pages",   "n"},
-    {"width",   "w"},
-    {"height",  "h"},
-    {"align",   "a"},
-    {"level",   "l"},
-    {"quality", "q"},
+    {"pages",    "n"},
+    {"width",    "w"},
+    {"height",   "h"},
+    {"align",    "a"},
+    {"level",    "l"},
+    {"quality",  "q"},
+    {"lossless", "ll"},
 };
 
 const NginxKeySet &nginx_keys = {
