@@ -24,7 +24,7 @@ jobs:
             libvips-version: 8.14.4
             coverage: true
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Cache libvips
         if: matrix.libvips-version != 'master'
         id: cache-libvips
@@ -89,7 +89,7 @@ jobs:
     needs: CI
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
       - name: Docker meta
