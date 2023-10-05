@@ -18,9 +18,21 @@ int Coordinate::to_pixels(int base) const {
 
 template <>
 Coordinate parse(const std::string &value) {
+    if (value.empty()) {
+        return Coordinate::INVALID;
+    }
+
+    size_t percent_pos = std::string::npos;
     if (value.back() == '%') {
+        percent_pos = value.size() - 1;
+    } else if (value.size() > 3) {
+        // Support URL-encoded percent signs as well
+        percent_pos = value.find("%25", value.size() - 3);
+    }
+
+    if (percent_pos != std::string::npos) {
         try {
-            float result = std::stof(value.substr(0, value.size() - 1));
+            float result = std::stof(value.substr(0, percent_pos));
 
             // A single percentage needs to be in the range of 0 - 100
             if (result < 0.0 || result > 100.0) {

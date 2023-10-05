@@ -219,8 +219,17 @@ TEST_CASE("percentage-based", "[crop]") {
         CHECK(image.height() == 120);
     }
 
+    SECTION("URL-encoded") {
+        auto params = "w=320&h=240&fit=cover&cx=10&cy=10&cw=50%25&ch=100%25";
+
+        VImage image = process_file<VImage>(test_image, params);
+
+        CHECK(image.width() == 160);
+        CHECK(image.height() == 230);
+    }
+
     SECTION("invalid") {
-        auto params = "w=320&h=240&fit=cover&cx=10&cy=10&cw=200%&ch=100%";
+        auto params = "w=320&h=240&fit=cover&cx=10&cy=10&cw=200%&ch=";
 
         VImage image = process_file<VImage>(test_image, params);
 
