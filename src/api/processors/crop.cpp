@@ -53,8 +53,12 @@ VImage Crop::process(const VImage &image) const {
         // Update the page height
         query_->update("page_height", crop_h);
 
-        return utils::crop_multi_page(image, crop_x, crop_y, crop_w, crop_h,
-                                      n_pages, image_height);
+        // Copy to memory evaluates the image, so set up the timeout handler,
+        // if necessary.
+        utils::setup_timeout_handler(image, config_.process_timeout);
+
+        return utils::crop_multi_page(image.copy_memory(), crop_x, crop_y,
+                                      crop_w, crop_h, n_pages, image_height);
     }
 
     return image.extract_area(crop_x, crop_y, crop_w, crop_h);
