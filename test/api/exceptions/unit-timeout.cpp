@@ -7,7 +7,7 @@ using Catch::Matchers::Contains;
 TEST_CASE("process timeout", "[timeout]") {
     SECTION("image") {
         auto test_image = fixtures->input_jpg;
-        auto params = "blur=100";
+        auto params = "blur=300";
         auto config = Config();
         config.process_timeout = 1;
 

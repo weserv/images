@@ -21,7 +21,7 @@ jobs:
           # - os: ubuntu-22.04
           #   libvips-version: master
           - os: ubuntu-22.04
-            libvips-version: 8.14.5
+            libvips-version: 8.15.1
             coverage: true
     steps:
       - uses: actions/checkout@v4
@@ -44,16 +44,17 @@ jobs:
             meson \
             libcgif-dev libexif-dev libexpat1-dev \
             libheif-dev libimagequant-dev liblcms2-dev \
-            libmagickcore-dev liborc-0.4-dev libpango1.0-dev \
+            libmagickcore-dev libhwy-dev libpango1.0-dev \
             libpng-dev libpoppler-glib-dev librsvg2-dev \
             libtiff5-dev libwebp-dev \
-            libtest-nginx-perl
+            libtest-nginx-perl \
+            liborc-0.4-dev # FIXME: Remove once libhwy 1.0.5 is available.
       - name: Install libvips
         if: steps.cache-libvips.outputs.cache-hit != 'true'
         env:
           VIPS_VERSION: ${{ matrix.libvips-version }}
           VIPS_PRE_VERSION: ${{ matrix.libvips-pre-version }}
-        run: .ci/install-vips.sh -Ddeprecated=false -Dintrospection=false
+        run: .ci/install-vips.sh -Ddeprecated=false -Dintrospection=disabled
       - name: Prepare environment
         run: |
           echo "$HOME/vips/bin" >> $GITHUB_PATH
