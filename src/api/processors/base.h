@@ -6,6 +6,7 @@
 #include <utility>
 
 #include <vips/vips8>
+#include <weserv/config.h>
 
 namespace weserv::api::processors {
 
@@ -13,8 +14,8 @@ using vips::VImage;
 
 class ImageProcessor {
  public:
-    explicit ImageProcessor(std::shared_ptr<parsers::Query> query)
-        : query_(std::move(query)) {}
+    ImageProcessor(std::shared_ptr<parsers::Query> query, const Config &config)
+        : query_(std::move(query)), config_(config) {}
 
     virtual VImage process(const VImage &image) const = 0;
 
@@ -28,6 +29,11 @@ class ImageProcessor {
      * Query holder.
      */
     const std::shared_ptr<parsers::Query> query_;
+
+    /**
+     * Global config.
+     */
+    const Config &config_;
 };
 
 }  // namespace weserv::api::processors

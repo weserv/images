@@ -3,14 +3,11 @@
 #include "../io/source.h"
 #include "base.h"
 
-#include <weserv/config.h>
-
 namespace weserv::api::processors {
 
 class Thumbnail : ImageProcessor {
  public:
-    Thumbnail(std::shared_ptr<parsers::Query> query, const Config &config)
-        : ImageProcessor(std::move(query)), config_(config) {}
+    using ImageProcessor::ImageProcessor;
 
     /**
      * Use any shrink-on-load features available in the file import library.
@@ -23,11 +20,6 @@ class Thumbnail : ImageProcessor {
     VImage process(const VImage &image) const override;
 
  private:
-    /**
-     * Global config.
-     */
-    const Config &config_;
-
     /**
      * Load a formatted image from a source for a specified image type.
      * @tparam ImageType Image type.

@@ -17,8 +17,8 @@ using enums::Position;
 // `&[lossless]=true`
 constexpr size_t MAX_KEY_LENGTH = sizeof("lossless") - 1;
 
-// A vector must not have more than 65536 elements.
-const size_t MAX_VECTOR_SIZE = 65536;
+// A vector must not have more than 10000 elements.
+const size_t MAX_VECTOR_SIZE = 10000;
 
 // Note: We check crazy numbers within `numeric.h`
 
@@ -202,11 +202,7 @@ void Query::add_value(const std::string &key, const std::string &value,
     } else if (type == typeid(Color)) {
         query_map_.emplace(key, parse<Color>(value));
     } else if (key == "delay") {  // type == typeid(std::vector<int>)
-        // Limit to config_.max_pages
-        auto delays = tokenize<int>(value, ",",
-                                    config_.max_pages > 0
-                                        ? static_cast<size_t>(config_.max_pages)
-                                        : MAX_VECTOR_SIZE);
+        auto delays = tokenize<int>(value, ",", MAX_VECTOR_SIZE);
         query_map_.emplace(key, delays);
     } else if (key == "sharp") {  // type == typeid(std::vector<float>)
         auto params = tokenize<float>(value, ",", 3);
@@ -245,7 +241,7 @@ void Query::add_value(const std::string &key, const std::string &value,
     }
 }
 
-Query::Query(const std::string &value, const Config &config) : config_(config) {
+Query::Query(const std::string &value) {
     size_t pos = 0;
     size_t max_pos = value.size();
 
