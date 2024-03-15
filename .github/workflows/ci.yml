@@ -28,7 +28,7 @@ jobs:
       - name: Cache libvips
         if: matrix.libvips-version != 'master'
         id: cache-libvips
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/vips
           key: ${{ matrix.libvips-version }}
