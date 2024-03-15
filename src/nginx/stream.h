@@ -51,7 +51,7 @@ class NgxTarget : public api::io::TargetInterface {
 
     int64_t read(void *data, size_t length) override;
 
-    off_t seek(off_t offset, int whence) override;
+    int64_t seek(int64_t offset, int whence) override;
 
     int end() override;
 

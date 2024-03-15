@@ -24,8 +24,8 @@ static gint64 weserv_target_read_wrapper(VipsTarget *target, void *data,
     return weserv_target->read(data, length);
 }
 
-static off_t weserv_target_seek_wrapper(VipsTarget *target, off_t offset,
-                                        int whence) {
+static gint64 weserv_target_seek_wrapper(VipsTarget *target, gint64 offset,
+                                         int whence) {
     auto weserv_target = WESERV_TARGET(target)->target;
 
     return weserv_target->seek(offset, whence);

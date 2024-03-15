@@ -154,7 +154,7 @@ int64_t NgxTarget::read(void *data, size_t length) {
     return bytes_read;
 }
 
-off_t NgxTarget::seek(off_t offset, int whence) {
+int64_t NgxTarget::seek(int64_t offset, int whence) {
     switch (whence) {
         case SEEK_SET:
             seek_cl_ = *first_ll_;

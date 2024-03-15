@@ -41,7 +41,7 @@ class TargetInterface {
      * @param whence Method in which the offset is to be interpreted.
      * @return Offset of the pointer or -1 on error.
      */
-    virtual off_t seek(off_t offset, int whence) = 0;
+    virtual int64_t seek(int64_t offset, int whence) = 0;
 
     /**
      * Output has been generated, so do any clearing up, e.g. close a file

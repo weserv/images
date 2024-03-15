@@ -66,7 +66,7 @@ class FileTarget : public io::TargetInterface {
         return -1;
     }
 
-    off_t seek(off_t /* unsused */, int /* unsused */) override {
+    int64_t seek(int64_t /* unsused */, int /* unsused */) override {
         return -1;
     }
     // LCOV_EXCL_STOP
@@ -99,7 +99,7 @@ class MemoryTarget : public io::TargetInterface {
         return -1;
     }
 
-    off_t seek(off_t /* unsused */, int /* unsused */) override {
+    int64_t seek(int64_t /* unsused */, int /* unsused */) override {
         return -1;
     }
     // LCOV_EXCL_STOP

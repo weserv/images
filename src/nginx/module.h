@@ -141,7 +141,7 @@ struct ngx_weserv_upstream_ctx_t : ngx_weserv_base_ctx_t {
      * 2 = debug response headers.
      * 3 = debug response body.
      */
-    off_t debug;
+    unsigned debug : 2;
 #endif
 };
 
