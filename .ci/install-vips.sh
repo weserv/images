@@ -3,7 +3,7 @@
 # Define variables
 version=$VIPS_VERSION
 pre_version=$VIPS_PRE_VERSION
-tag_version=$version${pre_version:+-$pre_version}
+tag_version=$version${pre_version:+-$pre_version}a
 vips_tarball=https://github.com/libvips/libvips/releases/download/v$tag_version/vips-$version.tar.xz
 
 # Exit immediately if a command exits with a non-zero status
