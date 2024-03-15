@@ -42,12 +42,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install \
             meson \
+            libtest-nginx-perl \
             libcgif-dev libexif-dev libexpat1-dev \
-            libheif-dev libimagequant-dev liblcms2-dev \
-            libmagickcore-dev libhwy-dev libpango1.0-dev \
+            libheif-dev libhwy-dev libimagequant-dev \
+            liblcms2-dev libmagickcore-dev libpango1.0-dev \
             libpng-dev libpoppler-glib-dev librsvg2-dev \
             libtiff5-dev libwebp-dev \
-            libtest-nginx-perl \
             liborc-0.4-dev # FIXME: Remove once libhwy 1.0.5 is available.
       - name: Install libvips
         if: steps.cache-libvips.outputs.cache-hit != 'true'
