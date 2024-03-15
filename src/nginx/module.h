@@ -111,10 +111,10 @@ struct ngx_weserv_upstream_ctx_t : ngx_weserv_base_ctx_t {
     ngx_http_chunked_t chunked;
 
     /**
-     * Redirect flags.
+     * Redirect bit fields.
      */
-    ngx_uint_t redirecting;
-    ngx_uint_t saw_temp_redirect;
+    unsigned redirecting : 1;
+    unsigned saw_temp_redirect : 1;
 
     /**
      * Parsed HTTP redirection URI.
