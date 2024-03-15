@@ -179,7 +179,7 @@ void ngx_weserv_log(ngx_log_t *log, ngx_uint_t level, ngx_str_t msg) {
     }
     ngx_linefeed(t);
 
-    bool debug_connection = !!(log->log_level & NGX_LOG_DEBUG_CONNECTION);
+    bool debug_connection = log->log_level & NGX_LOG_DEBUG_CONNECTION;
     bool wrote_stderr = false;
 
     for (; log; log = log->next) {
