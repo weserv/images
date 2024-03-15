@@ -1,5 +1,5 @@
 if (NOT NGX_VERSION)
-    set(NGX_VERSION 1.25.3)
+    set(NGX_VERSION 1.25.4)
 endif()
 
 set(NGX_ROOT ${CMAKE_CURRENT_BINARY_DIR})
@@ -42,7 +42,7 @@ ExternalProject_Add(nginx
         DEPENDS ${PROJECT_NAME}
         PREFIX ${NGX_ROOT}
         SOURCE_DIR ${NGX_ROOT}/nginx
-        URL http://nginx.org/download/nginx-${NGX_VERSION}.tar.gz
+        URL https://nginx.org/download/nginx-${NGX_VERSION}.tar.gz
         CONFIGURE_COMMAND ./configure ${NGX_CONFIGURE_OPTS}
         BUILD_COMMAND ${MAKE_EXE}
         BUILD_ALWAYS 1

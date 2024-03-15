@@ -2,7 +2,7 @@ FROM rockylinux:9
 
 LABEL maintainer="Kleis Auke Wolthuizen <info@kleisauke.nl>"
 
-ARG NGINX_VERSION=1.25.3
+ARG NGINX_VERSION=1.25.4
 
 # Copy the contents of this repository to the container
 COPY . /var/www/imagesweserv
