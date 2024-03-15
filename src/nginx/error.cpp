@@ -23,11 +23,12 @@ ngx_int_t ngx_weserv_return_error(ngx_http_request_t *r,
         ngx_http_arg(r, (u_char *)"errorredirect", 13, &redirect_uri) ==
             NGX_OK) {
         ngx_str_t parsed_redirect = ngx_null_string;
-        if (upstream_ctx != nullptr && redirect_uri.len == 1 &&
-            redirect_uri.data[0] == '1') {
-            parsed_redirect = upstream_ctx->request->url();
-        } else {
+        if (redirect_uri.len != 1 || redirect_uri.data[0] != '1') {
             (void)parse_url(r->pool, redirect_uri, &parsed_redirect);
+        } else if (upstream_ctx != nullptr &&
+                   upstream_ctx->request != nullptr) {
+            // NB: ->request will be NULL in case of redirect errors.
+            parsed_redirect = upstream_ctx->request->url();
         }
 
         if (parsed_redirect.len > 0 &&
