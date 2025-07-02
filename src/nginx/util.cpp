@@ -25,20 +25,20 @@ bool is_base64_needed(ngx_http_request_t *r) {
            ngx_strncasecmp(encoding.data, (u_char *)"base64", 6) == 0;
 }
 
-ngx_int_t output_chain_to_base64(ngx_http_request_t *r, ngx_chain_t *out) {
+ngx_chain_t *output_chain_to_base64(ngx_http_request_t *r, ngx_chain_t *in) {
     size_t prefix_size = sizeof("data:") - 1;
     size_t suffix_size = sizeof(";base64,") - 1;
     off_t content_length = r->headers_out.content_length_n;
 
     ngx_str_t src;
-    src.data = reinterpret_cast<u_char *>(ngx_palloc(r->pool, content_length));
+    src.data = static_cast<u_char *>(ngx_palloc(r->pool, content_length));
     if (src.data == nullptr) {
-        return NGX_ERROR;
+        return NGX_CHAIN_ERROR;
     }
 
     u_char *p = src.data;
 
-    for (ngx_chain_t *cl = out; cl; cl = cl->next) {
+    for (ngx_chain_t *cl = in; cl; cl = cl->next) {
         ngx_buf_t *b = cl->buf;
         size_t size = b->last - b->pos;
 
@@ -47,7 +47,7 @@ ngx_int_t output_chain_to_base64(ngx_http_request_t *r, ngx_chain_t *out) {
         if (size > rest) {
             ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
                           "weserv image filter: too big response");
-            return NGX_ERROR;
+            return NGX_CHAIN_ERROR;
         }
 
         p = ngx_cpymem(p, b->pos, size);
@@ -58,9 +58,9 @@ ngx_int_t output_chain_to_base64(ngx_http_request_t *r, ngx_chain_t *out) {
 
     ngx_str_t base64;
     base64.len = ngx_base64_encoded_length(src.len);
-    base64.data = reinterpret_cast<u_char *>(ngx_palloc(r->pool, base64.len));
+    base64.data = static_cast<u_char *>(ngx_palloc(r->pool, base64.len));
     if (base64.data == nullptr) {
-        return NGX_ERROR;
+        return NGX_CHAIN_ERROR;
     }
 
     ngx_encode_base64(&base64, &src);
@@ -70,7 +70,7 @@ ngx_int_t output_chain_to_base64(ngx_http_request_t *r, ngx_chain_t *out) {
 
     ngx_buf_t *buf = ngx_create_temp_buf(r->pool, content_length);
     if (buf == nullptr) {
-        return NGX_ERROR;
+        return NGX_CHAIN_ERROR;
     }
 
     buf->last_buf = 1;
@@ -84,9 +84,15 @@ ngx_int_t output_chain_to_base64(ngx_http_request_t *r, ngx_chain_t *out) {
     r->headers_out.content_type_len = sizeof("text/plain") - 1;
     ngx_str_set(&r->headers_out.content_type, "text/plain");
 
-    *out = {buf, nullptr};
+    ngx_chain_t *out = ngx_alloc_chain_link(r->pool);
+    if (out == nullptr) {
+        return NGX_CHAIN_ERROR;
+    }
 
-    return NGX_OK;
+    out->buf = buf;
+    out->next = nullptr;
+
+    return out;
 }
 
 time_t parse_max_age(ngx_str_t &s) {
@@ -146,7 +152,7 @@ const char *log_levels[] = {
     "info",    // NGX_LOG_INFO
     "debug",   // NGX_LOG_DEBUG
 };
-const ngx_uint_t LOG_LEVELS_COUNT = sizeof(log_levels) / sizeof(log_levels[0]);
+constexpr ngx_uint_t LOG_LEVELS_COUNT = std::size(log_levels);
 
 }  // namespace
 
@@ -179,7 +185,7 @@ void ngx_weserv_log(ngx_log_t *log, ngx_uint_t level, ngx_str_t msg) {
     }
     ngx_linefeed(t);
 
-    bool debug_connection = !!(log->log_level & NGX_LOG_DEBUG_CONNECTION);
+    bool debug_connection = log->log_level & NGX_LOG_DEBUG_CONNECTION;
     bool wrote_stderr = false;
 
     for (; log; log = log->next) {

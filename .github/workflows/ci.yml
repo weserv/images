@@ -1,37 +1,39 @@
 name: CI
+
 on:
   # Only trigger this workflow for the 5.x branch
   push:
-    branches:
-      - 5.x
-    tags:
-      - v*
+    branches: [ '5.x' ]
+    tags: [ 'v*.*.*' ]
   pull_request:
-    branches:
-      - 5.x
+    branches: [ '5.x' ]
+
+permissions: {}
+
 jobs:
   CI:
     runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.libvips-version == 'master' }}
+    permissions:
+      contents: read
     strategy:
       fail-fast: true
       matrix:
         include:
-          # TODO(kleisauke): Enable once magickload_source is supported
-          # - os: ubuntu-22.04
-          #   libvips-version: master
-          - os: ubuntu-22.04
-            libvips-version: 8.13.2
+          - os: ubuntu-24.04
+            libvips-version: 8.17.0
             coverage: true
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Cache libvips
-        if: matrix.libvips-version != 'master'
         id: cache-libvips
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/vips
           key: ${{ matrix.libvips-version }}
+
       - name: Install dependencies
         run: |
           # for Test::Nginx
@@ -40,61 +42,78 @@ jobs:
             sudo tee /etc/apt/sources.list.d/openresty.list > /dev/null
           # install dependencies
           sudo apt-get update
-          sudo apt-get install \
-            meson \
+          sudo apt-get install --no-install-recommends \
+            catch2 meson \
+            libtest-nginx-perl \
             libcgif-dev libexif-dev libexpat1-dev \
-            libheif-dev libimagequant-dev liblcms2-dev \
-            libmagickcore-dev liborc-0.4-dev libpango1.0-dev \
-            libpng-dev libpoppler-glib-dev librsvg2-dev \
-            libtiff5-dev libwebp-dev \
-            libtest-nginx-perl
+            libheif-dev libheif-plugin-aomenc libheif-plugin-x265 \
+            libhwy-dev libimagequant-dev libjxl-dev \
+            liblcms2-dev libmagickcore-dev libopenjp2-7-dev \
+            libpango1.0-dev libpoppler-glib-dev librsvg2-dev \
+            libspng-dev libtiff5-dev libwebp-dev
+
       - name: Install libvips
         if: steps.cache-libvips.outputs.cache-hit != 'true'
         env:
           VIPS_VERSION: ${{ matrix.libvips-version }}
-          VIPS_PRE_VERSION: ${{ matrix.libvips-pre-version }}
-        run: .ci/install-vips.sh -Ddeprecated=false -Dintrospection=false
+        working-directory: ${{ runner.temp }}
+        run: |
+          mkdir vips
+          curl -Ls https://github.com/libvips/libvips/releases/download/v$VIPS_VERSION/vips-$VIPS_VERSION.tar.xz | \
+            tar xJC vips --strip-components=1
+          cd vips
+          meson setup build --prefix=$HOME/vips --libdir=lib -Ddeprecated=false -Dintrospection=disabled
+          meson compile -C build
+          meson install -C build
+
       - name: Prepare environment
         run: |
           echo "$HOME/vips/bin" >> $GITHUB_PATH
           echo "$HOME/nginx/sbin" >> $GITHUB_PATH
           echo "LD_LIBRARY_PATH=$HOME/vips/lib" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=$HOME/vips/lib/pkgconfig" >> $GITHUB_ENV
-          mkdir -p build
+
       - name: Build
-        working-directory: build
         run: |
-          cmake .. \
+          cmake -S . -B build \
             -DCMAKE_BUILD_TYPE=Debug \
             -DCUSTOM_NGX_FLAGS="--prefix=$HOME/nginx" \
-            -DENABLE_COVERAGE=$([ "${{ matrix.coverage }}" = true ] && echo "ON" || echo "OFF") \
+            -DENABLE_COVERAGE=${{ matrix.coverage && 'ON' || 'OFF' }} \
             -DBUILD_TESTS=ON
-          cmake --build . -- -j$(nproc)
+          cmake --build build -- -j$(nproc)
+
       - name: Run unit tests
         env:
           VIPS_WARNING: 0
-        working-directory: build
-        run: ctest -j $(nproc) --output-on-failure
+        run: ctest --test-dir build -j $(nproc) --output-on-failure
+
       - name: Run integration tests
         env:
           TEST_NGINX_SERVROOT: ${{ github.workspace }}/servroot
         run: prove -r test/nginx
+
       - name: Upload coverage to Codecov
         if: matrix.coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
-          gcov: true
-          gcov_ignore: test/api
+          token: ${{ secrets.CODECOV_TOKEN }}
+
   docker-publish:
     needs: CI
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           submodules: true
+
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository }}
           # Add git branch, tag and short SHA as Docker tag
@@ -112,15 +131,17 @@ jobs:
             org.opencontainers.image.documentation=https://github.com/weserv/images/tree/5.x/docker
             org.opencontainers.image.description=weserv/images
             org.opencontainers.image.vendor=wsrv.nl
+
       - name: Login to GitHub Container Registry
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ secrets.CR_USER }}
-          password: ${{ secrets.CR_PAT }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and push
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./docker/Dockerfile

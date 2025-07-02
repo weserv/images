@@ -21,8 +21,8 @@ int main(int argc, const char *argv[]) {
     }
 
     weserv::api::ApiManagerFactory weserv_factory;
-    api_manager = weserv_factory.create_api_manager(
-        std::unique_ptr<weserv::api::ApiEnvInterface>(new CliEnvironment()));
+    api_manager =
+        weserv_factory.create_api_manager(std::make_unique<CliEnvironment>());
 
     std::string query;
 

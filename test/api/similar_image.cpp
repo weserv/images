@@ -47,10 +47,10 @@ VImage SimilarImage::normalize(const VImage &image) const {
 
 std::string SimilarImage::dhash(const VImage &image) const {
     vips::VOption *thumbnail_options = VImage::option()
-                                 ->set("height", 8)
-                                 ->set("size", VIPS_SIZE_FORCE)
-                                 ->set("no_rotate", true)
-                                 ->set("linear", false);
+                                           ->set("height", 8)
+                                           ->set("size", VIPS_SIZE_FORCE)
+                                           ->set("no_rotate", true)
+                                           ->set("linear", false);
 
     VImage thumbnail =
         image.thumbnail_image(9, thumbnail_options).copy_memory();

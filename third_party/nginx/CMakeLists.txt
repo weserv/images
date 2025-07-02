@@ -1,5 +1,5 @@
 if (NOT NGX_VERSION)
-    set(NGX_VERSION 1.23.2)
+    set(NGX_VERSION 1.27.5)
 endif()
 
 set(NGX_ROOT ${CMAKE_CURRENT_BINARY_DIR})
@@ -23,14 +23,6 @@ set(NGX_CONFIGURE_OPTS
         #--with-google_perftools_module
         )
 
-# Install the echo module only in debug builds
-# (needed by the integration tests)
-if (CMAKE_BUILD_TYPE MATCHES "Debug")
-    list(APPEND NGX_CONFIGURE_OPTS
-            "--add$<$<BOOL:${NGX_DYN_MODULE}>:-dynamic>-module=${ECHO_MODULE_SOURCE}"
-            )
-endif()
-
 if (CMAKE_GENERATOR MATCHES "Make")
     # Use special command for Makefiles to support parallelism.
     set(MAKE_EXE "$(MAKE)")
@@ -38,11 +30,16 @@ else()
     set(MAKE_EXE "make")
 endif()
 
+# Avoid warning about DOWNLOAD_EXTRACT_TIMESTAMP on CMake 3.24.
+if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.24.0)
+    cmake_policy(SET CMP0135 NEW)
+endif()
+
 ExternalProject_Add(nginx
         DEPENDS ${PROJECT_NAME}
         PREFIX ${NGX_ROOT}
         SOURCE_DIR ${NGX_ROOT}/nginx
-        URL http://nginx.org/download/nginx-${NGX_VERSION}.tar.gz
+        URL https://nginx.org/download/nginx-${NGX_VERSION}.tar.gz
         CONFIGURE_COMMAND ./configure ${NGX_CONFIGURE_OPTS}
         BUILD_COMMAND ${MAKE_EXE}
         BUILD_ALWAYS 1

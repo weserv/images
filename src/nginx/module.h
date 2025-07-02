@@ -46,6 +46,11 @@ struct ngx_weserv_loc_conf_t {
 
     ngx_uint_t mode;
 
+    /**
+     * Array of ngx_cidr_t
+     */
+    ngx_array_t *deny;
+
     ngx_str_t user_agent;
 
     size_t max_size;
@@ -65,9 +70,11 @@ struct ngx_weserv_base_ctx_t {
     virtual ~ngx_weserv_base_ctx_t() = default;
 
     /**
-     * The incoming chain.
+     * The incoming image.
      */
-    ngx_chain_t *in;
+    u_char *image;
+    u_char *last;
+    size_t length;
 };
 
 /**
@@ -97,6 +104,11 @@ struct ngx_weserv_upstream_ctx_t : ngx_weserv_base_ctx_t {
     std::unique_ptr<HTTPRequest> request;
 
     /**
+     * The original DNS resolver handler.
+     */
+    ngx_resolver_handler_pt original_resolver;
+
+    /**
      * Response information.
      */
 
@@ -106,10 +118,10 @@ struct ngx_weserv_upstream_ctx_t : ngx_weserv_base_ctx_t {
     ngx_http_chunked_t chunked;
 
     /**
-     * Redirect flags.
+     * Redirect bit fields.
      */
-    ngx_uint_t redirecting;
-    ngx_uint_t saw_temp_redirect;
+    unsigned redirecting : 1;
+    unsigned saw_temp_redirect : 1;
 
     /**
      * Parsed HTTP redirection URI.
@@ -136,7 +148,7 @@ struct ngx_weserv_upstream_ctx_t : ngx_weserv_base_ctx_t {
      * 2 = debug response headers.
      * 3 = debug response body.
      */
-    off_t debug;
+    unsigned debug : 2;
 #endif
 };
 

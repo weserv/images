@@ -1,6 +1,6 @@
 #pragma once
 
-#include <catch2/catch.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
 #include <vips/vips8>
 
 #include <utility>
@@ -11,7 +11,7 @@ using vips::VImage;
  * Verifies the maximum color distance using the DE2000 algorithm
  * between two images of the same dimensions and number of channels.
  */
-class MaxColorDistance : public Catch::MatcherBase<VImage> {
+class MaxColorDistance : public Catch::Matchers::MatcherBase<VImage> {
  public:
     explicit MaxColorDistance(VImage expected, const double accepted_distance)
         : expected_image_(std::move(expected)),

@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <ctime>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -36,6 +37,19 @@ inline bool is_16_bit(const VipsInterpretation interpretation) {
     return interpretation == VIPS_INTERPRETATION_RGB16 ||
            interpretation == VIPS_INTERPRETATION_GREY16;
 }
+
+#if VIPS_VERSION_AT_LEAST(8, 16, 0)
+/**
+ * Is this image palette-based?
+ * @param image The source image.
+ * @return A bool indicating whether the image is palette-based.
+ */
+inline bool is_palette(const VImage &image) {
+    return image.get_typeof(VIPS_META_PALETTE) != 0
+               ? static_cast<bool>(image.get_int(VIPS_META_PALETTE))
+               : false;
+}
+#endif
 
 /**
  * Does this image have an embedded profile?
@@ -83,20 +97,6 @@ inline int exif_orientation(const VImage &image) {
     return image.get_typeof(VIPS_META_ORIENTATION) != 0
                ? image.get_int(VIPS_META_ORIENTATION)
                : 0;
-}
-
-/**
- * Insert a line cache to prevent over-computation of
- * any previous operations in the pipeline.
- * @param image The source image.
- * @param tile_height Tile height in pixels
- * @return A new image.
- */
-inline VImage line_cache(const VImage &image, const int tile_height) {
-    return image.linecache(VImage::option()
-                               ->set("tile_height", tile_height)
-                               ->set("access", VIPS_ACCESS_SEQUENTIAL)
-                               ->set("threaded", true));
 }
 
 /**
@@ -192,7 +192,8 @@ static void image_eval_cb(VipsImage *image, VipsProgress *progress,
         // We've killed the image and issued an error, it's now our caller's
         // responsibility to pass the message up the chain.
         *timeout = 0;
-    }  // LCOV_EXCL_STOP
+        // LCOV_EXCL_STOP
+    }
 }
 
 /**
@@ -219,6 +220,27 @@ inline void setup_timeout_handler(const VImage &image,
 }
 
 /**
+ * Ensure decoding remains sequential.
+ * @param image The source image.
+ * @param process_timeout The specified process timeout.
+ * @return A new image.
+ */
+inline VImage stay_sequential(const VImage &image,
+                              const time_t process_timeout) {
+    if (!vips_image_is_sequential(image.get_image())) {
+        return image;
+    }
+
+    // Copy to memory evaluates the image, so set up the timeout handler,
+    // if necessary.
+    setup_timeout_handler(image, process_timeout);
+
+    auto copy = image.copy_memory().copy();
+    copy.remove(VIPS_META_SEQUENTIAL);
+    return copy;
+}
+
+/**
  * Determine the output from the image type enum.
  * @param image_type The image type enum.
  * @return The image output.
@@ -242,15 +264,6 @@ inline Output to_output(const ImageType &image_type) {
 }
 
 /**
- * libvips 8.11 swapped giflib with libnsgif for loading GIF images.
- */
-#if VIPS_VERSION_AT_LEAST(8, 11, 0)
-#define VIPS_FOREIGN_LOAD_GIF "VipsForeignLoadNsgif"
-#else
-#define VIPS_FOREIGN_LOAD_GIF "VipsForeignLoadGif"
-#endif
-
-/**
  * Determine image type from the name of the load operation.
  * @param loader The name of the load operation.
  * @return The image type.
@@ -268,7 +281,7 @@ inline ImageType determine_image_type(const std::string &loader) {
     if (loader.rfind("VipsForeignLoadTiff", 0) == 0) {
         return ImageType::Tiff;
     }
-    if (loader.rfind(VIPS_FOREIGN_LOAD_GIF, 0) == 0) {
+    if (loader.rfind("VipsForeignLoadNsgif", 0) == 0) {
         return ImageType::Gif;
     }
     if (loader.rfind("VipsForeignLoadSvg", 0) == 0) {
@@ -284,9 +297,7 @@ inline ImageType determine_image_type(const std::string &loader) {
         return ImageType::Magick;
     }
 
-    // LCOV_EXCL_START
-    return ImageType::Unknown;
-    // LCOV_EXCL_STOP
+    return ImageType::Unknown;  // LCOV_EXCL_LINE
 }
 
 /**
@@ -317,19 +328,8 @@ inline std::string image_type_id(const ImageType &image_type) {
         case ImageType::Unknown:  // LCOV_EXCL_START
         default:
             return "unknown";
+        // LCOV_EXCL_STOP
     }
-    // LCOV_EXCL_STOP
-}
-
-/**
- * Does this image type support multiple pages?
- * @param image_type Image type to check.
- * @return A bool indicating if this image type support multiple pages.
- */
-inline bool support_multi_pages(const ImageType &image_type) {
-    return image_type == ImageType::Webp || image_type == ImageType::Tiff ||
-           image_type == ImageType::Gif || image_type == ImageType::Pdf ||
-           image_type == ImageType::Heif || image_type == ImageType::Magick;
 }
 
 /**
@@ -398,6 +398,7 @@ calculate_position(const int in_width, const int in_height, const int out_width,
 /**
  * Split/crop each frame and reassemble.
  * @param image The source image.
+ * @param process_timeout The specified process timeout.
  * @param left Crop x-position.
  * @param top Crop y-position.
  * @param width Crop width.
@@ -406,8 +407,9 @@ calculate_position(const int in_width, const int in_height, const int out_width,
  * @param page_height Page height.
  * @return A new image.
  */
-inline VImage crop_multi_page(const VImage &image, int left, int top, int width,
-                              int height, int n_pages, int page_height) {
+inline VImage crop_multi_page(const VImage &image, const time_t process_timeout,
+                              int left, int top, int width, int height,
+                              int n_pages, int page_height) {
     if (top == 0 && height == page_height) {
         // Fast path; no need to adjust the height of the multi-page image
         return image.extract_area(left, 0, width, image.height());
@@ -416,17 +418,16 @@ inline VImage crop_multi_page(const VImage &image, int left, int top, int width,
     std::vector<VImage> pages;
     pages.reserve(n_pages);
 
+    auto crop = stay_sequential(image, process_timeout);
+
     // Split the image into cropped frames
     for (int i = 0; i < n_pages; i++) {
         pages.push_back(
-            image.extract_area(left, page_height * i + top, width, height));
+            crop.extract_area(left, page_height * i + top, width, height));
     }
 
     // Reassemble the frames into a tall, thin image
-    VImage assembled =
-        VImage::arrayjoin(pages, VImage::option()->set("across", 1));
-
-    return assembled;
+    return VImage::arrayjoin(pages, VImage::option()->set("across", 1));
 }
 
 /**
@@ -490,6 +491,16 @@ inline std::string image_to_json(const VImage &image,
     }
     json << R"("isProgressive":)"
          << (image.get_typeof("interlaced") != 0 ? "true" : "false") << ",";
+#if VIPS_VERSION_AT_LEAST(8, 16, 0)
+    json << R"("isPalette":)" << (is_palette(image) ? "true" : "false") << ",";
+#endif
+#if VIPS_VERSION_AT_LEAST(8, 15, 0)
+    if (image.get_typeof(VIPS_META_BITS_PER_SAMPLE) != 0) {
+        json << R"("bitsPerSample":)"
+             << image.get_int(VIPS_META_BITS_PER_SAMPLE) << ",";
+    }
+#endif
+    // `palette-bit-depth` is deprecated in favor of `bits-per-sample`.
     if (image.get_typeof("palette-bit-depth") != 0) {
         json << R"("paletteBitDepth":)" << image.get_int("palette-bit-depth")
              << ",";
@@ -532,8 +543,9 @@ inline std::string image_to_json(const VImage &image,
  * @param s The string to escape.
  * @return The escaped string.
  */
-inline std::string escape_string(const std::string &s) {  // LCOV_EXCL_START
+inline std::string escape_string(const std::string &s) {
     std::ostringstream o;
+    // LCOV_EXCL_START
     for (char c : s) {
         switch (c) {
             case '\x00':
@@ -558,9 +570,9 @@ inline std::string escape_string(const std::string &s) {  // LCOV_EXCL_START
                 o << c;
         }
     }
+    // LCOV_EXCL_STOP
 
     return o.str();
 }
-// LCOV_EXCL_STOP
 
 }  // namespace weserv::api::utils

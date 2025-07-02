@@ -3,6 +3,7 @@
 #include "../enums.h"
 #include "../utils/utility.h"
 
+#include <cmath>
 #include <tuple>
 #include <vector>
 
@@ -29,7 +30,7 @@ VImage Embed::embed_multi_page(const VImage &image, int left, int top,
         pages.reserve(n_pages);
 
         // Rearrange the tall image into a vertical grid
-        VImage wide = image.grid(page_height, n_pages, 1);
+        auto wide = image.grid(page_height, n_pages, 1);
 
         // Do the embed on the wide image
         wide = wide.embed(0, top, wide.width(), height,
@@ -42,14 +43,11 @@ VImage Embed::embed_multi_page(const VImage &image, int left, int top,
             pages.push_back(wide.extract_area(width * i, 0, width, height));
         }
 
-        // Reassemble the frames into a tall, thin image
-        VImage assembled =
-            VImage::arrayjoin(pages, VImage::option()->set("across", 1));
-
         // Update the page height
         query_->update("page_height", height);
 
-        return assembled;
+        // Reassemble the frames into a tall, thin image
+        return VImage::arrayjoin(pages, VImage::option()->set("across", 1));
     }
     // Embedding will always hit the above code paths, below is for reference
     // only and excluded for code coverage
@@ -58,10 +56,12 @@ VImage Embed::embed_multi_page(const VImage &image, int left, int top,
     std::vector<VImage> pages;
     pages.reserve(n_pages);
 
+    auto crop = utils::stay_sequential(image, config_.process_timeout);
+
     // Split the image into frames
     for (int i = 0; i < n_pages; i++) {
         pages.push_back(
-            image.extract_area(0, page_height * i, image.width(), page_height));
+            crop.extract_area(0, page_height * i, crop.width(), page_height));
     }
 
     // Embed each frame in the target size
@@ -72,14 +72,11 @@ VImage Embed::embed_multi_page(const VImage &image, int left, int top,
                                       ->set("background", background));
     }
 
-    // Reassemble the frames into a tall, thin image
-    VImage assembled =
-        VImage::arrayjoin(pages, VImage::option()->set("across", 1));
-
     // Update the page height
     query_->update("page_height", height);
 
-    return assembled;
+    // Reassemble the frames into a tall, thin image
+    return VImage::arrayjoin(pages, VImage::option()->set("across", 1));
     // LCOV_EXCL_STOP
 }
 
@@ -135,14 +132,15 @@ VImage Embed::process(const VImage &image) const {
             image_width, image_height, width, height, embed_position);
     }
 
-    std::vector<double> background_rgba = bg.to_rgba();
+    std::vector<double> background = bg.to_rgba();
     bool opaque = bg.is_opaque();
     bool has_alpha = image.has_alpha();
 
-    // Drop the alpha channel of the background if it's opaque and the image has
-    // no alpha channel
+    // Ensure the background has the same number of bands as the image
     if (opaque && !has_alpha) {
-        background_rgba.pop_back();
+        background.pop_back();
+    } else if (image.bands() > 4) {
+        background.insert(background.end(), image.bands() - 4, background[3]);
     }
 
     // Internal copy to ensure that the image has an alpha channel, if missing
@@ -152,12 +150,12 @@ VImage Embed::process(const VImage &image) const {
             : image.bandjoin_const({255});  // Assumes images are always 8-bit
 
     return n_pages > 1
-               ? embed_multi_page(image, left, top, width, height,
-                                  background_rgba, n_pages, image_height)
+               ? embed_multi_page(output_image, left, top, width, height,
+                                  background, n_pages, image_height)
                : output_image.embed(left, top, width, height,
                                     VImage::option()
                                         ->set("extend", VIPS_EXTEND_BACKGROUND)
-                                        ->set("background", background_rgba));
+                                        ->set("background", background));
 }
 
 }  // namespace weserv::api::processors

@@ -11,44 +11,30 @@
 #include <cstdint>
 #include <functional>
 #include <tuple>
+#include <vector>
 
 namespace weserv::api::processors {
 
 using enums::ImageType;
 using enums::Output;
+using parsers::Coordinate;
 using vips::VError;
 
+using io::Blob;
 using io::Source;
 using io::Target;
 
 template <typename Comparator>
-int Stream::resolve_page(const Source &source, const std::string &loader,
+int Stream::resolve_page(const VImage &image, int n_pages, const Source &source,
+                         const Blob &blob, const std::string &loader,
                          Comparator comp) const {
-    auto image = new_from_source(source, loader,
-                                 VImage::option()
-                                     ->set("access", VIPS_ACCESS_SEQUENTIAL)
-                                     ->set("fail", config_.fail_on_error == 1)
-                                     ->set("page", 0));
-
-    int n_pages = image.get_typeof(VIPS_META_N_PAGES) != 0
-                      ? image.get_int(VIPS_META_N_PAGES)
-                      : 1;
-
-    // Limit the number of pages
-    if (config_.max_pages > 0 && n_pages > config_.max_pages) {
-        throw exceptions::TooLargeImageException(
-            "Input image exceeds the maximum number of pages. "
-            "Number of pages should be less than " +
-            std::to_string(config_.max_pages));
-    }
-
     uint64_t size = static_cast<uint64_t>(image.height()) * image.width();
 
     int target_page = 0;
 
     for (int i = 1; i < n_pages; ++i) {
         auto image_page =
-            new_from_source(source, loader,
+            new_from_source(source, blob, loader,
                             VImage::option()
                                 ->set("access", VIPS_ACCESS_SEQUENTIAL)
                                 ->set("fail", config_.fail_on_error == 1)
@@ -66,65 +52,63 @@ int Stream::resolve_page(const Source &source, const std::string &loader,
     return target_page;
 }
 
-std::pair<int, int>
-Stream::get_page_load_options(const Source &source,
-                              const std::string &loader) const {
-    auto n = query_->get_if<int>(
-        "n",
-        [](int p) {
-            // Number of pages needs to be higher than 0
-            // or -1 for all pages (animated GIF/WebP)
-            // Note: This is checked against config_.max_pages below.
-            return p == -1 || p > 0;
-        },
-        1);
+std::pair<int, int> Stream::get_page_load_options(int n_pages) const {
+    // Skip for single-page images
+    if (n_pages == 1) {
+        return std::pair{1, 0};
+    }
 
     auto page = query_->get_if<int>(
         "page",
-        [](int p) {
-            // Page needs to be in the range of
-            // 0 (numbered from zero) - 100000
+        [&n_pages](int p) {
+            // Limit page to [0, n_pages]
             // Or:
             //  -1 = largest page
             //  -2 = smallest page
-            return p == -1 || p == -2 || (p >= 0 && p <= 100000);
+            return p == -1 || p == -2 || (p >= 0 && p <= n_pages);
         },
         0);
 
-    if (page != -1 && page != -2) {
-        return std::pair{n, page};
+    // Selecting the largest/smallest page implies n=1
+    if (page == -1 || page == -2) {
+        return std::pair{1, page};
     }
 
-    if (page == -1) {
-        page = resolve_page(source, loader, std::greater<>());
-    } else {  // page == -2
-        page = resolve_page(source, loader, std::less<>());
-    }
+    auto n = query_->get_if<int>(
+        "n",
+        [&n_pages](int n) {
+            // Limit number of pages to [1, n_pages]
+            // or -1 for all pages (animated GIF/WebP)
+            // Note: This is checked against config_.max_pages below.
+            return n == -1 || (n >= 1 && n <= n_pages);
+        },
+        1);
 
-    // Update page according to new value
-    query_->update("page", page);
+    if (n == -1) {
+        // Resolve the number of pages if we need to render until
+        // the end of the document.
+        n = n_pages - page;
+    }
 
     return std::pair{n, page};
 }
 
-VImage Stream::new_from_source(const Source &source, const std::string &loader,
-                               vips::VOption *options) const {
+VImage Stream::new_from_source(const Source &source, const Blob &blob,
+                               const std::string &loader,
+                               vips::VOption *options) {
     VImage out_image;
 
-#ifdef WESERV_ENABLE_TRUE_STREAMING
-    try {
-        VImage::call(loader.c_str(),
-                     options->set("source", source)->set("out", &out_image));
-#else
-    // We don't take a copy of the data or free it
-    auto *blob =
-        vips_blob_new(nullptr, source.buffer().data(), source.buffer().size());
-    options = options->set("buffer", blob)->set("out", &out_image);
-    vips_area_unref(reinterpret_cast<VipsArea *>(blob));
+    if (blob != nullptr) {
+        // We don't take a copy of the data or free it
+        options->set("buffer", blob.get());
+    } else {
+        options->set("source", source);
+    }
+
+    options->set("out", &out_image);
 
     try {
         VImage::call(loader.c_str(), options);
-#endif
     } catch (const VError &err) {
         throw exceptions::UnreadableImageException(err.what());
     }
@@ -132,26 +116,7 @@ VImage Stream::new_from_source(const Source &source, const std::string &loader,
     return out_image;
 }
 
-void Stream::resolve_dimensions() const {
-    auto width = query_->get<int>("w", 0);
-    auto height = query_->get<int>("h", 0);
-    auto pixel_ratio = query_->get<float>("dpr", -1.0F);
-
-    // Pixel ratio and needs to be in the range of 0 - 8
-    if (pixel_ratio >= 0 && pixel_ratio <= 8) {
-        width = static_cast<int>(
-            std::round(static_cast<float>(width) * pixel_ratio));
-        height = static_cast<int>(
-            std::round(static_cast<float>(height) * pixel_ratio));
-    }
-
-    // Update the width and height parameters,
-    // a dimension needs to be d >= 0 && d <= VIPS_MAX_COORD.
-    query_->update("w", std::clamp(width, 0, VIPS_MAX_COORD));
-    query_->update("h", std::clamp(height, 0, VIPS_MAX_COORD));
-}
-
-void Stream::resolve_rotation_and_flip(const VImage &image) const {
+void Stream::resolve_query(const VImage &image) const {
     auto rotate = query_->get_if<int>(
         "ro",
         [](int r) {
@@ -161,7 +126,6 @@ void Stream::resolve_rotation_and_flip(const VImage &image) const {
             return r % 90 == 0;
         },
         0);
-
     auto flip = query_->get<bool>("flip", false);
     auto flop = query_->get<bool>("flop", false);
 
@@ -204,18 +168,59 @@ void Stream::resolve_rotation_and_flip(const VImage &image) const {
     query_->update("angle", angle);
     query_->update("flip", flip);
     query_->update("flop", flop);
+
+    auto image_width = image.width();
+    auto image_height = image.height();
+    auto target_width = query_->get<Coordinate>("w", Coordinate::INVALID)
+                            .to_pixels(image_width);
+    auto target_height = query_->get<Coordinate>("h", Coordinate::INVALID)
+                             .to_pixels(image_height);
+    auto pixel_ratio = query_->get<float>("dpr", -1.0F);
+
+    // Pixel ratio and needs to be in the range of 0 - 8
+    if (pixel_ratio >= 0 && pixel_ratio <= 8) {
+        target_width = static_cast<int>(
+            std::round(static_cast<float>(target_width) * pixel_ratio));
+        target_height = static_cast<int>(
+            std::round(static_cast<float>(target_height) * pixel_ratio));
+    }
+
+    if (exif_orientation > 4 && !query_->get<bool>("precrop", false)) {
+        // When the EXIF orientation is greater than 4, swap the target width
+        // and height to ensure the behavior aligns with how it would have been
+        // if the 90/270 degrees orient had taken place *before* resizing.
+        std::swap(target_width, target_height);
+    }
+
+    // Update the target width and height parameters, a dimension needs to be:
+    // d >= 0 && d <= VIPS_MAX_COORD
+    query_->update("w", std::clamp(target_width, 0, VIPS_MAX_COORD));
+    query_->update("h", std::clamp(target_height, 0, VIPS_MAX_COORD));
+
+    // Store the original image width and height, handy for the focal point
+    // calculations.
+    query_->update("input_width", image_width);
+    query_->update("input_height", image_height);
 }
 
 VImage Stream::new_from_source(const Source &source) const {
-#ifdef WESERV_ENABLE_TRUE_STREAMING
-    const char *loader = vips_foreign_find_load_source(source.get_source());
-#else
-    const char *loader = vips_foreign_find_load_buffer(source.buffer().data(),
-                                                       source.buffer().size());
-#endif
+    Blob blob;
 
+    const char *loader = vips_foreign_find_load_source(source.get_source());
     if (loader == nullptr) {
-        throw exceptions::InvalidImageException(vips_error_buffer());
+        // Try with the old buffer-based loaders
+        blob = Blob(vips_source_map_blob(source.get_source()));
+        if (blob == nullptr) {
+            throw exceptions::InvalidImageException(vips_error_buffer());
+        }
+
+        size_t len;
+        const void *buf = blob.get_data(&len);
+
+        loader = vips_foreign_find_load_buffer(buf, len);
+        if (loader == nullptr) {
+            throw exceptions::InvalidImageException(vips_error_buffer());
+        }
     }
 
     ImageType image_type = utils::determine_image_type(loader);
@@ -230,24 +235,43 @@ VImage Stream::new_from_source(const Source &source) const {
                              ? VIPS_ACCESS_RANDOM
                              : VIPS_ACCESS_SEQUENTIAL;
 
-    vips::VOption *options;
-    int n = 1;
-    int page = 0;
-    if (utils::support_multi_pages(image_type)) {
-        std::tie(n, page) = get_page_load_options(source, loader);
+    auto image = new_from_source(source, blob, loader,
+                                 VImage::option()
+                                     ->set("access", access_method)
+                                     ->set("fail", config_.fail_on_error == 1));
 
-        options = VImage::option()
-                      ->set("access", access_method)
-                      ->set("fail", config_.fail_on_error == 1)
-                      ->set("n", n)
-                      ->set("page", page);
-    } else {
-        options = VImage::option()
-                      ->set("access", access_method)
-                      ->set("fail", config_.fail_on_error == 1);
+    auto n_pages = image.get_typeof(VIPS_META_N_PAGES) != 0
+                       ? image.get_int(VIPS_META_N_PAGES)
+                       : 1;
+
+    auto n = 1;
+    auto page = 0;
+    std::tie(n, page) = get_page_load_options(n_pages);
+
+    if (n != 1 || page != 0) {
+        // Limit the number of pages
+        if (config_.max_pages > 0 && n > config_.max_pages) {
+            throw exceptions::TooLargeImageException(
+                "Input image exceeds the maximum number of pages. "
+                "Number of pages should be less than " +
+                std::to_string(config_.max_pages));
+        }
+
+        if (page == -1) {
+            page = resolve_page(image, n_pages, source, blob, loader,
+                                std::greater<>());
+        } else if (page == -2) {
+            page = resolve_page(image, n_pages, source, blob, loader,
+                                std::less<>());
+        }
+
+        image = new_from_source(source, blob, loader,
+                                VImage::option()
+                                    ->set("access", access_method)
+                                    ->set("fail", config_.fail_on_error == 1)
+                                    ->set("n", n)
+                                    ->set("page", page));
     }
-
-    auto image = new_from_source(source, loader, options);
 
     // Limit input images to a given number of pixels, where
     // pixels = width * height
@@ -260,36 +284,12 @@ VImage Stream::new_from_source(const Source &source) const {
             std::to_string(config_.limit_input_pixels));
     }
 
-    if (n == -1) {
-        // Resolve the number of pages if we need to render until
-        // the end of the document.
-        n = image.get_typeof(VIPS_META_N_PAGES) != 0
-                ? image.get_int(VIPS_META_N_PAGES) - page
-                : 1;
-    }
-
-    // Limit the number of pages
-    if (config_.max_pages > 0 && n > config_.max_pages) {
-        throw exceptions::TooLargeImageException(
-            "Input image exceeds the maximum number of pages. "
-            "Number of pages should be less than " +
-            std::to_string(config_.max_pages));
-    }
-
-    // Always store the number of pages to load
+    // Always store the page load options
     query_->update("n", n);
+    query_->update("page", page);
 
-    // Resolve target dimensions
-    resolve_dimensions();
-
-    // Resolve the angle of rotation and need-to-flip
-    // for the given exif orientation and query parameters.
-    resolve_rotation_and_flip(image);
-
-    // Store the original image width and height, handy for the focal point
-    // calculations.
-    query_->update("input_width", image.width());
-    query_->update("input_height", image.height());
+    // Resolve query
+    resolve_query(image);
 
     return image;
 }
@@ -350,16 +350,14 @@ void Stream::append_save_options<Output::Webp>(vips::VOption *options) const {
         },
         static_cast<int>(config_.webp_quality));
 
+    // Enable lossless compression, if necessary
+    options->set("lossless", query_->get<bool>("ll", false));
+
     // Set quality (default is 80)
     options->set("Q", quality);
 
-#if VIPS_VERSION_AT_LEAST(8, 12, 0)
     // Control the CPU effort spent on improving compression (default 4)
     options->set("effort", static_cast<int>(config_.webp_effort));
-#else
-    // Prior to libvips 8.12 this was named as "reduction_effort"
-    options->set("reduction_effort", static_cast<int>(config_.webp_effort));
-#endif
 }
 
 template <>
@@ -379,13 +377,8 @@ void Stream::append_save_options<Output::Avif>(vips::VOption *options) const {
     // Set compression format to AV1
     options->set("compression", VIPS_FOREIGN_HEIF_COMPRESSION_AV1);
 
-#if VIPS_VERSION_AT_LEAST(8, 12, 0)
     // Control the CPU effort spent on improving compression (default 4)
     options->set("effort", static_cast<int>(config_.avif_effort));
-#elif VIPS_VERSION_AT_LEAST(8, 10, 2)
-    // Prior to libvips 8.12 this was named as "speed"
-    options->set("speed", 9 - static_cast<int>(config_.avif_effort));
-#endif
 }
 
 template <>
@@ -399,23 +392,23 @@ void Stream::append_save_options<Output::Tiff>(vips::VOption *options) const {
         },
         static_cast<int>(config_.tiff_quality));
 
+    // Use JPEG or Deflate compression based on whether lossless output is
+    // required
+    auto compression = query_->get<bool>("ll", false)
+                           ? VIPS_FOREIGN_TIFF_COMPRESSION_DEFLATE
+                           : VIPS_FOREIGN_TIFF_COMPRESSION_JPEG;
+
     // Set quality (default is 80)
     options->set("Q", quality);
 
-    // Set the tiff compression to jpeg
-    options->set("compression", "jpeg");
+    // Set tiff compression format
+    options->set("compression", compression);
 }
 
 template <>
 void Stream::append_save_options<Output::Gif>(vips::VOption *options) const {
-// libvips 8.12 features a gifsave operation that uses cgif and libimagequant
-#if VIPS_VERSION_AT_LEAST(8, 12, 0)
     // Control the CPU effort spent on improving compression (default 7)
     options->set("effort", static_cast<int>(config_.gif_effort));
-#else  // libvips prior to 8.12 uses *magick for saving to gif
-    // Set the format option to hint the file type
-    options->set("format", "gif");
-#endif
 }
 
 void Stream::append_save_options(const Output &output,
@@ -520,21 +513,8 @@ void Stream::write_to_target(const VImage &image, const Target &target) const {
         // Set up the timeout handler, if necessary
         utils::setup_timeout_handler(copy, config_.process_timeout);
 
-#ifdef WESERV_ENABLE_TRUE_STREAMING
         // Write the image to the target
         copy.write_to_target(extension.c_str(), target, save_options);
-#else
-        void *buf;
-        size_t size;
-
-        // Write the image to a formatted string
-        copy.write_to_buffer(extension.c_str(), &buf, &size, save_options);
-
-        target.write(buf, size);
-        target.end();
-
-        g_free(buf);
-#endif
     }
 }
 

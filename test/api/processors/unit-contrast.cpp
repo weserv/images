@@ -1,4 +1,4 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 #include "../base.h"
 #include "../similar_image.h"
@@ -36,7 +36,7 @@ TEST_CASE("contrast", "[contrast]") {
 
     SECTION("invalid") {
         auto test_image = fixtures->input_jpg;
-        auto params = "con=100000000";
+        auto params = "con=1000000000";
 
         VImage image = process_file<VImage>(test_image, params);
 

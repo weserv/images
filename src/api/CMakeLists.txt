@@ -3,9 +3,11 @@ set(HEADERS
         exceptions/large.h
         exceptions/unreadable.h
         exceptions/unsupported.h
+        io/blob.h
         io/source.h
         io/target.h
         parsers/color.h
+        parsers/coordinate.h
         parsers/enumeration.h
         parsers/numeric.h
         parsers/query.h
@@ -35,6 +37,7 @@ set(HEADERS
 
 set(SOURCES
         parsers/color.cpp
+        parsers/coordinate.cpp
         parsers/query.cpp
         io/source.cpp
         io/target.cpp
@@ -75,18 +78,10 @@ target_link_libraries(${PROJECT_NAME}
             ${VIPS_LDFLAGS}
         )
 
-# TODO(kleisauke): Enable once magickload_source is supported in libvips
-#if (VIPS_VERSION VERSION_GREATER_EQUAL 8.13)
-#    target_compile_definitions(${PROJECT_NAME}
-#            PUBLIC
-#                WESERV_ENABLE_TRUE_STREAMING
-#            )
-#endif()
-
 set_target_properties(${PROJECT_NAME}
         PROPERTIES
             VERSION ${PROJECT_VERSION}
-            SOVERSION 5
+            SOVERSION ${PROJECT_VERSION_MAJOR}
         )
 
 install(TARGETS ${PROJECT_NAME}

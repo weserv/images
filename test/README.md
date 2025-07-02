@@ -16,7 +16,7 @@ information on how to extend the tests.
 The test suite is run with GitHub Actions but can also be run manually, the
 following dependencies are required to run the unit tests:
 
-* libvips version >= 8.9
+* libvips version >= 8.12
 
 Other dependencies (such as [Catch2](https://github.com/catchorg/Catch2)) are
 installed using the `FetchContent` module within CMake.
@@ -29,7 +29,6 @@ For the integration tests you need the following dependencies:
     * [Test::Nginx](https://metacpan.org/pod/Test::Nginx::Socket)
 
 * Nginx modules:
-    * [ngx_echo](https://github.com/openresty/echo-nginx-module)
     * ngx_weserv (i.e., this module)
 
 Note that Nginx is automatically configured and installed with the necessary

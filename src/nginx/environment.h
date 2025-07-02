@@ -13,7 +13,7 @@ namespace weserv::nginx {
  */
 class NgxEnvironment : public api::ApiEnvInterface {
  public:
-    NgxEnvironment(ngx_log_t *log) : log_(log) {}
+    explicit NgxEnvironment(ngx_log_t *log) : log_(log) {}
 
     ~NgxEnvironment() override = default;
 

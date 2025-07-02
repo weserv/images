@@ -3,6 +3,8 @@
 #include <stdexcept>
 #include <string>
 
+#include <vips/vips8>
+
 namespace weserv::api::parsers {
 
 template <>

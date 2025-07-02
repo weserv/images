@@ -1,8 +1,9 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_string.hpp>
 
 #include <weserv/utils/status.h>
 
-using Catch::Matchers::Contains;
+using Catch::Matchers::ContainsSubstring;
 using weserv::api::utils::Status;
 
 TEST_CASE("status", "[status]") {
@@ -58,80 +59,84 @@ TEST_CASE("status", "[status]") {
     SECTION("to JSON includes details") {
         auto json = Status::OK.to_json();
 
-        CHECK_THAT(json, Contains(R"("status":"success")"));
-        CHECK_THAT(json, Contains(R"("code":200)"));
-        CHECK_THAT(json, Contains(R"("message":"OK")"));
+        CHECK_THAT(json, ContainsSubstring(R"("status":"success")"));
+        CHECK_THAT(json, ContainsSubstring(R"("code":200)"));
+        CHECK_THAT(json, ContainsSubstring(R"("message":"OK")"));
 
         json = Status(500, "").to_json();
 
-        CHECK_THAT(json, Contains(R"("status":"error")"));
-        CHECK_THAT(json, Contains(R"("code":500)"));
-        CHECK_THAT(json, Contains(R"("message":"Something's wrong!)"));
+        CHECK_THAT(json, ContainsSubstring(R"("status":"error")"));
+        CHECK_THAT(json, ContainsSubstring(R"("code":500)"));
+        CHECK_THAT(json, ContainsSubstring(R"("message":"Something's wrong!)"));
 
         json = Status(/*NGX_BUSY*/ -3, "Too many requests").to_json();
 
-        CHECK_THAT(json, Contains(R"("status":"error")"));
-        CHECK_THAT(json, Contains(R"("message":"NGINX returned error: -3)"));
-        CHECK_THAT(json, Contains("(message: Too many requests)"));
+        CHECK_THAT(json, ContainsSubstring(R"("status":"error")"));
+        CHECK_THAT(json,
+                   ContainsSubstring(R"("message":"NGINX returned error: -3)"));
+        CHECK_THAT(json, ContainsSubstring("(message: Too many requests)"));
 
         json = Status(408, "", Status::ErrorCause::Upstream).to_json();
 
-        CHECK_THAT(json, Contains(R"("status":"error")"));
-        CHECK_THAT(json, Contains(R"("code":404)"));
-        CHECK_THAT(json,
-                   Contains(R"("message":"The requested URL timed out.")"));
+        CHECK_THAT(json, ContainsSubstring(R"("status":"error")"));
+        CHECK_THAT(json, ContainsSubstring(R"("code":404)"));
+        CHECK_THAT(json, ContainsSubstring(
+                             R"("message":"The requested URL timed out")"));
 
         // https://github.com/weserv/images/issues/264
         json = Status(500, "", Status::ErrorCause::Upstream).to_json();
 
-        CHECK_THAT(json, Contains(R"("status":"error")"));
-        CHECK_THAT(json, Contains(R"("code":404)"));
+        CHECK_THAT(json, ContainsSubstring(R"("status":"error")"));
+        CHECK_THAT(json, ContainsSubstring(R"("code":404)"));
         CHECK_THAT(json,
-                   Contains(R"("message":"The requested URL returned error: 500")"));
+                   ContainsSubstring(
+                       R"("message":"The requested URL returned error: 500")"));
 
         json = Status(502, "", Status::ErrorCause::Upstream).to_json();
 
-        CHECK_THAT(json, Contains(R"("status":"error")"));
-        CHECK_THAT(json, Contains(R"("code":404)"));
-        CHECK_THAT(json, Contains("The hostname of the origin is unresolvable "
-                                  "(DNS) or blocked by policy."));
+        CHECK_THAT(json, ContainsSubstring(R"("status":"error")"));
+        CHECK_THAT(json, ContainsSubstring(R"("code":404)"));
+        CHECK_THAT(json,
+                   ContainsSubstring(
+                       "The hostname of the origin is unresolvable (DNS)"));
 
         json = Status(310, "Will not follow a redirection to itself",
                       Status::ErrorCause::Upstream)
                    .to_json();
 
-        CHECK_THAT(json, Contains(R"("status":"error")"));
-        CHECK_THAT(json, Contains(R"("code":404)"));
+        CHECK_THAT(json, ContainsSubstring(R"("status":"error")"));
+        CHECK_THAT(json, ContainsSubstring(R"("code":404)"));
         CHECK_THAT(
             json,
-            Contains(R"("message":"Will not follow a redirection to itself")"));
+            ContainsSubstring(
+                R"("message":"Will not follow a redirection to itself")"));
 
         json = Status(404, "", Status::ErrorCause::Upstream).to_json();
 
-        CHECK_THAT(json, Contains(R"("status":"error")"));
-        CHECK_THAT(json, Contains(R"("code":404)"));
-        CHECK_THAT(
-            json,
-            Contains(R"("message":"The requested URL returned error: 404")"));
+        CHECK_THAT(json, ContainsSubstring(R"("status":"error")"));
+        CHECK_THAT(json, ContainsSubstring(R"("code":404)"));
+        CHECK_THAT(json,
+                   ContainsSubstring(
+                       R"("message":"The requested URL returned error: 404")"));
 
         json = Status(Status::Code::ImageNotReadable,
                       "Image not readable. Is it a valid image?",
                       Status::ErrorCause::Application)
                    .to_json();
 
-        CHECK_THAT(json, Contains(R"("status":"error")"));
-        CHECK_THAT(json, Contains(R"("code":404)"));
+        CHECK_THAT(json, ContainsSubstring(R"("status":"error")"));
+        CHECK_THAT(json, ContainsSubstring(R"("code":404)"));
         CHECK_THAT(
             json,
-            Contains(
+            ContainsSubstring(
                 R"("message":"Image not readable. Is it a valid image?")"));
 
         json = Status(Status::Code::ImageNotReadable, "",
                       Status::ErrorCause::Application)
                    .to_json();
 
-        CHECK_THAT(json, Contains(R"("status":"error")"));
-        CHECK_THAT(json, Contains(R"("code":404)"));
-        CHECK_THAT(json, Contains(R"("message":"Error code: 3")"));
+        CHECK_THAT(json, ContainsSubstring(R"("status":"error")"));
+        CHECK_THAT(json, ContainsSubstring(R"("code":404)"));
+        CHECK_THAT(json, ContainsSubstring(R"("message":"Error code: 3")"));
     }
 }

@@ -11,13 +11,13 @@ namespace weserv::nginx {
  * Parameters for Punycode, see:
  * http://tools.ietf.org/html/rfc3492#section-5
  */
-const uint32_t BASE = 36;
-const uint32_t TMIN = 1;
-const uint32_t TMAX = 26;
-const uint32_t SKEW = 38;
-const uint32_t DAMP = 700;
-const uint32_t INITIAL_BIAS = 72;
-const uint32_t INITIAL_N = 128;
+constexpr uint32_t BASE = 36;
+constexpr uint32_t TMIN = 1;
+constexpr uint32_t TMAX = 26;
+constexpr uint32_t SKEW = 38;
+constexpr uint32_t DAMP = 700;
+constexpr uint32_t INITIAL_BIAS = 72;
+constexpr uint32_t INITIAL_N = 128;
 
 /**
  * Array of skip-bytes-per-initial character.
@@ -38,20 +38,23 @@ static const u_char UTF8_SKIP[256] = {
 /**
  * Skips to the next character in a UTF-8 string.
  */
-#define utf8_next_char(p) (p) + UTF8_SKIP[*(u_char *)(p)]
+#define utf8_next_char(p) ((p) + UTF8_SKIP[*(p)])
 
 /**
  * RFC 3490, section 3.1 says '.', 0x3002, 0xFF0E, and 0xFF61 count as
  * label-separating dots. @str must be '\0'-terminated.
  */
 #define idna_is_dot(str)                                                       \
-    (((u_char)(str)[0] == '.') ||                                              \
-     ((u_char)(str)[0] == 0xE3 && (u_char)(str)[1] == 0x80 &&                  \
-      (u_char)(str)[2] == 0x82) ||                                             \
-     ((u_char)(str)[0] == 0xEF && (u_char)(str)[1] == 0xBC &&                  \
-      (u_char)(str)[2] == 0x8E) ||                                             \
-     ((u_char)(str)[0] == 0xEF && (u_char)(str)[1] == 0xBD &&                  \
-      (u_char)(str)[2] == 0xA1))
+    ((static_cast<u_char>((str)[0]) == '.') ||                                 \
+     (static_cast<u_char>((str)[0]) == 0xE3 &&                                 \
+      static_cast<u_char>((str)[1]) == 0x80 &&                                 \
+      static_cast<u_char>((str)[2]) == 0x82) ||                                \
+     (static_cast<u_char>((str)[0]) == 0xEF &&                                 \
+      static_cast<u_char>((str)[1]) == 0xBC &&                                 \
+      static_cast<u_char>((str)[2]) == 0x8E) ||                                \
+     (static_cast<u_char>((str)[0]) == 0xEF &&                                 \
+      static_cast<u_char>((str)[1]) == 0xBD &&                                 \
+      static_cast<u_char>((str)[2]) == 0xA1))
 
 /**
  * encode_digit(d) returns the basic code point whose value
@@ -75,8 +78,8 @@ uint32_t adapt(uint32_t delta, uint32_t n_points, bool is_first) {
     delta /= is_first ? DAMP : 2;
     delta += delta / n_points;
 
-    const uint32_t s = BASE - TMIN;
-    const uint32_t t = (s * TMAX) / 2;
+    constexpr uint32_t s = BASE - TMIN;
+    constexpr uint32_t t = (s * TMAX) / 2;
 
     uint32_t k = 0;
     for (; delta > t; k += BASE) {
@@ -248,7 +251,6 @@ uintptr_t escape_path(u_char *dst, u_char *src, size_t size) {
 
     if (dst == nullptr) {
         // Find the number of the characters to be escaped
-
         ngx_uint_t n = 0;
 
         while (size) {
@@ -259,7 +261,7 @@ uintptr_t escape_path(u_char *dst, u_char *src, size_t size) {
             size--;
         }
 
-        return (uintptr_t)n;
+        return n;
     }
 
     while (size) {
@@ -275,17 +277,16 @@ uintptr_t escape_path(u_char *dst, u_char *src, size_t size) {
         size--;
     }
 
-    return (uintptr_t)dst;
+    return reinterpret_cast<uintptr_t>(dst);
 }
 
 ngx_int_t concat_url(ngx_pool_t *pool, const ngx_str_t &base,
-                     ngx_str_t &relative, ngx_str_t *output) {
+                     const ngx_str_t &relative, ngx_str_t *output) {
     // Try to append this new path to the old URL to the right of the host part
 
     // We must make our own copy of the URL to play with, as it may
     // point to read-only data
-    u_char *url_clone =
-        reinterpret_cast<u_char *>(ngx_pnalloc(pool, base.len + 1));
+    auto *url_clone = static_cast<u_char *>(ngx_pnalloc(pool, base.len + 1));
     if (url_clone == nullptr) {
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
@@ -394,8 +395,8 @@ ngx_int_t concat_url(ngx_pool_t *pool, const ngx_str_t &base,
 
     // + 1 for possible slash
     output->data =
-        reinterpret_cast<u_char *>(ngx_pnalloc(pool, urllen + newlen + 1));
-    if (p == nullptr) {
+        static_cast<u_char *>(ngx_pnalloc(pool, urllen + newlen + 1));
+    if (output->data == nullptr) {
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
 
@@ -422,7 +423,7 @@ ngx_int_t parse_url(ngx_pool_t *pool, ngx_str_t &uri, ngx_str_t *output) {
     }
 
     u_char *src = uri.data;
-    u_char *dst = reinterpret_cast<u_char *>(ngx_pnalloc(pool, uri.len));
+    auto *dst = static_cast<u_char *>(ngx_pnalloc(pool, uri.len));
     if (dst == nullptr) {
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
@@ -466,9 +467,9 @@ ngx_int_t parse_url(ngx_pool_t *pool, ngx_str_t &uri, ngx_str_t *output) {
     }
 
     // uri.find_first_of("/?")
-    u_char *path = reinterpret_cast<u_char *>(ngx_strlchr(ref, last, '/'));
+    u_char *path = ngx_strlchr(ref, last, '/');
     if (path == nullptr) {
-        path = reinterpret_cast<u_char *>(ngx_strlchr(ref, last, '?'));
+        path = ngx_strlchr(ref, last, '?');
     }
 
     if (path == nullptr) {
@@ -478,18 +479,18 @@ ngx_int_t parse_url(ngx_pool_t *pool, ngx_str_t &uri, ngx_str_t *output) {
     // Remove the fragment part of the path. Per RFC 3986, this is always the
     // last part of the URI. We are looking for the first '#' so that we deal
     // gracefully with non-conformant URI such as http://example.com#foo#bar
-    u_char *fragment = reinterpret_cast<u_char *>(ngx_strlchr(path, last, '#'));
+    u_char *fragment = ngx_strlchr(path, last, '#');
     if (fragment != nullptr) {
         last = fragment;
     }
 
-    size_t path_length = (size_t)(last - path);
+    size_t path_length = static_cast<size_t>(last - path);
 
     // Note: each escaped character is replaced by 3 characters
     uintptr_t escaped_length =
         path_length > 0 ? 2 * escape_path(nullptr, path, path_length) : 1;
 
-    size_t domain_length = (size_t)(path - ref);
+    size_t domain_length = static_cast<size_t>(path - ref);
 
     // Guard against overflow. 253 characters is the maximum length of full
     // domain name, including dots.
@@ -497,7 +498,7 @@ ngx_int_t parse_url(ngx_pool_t *pool, ngx_str_t &uri, ngx_str_t *output) {
         return NGX_ERROR;
     }
 
-    output->data = reinterpret_cast<u_char *>(
+    output->data = static_cast<u_char *>(
         ngx_pnalloc(pool, protocol.len + 253 + path_length + escaped_length));
     if (output->data == nullptr) {
         return NGX_ERROR;
@@ -513,7 +514,7 @@ ngx_int_t parse_url(ngx_pool_t *pool, ngx_str_t &uri, ngx_str_t *output) {
         bool unicode = false;
 
         for (p = label; p < path && !idna_is_dot(p); ++p) {
-            if ((u_char)*p > 0x80) {
+            if (*p > 0x80) {
                 unicode = true;
             }
         }

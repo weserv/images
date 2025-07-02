@@ -9,16 +9,17 @@
 
 #include <weserv/enums.h>
 
-using ::weserv::api::enums::Output;
-using ::weserv::api::utils::Status;
+using weserv::api::enums::Output;
+using weserv::api::utils::Status;
 
 namespace weserv::nginx {
 
 namespace {
 /**
- * The module's location callback directive.
+ * The module's location callback directives.
  */
 char *ngx_weserv(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
+char *ngx_weserv_deny_ip(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 
 /**
  * Configuration - function declarations.
@@ -48,8 +49,9 @@ ngx_int_t ngx_weserv_postconfiguration(ngx_conf_t *cf);
 /**
  * Variables.
  */
-ngx_int_t ngx_weserv_response_length_variable(
-    ngx_http_request_t *r, ngx_http_variable_value_t *v, uintptr_t data);
+ngx_int_t ngx_weserv_response_length_variable(ngx_http_request_t *r,
+                                              ngx_http_variable_value_t *v,
+                                              uintptr_t data);
 
 ngx_http_output_header_filter_pt ngx_http_next_header_filter;
 ngx_http_output_body_filter_pt ngx_http_next_body_filter;
@@ -103,6 +105,14 @@ ngx_command_t ngx_weserv_commands[] = {
      NGX_HTTP_LOC_CONF_OFFSET,
      offsetof(ngx_weserv_loc_conf_t, mode),
      &ngx_weserv_mode},
+
+    {ngx_string("weserv_deny_ip"),
+     NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
+         NGX_CONF_TAKE1,
+     ngx_weserv_deny_ip,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     0,
+     nullptr},
 
     {ngx_string("weserv_connect_timeout"),
      NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
@@ -300,7 +310,7 @@ ngx_int_t ngx_weserv_response_length_variable(ngx_http_request_t *r,
     v->no_cacheable = 0;
     v->not_found = 0;
 
-    auto *ctx = reinterpret_cast<ngx_weserv_base_ctx_t *>(
+    auto *ctx = static_cast<ngx_weserv_base_ctx_t *>(
         ngx_http_get_module_ctx(r, ngx_weserv_module));
 
     if (ctx == nullptr || r->upstream_states == nullptr ||
@@ -309,15 +319,15 @@ ngx_int_t ngx_weserv_response_length_variable(ngx_http_request_t *r,
         return NGX_OK;
     }
 
-    u_char *p = reinterpret_cast<u_char *>(ngx_pnalloc(r->pool, NGX_OFF_T_LEN));
+    auto *p = static_cast<u_char *>(ngx_pnalloc(r->pool, NGX_OFF_T_LEN));
     if (p == nullptr) {
         return NGX_ERROR;
     }
 
     v->data = p;
 
-    ngx_http_upstream_state_t *states =
-        reinterpret_cast<ngx_http_upstream_state_t *>(r->upstream_states->elts);
+    auto *states =
+        static_cast<ngx_http_upstream_state_t *>(r->upstream_states->elts);
 
     // The final upstream state always contains our response length
     p = ngx_sprintf(p, "%O",
@@ -351,12 +361,12 @@ ngx_http_module_t ngx_weserv_module_ctx = {
 };
 
 /**
- * The module's location callback directive.
+ * The module's location callback directives.
  */
 char *ngx_weserv(ngx_conf_t *cf, ngx_command_t *cmd, void *conf) {
-    auto *clcf = reinterpret_cast<ngx_http_core_loc_conf_t *>(
+    auto *clcf = static_cast<ngx_http_core_loc_conf_t *>(
         ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module));
-    auto *lc = reinterpret_cast<ngx_weserv_loc_conf_t *>(conf);
+    auto *lc = static_cast<ngx_weserv_loc_conf_t *>(conf);
 
     char *rv = ngx_conf_set_enum_slot(cf, cmd, conf);
     if (rv != NGX_CONF_OK) {
@@ -369,6 +379,39 @@ char *ngx_weserv(ngx_conf_t *cf, ngx_command_t *cmd, void *conf) {
     }
 
     lc->enable = 1;
+
+    return NGX_CONF_OK;
+}
+
+char *ngx_weserv_deny_ip(ngx_conf_t *cf, ngx_command_t *cmd, void *conf) {
+    auto *lc = static_cast<ngx_weserv_loc_conf_t *>(conf);
+
+    auto *value = static_cast<ngx_str_t *>(cf->args->elts);
+
+    if (lc->deny == nullptr) {
+        lc->deny = ngx_array_create(cf->pool, 2, sizeof(ngx_cidr_t));
+        if (lc->deny == nullptr) {
+            return static_cast<char *>(NGX_CONF_ERROR);
+        }
+    }
+
+    ngx_cidr_t c;
+    ngx_int_t rc = ngx_ptocidr(&value[1], &c);
+    if (rc == NGX_ERROR) {
+        return static_cast<char *>(NGX_CONF_ERROR);
+    }
+
+    if (rc == NGX_DONE) {
+        ngx_conf_log_error(NGX_LOG_WARN, cf, 0,
+                           "low address bits of %V are meaningless", &value[1]);
+    }
+
+    auto *cidr = static_cast<ngx_cidr_t *>(ngx_array_push(lc->deny));
+    if (cidr == nullptr) {
+        return static_cast<char *>(NGX_CONF_ERROR);
+    }
+
+    *cidr = c;
 
     return NGX_CONF_OK;
 }
@@ -401,8 +444,11 @@ void *ngx_weserv_create_loc_conf(ngx_conf_t *cf) {
 
     // The hardcoded values
     lc->upstream_conf.buffering = 1;
-    lc->upstream_conf.buffer_size = ngx_pagesize;
-    lc->upstream_conf.busy_buffers_size = 2 * ngx_pagesize;
+    lc->upstream_conf.buffer_size =
+        4 * ngx_pagesize;  // 4 memory pages should be enough for most response
+                           // headers
+    lc->upstream_conf.busy_buffers_size =
+        6 * ngx_pagesize;  // Essentially, buffer_size + 2 memory pages
     lc->upstream_conf.bufs.num = 256;
     lc->upstream_conf.bufs.size = ngx_pagesize;
     lc->upstream_conf.max_temp_file_size = 0;
@@ -421,18 +467,20 @@ void *ngx_weserv_create_loc_conf(ngx_conf_t *cf) {
     lc->upstream_conf.pass_request_body = 0;
 
     lc->upstream_conf.hide_headers =
-        reinterpret_cast<ngx_array_t *>(NGX_CONF_UNSET_PTR);
+        static_cast<ngx_array_t *>(NGX_CONF_UNSET_PTR);
     lc->upstream_conf.pass_headers =
-        reinterpret_cast<ngx_array_t *>(NGX_CONF_UNSET_PTR);
+        static_cast<ngx_array_t *>(NGX_CONF_UNSET_PTR);
 
     // Set up SSL if available
 #if NGX_HTTP_SSL
     // Initialize SSL
-    auto ssl_cleanup = ngx_pool_cleanup_add(cf->pool, sizeof(ngx_ssl_t));
+    ngx_pool_cleanup_t *ssl_cleanup =
+        ngx_pool_cleanup_add(cf->pool, sizeof(ngx_ssl_t));
     if (ssl_cleanup == nullptr) {
         return nullptr;
     }
-    auto *ssl = reinterpret_cast<ngx_ssl_t *>(ssl_cleanup->data);
+
+    auto *ssl = static_cast<ngx_ssl_t *>(ssl_cleanup->data);
     ngx_memzero(ssl, sizeof(ngx_ssl_t));
     ssl->log = cf->log;
 
@@ -444,9 +492,9 @@ void *ngx_weserv_create_loc_conf(ngx_conf_t *cf) {
     }
 
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
-    // Must use lowest OpenSSL security level to ensure maximum compatibility.
-    // This is basically the same as using OpenSSL 1.0, which does not have a
-    // minimum security policy.
+    // Use the lowest OpenSSL security level to ensure maximum compatibility.
+    // This is basically the same as using OpenSSL 1.0, which lacks a minimum
+    // security policy.
     SSL_CTX_set_security_level(ssl->ctx, 0);
 #endif
 
@@ -454,6 +502,12 @@ void *ngx_weserv_create_loc_conf(ngx_conf_t *cf) {
 
     lc->upstream_conf.ssl = ssl;
     lc->upstream_conf.ssl_session_reuse = 1;
+
+    if (ngx_ssl_client_session_cache(cf, lc->upstream_conf.ssl,
+                                     lc->upstream_conf.ssl_session_reuse) !=
+        NGX_OK) {
+        return nullptr;
+    }
 
     // For SNI (Server Name Indication) support
     lc->upstream_conf.ssl_server_name = 1;
@@ -489,8 +543,8 @@ void *ngx_weserv_create_loc_conf(ngx_conf_t *cf) {
  * Merge weserv module's location config.
  */
 char *ngx_weserv_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child) {
-    auto *prev = reinterpret_cast<ngx_weserv_loc_conf_t *>(parent);
-    auto *conf = reinterpret_cast<ngx_weserv_loc_conf_t *>(child);
+    auto *prev = static_cast<ngx_weserv_loc_conf_t *>(parent);
+    auto *conf = static_cast<ngx_weserv_loc_conf_t *>(child);
 
     ngx_conf_merge_msec_value(conf->upstream_conf.connect_timeout,
                               prev->upstream_conf.connect_timeout, 5000);
@@ -501,6 +555,10 @@ char *ngx_weserv_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child) {
 
     ngx_conf_merge_value(conf->enable, prev->enable, 0);
     ngx_conf_merge_uint_value(conf->mode, prev->mode, NGX_WESERV_PROXY_MODE);
+
+    if (conf->deny == nullptr) {
+        conf->deny = prev->deny;
+    }
 
     ngx_conf_merge_str_value(conf->user_agent, prev->user_agent,
                              "Mozilla/5.0 (compatible; ImageFetcher/9.0; "
@@ -570,11 +628,10 @@ char *ngx_weserv_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child) {
 /**
  * weserv module initialization.
  */
-ngx_int_t ngx_weserv_init_process(ngx_cycle_t *cycle) {
-    ngx_log_debug0(NGX_LOG_DEBUG_HTTP, cycle->log, 0,
-                   "ngx_weserv_init_process");
+ngx_int_t ngx_weserv_init_module(ngx_cycle_t *cycle) {
+    ngx_log_debug0(NGX_LOG_DEBUG_HTTP, cycle->log, 0, "ngx_weserv_init_module");
 
-    auto *mc = reinterpret_cast<ngx_weserv_main_conf_t *>(
+    auto *mc = static_cast<ngx_weserv_main_conf_t *>(
         ngx_http_cycle_get_module_main_conf(cycle, ngx_weserv_module));
     if (mc == nullptr) {
         // Handle the case where there is no http section at all
@@ -583,7 +640,7 @@ ngx_int_t ngx_weserv_init_process(ngx_cycle_t *cycle) {
 
     api::ApiManagerFactory weserv_factory;
     mc->weserv = weserv_factory.create_api_manager(
-        std::unique_ptr<api::ApiEnvInterface>(new NgxEnvironment(cycle->log)));
+        std::make_unique<NgxEnvironment>(cycle->log));
 
     return NGX_OK;
 }
@@ -597,161 +654,20 @@ ngx_int_t ngx_weserv_image_header_filter(ngx_http_request_t *r) {
         return ngx_http_next_header_filter(r);
     }
 
-    auto *lc = reinterpret_cast<ngx_weserv_loc_conf_t *>(
+    auto *lc = static_cast<ngx_weserv_loc_conf_t *>(
         ngx_http_get_module_loc_conf(r, ngx_weserv_module));
 
     if (!lc->enable) {
         return ngx_http_next_header_filter(r);
     }
 
-    auto *ctx = reinterpret_cast<ngx_weserv_base_ctx_t *>(
-        ngx_http_get_module_ctx(r, ngx_weserv_module));
-
-    // Context must always be available for proxy mode
-    if (ctx == nullptr && lc->mode == NGX_WESERV_PROXY_MODE) {
-        return ngx_http_next_header_filter(r);
-    }
-
-    if (r->headers_out.refresh) {
-        r->headers_out.refresh->hash = 0;
-    }
-
-    r->main_filter_need_in_memory = 1;
-    r->allow_ranges = 0;
-
-    return NGX_OK;
-}
-
-ngx_int_t ngx_weserv_finish(ngx_http_request_t *r, ngx_chain_t *out) {
-    ngx_int_t rc = ngx_http_next_header_filter(r);
-
-    if (rc == NGX_ERROR || rc > NGX_OK || r->header_only) {
-        return NGX_ERROR;
-    }
-
-    return ngx_http_next_body_filter(r, out);
-}
-
-#if NGX_DEBUG
-ngx_int_t ngx_weserv_finish_debug(ngx_http_request_t *r, ngx_chain_t *out) {
-    off_t content_length = 0;
-
-    for (ngx_chain_t *cl = out; cl; cl = cl->next) {
-        content_length += cl->buf->last - cl->buf->pos;
-    }
-
-    r->headers_out.status = NGX_HTTP_OK;
-    r->headers_out.content_type_len = sizeof("text/plain") - 1;
-    ngx_str_set(&r->headers_out.content_type, "text/plain");
-    r->headers_out.content_type_lowcase = nullptr;
-    r->headers_out.content_length_n = content_length;
-
-    if (r->headers_out.content_length) {
-        r->headers_out.content_length->hash = 0;
-    }
-
-    r->headers_out.content_length = nullptr;
-
-    return ngx_weserv_finish(r, out);
-}
-#endif
-
-ngx_int_t ngx_weserv_image_filter_buffer(ngx_http_request_t *r,
-                                         ngx_weserv_base_ctx_t *ctx,
-                                         ngx_chain_t *in) {
-    ngx_chain_t *cl, **ll;
-
-    r->connection->buffered |= NGX_WESERV_IMAGE_BUFFERED;
-
-    ll = &ctx->in;
-
-    for (cl = ctx->in; cl; cl = cl->next) {
-        ll = &cl->next;
-    }
-
-    bool buffering = true;
-
-    while (in) {
-        cl = ngx_alloc_chain_link(r->pool);
-        if (cl == nullptr) {
-            return NGX_ERROR;
-        }
-
-        ngx_buf_t *b = in->buf;
-
-        size_t size = b->last - b->pos;
-
-        if (b->flush || b->last_buf) {
-            buffering = false;
-        }
-
-        if (buffering && size) {
-            ngx_buf_t *buf = ngx_create_temp_buf(r->pool, size);
-            if (buf == nullptr) {
-                return NGX_ERROR;
-            }
-
-            buf->last = ngx_cpymem(buf->pos, b->pos, size);
-
-            // Mark the buffer as consumed
-            b->pos = b->last;
-
-            buf->last_buf = b->last_buf;
-            buf->tag = reinterpret_cast<ngx_buf_tag_t>(&ngx_weserv_module);
-
-            cl->buf = buf;
-
-        } else {
-            cl->buf = b;
-        }
-
-        *ll = cl;
-        ll = &cl->next;
-        in = in->next;
-    }
-
-    *ll = nullptr;
-
-    return buffering ? NGX_OK : NGX_DONE;
-}
-
-void ngx_weserv_image_filter_free_buf(ngx_http_request_t *r,
-                                      ngx_weserv_base_ctx_t *ctx) {
-    for (ngx_chain_t *cl = ctx->in; cl; cl = cl->next) {
-        if (cl->buf->tag == (ngx_buf_tag_t)&ngx_weserv_module) {
-            ngx_pfree(r->pool, cl->buf->start);
-        } else {
-            ngx_free_chain(r->pool, cl);
-            break;
-        }
-    }
-
-    ctx->in = nullptr;
-}
-
-ngx_int_t ngx_weserv_image_body_filter(ngx_http_request_t *r, ngx_chain_t *in) {
-    if (in == nullptr) {
-        return ngx_http_next_body_filter(r, in);
-    }
-
-    if (r != r->main) {
-        return ngx_http_next_body_filter(r, in);
-    }
-
-    auto *lc = reinterpret_cast<ngx_weserv_loc_conf_t *>(
-        ngx_http_get_module_loc_conf(r, ngx_weserv_module));
-
-    if (!lc->enable) {
-        return ngx_http_next_body_filter(r, in);
-    }
-
-    auto *ctx = reinterpret_cast<ngx_weserv_base_ctx_t *>(
+    auto *ctx = static_cast<ngx_weserv_base_ctx_t *>(
         ngx_http_get_module_ctx(r, ngx_weserv_module));
 
     if (ctx == nullptr) {
         // Context must always be available for proxy mode
         if (lc->mode == NGX_WESERV_PROXY_MODE) {
-            return ngx_weserv_finish(r, in);
+            return ngx_http_next_header_filter(r);
         }
 
         // For filter mode; we allocate and register a weserv base module
@@ -767,6 +683,147 @@ ngx_int_t ngx_weserv_image_body_filter(ngx_http_request_t *r, ngx_chain_t *in) {
         ngx_http_set_ctx(r, ctx, ngx_weserv_module);
     }
 
+    off_t len = r->headers_out.content_length_n;
+
+    if (len == -1) {
+        ctx->length = lc->max_size;
+    } else {
+        ctx->length = static_cast<size_t>(len);
+    }
+
+    r->main_filter_need_in_memory = 1;
+
+    ngx_http_clear_content_length(r);
+    ngx_http_clear_accept_ranges(r);
+    ngx_http_clear_last_modified(r);
+    ngx_http_clear_etag(r);
+
+    return NGX_OK;
+}
+
+ngx_int_t ngx_weserv_image_filter_read(ngx_http_request_t *r,
+                                       ngx_weserv_base_ctx_t *ctx,
+                                       ngx_chain_t *in) {
+    if (ctx->image == nullptr) {
+        ctx->image = static_cast<u_char *>(ngx_palloc(r->pool, ctx->length));
+        if (ctx->image == nullptr) {
+            return NGX_ERROR;
+        }
+
+        ctx->last = ctx->image;
+    }
+
+    u_char *p = ctx->last;
+
+    for (ngx_chain_t *cl = in; cl; cl = cl->next) {
+        ngx_buf_t *b = cl->buf;
+        size_t size = b->last - b->pos;
+
+        ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                       "image buf: %uz", size);
+
+        size_t rest = ctx->image + ctx->length - p;
+
+        if (size > rest) {
+            ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
+                          "weserv image filter: too big response");
+            return NGX_ERROR;
+        }
+
+        p = ngx_cpymem(p, b->pos, size);
+        b->pos += size;
+
+        if (b->last_buf) {
+            ngx_free_chain(r->pool, cl);
+
+            ctx->last = p;
+            return NGX_OK;
+        }
+    }
+
+    ctx->last = p;
+    r->connection->buffered |= NGX_WESERV_IMAGE_BUFFERED;
+
+    return NGX_AGAIN;
+}
+
+ngx_int_t ngx_weserv_finish(ngx_http_request_t *r, ngx_chain_t *out) {
+    ngx_int_t rc = ngx_http_next_header_filter(r);
+
+    if (rc == NGX_ERROR || rc > NGX_OK || r->header_only) {
+        return NGX_ERROR;
+    }
+
+    return ngx_http_next_body_filter(r, out);
+}
+
+#if NGX_DEBUG
+ngx_int_t ngx_weserv_finish_debug_chain(ngx_http_request_t *r,
+                                        ngx_chain_t *out) {
+    off_t content_length = 0;
+
+    for (ngx_chain_t *cl = out; cl; cl = cl->next) {
+        content_length += cl->buf->last - cl->buf->pos;
+    }
+
+    r->headers_out.status = NGX_HTTP_OK;
+    r->headers_out.content_type_len = sizeof("text/plain") - 1;
+    ngx_str_set(&r->headers_out.content_type, "text/plain");
+    r->headers_out.content_type_lowcase = nullptr;
+    r->headers_out.content_length_n = content_length;
+
+    return ngx_weserv_finish(r, out);
+}
+
+ngx_int_t ngx_weserv_finish_debug_output(ngx_http_request_t *r,
+                                         ngx_weserv_base_ctx_t *ctx) {
+    size_t size = ctx->last - ctx->image;
+
+    ngx_buf_t *buf = ngx_create_temp_buf(r->pool, size);
+    if (buf == nullptr) {
+        return NGX_ERROR;
+    }
+
+    buf->last_buf = 1;
+    buf->last_in_chain = 1;
+    buf->last = ngx_cpymem(buf->last, ctx->image, size);
+
+    ngx_chain_t *out = ngx_alloc_chain_link(r->pool);
+    if (out == nullptr) {
+        return NGX_ERROR;
+    }
+
+    out->buf = buf;
+    out->next = nullptr;
+
+    return ngx_weserv_finish_debug_chain(r, out);
+}
+#endif
+
+ngx_int_t ngx_weserv_image_body_filter(ngx_http_request_t *r, ngx_chain_t *in) {
+    if (in == nullptr) {
+        return ngx_http_next_body_filter(r, in);
+    }
+
+    if (r != r->main) {
+        return ngx_http_next_body_filter(r, in);
+    }
+
+    auto *lc = static_cast<ngx_weserv_loc_conf_t *>(
+        ngx_http_get_module_loc_conf(r, ngx_weserv_module));
+
+    if (!lc->enable) {
+        return ngx_http_next_body_filter(r, in);
+    }
+
+    auto *ctx = static_cast<ngx_weserv_base_ctx_t *>(
+        ngx_http_get_module_ctx(r, ngx_weserv_module));
+
+    // Context must always be available
+    if (ctx == nullptr) {
+        return ngx_weserv_finish(r, in);
+    }
+
 #if NGX_DEBUG
     bool debug_output = false;
 #endif
@@ -774,11 +831,11 @@ ngx_int_t ngx_weserv_image_body_filter(ngx_http_request_t *r, ngx_chain_t *in) {
     ngx_weserv_upstream_ctx_t *upstream_ctx = nullptr;
 
     if (lc->mode == NGX_WESERV_PROXY_MODE) {
-        upstream_ctx = reinterpret_cast<ngx_weserv_upstream_ctx_t *>(ctx);
+        upstream_ctx = dynamic_cast<ngx_weserv_upstream_ctx_t *>(ctx);
 
 #if NGX_DEBUG
         if (upstream_ctx->debug == 1) {
-            return ngx_weserv_finish_debug(r, ctx->in);
+            return ngx_weserv_finish_debug_chain(r, r->upstream->request_bufs);
         }
 
         debug_output = upstream_ctx->debug != 0;
@@ -793,62 +850,71 @@ ngx_int_t ngx_weserv_image_body_filter(ngx_http_request_t *r, ngx_chain_t *in) {
             && !debug_output
 #endif
         ) {
-            ngx_chain_t out;
-            if (ngx_weserv_return_error(r, upstream_ctx->response_status,
-                                        &out) != NGX_OK) {
+            ngx_chain_t *out = ngx_weserv_error_chain(
+                r, upstream_ctx, upstream_ctx->response_status);
+            if (out == NGX_CHAIN_ERROR) {
                 return NGX_ERROR;
             }
 
-            return ngx_weserv_finish(r, &out);
+            return ngx_weserv_finish(r, out);
         }
     }
 
-    switch (ngx_weserv_image_filter_buffer(r, ctx, in)) {
-        case NGX_OK:
-            return NGX_OK;
-        case NGX_DONE:
-            in = nullptr;
-            break;
-        default: /* NGX_ERROR */
-            return NGX_ERROR;
+    ngx_int_t rc = ngx_weserv_image_filter_read(r, ctx, in);
+    if (rc == NGX_AGAIN) {
+        return NGX_OK;
     }
+
+    if (rc == NGX_ERROR) {
+        Status status = {Status::Code::ImageTooLarge,
+                         "The image is too large to be processed. "
+                         "Max image size: " +
+                             std::to_string(lc->max_size) + " bytes",
+                         Status::ErrorCause::Application};
+
+        ngx_chain_t *out = ngx_weserv_error_chain(r, upstream_ctx, status);
+        if (out == NGX_CHAIN_ERROR) {
+            return NGX_ERROR;
+        }
+
+        return ngx_weserv_finish(r, out);
+    }
+
+    r->connection->buffered &= ~NGX_WESERV_IMAGE_BUFFERED;
 
 #if NGX_DEBUG
     if (debug_output) {
-        r->connection->buffered &= ~NGX_WESERV_IMAGE_BUFFERED;
-
-        return ngx_weserv_finish_debug(r, ctx->in);
+        return ngx_weserv_finish_debug_output(r, ctx);
     }
 #endif
 
-    auto *mc = reinterpret_cast<ngx_weserv_main_conf_t *>(
+    auto *mc = static_cast<ngx_weserv_main_conf_t *>(
         ngx_http_get_module_main_conf(r, ngx_weserv_module));
 
     ngx_chain_t *out = nullptr;
     Status status = mc->weserv->process(
         ngx_str_to_std(r->args),
-        std::unique_ptr<api::io::SourceInterface>(new NgxSource(ctx->in)),
-        std::unique_ptr<api::io::TargetInterface>(
-            new NgxTarget(upstream_ctx, r, &out)),
-        lc->api_conf);
+        std::make_unique<NgxSource>(ctx->image, ctx->last - ctx->image),
+        std::make_unique<NgxTarget>(r, upstream_ctx, &out), lc->api_conf);
 
-    r->connection->buffered &= ~NGX_WESERV_IMAGE_BUFFERED;
-
-    // We release the memory as soon as the output of an image is finished
-    // and don't wait for an entire response to be sent to the client
-    ngx_weserv_image_filter_free_buf(r, ctx);
+    // Memory is released immediately after the image output is complete,
+    // without waiting for the entire response to be sent to the client
+    ngx_pfree(r->pool, ctx->image);
 
     if (!status.ok()) {
-        ngx_chain_t error;
-        if (ngx_weserv_return_error(r, status, &error) != NGX_OK) {
+        out = ngx_weserv_error_chain(r, upstream_ctx, status);
+        if (out == NGX_CHAIN_ERROR) {
             return NGX_ERROR;
         }
 
-        return ngx_weserv_finish(r, &error);
+        return ngx_weserv_finish(r, out);
     }
 
-    if (is_base64_needed(r) && output_chain_to_base64(r, out) != NGX_OK) {
-        return NGX_ERROR;
+    if (is_base64_needed(r)) {
+        out = output_chain_to_base64(r, out);
+        if (out == NGX_CHAIN_ERROR) {
+            return NGX_ERROR;
+        }
     }
 
     return ngx_weserv_finish(r, out);
@@ -859,11 +925,10 @@ ngx_int_t ngx_weserv_image_body_filter(ngx_http_request_t *r, ngx_chain_t *in) {
  */
 ngx_int_t ngx_weserv_preconfiguration(ngx_conf_t *cf) {
     // Define weserv variables
-    ngx_http_variable_t *decl;
-
-    for (decl = ngx_weserv_vars; decl->name.len > 0; decl++) {
-        ngx_http_variable_t *defn;
-        defn = ngx_http_add_variable(cf, &decl->name, decl->flags);
+    for (ngx_http_variable_t *decl = ngx_weserv_vars; decl->name.len > 0;
+         decl++) {
+        ngx_http_variable_t *defn =
+            ngx_http_add_variable(cf, &decl->name, decl->flags);
         if (defn == nullptr) {
             return NGX_ERROR;
         }
@@ -899,16 +964,16 @@ ngx_int_t ngx_weserv_postconfiguration(ngx_conf_t *cf) {
  * it must be globally scoped.
  */
 ngx_module_t ngx_weserv_module = {
-    NGX_MODULE_V1,                            // v1 module type
-    &::weserv::nginx::ngx_weserv_module_ctx,  // ctx
-    ::weserv::nginx::ngx_weserv_commands,     // commands
-    NGX_HTTP_MODULE,                          // type
+    NGX_MODULE_V1,                          // v1 module type
+    &weserv::nginx::ngx_weserv_module_ctx,  // ctx
+    weserv::nginx::ngx_weserv_commands,     // commands
+    NGX_HTTP_MODULE,                        // type
     // ngx_int_t (*init_master)(ngx_log_t *log)
     nullptr,
     // ngx_int_t (*init_module)(ngx_cycle_t *cycle);
-    nullptr,
+    weserv::nginx::ngx_weserv_init_module,
     // ngx_int_t (*init_process)(ngx_cycle_t *cycle);
-    ::weserv::nginx::ngx_weserv_init_process,
+    nullptr,
     // ngx_int_t (*init_thread)(ngx_cycle_t *cycle);
     nullptr,
     // void (*exit_thread)(ngx_cycle_t *cycle);

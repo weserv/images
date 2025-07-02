@@ -1,0 +1,54 @@
+name: CodeQL
+
+on:
+  # Only trigger this workflow for the 5.x branch
+  push:
+    branches: [ '5.x' ]
+  pull_request:
+    branches: [ '5.x' ]
+  schedule:
+    - cron: '21 3 * * 6'
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-24.04
+    permissions:
+      # required for all workflows
+      security-events: write
+
+      # required to fetch internal or private CodeQL packs
+      packages: read
+
+      # only required for workflows in private repositories
+      actions: read
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Initializes the CodeQL tools for scanning.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: c-cpp
+          build-mode: manual
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends libvips-dev
+
+      - name: Build
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCUSTOM_NGX_FLAGS="--prefix=$HOME/nginx" \
+            -DBUILD_TESTS=OFF
+          cmake --build build -- -j$(nproc)
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: '/language:c-cpp'

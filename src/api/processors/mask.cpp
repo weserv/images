@@ -1,5 +1,6 @@
 #include "mask.h"
 
+#include "../io/blob.h"
 #include "../utils/utility.h"
 
 #include <algorithm>
@@ -14,6 +15,8 @@ namespace weserv::api::processors {
 
 using enums::MaskType;
 using parsers::Color;
+
+using io::Blob;
 
 std::string Mask::svg_path_by_type(const int width, const int height,
                                    const MaskType &mask,
@@ -121,18 +124,10 @@ std::string Mask::svg_path_by_type(const int width, const int height,
 
         coordinates.push_back({x, y});
 
-        if (x > x_max) {
-            x_max = x;
-        }
-        if (y > y_max) {
-            y_max = y;
-        }
-        if (x < x_min) {
-            x_min = x;
-        }
-        if (y < y_min) {
-            y_min = y;
-        }
+        x_max = std::max(x, x_max);
+        y_max = std::max(y, y_max);
+        x_min = std::min(x, x_min);
+        y_min = std::min(y, y_min);
     }
 
     *out_x_min = static_cast<int>(std::round(x_min));
@@ -194,18 +189,10 @@ Mask::heart_path(const float cx, const float cy, int *out_x_min, int *out_y_min,
 
         coordinates.push_back({x, y});
 
-        if (x > x_max) {
-            x_max = x;
-        }
-        if (y > y_max) {
-            y_max = y;
-        }
-        if (x < x_min) {
-            x_min = x;
-        }
-        if (y < y_min) {
-            y_min = y;
-        }
+        x_max = std::max(x, x_max);
+        y_max = std::max(y, y_max);
+        x_min = std::min(x, x_min);
+        y_min = std::min(y, y_min);
     }
 
     *out_x_min = static_cast<int>(std::round(x_min));
@@ -264,11 +251,10 @@ Mask::transformed_path_string(const std::vector<PathCoordinate> &coordinates,
     ss << std::fixed << std::showpoint << std::setprecision(1);
 
     for (size_t i = 0; i != coordinates.size(); ++i) {
-        PathCoordinate coordinate = coordinates[i];
+        auto [x, y] = coordinates[i];
 
         auto prepend = i == 0 ? "M" : " L";
-        ss << prepend << coordinate.x * scale + transl.x << " "
-           << coordinate.y * scale + transl.y;
+        ss << prepend << x * scale + transl.x << " " << y * scale + transl.y;
     }
 
     ss << " Z";
@@ -323,10 +309,11 @@ VImage Mask::process(const VImage &image) const {
         auto svg_mask = svg.str();
 
         // We don't take a copy of the data or free it
-        auto *blob = vips_blob_new(nullptr, svg_mask.data(), svg_mask.size());
+        auto blob =
+            Blob(vips_blob_new(nullptr, svg_mask.data(), svg_mask.size()));
         auto mask = VImage::svgload_buffer(
-            blob, VImage::option()->set("access", VIPS_ACCESS_SEQUENTIAL));
-        vips_area_unref(reinterpret_cast<VipsArea *>(blob));
+            blob.get(),
+            VImage::option()->set("access", VIPS_ACCESS_SEQUENTIAL));
 
         // Cutout via dest-in
         output_image = output_image.composite2(mask, VIPS_BLEND_MODE_DEST_IN);
@@ -353,10 +340,11 @@ VImage Mask::process(const VImage &image) const {
         auto svg_frame = svg.str();
 
         // We don't take a copy of the data or free it
-        auto *blob = vips_blob_new(nullptr, svg_frame.data(), svg_frame.size());
+        auto blob =
+            Blob(vips_blob_new(nullptr, svg_frame.data(), svg_frame.size()));
         auto frame = VImage::svgload_buffer(
-            blob, VImage::option()->set("access", VIPS_ACCESS_SEQUENTIAL));
-        vips_area_unref(reinterpret_cast<VipsArea *>(blob));
+            blob.get(),
+            VImage::option()->set("access", VIPS_ACCESS_SEQUENTIAL));
 
         // Ensure image to composite is premultiplied sRGB
         frame = frame.premultiply();
@@ -382,8 +370,9 @@ VImage Mask::process(const VImage &image) const {
             // Update the page height
             query_->update("page_height", mask_height);
 
-            return utils::crop_multi_page(output_image, left, top, mask_width,
-                                          mask_height, n_pages, page_height);
+            return utils::crop_multi_page(output_image, config_.process_timeout,
+                                          left, top, mask_width, mask_height,
+                                          n_pages, page_height);
         }
 
         return output_image.extract_area(left, top, mask_width, mask_height);

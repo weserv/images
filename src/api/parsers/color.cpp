@@ -217,7 +217,7 @@ Color parse(const std::string &value) {
     auto color = value.rfind("%23", 0) == 0 ? value.substr(3) : value;
 
     // Make sure that the string is lowercased
-    std::transform(color.begin(), color.end(), color.begin(), &::tolower);
+    std::transform(color.begin(), color.end(), color.begin(), &tolower);
 
     auto it = color_map.find(color);
 

@@ -124,7 +124,7 @@ inline enums::MaskType parse(const std::string &value) {
 
 template <>
 inline enums::Output parse(const std::string &value) {
-    if (value == "jpg") {
+    if (value == "jpeg" || value == "jpg") {
         return enums::Output::Jpeg;
     }
     if (value == "png") {

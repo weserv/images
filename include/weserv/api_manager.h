@@ -26,10 +26,11 @@ class ApiManager {
      * @param config Optional API configuration.
      * @return A Status object to represent an error or an OK state.
      */
-    virtual utils::Status process(const std::string &query,
-                                  std::unique_ptr<io::SourceInterface> source,
-                                  std::unique_ptr<io::TargetInterface> target,
-                                  const Config &config) = 0;
+    virtual utils::Status
+    process(const std::string &query,
+            const std::unique_ptr<io::SourceInterface> &source,
+            const std::unique_ptr<io::TargetInterface> &target,
+            const Config &config) = 0;
 
     /**
      * Process from and to a file.

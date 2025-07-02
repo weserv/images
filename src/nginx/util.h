@@ -4,6 +4,7 @@ extern "C" {
 #include <ngx_http.h>
 }
 
+#include <ctime>
 #include <string>
 
 namespace weserv::nginx {
@@ -27,7 +28,7 @@ bool is_base64_needed(ngx_http_request_t *r);
 /**
  * Converts an entire output chain to base64.
  */
-ngx_int_t output_chain_to_base64(ngx_http_request_t *r, ngx_chain_t *out);
+ngx_chain_t *output_chain_to_base64(ngx_http_request_t *r, ngx_chain_t *in);
 
 /**
  * Get the Content-Disposition response header.

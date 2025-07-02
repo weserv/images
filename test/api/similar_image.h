@@ -1,6 +1,6 @@
 #pragma once
 
-#include <catch2/catch.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
 #include <vips/vips8>
 
 using vips::VImage;
@@ -8,7 +8,7 @@ using vips::VImage;
 /**
  * The similar image matcher class
  */
-class SimilarImage : public Catch::MatcherBase<VImage> {
+class SimilarImage : public Catch::Matchers::MatcherBase<VImage> {
  public:
     explicit SimilarImage(const VImage &expected, const int threshold)
         : expected_hash_(dhash(expected)), threshold_(threshold) {}
@@ -21,7 +21,7 @@ class SimilarImage : public Catch::MatcherBase<VImage> {
     /**
      * Calculate a perceptual hash of an image.
      * Based on the dHash gradient method - see:
-     * http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html
+     * https://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html
      */
     std::string dhash(const VImage &image) const;
 
@@ -29,7 +29,7 @@ class SimilarImage : public Catch::MatcherBase<VImage> {
      * Calculates dHash hamming distance.
      *
      * See:
-     * http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html
+     * https://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html
      */
     int dhash_distance(const std::string &hash1,
                        const std::string &hash2) const;

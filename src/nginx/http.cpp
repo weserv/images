@@ -5,7 +5,7 @@
 #include "uri_parser.h"
 #include "util.h"
 
-using ::weserv::api::utils::Status;
+using weserv::api::utils::Status;
 
 namespace weserv::nginx {
 
@@ -32,7 +32,7 @@ ngx_int_t ngx_weserv_upstream_process_header(ngx_http_request_t *r);
  */
 Status ngx_weserv_upstream_set_url(ngx_pool_t *pool,
                                    ngx_http_upstream_t *upstream, ngx_str_t url,
-                                   ngx_str_t *host_header,
+                                   ngx_array_t *deny, ngx_str_t *host_header,
                                    ngx_str_t *url_path) {
     ngx_url_t parsed_url;
     ngx_memzero(&parsed_url, sizeof(parsed_url));
@@ -73,13 +73,29 @@ Status ngx_weserv_upstream_set_url(ngx_pool_t *pool,
                 Status::ErrorCause::Application};
     }
 
+    if (parsed_url.family == AF_UNIX) {
+        return {Status::Code::InvalidUri,
+                "Unix domain sockets are not supported",
+                Status::ErrorCause::Application};
+    }
+
+    // This condition is true if the provided URL is not a domain name, but
+    // rather an IP address, for example: ?url=http://46.4.13.221/...
+    bool has_ip = parsed_url.addrs != nullptr && parsed_url.addrs[0].sockaddr;
+
+    if (has_ip && deny != nullptr &&
+        ngx_cidr_match(parsed_url.addrs[0].sockaddr, deny) == NGX_OK) {
+        return {Status::Code::InvalidUri, "IP address blocked by policy",
+                Status::ErrorCause::Application};
+    }
+
     // Detect situation where input URL was of the form:
     //     https://domain.com?query_parameters
     // (without a forward slash preceding a question mark), and insert
     // a leading slash to form a valid path: /?query_parameters.
     if (parsed_url.uri.len > 0 && parsed_url.uri.data[0] == '?') {
-        auto *p = reinterpret_cast<u_char *>(
-            ngx_pnalloc(pool, parsed_url.uri.len + 1));
+        auto *p =
+            static_cast<u_char *>(ngx_pnalloc(pool, parsed_url.uri.len + 1));
         if (p == nullptr) {
             return {NGX_ERROR, "Out of memory"};
         }
@@ -97,12 +113,9 @@ Status ngx_weserv_upstream_set_url(ngx_pool_t *pool,
         return {NGX_ERROR, "Out of memory"};
     }
 
-    // This condition is true if the URL did not use domain name, but rather
-    // an IP address directly: http://74.125.25.239/...
-    // NGINX, in this case, only returns the parsed IP address so there is
-    // only one address to return. See ngx_parse_url and ngx_inet_addr for
-    // details.
-    if (parsed_url.addrs != nullptr && parsed_url.addrs[0].sockaddr) {
+    if (has_ip) {
+        // NGINX only returned the parsed IP address, so there is just one
+        // address to return. See ngx_parse_url and ngx_inet_addr for details.
         upstream->resolved->sockaddr = parsed_url.addrs[0].sockaddr;
         upstream->resolved->socklen = parsed_url.addrs[0].socklen;
         upstream->resolved->naddrs = 1;
@@ -116,16 +129,11 @@ Status ngx_weserv_upstream_set_url(ngx_pool_t *pool,
         parsed_url.no_port ? parsed_url.default_port : parsed_url.port;
 
     // Return Host header and a URL path
-    if (parsed_url.family != AF_UNIX) {
-        *host_header = parsed_url.host;
-        // If the URL contains a port, include it in the host header
-        if (!(parsed_url.no_port ||
-              parsed_url.port == parsed_url.default_port)) {
-            // Extend the Host header to include ':<port>'
-            host_header->len += 1 + parsed_url.port_text.len;
-        }
-    } else {
-        ngx_str_set(host_header, "localhost");
+    *host_header = parsed_url.host;
+    // If the URL contains a port, include it in the host header
+    if (!parsed_url.no_port && parsed_url.port != parsed_url.default_port) {
+        // Extend the Host header to include ':<port>'
+        host_header->len += 1 + parsed_url.port_text.len;
     }
     *url_path = parsed_url.uri;
 
@@ -182,7 +190,7 @@ ngx_int_t ngx_weserv_upstream_create_request(ngx_http_request_t *r) {
         return NGX_ERROR;
     }
 
-    auto *ctx = reinterpret_cast<ngx_weserv_upstream_ctx_t *>(
+    auto *ctx = static_cast<ngx_weserv_upstream_ctx_t *>(
         ngx_http_get_module_ctx(r, ngx_weserv_module));
 
     ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
@@ -213,10 +221,7 @@ ngx_int_t ngx_weserv_upstream_create_request(ngx_http_request_t *r) {
     buffer_size += sizeof("Connection: Keep-Alive\r\n") - 1;
 
     // Add sizes of all headers and their values
-    for (const auto &header : http_request->request_headers()) {
-        const std::string &name = header.first;
-        const ngx_str_t &value = header.second;
-
+    for (const auto &[name, value] : http_request->request_headers()) {
         buffer_size += name.size();
         buffer_size += sizeof(": ") - 1;
         buffer_size += value.len;
@@ -243,10 +248,7 @@ ngx_int_t ngx_weserv_upstream_create_request(ngx_http_request_t *r) {
     append(buf, "Connection: Keep-Alive\r\n");
 
     // Append the headers provided by the caller
-    for (const auto &header : http_request->request_headers()) {
-        const std::string &name = header.first;
-        const ngx_str_t &value = header.second;
-
+    for (const auto &[name, value] : http_request->request_headers()) {
         append(buf, name);
         append(buf, ": ");
         append(buf, value);
@@ -268,17 +270,15 @@ ngx_int_t ngx_weserv_upstream_create_request(ngx_http_request_t *r) {
     chain->buf = buf;
     chain->next = nullptr;
 
-#if NGX_DEBUG
-    if (ctx->debug == 1) {
-        ctx->in = chain;
-
-        return NGX_DONE;
-    }
-#endif
-
     // Attach the buffer to the request
     r->upstream->request_bufs = chain;
     // r->subrequest_in_memory = 1;
+
+#if NGX_DEBUG
+    if (ctx->debug == 1) {
+        return NGX_DONE;
+    }
+#endif
 
     return NGX_OK;
 }
@@ -294,7 +294,7 @@ ngx_int_t ngx_weserv_upstream_reinit_request(ngx_http_request_t *r) {
         return NGX_ERROR;
     }
 
-    auto *ctx = reinterpret_cast<ngx_weserv_upstream_ctx_t *>(
+    auto *ctx = static_cast<ngx_weserv_upstream_ctx_t *>(
         ngx_http_get_module_ctx(r, ngx_weserv_module));
 
     ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
@@ -332,7 +332,7 @@ ngx_int_t ngx_weserv_upstream_process_status_line(ngx_http_request_t *r) {
         return NGX_ERROR;
     }
 
-    auto *ctx = reinterpret_cast<ngx_weserv_upstream_ctx_t *>(
+    auto *ctx = static_cast<ngx_weserv_upstream_ctx_t *>(
         ngx_http_get_module_ctx(r, ngx_weserv_module));
 
     ngx_log_debug2(
@@ -349,7 +349,7 @@ ngx_int_t ngx_weserv_upstream_process_status_line(ngx_http_request_t *r) {
     ngx_buf_t *buf = &r->upstream->buffer;
 
     // str is only used in debug mode
-    ngx_str_t str = {(size_t)(buf->last - buf->pos), buf->pos};
+    ngx_str_t str = {static_cast<size_t>(buf->last - buf->pos), buf->pos};
     ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                    "Received (partial) http response:\n%V\n\n", &str);
 #endif
@@ -394,7 +394,7 @@ ngx_int_t ngx_weserv_upstream_process_status_line(ngx_http_request_t *r) {
         return NGX_HTTP_UPSTREAM_INVALID_HEADER;
     }
 
-    auto *lc = reinterpret_cast<ngx_weserv_loc_conf_t *>(
+    auto *lc = static_cast<ngx_weserv_loc_conf_t *>(
         ngx_http_get_module_loc_conf(r, ngx_weserv_module));
 
     if (lc->canonical_header) {
@@ -435,7 +435,7 @@ ngx_int_t ngx_weserv_upstream_process_header(ngx_http_request_t *r) {
         return NGX_ERROR;
     }
 
-    auto *ctx = reinterpret_cast<ngx_weserv_upstream_ctx_t *>(
+    auto *ctx = static_cast<ngx_weserv_upstream_ctx_t *>(
         ngx_http_get_module_ctx(r, ngx_weserv_module));
 
     ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
@@ -456,11 +456,12 @@ ngx_int_t ngx_weserv_upstream_process_header(ngx_http_request_t *r) {
             // A header line has been parsed successfully
 
             ngx_str_t name = {
-                (size_t)(r->header_name_end - r->header_name_start),
+                static_cast<size_t>(r->header_name_end - r->header_name_start),
                 r->header_name_start};
             ngx_strlow(name.data, name.data, name.len);
-            ngx_str_t value = {(size_t)(r->header_end - r->header_start),
-                               r->header_start};
+            ngx_str_t value = {
+                static_cast<size_t>(r->header_end - r->header_start),
+                r->header_start};
 
             ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                            "weserv header: \"%V: %V\"", &name, &value);
@@ -530,7 +531,7 @@ ngx_int_t ngx_weserv_upstream_process_header(ngx_http_request_t *r) {
                 u->headers_in.content_length_n = -1;
             }
 
-            auto *lc = reinterpret_cast<ngx_weserv_loc_conf_t *>(
+            auto *lc = static_cast<ngx_weserv_loc_conf_t *>(
                 ngx_http_get_module_loc_conf(r, ngx_weserv_module));
 
             if (lc->max_size > 0 && u->headers_in.content_length_n >
@@ -601,7 +602,7 @@ void ngx_weserv_upstream_finalize_request(ngx_http_request_t *r, ngx_int_t rc) {
         return;
     }
 
-    auto *ctx = reinterpret_cast<ngx_weserv_upstream_ctx_t *>(
+    auto *ctx = static_cast<ngx_weserv_upstream_ctx_t *>(
         ngx_http_get_module_ctx(r, ngx_weserv_module));
 
     ngx_log_debug3(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
@@ -623,8 +624,7 @@ void ngx_weserv_upstream_finalize_request(ngx_http_request_t *r, ngx_int_t rc) {
                                     Status::ErrorCause::Upstream};
         }
 
-        // Reset redirect flag
-        ctx->redirecting = 0;
+        rc = NGX_ERROR;
     } else if (ctx->redirecting) {
         // Swap the initial HTTP request out
         std::unique_ptr<HTTPRequest> request;
@@ -643,8 +643,7 @@ void ngx_weserv_upstream_finalize_request(ngx_http_request_t *r, ngx_int_t rc) {
                                     "Will not follow a redirection to itself",
                                     Status::ErrorCause::Upstream};
 
-            // Reset redirect flag
-            ctx->redirecting = 0;
+            rc = NGX_ERROR;
         } else if (request->redirect_count() >= request->max_redirects()) {
             ctx->response_status = {
                 310,
@@ -652,8 +651,7 @@ void ngx_weserv_upstream_finalize_request(ngx_http_request_t *r, ngx_int_t rc) {
                     std::to_string(request->max_redirects()) + " redirects",
                 Status::ErrorCause::Upstream};
 
-            // Reset redirect flag
-            ctx->redirecting = 0;
+            rc = NGX_ERROR;
         } else {  // Redirect if there are redirects left
             // Set new redirection URI and referer
             request->set_url(ctx->location);
@@ -668,13 +666,37 @@ void ngx_weserv_upstream_finalize_request(ngx_http_request_t *r, ngx_int_t rc) {
             ctx->request = std::move(request);
 
             rc = ngx_weserv_send_http_request(r, ctx);
-
-            if (rc == NGX_ERROR) {
-                // Reset redirect flag
-                ctx->redirecting = 0;
-            }
         }
     }
+
+    if (rc == NGX_ERROR) {
+        // Reset the redirect flag if an error occurs
+        ctx->redirecting = 0;
+    }
+}
+
+/**
+ * A resolve handler. Called by NGINX when a hostname needs to be resolved.
+ */
+void ngx_weserv_upstream_resolve_handler(ngx_resolver_ctx_t *resolver_ctx) {
+    auto *r = static_cast<ngx_http_request_t *>(resolver_ctx->data);
+
+    auto *ctx = static_cast<ngx_weserv_upstream_ctx_t *>(
+        ngx_http_get_module_ctx(r, ngx_weserv_module));
+
+    if (ctx == nullptr) {
+        return;
+    }
+
+    // Treat refused DNS queries as blocked (aligns with the "always_refuse"
+    // setting in Unbound)
+    if (resolver_ctx->state == NGX_RESOLVE_REFUSED) {
+        ctx->response_status = {Status::Code::InvalidUri,
+                                "Domain or TLD blocked by policy",
+                                Status::ErrorCause::Application};
+    }
+
+    ctx->original_resolver(resolver_ctx);
 }
 
 /**
@@ -688,19 +710,20 @@ Status initialize_upstream_request(ngx_http_request_t *r,
         return {NGX_ERROR, "Out of memory"};
     }
 
+    auto *lc = static_cast<ngx_weserv_loc_conf_t *>(
+        ngx_http_get_module_loc_conf(r, ngx_weserv_module));
+
     ngx_http_upstream_t *u = r->upstream;
 
     // Parse the URL provided by the caller
-    Status status = ngx_weserv_upstream_set_url(
-        r->pool, u, ctx->request->url(), &ctx->host_header, &ctx->url_path);
+    Status status =
+        ngx_weserv_upstream_set_url(r->pool, u, ctx->request->url(), lc->deny,
+                                    &ctx->host_header, &ctx->url_path);
     if (!status.ok()) {
         return status;
     }
 
-    u->output.tag = reinterpret_cast<ngx_buf_tag_t>(&ngx_weserv_module);
-
-    auto *lc = reinterpret_cast<ngx_weserv_loc_conf_t *>(
-        ngx_http_get_module_loc_conf(r, ngx_weserv_module));
+    u->output.tag = static_cast<ngx_buf_tag_t>(&ngx_weserv_module);
 
     u->conf = &lc->upstream_conf;
     u->buffering = lc->upstream_conf.buffering;
@@ -756,6 +779,15 @@ ngx_int_t ngx_weserv_send_http_request(ngx_http_request_t *r,
 
     // Initiate the upstream connection by calling NGINX upstream
     ngx_http_upstream_init(r);
+
+    // Override the upstream resolve handler to our own to ensure
+    // a custom error message is provided for refused DNS queries
+    if (r->upstream->resolved->ctx != nullptr) {
+        ctx->original_resolver = r->upstream->resolved->ctx->handler;
+
+        r->upstream->resolved->ctx->handler =
+            ngx_weserv_upstream_resolve_handler;
+    }
 
     return NGX_DONE;
 }

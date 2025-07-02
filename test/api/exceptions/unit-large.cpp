@@ -1,14 +1,13 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_string.hpp>
 
 #include "../base.h"
 
-using Catch::Matchers::Contains;
+using Catch::Matchers::ContainsSubstring;
 
 TEST_CASE("too large image", "[large]") {
     SECTION("input") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "svgload_source"
-                                                : "svgload_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "svgload_buffer") == 0) {
             SUCCEED("no svg support, skipping test");
             return;
         }
@@ -20,7 +19,7 @@ TEST_CASE("too large image", "[large]") {
         CHECK(status.code() == static_cast<int>(Status::Code::ImageTooLarge));
         CHECK(status.error_cause() == Status::ErrorCause::Application);
         CHECK_THAT(status.message(),
-                   Contains("Input image exceeds pixel limit."));
+                   ContainsSubstring("Input image exceeds pixel limit."));
     }
 
     SECTION("output") {
@@ -34,16 +33,14 @@ TEST_CASE("too large image", "[large]") {
         CHECK(status.code() == static_cast<int>(Status::Code::ImageTooLarge));
         CHECK(status.error_cause() == Status::ErrorCause::Application);
         CHECK_THAT(status.message(),
-                   Contains("Output image exceeds pixel limit."));
+                   ContainsSubstring("Output image exceeds pixel limit."));
         CHECK(out_buf.empty());
     }
 }
 
 TEST_CASE("too many pages", "[large]") {
     SECTION("input") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "gifload_source"
-                                                : "gifload_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "gifload_buffer") == 0) {
             SUCCEED("no gif support, skipping test");
             return;
         }
@@ -57,32 +54,9 @@ TEST_CASE("too many pages", "[large]") {
         CHECK(!status.ok());
         CHECK(status.code() == static_cast<int>(Status::Code::ImageTooLarge));
         CHECK(status.error_cause() == Status::ErrorCause::Application);
-        CHECK_THAT(
-            status.message(),
-            Contains("Input image exceeds the maximum number of pages."));
-        CHECK(out_buf.empty());
-    }
-
-    SECTION("input and special page") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "gifload_source"
-                                                : "gifload_buffer") == 0) {
-            SUCCEED("no gif support, skipping test");
-            return;
-        }
-
-        auto test_image = fixtures->input_gif_animated_max_pages;
-        auto params = "page=-1";
-
-        std::string out_buf;
-        Status status = process_file(test_image, &out_buf, params);
-
-        CHECK(!status.ok());
-        CHECK(status.code() == static_cast<int>(Status::Code::ImageTooLarge));
-        CHECK(status.error_cause() == Status::ErrorCause::Application);
-        CHECK_THAT(
-            status.message(),
-            Contains("Input image exceeds the maximum number of pages."));
+        CHECK_THAT(status.message(),
+                   ContainsSubstring(
+                       "Input image exceeds the maximum number of pages."));
         CHECK(out_buf.empty());
     }
 }

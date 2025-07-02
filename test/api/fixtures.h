@@ -89,7 +89,7 @@ struct Fixtures {
     // https://www.gstatic.com/webp/gallery3/5_webp_a.webp
     std::string input_webp_with_transparency{dir + "/5_webp_a.webp"};
 
-    // http://downloads.webmproject.org/webp/images/dancing_banana2.lossless.webp
+    // https://storage.googleapis.com/downloads.webmproject.org/webp/images/dancing_banana2.lossless.webp
     std::string input_webp_animated{dir + "/dancing_banana2.lossless.webp"};
 
     // https://github.com/nokiatech/heif/blob/gh-pages/content/images/winter_1440x960.heic
@@ -101,7 +101,7 @@ struct Fixtures {
     // https://github.com/lovell/sharp/issues/646
     std::string input_tiff_cielab{dir + "/cielab-dagams.tiff"};
 
-    // http://merovingio.c2rmf.cnrs.fr/iipimage/PalaisDuLouvre.tif
+    // https://merovingio.c2rmf.cnrs.fr/iipimage/PalaisDuLouvre.tif
     std::string input_tiff_pyramid{dir + "/PalaisDuLouvre.tif"};
 
     // An 11-page TIFF file where each page is encoded differently.
@@ -119,7 +119,10 @@ struct Fixtures {
     // https://www.leadtools.com/support/forum/posts/m41249-Sample-File--LZW-compressed-multi-page-TIFF#post41249
     std::string input_tiff_multi_page{dir + "/MultipleFormats.tif"};
 
-    // http://downloads.webmproject.org/webp/images/dancing-banana.gif
+    // vips black 5-channel.tiff[compression=deflate] 100 100 --bands 5
+    std::string input_tiff_5_channel{dir + "/5-channel.tiff"};
+
+    // https://storage.googleapis.com/downloads.webmproject.org/webp/images/dancing-banana.gif
     std::string input_gif_animated{dir + "/dancing-banana.gif"};
 
     // vips black x.v 1 1024

@@ -1,4 +1,4 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 #include "../base.h"
 #include "../similar_image.h"
@@ -79,12 +79,8 @@ TEST_CASE("trim", "[trim]") {
     }
 
     SECTION("skip height in toilet-roll mode") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "gifload_source"
-                                                : "gifload_buffer") == 0 ||
-            vips_type_find("VipsOperation", pre_8_12
-                                                ? "magicksave_buffer"
-                                                : "gifsave_target") == 0) {
+        if (vips_type_find("VipsOperation", "gifload_buffer") == 0 ||
+            vips_type_find("VipsOperation", "gifsave_buffer") == 0) {
             SUCCEED("no gif support, skipping test");
             return;
         }

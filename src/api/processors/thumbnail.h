@@ -1,16 +1,14 @@
 #pragma once
 
+#include "../enums.h"
 #include "../io/source.h"
 #include "base.h"
-
-#include <weserv/config.h>
 
 namespace weserv::api::processors {
 
 class Thumbnail : ImageProcessor {
  public:
-    Thumbnail(std::shared_ptr<parsers::Query> query, const Config &config)
-        : ImageProcessor(std::move(query)), config_(config) {}
+    using ImageProcessor::ImageProcessor;
 
     /**
      * Use any shrink-on-load features available in the file import library.
@@ -24,11 +22,6 @@ class Thumbnail : ImageProcessor {
 
  private:
     /**
-     * Global config.
-     */
-    const Config &config_;
-
-    /**
      * Load a formatted image from a source for a specified image type.
      * @tparam ImageType Image type.
      * @param source Source to read from.
@@ -40,10 +33,8 @@ class Thumbnail : ImageProcessor {
                            vips::VOption *options) const;
 
     /**
-     * Calculate the shrink factor, taking into account auto-rotate, the fit
-     * mode, and so on. The hshrink/vshrink are the amount to shrink the input
-     * image axes by in order for the output axes (ie. after rotation) to match
-     * the required thumbnail width/height and fit mode.
+     * Calculate the horizontal and vertical shrink factors, taking the canvas
+     * mode into account.
      * @param width Input width.
      * @param height Input height.
      * @return The (hshrink, vshrink) factor as pair.

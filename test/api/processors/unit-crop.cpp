@@ -1,4 +1,5 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_string.hpp>
 
 #include "../base.h"
 #include "../similar_image.h"
@@ -40,12 +41,8 @@ TEST_CASE("partial image extract", "[crop]") {
     }
 
     SECTION("webp") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "webpload_source"
-                                                : "webpload_buffer") == 0 ||
-            vips_type_find("VipsOperation", true_streaming
-                                                ? "webpsave_target"
-                                                : "webpsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "webpload_buffer") == 0 ||
+            vips_type_find("VipsOperation", "webpsave_buffer") == 0) {
             SUCCEED("no webp support, skipping test");
             return;
         }
@@ -65,12 +62,8 @@ TEST_CASE("partial image extract", "[crop]") {
     }
 
     SECTION("tiff") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "tiffload_source"
-                                                : "tiffload_buffer") == 0 ||
-            vips_type_find("VipsOperation", true_streaming
-                                                ? "tiffsave_target"
-                                                : "tiffsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "tiffload_buffer") == 0 ||
+            vips_type_find("VipsOperation", "tiffsave_buffer") == 0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -119,9 +112,7 @@ TEST_CASE("image extract before resize", "[crop]") {
 }
 
 TEST_CASE("image resize and extract svg 72 dpi", "[crop]") {
-    if (vips_type_find("VipsOperation", true_streaming
-                                            ? "svgload_source"
-                                            : "svgload_buffer") == 0) {
+    if (vips_type_find("VipsOperation", "svgload_buffer") == 0) {
         SUCCEED("no svg support, skipping test");
         return;
     }
@@ -198,6 +189,46 @@ TEST_CASE("negative", "[crop]") {
     }
 }
 
+TEST_CASE("percentage-based", "[crop]") {
+    auto test_image = fixtures->input_jpg;
+
+    SECTION("width") {
+        auto params = "w=320&h=240&fit=cover&cx=10&cy=10&cw=50%&ch=100%";
+
+        VImage image = process_file<VImage>(test_image, params);
+
+        CHECK(image.width() == 160);
+        CHECK(image.height() == 230);
+    }
+
+    SECTION("height") {
+        auto params = "w=320&h=240&fit=cover&cx=10&cy=10&cw=100%&ch=50%";
+
+        VImage image = process_file<VImage>(test_image, params);
+
+        CHECK(image.width() == 310);
+        CHECK(image.height() == 120);
+    }
+
+    SECTION("URL-encoded") {
+        auto params = "w=320&h=240&fit=cover&cx=10&cy=10&cw=50%25&ch=100%25";
+
+        VImage image = process_file<VImage>(test_image, params);
+
+        CHECK(image.width() == 160);
+        CHECK(image.height() == 230);
+    }
+
+    SECTION("invalid") {
+        auto params = "w=320&h=240&fit=cover&cx=10&cy=10&cw=200%&ch=";
+
+        VImage image = process_file<VImage>(test_image, params);
+
+        CHECK(image.width() == 310);
+        CHECK(image.height() == 230);
+    }
+}
+
 TEST_CASE("bad extract area", "[crop]") {
     auto test_image = fixtures->input_jpg;
     auto params = "w=320&h=240&fit=cover&cx=3000&cy=10&cw=10&ch=10";
@@ -209,12 +240,8 @@ TEST_CASE("bad extract area", "[crop]") {
 }
 
 TEST_CASE("animated image", "[crop]") {
-    if (vips_type_find("VipsOperation", true_streaming
-                                            ? "gifload_source"
-                                            : "gifload_buffer") == 0 ||
-        vips_type_find("VipsOperation", pre_8_12
-                                            ? "magicksave_buffer"
-                                            : "gifsave_target") == 0) {
+    if (vips_type_find("VipsOperation", "gifload_buffer") == 0 ||
+        vips_type_find("VipsOperation", "gifsave_buffer") == 0) {
         SUCCEED("no gif support, skipping test");
         return;
     }

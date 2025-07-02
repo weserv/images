@@ -1,11 +1,7 @@
 #include "source.h"
 
-#include "../exceptions/unreadable.h"  // for UnreadableImageException
-#include <fstream>                     // for ifstream
-
 namespace weserv::api::io {
 
-#ifdef WESERV_ENABLE_TRUE_STREAMING
 /* Class implementation */
 
 // We need C linkage for this.
@@ -15,14 +11,14 @@ G_DEFINE_TYPE(WeservSource, weserv_source, VIPS_TYPE_SOURCE);
 
 static gint64 weserv_source_read_wrapper(VipsSource *source, void *data,
                                          size_t length) {
-    auto weserv_source = WESERV_SOURCE(source)->source;
+    auto *weserv_source = WESERV_SOURCE(source)->source;
 
     return weserv_source->read(data, length);
 }
 
 static gint64 weserv_source_seek_wrapper(VipsSource *source, gint64 offset,
                                          int whence) {
-    auto weserv_source = WESERV_SOURCE(source)->source;
+    auto *weserv_source = WESERV_SOURCE(source)->source;
 
     return weserv_source->seek(offset, whence);
 }
@@ -54,13 +50,15 @@ static void weserv_source_init(WeservSource *source) {}
 
 /* private API */
 
-Source Source::new_from_pointer(std::unique_ptr<io::SourceInterface> source) {
+Source
+Source::new_from_pointer(const std::unique_ptr<SourceInterface> &source) {
     WeservSource *weserv_source = WESERV_SOURCE(
         g_object_new(WESERV_TYPE_SOURCE, "source", source.get(), nullptr));
 
     if (vips_object_build(VIPS_OBJECT(weserv_source)) != 0) {
-        VIPS_UNREF(weserv_source);
+        VIPS_UNREF(weserv_source);  // LCOV_EXCL_START
         throw vips::VError();
+        // LCOV_EXCL_STOP
     }
 
     return Source(weserv_source);
@@ -70,7 +68,7 @@ Source Source::new_from_file(const std::string &filename) {
     VipsSource *source = vips_source_new_from_file(filename.c_str());
 
     if (source == nullptr) {
-        throw vips::VError();
+        throw vips::VError();  // LCOV_EXCL_LINE
     }
 
     return Source(source);
@@ -78,47 +76,13 @@ Source Source::new_from_file(const std::string &filename) {
 
 Source Source::new_from_buffer(const std::string &buffer) {
     VipsSource *source =
-        vips_source_new_from_memory(buffer.c_str(), buffer.size());
+        vips_source_new_from_memory(buffer.data(), buffer.size());
 
     if (source == nullptr) {
-        throw vips::VError();
+        throw vips::VError();  // LCOV_EXCL_LINE
     }
 
     return Source(source);
 }
-#else
-#define SOURCE_BUFFER_SIZE 4096  // = (size_t) ngx_pagesize;
-
-Source Source::new_from_pointer(std::unique_ptr<io::SourceInterface> source) {
-    char temp_buffer[SOURCE_BUFFER_SIZE];
-    std::string buffer;
-    int64_t bytes_read;
-
-    do {
-        bytes_read = source->read(temp_buffer, SOURCE_BUFFER_SIZE);
-
-        if (bytes_read == -1) {
-            throw exceptions::UnreadableImageException(
-                "read error while buffering image");
-        }
-
-        buffer.append(temp_buffer, bytes_read);
-    } while (bytes_read > 0);
-
-    return Source(buffer);
-}
-
-Source Source::new_from_file(const std::string &filename) {
-    std::ifstream t(filename);
-    std::stringstream buffer;
-    buffer << t.rdbuf();
-
-    return Source(buffer.str());
-}
-
-Source Source::new_from_buffer(const std::string &buffer) {
-    return Source(buffer);
-}
-#endif
 
 }  // namespace weserv::api::io

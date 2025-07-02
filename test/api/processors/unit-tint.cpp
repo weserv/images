@@ -1,4 +1,4 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 #include "../base.h"
 #include "../max_color_distance.h"
@@ -6,6 +6,9 @@
 #include <vips/vips8>
 
 using vips::VImage;
+
+// Allow for small rounding differences between platforms
+constexpr int MAX_DISTANCE = 6;
 
 TEST_CASE("tint", "[tint]") {
     SECTION("rgb image red") {
@@ -18,7 +21,7 @@ TEST_CASE("tint", "[tint]") {
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
 
-        CHECK_THAT(image, is_max_color_distance(expected_image, 18));
+        CHECK_THAT(image, is_max_color_distance(expected_image, MAX_DISTANCE));
     }
 
     SECTION("rgb image green") {
@@ -31,7 +34,7 @@ TEST_CASE("tint", "[tint]") {
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
 
-        CHECK_THAT(image, is_max_color_distance(expected_image, 27));
+        CHECK_THAT(image, is_max_color_distance(expected_image, MAX_DISTANCE));
     }
 
     SECTION("rgb image blue") {
@@ -44,7 +47,7 @@ TEST_CASE("tint", "[tint]") {
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
 
-        CHECK_THAT(image, is_max_color_distance(expected_image, 14));
+        CHECK_THAT(image, is_max_color_distance(expected_image, MAX_DISTANCE));
     }
 
     SECTION("rgb image with sepia tone") {
@@ -57,7 +60,7 @@ TEST_CASE("tint", "[tint]") {
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
 
-        CHECK_THAT(image, is_max_color_distance(expected_image, 10));
+        CHECK_THAT(image, is_max_color_distance(expected_image, MAX_DISTANCE));
     }
 
     SECTION("rgb image with alpha channel") {
@@ -70,7 +73,7 @@ TEST_CASE("tint", "[tint]") {
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
 
-        CHECK_THAT(image, is_max_color_distance(expected_image, 10));
+        CHECK_THAT(image, is_max_color_distance(expected_image, MAX_DISTANCE));
     }
 
     SECTION("cmyk image red") {
@@ -83,6 +86,6 @@ TEST_CASE("tint", "[tint]") {
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
 
-        CHECK_THAT(image, is_max_color_distance(expected_image, 15));
+        CHECK_THAT(image, is_max_color_distance(expected_image, MAX_DISTANCE));
     }
 }

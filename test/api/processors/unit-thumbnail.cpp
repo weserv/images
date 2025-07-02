@@ -1,11 +1,12 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_string.hpp>
 
 #include "../base.h"
 #include "../similar_image.h"
 
 #include <vips/vips8>
 
-using Catch::Matchers::Contains;
+using Catch::Matchers::ContainsSubstring;
 using vips::VImage;
 
 TEST_CASE("inside", "[thumbnail]") {
@@ -92,7 +93,7 @@ TEST_CASE("fixed", "[thumbnail]") {
 
 TEST_CASE("invalid height", "[thumbnail]") {
     auto test_image = fixtures->input_jpg;
-    auto params = "w=320&h=100000000";
+    auto params = "w=320&h=1000000000";
 
     VImage image = process_file<VImage>(test_image, params);
 
@@ -207,12 +208,8 @@ TEST_CASE("cover", "[thumbnail]") {
 
 TEST_CASE("tiff", "[thumbnail]") {
     SECTION("cover") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "tiffload_source"
-                                                : "tiffload_buffer") == 0 ||
-            vips_type_find("VipsOperation", true_streaming
-                                                ? "tiffsave_target"
-                                                : "tiffsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "tiffload_buffer") == 0 ||
+            vips_type_find("VipsOperation", "tiffsave_buffer") == 0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -229,12 +226,8 @@ TEST_CASE("tiff", "[thumbnail]") {
 
     // Width or height considering ratio (portrait)
     SECTION("smaller axis") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "tiffload_source"
-                                                : "tiffload_buffer") == 0 ||
-            vips_type_find("VipsOperation", true_streaming
-                                                ? "tiffsave_target"
-                                                : "tiffsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "tiffload_buffer") == 0 ||
+            vips_type_find("VipsOperation", "tiffsave_buffer") == 0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -250,12 +243,8 @@ TEST_CASE("tiff", "[thumbnail]") {
     }
 
     SECTION("pyramid") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "tiffload_source"
-                                                : "tiffload_buffer") == 0 ||
-            vips_type_find("VipsOperation", true_streaming
-                                                ? "tiffsave_target"
-                                                : "tiffsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "tiffload_buffer") == 0 ||
+            vips_type_find("VipsOperation", "tiffsave_buffer") == 0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -273,12 +262,8 @@ TEST_CASE("tiff", "[thumbnail]") {
     }
 
     SECTION("pyramid skip shrink-on-load") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "tiffload_source"
-                                                : "tiffload_buffer") == 0 ||
-            vips_type_find("VipsOperation", true_streaming
-                                                ? "tiffsave_target"
-                                                : "tiffsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "tiffload_buffer") == 0 ||
+            vips_type_find("VipsOperation", "tiffsave_buffer") == 0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -293,12 +278,8 @@ TEST_CASE("tiff", "[thumbnail]") {
     }
 
     SECTION("multi-page skip shrink-on-load") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "tiffload_source"
-                                                : "tiffload_buffer") == 0 ||
-            vips_type_find("VipsOperation", true_streaming
-                                                ? "tiffsave_target"
-                                                : "tiffsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "tiffload_buffer") == 0 ||
+            vips_type_find("VipsOperation", "tiffsave_buffer") == 0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -475,9 +456,7 @@ TEST_CASE("from", "[thumbnail]") {
 
 TEST_CASE("shortest edge is at least 1 pixel", "[thumbnail]") {
     SECTION("height") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "svgload_source"
-                                                : "svgload_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "svgload_buffer") == 0) {
             SUCCEED("no svg support, skipping test");
             return;
         }
@@ -492,9 +471,7 @@ TEST_CASE("shortest edge is at least 1 pixel", "[thumbnail]") {
     }
 
     SECTION("width") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "svgload_source"
-                                                : "svgload_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "svgload_buffer") == 0) {
             SUCCEED("no svg support, skipping test");
             return;
         }
@@ -509,9 +486,7 @@ TEST_CASE("shortest edge is at least 1 pixel", "[thumbnail]") {
     }
 
     SECTION("shrink-on-load") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "svgload_source"
-                                                : "svgload_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "svgload_buffer") == 0) {
             SUCCEED("no svg support, skipping test");
             return;
         }
@@ -527,9 +502,7 @@ TEST_CASE("shortest edge is at least 1 pixel", "[thumbnail]") {
 }
 
 TEST_CASE("pdf", "[thumbnail]") {
-    if (vips_type_find("VipsOperation", true_streaming
-                                            ? "pdfload_source"
-                                            : "pdfload_buffer") == 0) {
+    if (vips_type_find("VipsOperation", "pdfload_buffer") == 0) {
         SUCCEED("no pdf support, skipping test");
         return;
     }
@@ -546,17 +519,15 @@ TEST_CASE("pdf", "[thumbnail]") {
     CHECK_THAT(image, is_similar_image(expected_image));
 }
 
-TEST_CASE("heif", "[thumbnail]") {
-    if (vips_type_find("VipsOperation", true_streaming
-                                            ? "heifload_source"
-                                            : "heifload_buffer") == 0) {
-        SUCCEED("no heic support, skipping test");
+TEST_CASE("avif", "[thumbnail]") {
+    if (vips_type_find("VipsOperation", "heifload_buffer") == 0) {
+        SUCCEED("no avif support, skipping test");
         return;
     }
 
-    auto test_image = fixtures->input_heic;
-    auto expected_image = fixtures->expected_dir + "/heif-thumbnail.jpg";
-    auto params = "w=240&h=160&output=jpg";
+    auto test_image = fixtures->input_avif;
+    auto expected_image = fixtures->expected_dir + "/avif-thumbnail.jpg";
+    auto params = "w=240&h=160&fit=cover&output=jpg";
 
     VImage image = process_file<VImage>(test_image, params);
 
@@ -567,12 +538,8 @@ TEST_CASE("heif", "[thumbnail]") {
 }
 
 TEST_CASE("animated webp page", "[thumbnail]") {
-    if (vips_type_find("VipsOperation", true_streaming
-                                            ? "webpload_source"
-                                            : "webpload_buffer") == 0 ||
-        vips_type_find("VipsOperation", true_streaming
-                                            ? "webpsave_target"
-                                            : "webpsave_buffer") == 0) {
+    if (vips_type_find("VipsOperation", "webpload_buffer") == 0 ||
+        vips_type_find("VipsOperation", "webpsave_buffer") == 0) {
         SUCCEED("no webp support, skipping test");
         return;
     }
@@ -590,9 +557,7 @@ TEST_CASE("animated webp page", "[thumbnail]") {
 }
 
 TEST_CASE("radiance", "[thumbnail]") {
-    if (vips_type_find("VipsOperation", true_streaming
-                                            ? "radload_source"
-                                            : "radload_buffer") == 0) {
+    if (vips_type_find("VipsOperation", "radload_buffer") == 0) {
         SUCCEED("no radiance support, skipping test");
         return;
     }

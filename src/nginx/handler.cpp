@@ -4,18 +4,17 @@
 #include "error.h"
 #include "http.h"
 #include "uri_parser.h"
-#include "util.h"
 
 #include <memory>
 #include <string>
 #include <utility>
 
-using ::weserv::api::utils::Status;
+using weserv::api::utils::Status;
 
 namespace weserv::nginx {
 
 ngx_int_t ngx_weserv_request_handler(ngx_http_request_t *r) {
-    auto *lc = reinterpret_cast<ngx_weserv_loc_conf_t *>(
+    auto *lc = static_cast<ngx_weserv_loc_conf_t *>(
         ngx_http_get_module_loc_conf(r, ngx_weserv_module));
 
     // Response to 'GET' and 'HEAD' requests only
@@ -39,12 +38,12 @@ ngx_int_t ngx_weserv_request_handler(ngx_http_request_t *r) {
         Status status = {Status::Code::InvalidUri, "Unable to parse URI",
                          Status::ErrorCause::Application};
 
-        ngx_chain_t out;
-        if (ngx_weserv_return_error(r, status, &out) != NGX_OK) {
+        ngx_chain_t *out = ngx_weserv_error_chain(r, nullptr, status);
+        if (out == NGX_CHAIN_ERROR) {
             return NGX_ERROR;
         }
 
-        return ngx_http_output_filter(r, &out);
+        return ngx_http_output_filter(r, out);
     }
 
     // Allocate a weserv upstream module context
@@ -70,7 +69,7 @@ ngx_int_t ngx_weserv_request_handler(ngx_http_request_t *r) {
     // Set the request's weserv module context
     ngx_http_set_ctx(r, ctx, ngx_weserv_module);
 
-    std::unique_ptr<HTTPRequest> http_request(new HTTPRequest);
+    auto http_request = std::make_unique<HTTPRequest>();
     http_request->set_url(parsed_uri)
         .set_max_redirects(lc->max_redirects)
         .set_header("User-Agent", lc->user_agent);
@@ -81,15 +80,15 @@ ngx_int_t ngx_weserv_request_handler(ngx_http_request_t *r) {
     rc = ngx_weserv_send_http_request(r, ctx);
 
     if (rc == NGX_ERROR) {
-        ngx_chain_t out;
-        if (ngx_weserv_return_error(r, ctx->response_status, &out) != NGX_OK) {
+        ngx_chain_t *out = ngx_weserv_error_chain(r, ctx, ctx->response_status);
+        if (out == NGX_CHAIN_ERROR) {
             return NGX_ERROR;
         }
 
         // Don't forget to reset the module context set above
         ngx_http_set_ctx(r, nullptr, ngx_weserv_module);
 
-        return ngx_http_output_filter(r, &out);
+        return ngx_http_output_filter(r, out);
     }
 
     return rc;

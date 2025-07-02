@@ -2,7 +2,7 @@
 
 This document describes how to use weserv/images with Docker.
 
-## Hosted image on [GitHub Container Registry](https://github.com/orgs/weserv/packages/container/package/images)
+## Hosted image on [GitHub Container Registry](https://github.com/weserv/images/pkgs/container/images)
 
 1. Pull and run the `ghcr.io/weserv/images` container.
    ```bash
@@ -18,7 +18,7 @@ This document describes how to use weserv/images with Docker.
 
 1. Build the container (with a specified nginx version).
    ```bash
-   docker build --build-arg NGINX_VERSION=1.23.2 -t weserv/images -f docker/Dockerfile .
+   docker build --build-arg NGINX_VERSION=1.27.5 -t weserv/images -f docker/Dockerfile .
    ```
 
 2. Run the container (same as above, but using the recently built tag).
@@ -44,6 +44,9 @@ docker exec weserv nginx -s reload
 
 # Update RPM packages
 docker exec weserv dnf update -y
+
+# Check jemalloc configuration
+docker exec -e MALLOC_CONF="stats_print:true,stats_print_opts:mdablxeh" weserv bash
 
 # Retrieve an IP Address
 docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -f name=weserv -q)

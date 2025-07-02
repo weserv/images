@@ -6,8 +6,8 @@
 [![Author](https://img.shields.io/badge/author-kleisauke-blue.svg)][author2]
 [![Source code](https://img.shields.io/badge/source-weserv/images-blue.svg)](https://github.com/weserv/images)
 [![Software license](https://img.shields.io/github/license/weserv/images.svg)](https://opensource.org/licenses/BSD-3-Clause)
-[![CI status](https://github.com/weserv/images/workflows/CI/badge.svg?branch=5.x)](https://github.com/weserv/images/actions)
-[![Coverage status](https://codecov.io/gh/weserv/images/branch/5.x/graph/badge.svg)](https://codecov.io/gh/weserv/images)
+[![CI status](https://github.com/weserv/images/workflows/CI/badge.svg)](https://github.com/weserv/images/actions)
+[![Coverage status](https://codecov.io/gh/weserv/images/graph/badge.svg)](https://codecov.io/gh/weserv/images)
 
 Source code of wsrv.nl (formerly images.weserv.nl), to be used on your own server(s). weserv/images leverages
 powerful libraries like [libvips](https://github.com/libvips/libvips) (for image handling and manipulation)

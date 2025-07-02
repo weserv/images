@@ -3,9 +3,6 @@ FetchContent_Declare(rate_limit_nginx_module
         GIT_TAG v1.0.0
         )
 
-FetchContent_GetProperties(rate_limit_nginx_module)
-if (NOT rate_limit_nginx_module_POPULATED)
-    FetchContent_Populate(rate_limit_nginx_module)
-endif()
+FetchContent_MakeAvailable(rate_limit_nginx_module)
 
 set(RATE_LIMIT_MODULE_SOURCE ${rate_limit_nginx_module_SOURCE_DIR} PARENT_SCOPE)

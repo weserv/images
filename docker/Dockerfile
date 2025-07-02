@@ -1,30 +1,29 @@
-FROM rockylinux:9
+FROM docker.io/rockylinux/rockylinux:10
 
 LABEL maintainer="Kleis Auke Wolthuizen <info@kleisauke.nl>"
 
-ARG NGINX_VERSION=1.23.2
+ARG NGINX_VERSION=1.27.5
 
 # Copy the contents of this repository to the container
 COPY . /var/www/imagesweserv
 WORKDIR /var/www/imagesweserv
-
-# Set default timezone (can be overridden with -e "TZ=Continent/City")
-ENV TZ=Europe/Amsterdam
 
 # Update packages
 RUN dnf update -y \
     # Install libvips and needed dependencies
     && dnf install -y epel-release \
     && crb enable \
-    && dnf install -y https://rpms.remirepo.net/enterprise/remi-release-9.rpm \
+    && dnf install -y https://rpms.remirepo.net/enterprise/remi-release-10.rpm \
     && dnf config-manager --set-enabled remi \
-    && dnf install -y --nogpgcheck https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-9.noarch.rpm \
+    && dnf install -y --nogpgcheck https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-10.noarch.rpm \
     && dnf group install -y --with-optional 'Development Tools' \
     && dnf install -y --setopt=tsflags=nodocs --setopt=install_weak_deps=False \
         vips-devel \
         vips-heif \
         vips-poppler \
-        vips-magick-im6 \
+        vips-magick-im7 \
+        # FIXME(kleisauke): Re-enable in RL 10.1 - https://bugzilla.redhat.com/show_bug.cgi?id=2341746
+        #jemalloc-devel \
         openssl-devel \
         pcre2-devel \
         zlib-devel \
@@ -70,6 +69,13 @@ RUN dnf update -y \
     && ln -sf /dev/stderr /var/log/nginx/weserv-error.log \
     # Copy nginx configuration to the appropriate location
     && cp ngx_conf/*.conf /etc/nginx
+
+# Set default timezone (can be overridden with -e "TZ=Continent/City")
+ENV TZ=Europe/Amsterdam \
+    # Reduce the effects of memory fragmentation in long-running, multi-threaded processes
+    MALLOC_ARENA_MAX=2
+    # FIXME(kleisauke): Re-enable in RL 10.1 - https://bugzilla.redhat.com/show_bug.cgi?id=2341746
+    #LD_PRELOAD=/usr/lib64/libjemalloc.so
 
 EXPOSE 80
 

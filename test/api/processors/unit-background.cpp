@@ -1,4 +1,5 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_string.hpp>
 
 #include "../base.h"
 #include "../max_color_distance.h"
@@ -117,6 +118,23 @@ TEST_CASE("composite to 50% orange", "[background]") {
     CHECK(image.height() == 300);
 
     CHECK_THAT(image, is_similar_image(expected_image));
+}
+
+TEST_CASE("5-channel tiff", "[background]") {
+    if (vips_type_find("VipsOperation", "tiffload_buffer") == 0 ||
+        vips_type_find("VipsOperation", "tiffsave_buffer") == 0) {
+        SUCCEED("no tiff support, skipping test");
+        return;
+    }
+
+    auto test_image = fixtures->input_tiff_5_channel;
+    auto params = "bg=white&ll";
+
+    VImage image = process_file<VImage>(test_image, params);
+
+    CHECK_THAT(image.get_string("vips-loader"), Equals("tiffload_buffer"));
+
+    CHECK(image.bands() == 5);
 }
 
 TEST_CASE("ignore", "[background]") {

@@ -10,7 +10,7 @@ namespace weserv::nginx {
  * Concatenate a relative URL to a base URL making it absolute.
  */
 ngx_int_t concat_url(ngx_pool_t *pool, const ngx_str_t &base,
-                     ngx_str_t &relative, ngx_str_t *output);
+                     const ngx_str_t &relative, ngx_str_t *output);
 
 /**
  * Attempts to parse a escaped-URI based on RFC 3986.

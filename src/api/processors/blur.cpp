@@ -5,6 +5,7 @@
 namespace weserv::api::processors {
 
 VImage Blur::process(const VImage &image) const {
+    // Sigma of gaussian
     auto sigma = query_->get<float>("blur", 0.0F);
 
     // Should we process the image?
@@ -21,20 +22,17 @@ VImage Blur::process(const VImage &image) const {
     if (sigma == -1.0F) {
         // Fast, mild blur - averages neighbouring pixels
         // clang-format off
-        VImage blur = VImage::new_matrixv(3, 3,
-                                          1.0, 1.0, 1.0,
-                                          1.0, 1.0, 1.0,
-                                          1.0, 1.0, 1.0);
+        auto blur = VImage::new_matrixv(3, 3,
+                                        1.0, 1.0, 1.0,
+                                        1.0, 1.0, 1.0,
+                                        1.0, 1.0, 1.0);
         // clang-format on
         blur.set("scale", 9.0);
         return image.conv(blur);
     }
 
     // Slower, accurate Gaussian blur
-    return (image.get_typeof(VIPS_META_SEQUENTIAL) != 0
-                ? utils::line_cache(image, 10)
-                : image)
-        .gaussblur(sigma);
+    return image.gaussblur(sigma);
 }
 
 }  // namespace weserv::api::processors

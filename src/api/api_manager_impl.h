@@ -17,8 +17,8 @@ class ApiManagerImpl : public ApiManager {
     ~ApiManagerImpl() override;
 
     utils::Status process(const std::string &query,
-                          std::unique_ptr<io::SourceInterface> source,
-                          std::unique_ptr<io::TargetInterface> target,
+                          const std::unique_ptr<io::SourceInterface> &source,
+                          const std::unique_ptr<io::TargetInterface> &target,
                           const Config &config) override;
 
     utils::Status process_file(const std::string &query,

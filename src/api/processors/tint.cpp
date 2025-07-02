@@ -14,33 +14,46 @@ VImage Tint::process(const VImage &image) const {
         return image;
     }
 
-    std::vector<double> lab = tint.to_lab();
+    std::vector<double> tint_lab = tint.to_lab();
+
+    // LAB identity function
+    auto identity_lab =
+        VImage::identity(VImage::option()->set("bands", 3))
+            .colourspace(VIPS_INTERPRETATION_LAB,
+                         VImage::option()->set("source_space",
+                                               VIPS_INTERPRETATION_sRGB));
+
+    // Scale luminance range, 0.0 to 1.0
+    auto l = identity_lab[0] / 100;
+    // Weighting functions
+    auto weight_L = 1.0 - 4.0 * ((l - 0.5) * (l - 0.5));
+    auto weight_AB =
+        (weight_L * tint_lab).extract_band(1, VImage::option()->set("n", 2));
+    identity_lab = identity_lab[0].bandjoin(weight_AB);
+
+    // Convert lookup table to sRGB
+    auto lut = identity_lab.colourspace(
+        VIPS_INTERPRETATION_sRGB,
+        VImage::option()->set("source_space", VIPS_INTERPRETATION_LAB));
 
     // Get original colorspace
     VipsInterpretation type_before_tint = image.interpretation();
 
-    // Extract luminance
-    auto luminance = image.colourspace(VIPS_INTERPRETATION_LAB)[0];
-
-    // Create the tinted version by combining the L from the original and the
-    // chroma from the tint
-    std::vector<double> chroma{lab[1], lab[2]};
-
-    auto tinted = luminance.bandjoin(chroma)
-                      .copy(VImage::option()->set("interpretation",
-                                                  VIPS_INTERPRETATION_LAB))
-                      .colourspace(type_before_tint);
-
-    // Attach original alpha channel, if any
+    // Apply lookup table
     if (image.has_alpha()) {
-        // Extract original alpha channel
+        // Separate alpha channel
+        auto image_without_alpha = image.extract_band(
+            0, VImage::option()->set("n", image.bands() - 1));
         auto alpha = image[image.bands() - 1];
-
-        // Join alpha channel to normalized image
-        tinted = tinted.bandjoin(alpha);
+        return image_without_alpha.colourspace(VIPS_INTERPRETATION_B_W)
+            .maplut(lut)
+            .colourspace(type_before_tint)
+            .bandjoin(alpha);
     }
 
-    return tinted;
+    return image.colourspace(VIPS_INTERPRETATION_B_W)
+        .maplut(lut)
+        .colourspace(type_before_tint);
 }
 
 }  // namespace weserv::api::processors
