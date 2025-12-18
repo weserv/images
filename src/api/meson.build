@@ -22,6 +22,7 @@ weserv_sources = files(
     'processors/thumbnail.cpp',
     'processors/tint.cpp',
     'processors/trim.cpp',
+    'processors/watermark.cpp',
     'utils/status.cpp',
 )
 
@@ -57,6 +58,7 @@ weserv_headers = files(
     'processors/thumbnail.h',
     'processors/tint.h',
     'processors/trim.h',
+    'processors/watermark.h',
     'utils/utility.h',
 )
 

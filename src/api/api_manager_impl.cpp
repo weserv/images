@@ -24,6 +24,7 @@
 #include "processors/thumbnail.h"
 #include "processors/tint.h"
 #include "processors/trim.h"
+#include "processors/watermark.h"
 
 #include "utils/utility.h"
 
@@ -176,6 +177,7 @@ Status ApiManagerImpl::process(const std::string &query,
     auto tint = processors::Tint(query_holder, config);
     auto background = processors::Background(query_holder, config);
     auto mask = processors::Mask(query_holder, config);
+    auto watermark = processors::Watermark(query_holder, config);
 
     // Create image from a source
     auto image = stream.new_from_source(source);
@@ -193,7 +195,7 @@ Status ApiManagerImpl::process(const std::string &query,
     }
 
     // Image processing phase 3 (adjustments, effects, etc.)
-    image = image | embed | rotation | modulate | contrast | gamma | sharpen |
+    image = image | embed | rotation | watermark | modulate | contrast | gamma | sharpen |
             filter | blur | tint | background | mask;
 
     // Write the image to a target

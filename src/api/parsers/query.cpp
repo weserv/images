@@ -73,6 +73,7 @@ const TypeMap &type_map = {
     {"loop",    typeid(int)},               // TODO(kleisauke): Documentation needed.
     {"delay",   typeid(std::vector<int>)},  // TODO(kleisauke): Documentation needed.
     {"fsol",    typeid(bool)},              // TODO(kleisauke): Documentation needed.
+    {"wno",     typeid(int)},
 };
 
 const SynonymMap &synonym_map = {
