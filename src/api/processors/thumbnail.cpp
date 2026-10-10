@@ -69,6 +69,10 @@ std::pair<double, double> Thumbnail::resolve_shrink(int width,
 
     auto target_width = query_->get<int>("w");
     auto target_height = query_->get<int>("h");
+    if (query_->get<bool>("swap", false)) {
+        // Swap target dimensions to resize as if auto-orientation came first
+        std::swap(target_width, target_height);
+    }
 
     auto canvas = query_->get<Canvas>("fit", Canvas::Max);
 

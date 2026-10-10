@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Current trunk] - started 2026-10-01
 
+Requires libvips 8.13+.
+
+### Fixed
+- Sizing and focal points for EXIF orientations 5-8 ([#486](https://github.com/weserv/images/issues/486)).
+
 ## [5.1.1] - started 2026-09-01
 
 Requires libvips 8.13+.

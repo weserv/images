@@ -97,18 +97,36 @@ TEST_CASE("auto rotate", "[orientation]") {
                                                expected_file));
         }
     }
-}
 
-TEST_CASE(
-    "auto rotate by 270 degrees, rectangular output ignoring aspect ratio",
-    "[orientation]") {
-    auto test_image = fixtures->input_jpg_with_landscape_exif_8;
-    auto params = "w=320&h=240&fit=fill";
+    SECTION("by 270 degrees, rectangular output, fit=cover") {
+        auto test_image = fixtures->input_jpg_with_landscape_exif_8;
+        auto params = "w=320&h=240&fit=cover";
 
-    VImage image = process_file<VImage>(test_image, params);
+        VImage image = process_file<VImage>(test_image, params);
 
-    CHECK(image.width() == 320);
-    CHECK(image.height() == 240);
+        CHECK(image.width() == 320);
+        CHECK(image.height() == 240);
+    }
+
+    SECTION("by 270 degrees, rectangular output, fit=fill") {
+        auto test_image = fixtures->input_jpg_with_landscape_exif_8;
+        auto params = "w=320&h=240&fit=fill";
+
+        VImage image = process_file<VImage>(test_image, params);
+
+        CHECK(image.width() == 320);
+        CHECK(image.height() == 240);
+    }
+
+    SECTION("by 270 degrees, rectangular output, fit=contain") {
+        auto test_image = fixtures->input_jpg_with_landscape_exif_8;
+        auto params = "w=320&h=240&fit=contain";
+
+        VImage image = process_file<VImage>(test_image, params);
+
+        CHECK(image.width() == 320);
+        CHECK(image.height() == 240);
+    }
 }
 
 TEST_CASE("rectangular output ignoring aspect ratio, rotate by 270 degrees",

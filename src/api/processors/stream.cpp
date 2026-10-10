@@ -163,6 +163,18 @@ void Stream::resolve_query(const VImage &image) const {
 
     auto image_width = image.width();
     auto image_height = image.height();
+    if (exif_orientation > 4) {
+        // EXIF orientations 5-8 rotate the image by 90 or 270 degrees, so
+        // swap dimensions when resolving the target size.
+        std::swap(image_width, image_height);
+
+        if (!query_->get<bool>("precrop", false)) {
+            // Thumbnailing happens *before* auto-orientation, so tell the
+            // thumbnail processor to swap target dimensions before resizing.
+            query_->update("swap", true);
+        }
+    }
+
     auto target_width = query_->get<Coordinate>("w", Coordinate::INVALID)
                             .to_pixels(image_width);
     auto target_height = query_->get<Coordinate>("h", Coordinate::INVALID)
@@ -175,13 +187,6 @@ void Stream::resolve_query(const VImage &image) const {
             std::round(static_cast<float>(target_width) * pixel_ratio));
         target_height = static_cast<int>(
             std::round(static_cast<float>(target_height) * pixel_ratio));
-    }
-
-    if (exif_orientation > 4 && !query_->get<bool>("precrop", false)) {
-        // When the EXIF orientation is greater than 4, swap the target width
-        // and height to ensure the behavior aligns with how it would have been
-        // if the 90/270 degrees orient had taken place *before* resizing.
-        std::swap(target_width, target_height);
     }
 
     // Update the target width and height parameters, a dimension needs to be:
