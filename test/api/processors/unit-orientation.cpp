@@ -8,34 +8,25 @@
 using vips::VImage;
 
 TEST_CASE("orientation", "[orientation]") {
-    // Rotate by any 90-multiple angle
-    SECTION("by 90 multiple angle") {
-        auto test_image = fixtures->input_jpg_320x240;
+    SECTION("flip") {
+        // Trimming before flipping avoids an extra memory copy
+        auto test_image = fixtures->input_jpg_overlay_layer_2;
+        auto params = "trim=10&flip";
 
-        std::vector<int> angles{-3690, -450, -90, 90, 450, 3690};
+        VImage image = process_file<VImage>(test_image, params);
 
-        for (const auto &angle : angles) {
-            VImage image =
-                process_file<VImage>(test_image, "ro=" + std::to_string(angle));
-
-            CHECK(image.width() == 240);
-            CHECK(image.height() == 320);
-        }
+        CHECK(image.width() == 727);
+        CHECK(image.height() == 727);
     }
 
-    // Rotate by any 180-multiple angle
-    SECTION("by 180 multiple angle") {
+    SECTION("flop") {
         auto test_image = fixtures->input_jpg_320x240;
+        auto params = "flop";
 
-        std::vector<int> angles{-3780, -540, 0, 180, 540, 3780};
+        VImage image = process_file<VImage>(test_image, params);
 
-        for (const auto &angle : angles) {
-            VImage image =
-                process_file<VImage>(test_image, "ro=" + std::to_string(angle));
-
-            CHECK(image.width() == 320);
-            CHECK(image.height() == 240);
-        }
+        CHECK(image.width() == 320);
+        CHECK(image.height() == 240);
     }
 }
 
@@ -127,42 +118,4 @@ TEST_CASE("auto rotate", "[orientation]") {
         CHECK(image.width() == 320);
         CHECK(image.height() == 240);
     }
-}
-
-TEST_CASE("rectangular output ignoring aspect ratio, rotate by 270 degrees",
-          "[orientation]") {
-    auto test_image = fixtures->input_jpg;
-    auto params = "w=320&h=240&fit=fill&ro=270";
-
-    VImage image = process_file<VImage>(test_image, params);
-
-    CHECK(image.width() == 240);
-    CHECK(image.height() == 320);
-}
-
-TEST_CASE("rotate a multi-page image with a non-straight angle",
-          "[orientation]") {
-    if (vips_type_find("VipsOperation", "gifload_source") == 0 ||
-        vips_type_find("VipsOperation", "gifsave_target") == 0) {
-        SUCCEED("no gif support, skipping test");
-        return;
-    }
-
-    auto test_image = fixtures->input_gif_animated;
-    auto params = "n=-1&ro=90";
-
-    VImage image = process_file<VImage>(test_image, params);
-
-    CHECK(image.width() == 1050);
-    CHECK(vips_image_get_page_height(image.get_image()) == 990);
-}
-
-TEST_CASE("random access flip", "[orientation]") {
-    auto test_image = fixtures->input_jpg_overlay_layer_2;
-    auto params = "trim=10&flip";
-
-    VImage image = process_file<VImage>(test_image, params);
-
-    CHECK(image.width() == 727);
-    CHECK(image.height() == 727);
 }

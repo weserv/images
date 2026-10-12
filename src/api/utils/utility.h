@@ -92,9 +92,7 @@ inline int get_page_height(const VImage &image) {
  * @return EXIF Orientation.
  */
 inline int exif_orientation(const VImage &image) {
-    return image.get_typeof(VIPS_META_ORIENTATION) != 0
-               ? image.get_int(VIPS_META_ORIENTATION)
-               : 0;
+    return vips_image_get_orientation(image.get_image());
 }
 
 /**

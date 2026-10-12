@@ -111,7 +111,7 @@ TEST_CASE("image extract before resize", "[crop]") {
     CHECK_THAT(image, is_similar_image(expected_image));
 }
 
-TEST_CASE("image resize and extract svg 72 dpi", "[crop]") {
+TEST_CASE("resize svg and extract at default 72 dpi", "[crop]") {
     if (vips_type_find("VipsOperation", "svgload_source") == 0) {
         SUCCEED("no svg support, skipping test");
         return;
@@ -144,10 +144,10 @@ TEST_CASE("image resize crop and extract", "[crop]") {
     CHECK_THAT(image, is_similar_image(expected_image));
 }
 
-TEST_CASE("rotate and extract", "[crop]") {
+TEST_CASE("extract and rotate", "[crop]") {
     auto test_image = fixtures->input_png_with_grey_alpha;
-    auto expected_image = fixtures->expected_dir + "/rotate-extract.png";
-    auto params = "ro=90&cx=20&cy=10&cw=280&ch=380";
+    auto expected_image = fixtures->expected_dir + "/extract-rotate.png";
+    auto params = "cx=10&cy=0&cw=380&ch=280&ro=90";
 
     VImage image = process_file<VImage>(test_image, params);
 

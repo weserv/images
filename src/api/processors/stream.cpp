@@ -109,63 +109,11 @@ VImage Stream::new_from_source(const Source &source, const std::string &loader,
 }
 
 void Stream::resolve_query(const VImage &image) const {
-    auto rotate = query_->get_if<int>(
-        "ro",
-        [](int r) {
-            // Only positive or negative angles
-            // that are a multiple of 90 degrees
-            // are valid.
-            return r % 90 == 0;
-        },
-        0);
-    auto flip = query_->get<bool>("flip", false);
-    auto flop = query_->get<bool>("flop", false);
-
-    auto exif_orientation = utils::exif_orientation(image);
-    switch (exif_orientation) {
-        case 6:
-            rotate = rotate + 90;
-            break;
-        case 3:
-            rotate = rotate + 180;
-            break;
-        case 8:
-            rotate = rotate + 270;
-            break;
-        case 2:  // flop 1
-            flop = true;
-            break;
-        case 7:  // flip 6
-            flip = true;
-            rotate = rotate + 90;
-            break;
-        case 4:  //  flop 3
-            flop = true;
-            rotate = rotate + 180;
-            break;
-        case 5:  // flip 8
-            flip = true;
-            rotate = rotate + 270;
-            break;
-        default:
-            break;
-    }
-
-    int angle = rotate % 360;
-    if (angle < 0) {
-        angle = 360 + angle;
-    }
-
-    // Update the angle of rotation and need-to-flip parameters
-    query_->update("angle", angle);
-    query_->update("flip", flip);
-    query_->update("flop", flop);
-
     auto image_width = image.width();
     auto image_height = image.height();
-    if (exif_orientation > 4) {
-        // EXIF orientations 5-8 rotate the image by 90 or 270 degrees, so
-        // swap dimensions when resolving the target size.
+    if (utils::exif_orientation(image) > 4) {
+        // EXIF orientations 5-8 rotate the image by 90 or 270 degrees, so swap
+        // image dimensions when resolving the target size.
         std::swap(image_width, image_height);
 
         if (!query_->get<bool>("precrop", false)) {
