@@ -111,7 +111,6 @@ inline enums::Kernel parse(const std::string &value) {
     if (value == "mks2021") {
         return enums::Kernel::Mks2021;
     }
-    // if (value == "lanczos3")
 
     return enums::Kernel::Lanczos3;
 }
