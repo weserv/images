@@ -638,8 +638,9 @@ TEST_CASE("kernel", "[thumbnail]") {
 #if VIPS_MAJOR_VERSION > 8 ||                                                  \
     (VIPS_MAJOR_VERSION == 8 && VIPS_MINOR_VERSION >= 16)
     SECTION("auto with palette input uses nearest") {
-        checkerboard.write_to_buffer(".png", &buf, &size,
-                                     VImage::option()->set("palette", true));
+        checkerboard.write_to_buffer(
+            ".png", &buf, &size,
+            VImage::option()->set("palette", true)->set("bitdepth", 2));
         std::string palette_buffer(static_cast<char *>(buf), size);
         g_free(buf);
 

@@ -149,21 +149,26 @@ void Stream::resolve_query(const VImage &image) const {
     query_->update("input_height", image_height);
 
 #if VIPS_VERSION_AT_LEAST(8, 16, 0)
-    // Palette-based images (e.g. GIF or indexed PNG) contain a limited set of
-    // exact colours, so prefer nearest-neighbour resizing and lossless output
-    // to preserve them.
-    auto palette = utils::is_palette(image);
+    // Palette-based images with a small palette (e.g. pixel art) contain a
+    // limited set of exact colours, so prefer nearest-neighbour resizing and
+    // lossless output to preserve them. Full 8-bit palettes are usually
+    // dithered photographic content, which compresses better with lossy
+    // output.
+    auto few_colors = utils::is_palette(image) &&
+                      image.get_typeof(VIPS_META_BITS_PER_SAMPLE) != 0 &&
+                      image.get_int(VIPS_META_BITS_PER_SAMPLE) <= 6;
 #else
-    auto palette = false;
+    auto few_colors = false;
 #endif
 
     if (query_->get<Kernel>("kernel", Kernel::Lanczos3) == Kernel::Auto) {
-        query_->update("kernel", static_cast<int>(palette ? Kernel::Nearest
-                                                          : Kernel::Lanczos3));
+        query_->update("kernel", static_cast<int>(few_colors
+                                                      ? Kernel::Nearest
+                                                      : Kernel::Lanczos3));
     }
 
     if (query_->get<bool>("ll_auto", false)) {
-        query_->update("ll", palette);
+        query_->update("ll", few_colors);
     }
 }
 

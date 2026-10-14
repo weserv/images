@@ -152,8 +152,31 @@ TEST_CASE("output", "[stream]") {
 
 #if VIPS_MAJOR_VERSION > 8 ||                                                  \
     (VIPS_MAJOR_VERSION == 8 && VIPS_MINOR_VERSION >= 16)
-        std::string palette_buffer =
+        // A full 8-bit palette is treated as photographic content
+        std::string palette_8bit_buffer =
             process_file<std::string>(fixtures->input_png_8bit_palette, params);
+
+        CHECK_THAT(palette_8bit_buffer, StartsWith("RIFF"));
+        CHECK_THAT(palette_8bit_buffer, !ContainsSubstring("VP8L"));
+
+        // A small palette is preserved losslessly
+        auto two_colors =
+            (VImage::xyz(64, 64)[0] < 32)
+                .ifthenelse(std::vector<double>{255, 0, 0},
+                            std::vector<double>{0, 0, 255})
+                .copy(VImage::option()->set("interpretation",
+                                            VIPS_INTERPRETATION_sRGB));
+
+        void *buf;
+        size_t size;
+        two_colors.write_to_buffer(
+            ".png", &buf, &size,
+            VImage::option()->set("palette", true)->set("bitdepth", 2));
+        std::string two_colors_png(static_cast<char *>(buf), size);
+        g_free(buf);
+
+        std::string palette_buffer =
+            process_buffer<std::string>(two_colors_png, params);
 
         CHECK_THAT(palette_buffer, StartsWith("RIFF"));
         CHECK_THAT(palette_buffer, ContainsSubstring("VP8L"));
