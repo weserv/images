@@ -11,6 +11,7 @@ namespace weserv::api::processors {
 
 using enums::Canvas;
 using enums::ImageType;
+using enums::Kernel;
 
 // Set to true in order to have a greater advantage of the JPEG
 // shrink-on-load feature. You can set this to false for more
@@ -350,21 +351,27 @@ VImage Thumbnail::process(const VImage &image) const {
             std::to_string(config_.limit_output_pixels) + " pixels)");
     }
 
+    auto kernel = query_->get<Kernel>("kernel", Kernel::Lanczos3);
+
     // Both .premultiply() and .unpremultiply() produces a float image, so we
     // must cast back to the original format. Use NOTSET to mean no
     // pre/unmultiply.
     VipsBandFormat unpremultiplied_format = VIPS_FORMAT_NOTSET;
 
     // If there's an alpha, we have to premultiply before shrinking.
+    // Nearest-neighbour never blends pixels, so it can skip this step.
     // See: https://github.com/libvips/libvips/issues/291
-    if (thumb.has_alpha() && hshrink != 1.0 && vshrink != 1.0) {
+    if (thumb.has_alpha() && hshrink != 1.0 && vshrink != 1.0 &&
+        kernel != Kernel::Nearest) {
         unpremultiplied_format = thumb.format();
 
         thumb = thumb.premultiply().cast(unpremultiplied_format);
     }
 
-    thumb = thumb.resize(1.0 / hshrink,
-                         VImage::option()->set("vscale", 1.0 / vshrink));
+    thumb = thumb.resize(
+        1.0 / hshrink, VImage::option()
+                           ->set("vscale", 1.0 / vshrink)
+                           ->set("kernel", static_cast<VipsKernel>(kernel)));
 
     query_->update("page_height", target_page_height);
 

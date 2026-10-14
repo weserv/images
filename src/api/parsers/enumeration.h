@@ -86,6 +86,37 @@ inline enums::FilterType parse(const std::string &value) {
 }
 
 template <>
+inline enums::Kernel parse(const std::string &value) {
+    if (value == "auto") {
+        return enums::Kernel::Auto;
+    }
+    if (value == "nearest") {
+        return enums::Kernel::Nearest;
+    }
+    if (value == "linear") {
+        return enums::Kernel::Linear;
+    }
+    if (value == "cubic") {
+        return enums::Kernel::Cubic;
+    }
+    if (value == "mitchell") {
+        return enums::Kernel::Mitchell;
+    }
+    if (value == "lanczos2") {
+        return enums::Kernel::Lanczos2;
+    }
+    if (value == "mks2013") {
+        return enums::Kernel::Mks2013;
+    }
+    if (value == "mks2021") {
+        return enums::Kernel::Mks2021;
+    }
+    // if (value == "lanczos3")
+
+    return enums::Kernel::Lanczos3;
+}
+
+template <>
 inline enums::MaskType parse(const std::string &value) {
     if (value == "circle") {
         return enums::MaskType::Circle;

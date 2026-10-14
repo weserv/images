@@ -16,6 +16,7 @@
 namespace weserv::api::processors {
 
 using enums::ImageType;
+using enums::Kernel;
 using enums::Output;
 using parsers::Coordinate;
 using vips::VError;
@@ -146,6 +147,24 @@ void Stream::resolve_query(const VImage &image) const {
     // calculations.
     query_->update("input_width", image_width);
     query_->update("input_height", image_height);
+
+#if VIPS_VERSION_AT_LEAST(8, 16, 0)
+    // Palette-based images (e.g. GIF or indexed PNG) contain a limited set of
+    // exact colours, so prefer nearest-neighbour resizing and lossless output
+    // to preserve them.
+    auto palette = utils::is_palette(image);
+#else
+    auto palette = false;
+#endif
+
+    if (query_->get<Kernel>("kernel", Kernel::Lanczos3) == Kernel::Auto) {
+        query_->update("kernel", static_cast<int>(palette ? Kernel::Nearest
+                                                          : Kernel::Lanczos3));
+    }
+
+    if (query_->get<bool>("ll_auto", false)) {
+        query_->update("ll", palette);
+    }
 }
 
 VImage Stream::new_from_source(const Source &source) const {

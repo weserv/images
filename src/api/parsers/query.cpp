@@ -10,6 +10,7 @@ namespace weserv::api::parsers {
 
 using enums::Canvas;
 using enums::FilterType;
+using enums::Kernel;
 using enums::MaskType;
 using enums::Output;
 using enums::Position;
@@ -29,6 +30,7 @@ const TypeMap &type_map = {
     {"dpr",     typeid(float)},
     {"fit",     typeid(Canvas)},
     {"we",      typeid(bool)},
+    {"kernel",  typeid(Kernel)},
     {"crop",    typeid(std::vector<int>)},  // Deprecated
     {"cx",      typeid(Coordinate)},
     {"cy",      typeid(Coordinate)},
@@ -141,6 +143,13 @@ std::vector<T> Query::tokenize(const std::string &data,
 void Query::add_value(const std::string &key, const std::string &value,
                       std::type_index type) {
     if (type == typeid(bool)) {
+        if (key == "ll" && value == "auto") {
+            // `&ll=auto` is resolved from the input image, see
+            // Stream::resolve_query
+            query_map_.emplace("ll_auto", true);
+            return;
+        }
+
         // Only emplace `false` if it's explicitly specified because we
         // interpret empty strings (for e.g. `&we`) as `true`
         query_map_.emplace(key, value != "false" && value != "0");
@@ -187,6 +196,8 @@ void Query::add_value(const std::string &key, const std::string &value,
         query_map_.emplace(key, static_cast<int>(position));
     } else if (type == typeid(FilterType)) {
         query_map_.emplace(key, static_cast<int>(parse<FilterType>(value)));
+    } else if (type == typeid(Kernel)) {
+        query_map_.emplace(key, static_cast<int>(parse<Kernel>(value)));
     } else if (type == typeid(MaskType)) {
         query_map_.emplace(key, static_cast<int>(parse<MaskType>(value)));
     } else if (type == typeid(Output)) {

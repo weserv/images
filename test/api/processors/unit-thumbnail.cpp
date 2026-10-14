@@ -571,3 +571,85 @@ TEST_CASE("radiance", "[thumbnail]") {
 
     CHECK_THAT(image, is_similar_image(expected_image));
 }
+
+TEST_CASE("kernel", "[thumbnail]") {
+    // A 1px red/blue checkerboard, the worst case for interpolating kernels
+    auto xy = VImage::xyz(90, 90);
+    auto checkerboard =
+        (((xy[0] + xy[1]) % 2) == 0)
+            .ifthenelse(std::vector<double>{255, 0, 0},
+                        std::vector<double>{0, 0, 255})
+            .copy(VImage::option()->set("interpretation",
+                                        VIPS_INTERPRETATION_sRGB));
+    REQUIRE(checkerboard.bands() == 3);
+
+    void *buf;
+    size_t size;
+    checkerboard.write_to_buffer(".png", &buf, &size);
+    std::string test_buffer(static_cast<char *>(buf), size);
+    g_free(buf);
+
+    // Every output pixel must be either pure red or pure blue
+    auto only_red_or_blue = [](const VImage &image) {
+        auto is_red = (image == std::vector<double>{255, 0, 0}).bandand();
+        auto is_blue = (image == std::vector<double>{0, 0, 255}).bandand();
+        return (is_red | is_blue).min() == 255;
+    };
+
+    SECTION("nearest") {
+        auto params = "w=64&kernel=nearest";
+
+        VImage image = process_buffer<VImage>(test_buffer, params);
+
+        CHECK(image.width() == 64);
+        CHECK(image.height() == 64);
+        CHECK(image.bands() == 3);
+        CHECK(only_red_or_blue(image));
+    }
+
+    SECTION("lanczos3 (default)") {
+        auto params = "w=64";
+
+        VImage image = process_buffer<VImage>(test_buffer, params);
+
+        CHECK(image.width() == 64);
+        CHECK(image.height() == 64);
+        CHECK(!only_red_or_blue(image));
+    }
+
+    SECTION("invalid falls back to lanczos3") {
+        auto params = "w=64&kernel=foo";
+
+        VImage image = process_buffer<VImage>(test_buffer, params);
+
+        CHECK(image.width() == 64);
+        CHECK(!only_red_or_blue(image));
+    }
+
+    SECTION("auto with truecolour input uses lanczos3") {
+        auto params = "w=64&kernel=auto";
+
+        VImage image = process_buffer<VImage>(test_buffer, params);
+
+        CHECK(image.width() == 64);
+        CHECK(!only_red_or_blue(image));
+    }
+
+#if VIPS_MAJOR_VERSION > 8 ||                                                  \
+    (VIPS_MAJOR_VERSION == 8 && VIPS_MINOR_VERSION >= 16)
+    SECTION("auto with palette input uses nearest") {
+        checkerboard.write_to_buffer(".png", &buf, &size,
+                                     VImage::option()->set("palette", true));
+        std::string palette_buffer(static_cast<char *>(buf), size);
+        g_free(buf);
+
+        auto params = "w=64&kernel=auto";
+
+        VImage image = process_buffer<VImage>(palette_buffer, params);
+
+        CHECK(image.width() == 64);
+        CHECK(image.height() == 64);
+        CHECK(only_red_or_blue(image));
+    }
+#endif
+}

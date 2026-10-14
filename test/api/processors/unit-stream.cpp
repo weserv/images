@@ -114,6 +114,73 @@ TEST_CASE("output", "[stream]") {
         CHECK(vips_image_get_page_height(image.get_image()) == 300);
     }
 
+    SECTION("animated webp with nearest kernel") {
+        if (vips_type_find("VipsOperation", "gifload_source") == 0 ||
+            vips_type_find("VipsOperation", "webpload_source") == 0 ||
+            vips_type_find("VipsOperation", "webpsave_target") == 0) {
+            SUCCEED("no gif or webp support, skipping test");
+            return;
+        }
+
+        auto test_image = fixtures->input_gif_animated;
+        auto params =
+            "n=-1&w=300&h=300&fit=cover&output=webp&ll&kernel=nearest";
+
+        VImage image = process_file<VImage>(test_image, params);
+
+        CHECK_THAT(image.get_string("vips-loader"), Equals("webpload_buffer"));
+
+        CHECK(image.width() == 300);
+        CHECK(vips_image_get_page_height(image.get_image()) == 300);
+        CHECK(image.get_int(VIPS_META_N_PAGES) == 8);
+    }
+
+    SECTION("webp with lossless auto") {
+        if (vips_type_find("VipsOperation", "webpsave_target") == 0) {
+            SUCCEED("no webp support, skipping test");
+            return;
+        }
+
+        auto params = "w=32&output=webp&ll=auto";
+
+        // Lossless WebP is stored in a VP8L chunk, lossy WebP in a VP8 chunk
+        std::string jpg_buffer =
+            process_file<std::string>(fixtures->input_jpg, params);
+
+        CHECK_THAT(jpg_buffer, StartsWith("RIFF"));
+        CHECK_THAT(jpg_buffer, !ContainsSubstring("VP8L"));
+
+#if VIPS_MAJOR_VERSION > 8 ||                                                  \
+    (VIPS_MAJOR_VERSION == 8 && VIPS_MINOR_VERSION >= 16)
+        std::string palette_buffer =
+            process_file<std::string>(fixtures->input_png_8bit_palette, params);
+
+        CHECK_THAT(palette_buffer, StartsWith("RIFF"));
+        CHECK_THAT(palette_buffer, ContainsSubstring("VP8L"));
+#endif
+    }
+
+    SECTION("animated webp with auto kernel and lossless") {
+        if (vips_type_find("VipsOperation", "gifload_source") == 0 ||
+            vips_type_find("VipsOperation", "webpload_source") == 0 ||
+            vips_type_find("VipsOperation", "webpsave_target") == 0) {
+            SUCCEED("no gif or webp support, skipping test");
+            return;
+        }
+
+        auto test_image = fixtures->input_gif_animated;
+        auto params =
+            "n=-1&w=300&h=300&fit=cover&output=webp&ll=auto&kernel=auto";
+
+        VImage image = process_file<VImage>(test_image, params);
+
+        CHECK_THAT(image.get_string("vips-loader"), Equals("webpload_buffer"));
+
+        CHECK(image.width() == 300);
+        CHECK(vips_image_get_page_height(image.get_image()) == 300);
+        CHECK(image.get_int(VIPS_META_N_PAGES) == 8);
+    }
+
     SECTION("png") {
         auto test_image = fixtures->input_png;
         auto params = "w=300&h=300&fit=cover&output=png";
