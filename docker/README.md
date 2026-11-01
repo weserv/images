@@ -18,7 +18,7 @@ This document describes how to use weserv/images with Docker.
 
 1. Build the container (with a specified nginx version).
    ```bash
-   docker build --build-arg NGINX_VERSION=1.31.6 -t weserv/images -f docker/Dockerfile .
+   docker build --build-arg NGINX_VERSION=1.31.8 -t weserv/images -f docker/Dockerfile .
    ```
 
 2. Run the container (same as above, but using the recently built tag).

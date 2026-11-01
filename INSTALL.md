@@ -50,7 +50,7 @@ meson compile -C build
 meson install -C build
 
 mkdir nginx
-curl -Ls https://nginx.org/download/nginx-1.31.6.tar.gz | \
+curl -Ls https://nginx.org/download/nginx-1.31.8.tar.gz | \
   tar xzC nginx --strip-components=1
 cd nginx
 ./configure --add-module=../ --with-http_ssl_module
